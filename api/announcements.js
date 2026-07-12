@@ -149,5 +149,32 @@ module.exports = async (req, res) => {
     }
   }
 
+  // DELETE: Delete a specific announcement
+  if (req.method === 'DELETE') {
+    const id = req.body?.id || req.query?.id;
+    const password = req.body?.password || req.query?.password;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Missing announcement ID.' });
+    }
+
+    const expectedPassword = process.env.ANNOUNCEMENT_PASSWORD || 'test123';
+    if (password !== expectedPassword) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid password.' });
+    }
+
+    try {
+      const { error } = await supabase
+        .from('announcements')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      return res.status(200).json({ success: true, message: 'Announcement deleted successfully.' });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
   return res.status(405).json({ error: 'Method not allowed.' });
 };

@@ -50,9 +50,8 @@
         <!-- Header: Clock, Date, Controls -->
         <header class="hd">
           <div>
-            <div class="tm" id="clockTrigger" title="Click to simulate time">
+            <div class="tm" id="clockTrigger">
               <span id="hD">12</span>:<span id="mD">30</span> <span class="ap" id="apD">PM</span>
-              <span class="sim-badge" id="simBadge" style="display:none;">SIMULATED</span>
             </div>
             <div class="dr"><span id="dayD">Wednesday</span><span class="db" id="dateD">Jul 11</span></div>
           </div>
@@ -68,7 +67,34 @@
           </div>
         </header>
 
-        <!-- Smart Greeting -->
+        <!-- Main Timetable Section -->
+        <main class="mn" style="margin-top: 20px;">
+          <!-- Active view: Current & Next Class details -->
+          <div class="ac" id="activeContainer">
+            <div class="cc">
+              <h3>Currently</h3>
+              <div class="cr" id="currentRoom">—</div>
+              <h2 id="currentTitle">Loading...</h2>
+              <div class="tm-rng" id="currentTimeRange">—</div>
+              <div class="prg-row">
+                <div class="prg-cnt">
+                  <div class="prg" id="currentBar" style="width: 0%"></div>
+                </div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 11px; margin-top: 5px;">
+                <span id="currentElapsed" style="color: var(--dim)">—</span>
+                <span id="currentRemaining" style="color: var(--dim)">—</span>
+              </div>
+            </div>
+            <div class="nc">
+              <h3>Next Class</h3>
+              <div class="nr" id="nextRoom">—</div>
+              <h2 id="nextTitle">Loading...</h2>
+              <div class="tm-rng" id="nextTimeRange">—</div>
+              <div class="eta" id="nextEta">—</div>
+            </div>
+
+          </div>
         <div class="greeting" id="greeting">
           <span class="greeting-text" id="greetText">Good morning</span>
           <span class="greeting-sub" id="greetSub">Loading schedule...</span>
@@ -119,27 +145,6 @@
           <button class="vrb" id="vrB"><span>View Full Routine</span><span class="ar">→</span></button>
         </div>
 
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Time Simulator -->
-  <div class="mo" id="timeModal">
-    <div class="md" style="max-width: 400px;">
-      <div class="md-h">
-        <h2>Simulate Time</h2>
-        <button class="cls" id="tcC">✕</button>
-      </div>
-      <div class="md-sb">Test how your routine looks at any time of day.</div>
-      <div class="mf" style="border-top:none; padding-top:20px;">
-        <div class="fg">
-          <label>Select Custom Time</label>
-          <input type="time" id="simTimeInput" value="11:30"/>
-        </div>
-        <div class="ma" style="justify-content: space-between;">
-          <button class="bd" id="resetTimeBtn">Reset to Real Time</button>
-          <button class="bp" id="applyTimeBtn">Apply Time</button>
-        </div>
       </div>
     </div>
   </div>
@@ -245,10 +250,59 @@
           </div>
           <div class="notif-setting-row">
             <div class="notif-setting-info">
+              <span class="notif-setting-title">Morning Briefing</span>
+              <span class="notif-setting-desc">Daily schedule summary notification</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notifBriefingToggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="notif-setting-row" id="briefingTimeRow">
+            <div class="notif-setting-info">
+              <span class="notif-setting-title">Briefing Time</span>
+              <span class="notif-setting-desc">When to receive your daily summary</span>
+            </div>
+            <select id="notifBriefingTime" class="notif-select">
+              <option value="390">6:30 AM</option>
+              <option value="420">7:00 AM</option>
+              <option value="450">7:30 AM</option>
+              <option value="480">8:00 AM</option>
+              <option value="510">8:30 AM</option>
+            </select>
+          </div>
+          <div class="notif-setting-row">
+            <div class="notif-setting-info">
+              <span class="notif-setting-title">Class End Alerts</span>
+              <span class="notif-setting-desc">Notify 5 min before class ends</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notifClassEndToggle">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="notif-setting-row">
+            <div class="notif-setting-info">
+              <span class="notif-setting-title">Day Complete Alert</span>
+              <span class="notif-setting-desc">Celebrate when all classes are done</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notifDayDoneToggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="notif-setting-row">
+            <div class="notif-setting-info">
               <span class="notif-setting-title">Permission Status</span>
               <span class="notif-setting-desc" id="notifPermStatus">Checking...</span>
             </div>
           </div>
+        </div>
+        <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px;">
+          <button class="bp" id="notifHistoryBtn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            View Notification History
+          </button>
         </div>
       </div>
     </div>
@@ -290,16 +344,6 @@
             <input type="text" id="paName" placeholder="e.g. Dr. John Doe" required />
           </div>
           <div class="fg">
-            <label>Subject (Optional)</label>
-            <input type="text" id="paSubject" placeholder="e.g. EDC" />
-          </div>
-        </div>
-        <div class="fr">
-          <div class="fg">
-            <label>Title</label>
-            <input type="text" id="paTitle" placeholder="e.g. Class Rescheduled" required />
-          </div>
-          <div class="fg">
             <label>Announcement Type</label>
             <select id="paType" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:10px; font-family:var(--f); font-size:13px;">
               <option value="general">General</option>
@@ -308,26 +352,65 @@
             </select>
           </div>
         </div>
-        
-        <div id="overrideSection" style="display: none; border: 1px dashed var(--accent); padding: 12px; border-radius: var(--rx); margin-bottom: 12px; background: rgba(56, 189, 248, 0.03);">
-          <h4 style="font-size: 11px; font-weight: 800; color: var(--accent2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Schedule Override Settings</h4>
-          <div class="fr" style="gap: 10px;">
-            <div class="fg" style="flex: 1;">
-              <label>Target Date</label>
-              <input type="date" id="paDateOverride" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
+
+        <!-- Section: General -->
+        <div id="paGeneralSection">
+          <div class="fr">
+            <div class="fg">
+              <label>Title</label>
+              <input type="text" id="paTitle" placeholder="e.g. Special Guest Lecture" />
             </div>
-            <div class="fg" id="paSubjectOverrideContainer" style="flex: 1;">
+            <div class="fg">
+              <label>Subject (Optional)</label>
+              <input type="text" id="paSubject" placeholder="e.g. EDC" />
+            </div>
+          </div>
+          <div class="fg">
+            <label>Announcement Details</label>
+            <textarea id="paContent" placeholder="Write details here..." style="width: 100%; min-height: 100px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: var(--rx); color: var(--text); padding: 10px; font-family: var(--f); font-size: 13px; resize: vertical;"></textarea>
+          </div>
+        </div>
+
+        <!-- Section: Cancellation -->
+        <div id="paCancellationSection" style="display: none;">
+          <div class="fr">
+            <div class="fg">
               <label>Subject to Cancel</label>
-              <input type="text" id="paSubjectOverride" placeholder="e.g. EDC" />
+              <select id="paCancelSubjectSelect" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:10px; font-family:var(--f); font-size:13px;"></select>
+            </div>
+            <div class="fg">
+              <label>Cancel Date</label>
+              <input type="date" id="paCancelDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
             </div>
           </div>
         </div>
 
-        <div class="fg">
-          <label>Announcement Details</label>
-          <textarea id="paContent" placeholder="Write details here..." style="width: 100%; min-height: 100px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: var(--rx); color: var(--text); padding: 10px; font-family: var(--f); font-size: 13px; resize: vertical;" required></textarea>
+        <!-- Section: Holiday -->
+        <div id="paHolidaySection" style="display: none;">
+          <div class="fr">
+            <div class="fg">
+              <label>Holiday Duration</label>
+              <select id="paHolidayRangeType" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:10px; font-family:var(--f); font-size:13px;">
+                <option value="single">One Day</option>
+                <option value="multiple">Multiple Days</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Start Date</label>
+              <input type="date" id="paHolidayStartDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
+            </div>
+          </div>
+          <div class="fg" id="paHolidayEndDateContainer" style="display: none;">
+            <label>End Date (Inclusive)</label>
+            <input type="date" id="paHolidayEndDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
+          </div>
+          <div class="fg">
+            <label>Holiday Name / Reason</label>
+            <input type="text" id="paHolidayDetails" placeholder="e.g. Eid Vacation / Winter Break" />
+          </div>
         </div>
-        <div class="fg">
+
+        <div class="fg" style="margin-top: 10px;">
           <label>Password</label>
           <input type="password" id="paPassword" placeholder="Enter password to publish" required />
         </div>
@@ -335,6 +418,23 @@
           <button class="bd" id="postAnnounceCancel">Cancel</button>
           <button class="bp" id="postAnnounceSubmit">Publish & Notify</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Notification History -->
+  <div class="mo" id="notifHistoryModal">
+    <div class="md" style="max-width: 500px;">
+      <div class="md-h">
+        <h2>Notification History</h2>
+        <button class="cls" id="notifHistoryClose">✕</button>
+      </div>
+      <div class="md-sb" style="display: flex; justify-content: space-between; align-items: center;">
+        <span>Recent notifications & alerts</span>
+        <button class="bd" id="notifHistoryClear" style="font-size: 11px; padding: 4px 10px;">Clear All</button>
+      </div>
+      <div id="notifHistoryList" style="margin-top: 15px; max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;">
+        <div class="skeleton-card" style="height: 60px;"></div>
       </div>
     </div>
   </div>

@@ -86,13 +86,13 @@
   let undoCallback = null;
   let toastTimer = null;
   let selectedDay = new Date().getDay();
-  let simulatedTimeMins = null;
   let currentViewDayIdx = new Date().getDay();
   let matrixSelectedDayIdx = new Date().getDay();
   let isModalOpen = false;
   let lastRenderedMinute = -1;
   let clockIntervalId = null;
   let dashboardIntervalId = null;
+  let sessionDeletePassword = '';
 
   // Initialize to a valid active day
   if (!CONFIG.activeDays.includes(currentViewDayIdx)) currentViewDayIdx = CONFIG.activeDays[0];
@@ -112,7 +112,6 @@
     clockHour: $id('hD'),
     clockMin: $id('mD'),
     clockPeriod: $id('apD'),
-    simBadge: $id('simBadge'),
     dayDisplay: $id('dayD'),
     dateDisplay: $id('dateD'),
 
@@ -147,11 +146,9 @@
     matrixGrid: $id('tGrid'),
 
     // Modals
-    timeModal: $id('timeModal'),
     viewModal: $id('viewModal'),
     editModal: $id('editModal'),
     notifModal: $id('notifModal'),
-    simTimeInput: $id('simTimeInput'),
 
     // Edit modal
     editCols: $id('rCols'),
@@ -193,15 +190,30 @@
     postAnnounceCancel: $id('postAnnounceCancel'),
     postAnnounceSubmit: $id('postAnnounceSubmit'),
     paName: $id('paName'),
-    paTitle: $id('paTitle'),
-    paContent: $id('paContent'),
-    paPassword: $id('paPassword'),
-    paSubject: $id('paSubject'),
     paType: $id('paType'),
-    paDateOverride: $id('paDateOverride'),
-    paSubjectOverride: $id('paSubjectOverride'),
-    paSubjectOverrideContainer: $id('paSubjectOverrideContainer'),
-    overrideSection: $id('overrideSection')
+    paGeneralSection: $id('paGeneralSection'),
+    paTitle: $id('paTitle'),
+    paSubject: $id('paSubject'),
+    paContent: $id('paContent'),
+    paCancellationSection: $id('paCancellationSection'),
+    paCancelSubjectSelect: $id('paCancelSubjectSelect'),
+    paCancelDate: $id('paCancelDate'),
+    paHolidaySection: $id('paHolidaySection'),
+    paHolidayRangeType: $id('paHolidayRangeType'),
+    paHolidayStartDate: $id('paHolidayStartDate'),
+    paHolidayEndDateContainer: $id('paHolidayEndDateContainer'),
+    paHolidayEndDate: $id('paHolidayEndDate'),
+    paHolidayDetails: $id('paHolidayDetails'),
+    paPassword: $id('paPassword'),
+    notifBriefingToggle: $id('notifBriefingToggle'),
+    notifBriefingTime: $id('notifBriefingTime'),
+    notifClassEndToggle: $id('notifClassEndToggle'),
+    notifDayDoneToggle: $id('notifDayDoneToggle'),
+    notifHistoryBtn: $id('notifHistoryBtn'),
+    notifHistoryModal: $id('notifHistoryModal'),
+    notifHistoryClose: $id('notifHistoryClose'),
+    notifHistoryClear: $id('notifHistoryClear'),
+    notifHistoryList: $id('notifHistoryList')
   };
 
 
@@ -322,8 +334,8 @@
     getNotifSettings() {
       try {
         const saved = localStorage.getItem(this.NOTIF_KEY);
-        return saved ? JSON.parse(saved) : { enabled: false, leadTime: 5 };
-      } catch { return { enabled: false, leadTime: 5 }; }
+        return saved ? JSON.parse(saved) : { enabled: false, leadTime: 5, briefingEnabled: true, briefingTime: 450, classEndEnabled: false, dayDoneEnabled: true };
+      } catch { return { enabled: false, leadTime: 5, briefingEnabled: true, briefingTime: 450, classEndEnabled: false, dayDoneEnabled: true }; }
     },
     saveNotifSettings(settings) {
       try { localStorage.setItem(this.NOTIF_KEY, JSON.stringify(settings)); } catch {}
@@ -349,7 +361,87 @@
 
 
   /* ══════════════════════════════════════════════════════════════════════════
-     6. Notification System
+     6a. Notification History Log
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  const NotificationLog = {
+    MAX_ENTRIES: 50,
+
+    getAll() {
+      try {
+        const saved = localStorage.getItem('routine_notif_log');
+        return saved ? JSON.parse(saved) : [];
+      } catch { return []; }
+    },
+
+    add(entry) {
+      const log = this.getAll();
+      const isDuplicate = log.some(e => 
+        e.type === entry.type && 
+        e.title === entry.title &&
+        (Date.now() - new Date(e.timestamp).getTime() < 12 * 60 * 60 * 1000)
+      );
+      if (isDuplicate) return;
+
+      log.unshift({
+        id: Date.now() + Math.random().toString(36).substr(2, 5),
+        ...entry,
+        timestamp: new Date().toISOString(),
+        read: false
+      });
+      if (log.length > this.MAX_ENTRIES) log.length = this.MAX_ENTRIES;
+      try { localStorage.setItem('routine_notif_log', JSON.stringify(log)); } catch {}
+    },
+
+    markAllRead() {
+      const log = this.getAll();
+      log.forEach(e => e.read = true);
+      try { localStorage.setItem('routine_notif_log', JSON.stringify(log)); } catch {}
+    },
+
+    clear() {
+      try { localStorage.removeItem('routine_notif_log'); } catch {}
+    },
+
+    renderList(container) {
+      const log = this.getAll();
+      if (!log.length) {
+        container.innerHTML = '<div class="notif-history-empty"><span style="font-size: 28px; display: block; margin-bottom: 8px;">🔕</span>No notifications yet.<br>Enable notifications to start receiving alerts.</div>';
+        return;
+      }
+
+      const typeEmoji = {
+        reminder: '⏰', class_start: '📚', morning_briefing: '☀️',
+        cancellation: '🚫', class_end: '⌛', day_done: '🎉'
+      };
+      const typeLabel = {
+        reminder: 'Reminder', class_start: 'Class Start', morning_briefing: 'Briefing',
+        cancellation: 'Cancelled', class_end: 'Ending Soon', day_done: 'Day Done'
+      };
+
+      container.innerHTML = log.map(entry => {
+        const d = new Date(entry.timestamp);
+        const timeStr = d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+        return `
+          <div class="notif-history-card ${entry.type || ''}${entry.read ? '' : ' unread'}">
+            <div class="notif-history-emoji">${typeEmoji[entry.type] || '🔔'}</div>
+            <div class="notif-history-content">
+              <div class="notif-history-title">${escapeHtml(entry.title)}</div>
+              <div class="notif-history-body">${escapeHtml(entry.body)}</div>
+              <span class="notif-type-badge ${entry.type}">${typeLabel[entry.type] || entry.type}</span>
+            </div>
+            <div class="notif-history-time">${timeStr}</div>
+          </div>
+        `;
+      }).join('');
+
+      this.markAllRead();
+    }
+  };
+
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     6b. Notification System
      ══════════════════════════════════════════════════════════════════════════ */
 
   const Notifications = {
@@ -411,48 +503,142 @@
       const now = getCurrentMinutes();
       const isNative = window.Capacitor && window.Capacitor.isNativePlatform();
 
+      // Check holiday override
+      const holidayOverride = typeof getOverrideFor === 'function' ? getOverrideFor(todayIdx) : null;
+      const isHoliday = holidayOverride && holidayOverride.type === 'holiday';
+
       if (isNative) {
         const { LocalNotifications } = window.Capacitor.Plugins;
         const nativeNotifs = [];
+        let notifId = 100;
 
-        classes.forEach((cls, idx) => {
-          const startMins = toMinutes(cls.start);
+        // ── Morning Briefing ──
+        if (settings.briefingEnabled !== false) {
+          const briefingMins = settings.briefingTime || 450;
+          if (briefingMins > now) {
+            const briefDate = new Date();
+            briefDate.setHours(Math.floor(briefingMins / 60), briefingMins % 60, 0, 0);
 
-          // Pre-class warning
-          const alertMins = startMins - settings.leadTime;
-          if (alertMins > now) {
-            const alertDate = new Date();
-            alertDate.setHours(Math.floor(alertMins / 60));
-            alertDate.setMinutes(alertMins % 60);
-            alertDate.setSeconds(0);
-
-            nativeNotifs.push({
-              title: `${cls.title} in ${settings.leadTime} min`,
-              body: `Room ${formatRoom(cls.room)} · ${format12h(cls.start)} – ${format12h(cls.end)}`,
-              id: idx * 2,
-              schedule: { at: alertDate },
-              smallIcon: 'ic_stat_icon',
-              iconColor: '#38bdf8'
-            });
-          }
-
-          // Class starting now
-          if (startMins > now) {
-            const startDate = new Date();
-            startDate.setHours(Math.floor(startMins / 60));
-            startDate.setMinutes(startMins % 60);
-            startDate.setSeconds(0);
+            let briefBody;
+            if (isHoliday) {
+              briefBody = `No classes today! ${holidayOverride.announcement.title} 🎉`;
+            } else if (!classes.length) {
+              briefBody = 'No classes scheduled today. Enjoy your day off! 🎉';
+            } else {
+              const first = classes[0];
+              let cancelCount = 0;
+              classes.forEach(c => { if (typeof getOverrideFor === 'function' && getOverrideFor(todayIdx, c.title)) cancelCount++; });
+              const activeCount = classes.length - cancelCount;
+              briefBody = `You have ${activeCount} class${activeCount !== 1 ? 'es' : ''} today.`;
+              if (cancelCount > 0) briefBody += ` (${cancelCount} cancelled)`;
+              briefBody += ` First up: ${first.title} at ${format12h(first.start)} in Room ${formatRoom(first.room)}`;
+            }
 
             nativeNotifs.push({
-              title: `${cls.title} starting now`,
-              body: `Room ${formatRoom(cls.room)}`,
-              id: idx * 2 + 1,
-              schedule: { at: startDate },
+              title: '☀️ Good Morning! Today\'s Schedule',
+              body: briefBody,
+              id: notifId++,
+              schedule: { at: briefDate },
               smallIcon: 'ic_stat_icon',
-              iconColor: '#38bdf8'
+              iconColor: '#fbbf24'
             });
+            NotificationLog.add({ type: 'morning_briefing', title: '☀️ Good Morning! Today\'s Schedule', body: briefBody });
           }
-        });
+        }
+
+        if (!isHoliday) {
+          classes.forEach((cls, idx) => {
+            const startMins = toMinutes(cls.start);
+            const endMins = toMinutes(cls.end);
+            const cancelOverride = typeof getOverrideFor === 'function' ? getOverrideFor(todayIdx, cls.title) : null;
+            if (cancelOverride) return; // Skip cancelled classes
+
+            // ── Pre-class Reminder ──
+            const alertMins = startMins - settings.leadTime;
+            if (alertMins > now) {
+              const alertDate = new Date();
+              alertDate.setHours(Math.floor(alertMins / 60), alertMins % 60, 0, 0);
+              const titleText = `⏰ ${cls.title} in ${settings.leadTime} min`;
+              const bodyText = `Room ${formatRoom(cls.room)} · ${cls.instructor || ''} · ${format12h(cls.start)} – ${format12h(cls.end)}`;
+              nativeNotifs.push({
+                title: titleText,
+                body: bodyText,
+                id: notifId++,
+                schedule: { at: alertDate },
+                smallIcon: 'ic_stat_icon',
+                iconColor: '#38bdf8'
+              });
+              NotificationLog.add({ type: 'reminder', title: titleText, body: bodyText });
+            }
+
+            // ── Class Starting Now ──
+            if (startMins > now) {
+              const startDate = new Date();
+              startDate.setHours(Math.floor(startMins / 60), startMins % 60, 0, 0);
+              const titleText = `📚 ${cls.title} starting now!`;
+              const bodyText = `Head to Room ${formatRoom(cls.room)}${cls.instructor ? ` · Instructor: ${cls.instructor}` : ''}`;
+              nativeNotifs.push({
+                title: titleText,
+                body: bodyText,
+                id: notifId++,
+                schedule: { at: startDate },
+                smallIcon: 'ic_stat_icon',
+                iconColor: '#10b981'
+              });
+              NotificationLog.add({ type: 'class_start', title: titleText, body: bodyText });
+            }
+
+            // ── Class Ending Soon (5 min before end) ──
+            if (settings.classEndEnabled) {
+              const endAlertMins = endMins - 5;
+              if (endAlertMins > now) {
+                const endAlertDate = new Date();
+                endAlertDate.setHours(Math.floor(endAlertMins / 60), endAlertMins % 60, 0, 0);
+
+                let nextClassInfo = 'Free time after this!';
+                const remaining = classes.filter(c => toMinutes(c.start) >= endMins && !(typeof getOverrideFor === 'function' && getOverrideFor(todayIdx, c.title)));
+                if (remaining.length) {
+                  nextClassInfo = `Next up: ${remaining[0].title} at ${format12h(remaining[0].start)}`;
+                }
+
+                const titleText = `⌛ ${cls.title} ending in 5 min`;
+                nativeNotifs.push({
+                  title: titleText,
+                  body: nextClassInfo,
+                  id: notifId++,
+                  schedule: { at: endAlertDate },
+                  smallIcon: 'ic_stat_icon',
+                  iconColor: '#a78bfa'
+                });
+                NotificationLog.add({ type: 'class_end', title: titleText, body: nextClassInfo });
+              }
+            }
+          });
+
+          // ── Day Complete ──
+          if (settings.dayDoneEnabled !== false && classes.length > 0) {
+            const activeClasses = classes.filter(c => !(typeof getOverrideFor === 'function' && getOverrideFor(todayIdx, c.title)));
+            if (activeClasses.length > 0) {
+              const lastClass = activeClasses[activeClasses.length - 1];
+              const lastEndMins = toMinutes(lastClass.end);
+              if (lastEndMins > now) {
+                const doneDate = new Date();
+                doneDate.setHours(Math.floor(lastEndMins / 60), lastEndMins % 60, 0, 0);
+                const titleText = '🎉 All classes done for today!';
+                const bodyText = `Great job! You completed ${activeClasses.length} class${activeClasses.length !== 1 ? 'es' : ''} today.`;
+                nativeNotifs.push({
+                  title: titleText,
+                  body: bodyText,
+                  id: notifId++,
+                  schedule: { at: doneDate },
+                  smallIcon: 'ic_stat_icon',
+                  iconColor: '#34d399'
+                });
+                NotificationLog.add({ type: 'day_done', title: titleText, body: bodyText });
+              }
+            }
+          }
+        }
 
         if (nativeNotifs.length) {
           try {
@@ -462,30 +648,95 @@
           }
         }
       } else {
-        // Standard Web Browser timeouts
-        classes.forEach(cls => {
-          const startMins = toMinutes(cls.start);
+        // ── Web Browser Notifications ──
 
-          // Pre-class warning
-          const alertMins = startMins - settings.leadTime;
-          if (alertMins > now) {
-            const delay = (alertMins - now) * 60000;
+        // Morning Briefing
+        if (settings.briefingEnabled !== false) {
+          const briefingMins = settings.briefingTime || 450;
+          if (briefingMins > now) {
+            const delay = (briefingMins - now) * 60000;
             this.timeouts.push(setTimeout(() => {
-              this.show(
-                `${cls.title} in ${settings.leadTime} min`,
-                `Room ${formatRoom(cls.room)} · ${format12h(cls.start)} – ${format12h(cls.end)}`
-              );
+              let briefBody;
+              if (isHoliday) {
+                briefBody = `No classes today! ${holidayOverride.announcement.title} 🎉`;
+              } else if (!classes.length) {
+                briefBody = 'No classes scheduled today. Enjoy your day off! 🎉';
+              } else {
+                const first = classes[0];
+                briefBody = `You have ${classes.length} class${classes.length !== 1 ? 'es' : ''} today. First up: ${first.title} at ${format12h(first.start)} in Room ${formatRoom(first.room)}`;
+              }
+              const title = '☀️ Good Morning! Today\'s Schedule';
+              this.show(title, briefBody);
+              NotificationLog.add({ type: 'morning_briefing', title, body: briefBody });
             }, delay));
           }
+        }
 
-          // Class starting now
-          if (startMins > now) {
-            const delay = (startMins - now) * 60000;
-            this.timeouts.push(setTimeout(() => {
-              this.show(`${cls.title} starting now`, `Room ${formatRoom(cls.room)}`);
-            }, delay));
+        if (!isHoliday) {
+          classes.forEach((cls) => {
+            const startMins = toMinutes(cls.start);
+            const endMins = toMinutes(cls.end);
+            const cancelOverride = typeof getOverrideFor === 'function' ? getOverrideFor(todayIdx, cls.title) : null;
+            if (cancelOverride) return;
+
+            // Pre-class Reminder
+            const alertMins = startMins - settings.leadTime;
+            if (alertMins > now) {
+              const delay = (alertMins - now) * 60000;
+              this.timeouts.push(setTimeout(() => {
+                const title = `⏰ ${cls.title} in ${settings.leadTime} min`;
+                const body = `Room ${formatRoom(cls.room)} · ${cls.instructor || ''} · ${format12h(cls.start)} – ${format12h(cls.end)}`;
+                this.show(title, body);
+                NotificationLog.add({ type: 'reminder', title, body });
+              }, delay));
+            }
+
+            // Class Starting Now
+            if (startMins > now) {
+              const delay = (startMins - now) * 60000;
+              this.timeouts.push(setTimeout(() => {
+                const title = `📚 ${cls.title} starting now!`;
+                const body = `Head to Room ${formatRoom(cls.room)}${cls.instructor ? ` · Instructor: ${cls.instructor}` : ''}`;
+                this.show(title, body);
+                NotificationLog.add({ type: 'class_start', title, body });
+              }, delay));
+            }
+
+            // Class Ending Soon
+            if (settings.classEndEnabled) {
+              const endAlertMins = endMins - 5;
+              if (endAlertMins > now) {
+                const delay = (endAlertMins - now) * 60000;
+                this.timeouts.push(setTimeout(() => {
+                  let nextInfo = 'Free time after this!';
+                  const remaining = classes.filter(c => toMinutes(c.start) >= endMins && !(typeof getOverrideFor === 'function' && getOverrideFor(todayIdx, c.title)));
+                  if (remaining.length) nextInfo = `Next up: ${remaining[0].title} at ${format12h(remaining[0].start)}`;
+                  const title = `⌛ ${cls.title} ending in 5 min`;
+                  this.show(title, nextInfo);
+                  NotificationLog.add({ type: 'class_end', title, body: nextInfo });
+                }, delay));
+              }
+            }
+          });
+
+          // Day Complete
+          if (settings.dayDoneEnabled !== false && classes.length > 0) {
+            const activeClasses = classes.filter(c => !(typeof getOverrideFor === 'function' && getOverrideFor(todayIdx, c.title)));
+            if (activeClasses.length > 0) {
+              const lastClass = activeClasses[activeClasses.length - 1];
+              const lastEndMins = toMinutes(lastClass.end);
+              if (lastEndMins > now) {
+                const delay = (lastEndMins - now) * 60000;
+                this.timeouts.push(setTimeout(() => {
+                  const title = '🎉 All classes done for today!';
+                  const body = `Great job! You completed ${activeClasses.length} class${activeClasses.length !== 1 ? 'es' : ''} today.`;
+                  this.show(title, body);
+                  NotificationLog.add({ type: 'day_done', title, body });
+                }, delay));
+              }
+            }
           }
-        });
+        }
       }
     },
 
@@ -532,6 +783,10 @@
       const settings = Storage.getNotifSettings();
       DOM.notifToggle.checked = settings.enabled;
       DOM.notifLeadTime.value = settings.leadTime;
+      DOM.notifBriefingToggle.checked = settings.briefingEnabled !== false;
+      DOM.notifBriefingTime.value = settings.briefingTime || 450;
+      DOM.notifClassEndToggle.checked = !!settings.classEndEnabled;
+      DOM.notifDayDoneToggle.checked = settings.dayDoneEnabled !== false;
 
       if (settings.enabled) {
         await this.scheduleForToday();
@@ -1079,30 +1334,47 @@
 
       // Active day classes
       const dayEntries = getClassesForDay(matrixSelectedDayIdx);
+      const holidayOverride = getOverrideFor(matrixSelectedDayIdx);
+      const isHoliday = holidayOverride && holidayOverride.type === 'holiday';
+
       html += `<div class="m-matrix-cards">`;
-      if (dayEntries.length) {
+      if (isHoliday) {
+        html += `
+          <div class="m-matrix-empty" style="border: 1.5px dashed var(--pink) !important; color: var(--pink2); background: rgba(244, 63, 94, 0.05) !important; padding: 25px 15px; border-radius: var(--rx); text-align: center;">
+            <span style="font-size: 24px; display: block; margin-bottom: 6px;">🎉</span>
+            <span style="font-weight: 800; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase;">HOLIDAY / DAY OFF</span>
+            <div style="font-size: 13px; color: var(--text); font-weight: bold; margin-top: 4px;">${escapeHtml(holidayOverride.announcement.title)}</div>
+          </div>
+        `;
+      } else if (dayEntries.length) {
         dayEntries.forEach((item, index) => {
           const startMins = toMinutes(item.start);
           const endMins = toMinutes(item.end);
-          const isLive = (matrixSelectedDayIdx === todayIdx) && (currentMins >= startMins && currentMins < endMins);
-          const isPast = (matrixSelectedDayIdx === todayIdx) && (endMins <= currentMins);
-          const theme = getSubjectTheme(item.title, item.type);
+          const cancelOverride = getOverrideFor(matrixSelectedDayIdx, item.title);
+          const isCancelled = !!cancelOverride;
+
+          const isLive = (matrixSelectedDayIdx === todayIdx) && (currentMins >= startMins && currentMins < endMins) && !isCancelled;
+          const isPast = (matrixSelectedDayIdx === todayIdx) && (endMins <= currentMins) || isCancelled;
+          
+          const theme = isCancelled
+            ? { bg: 'linear-gradient(135deg, #1c0a0c, #3f0f13)', border: '#f43f5e', text: '#fca5a5', badge: 'rgba(244, 63, 94, 0.2)' }
+            : getSubjectTheme(item.title, item.type);
 
           html += `
             <div class="m-matrix-card${isLive ? ' live' : ''}${isPast ? ' past' : ''}" style="animation-delay:${index * 0.05}s; background:${theme.bg}; border-color:${theme.border}; color:#fff">
-              <div class="m-card-time" style="color:${theme.text}">
+              <div class="m-card-time" style="color:${theme.text}; text-decoration:${isCancelled ? 'line-through' : 'none'}">
                 <span>${format12h(item.start)}</span>
                 <span class="m-card-arrow">→</span>
                 <span>${format12h(item.end)}</span>
               </div>
               <div class="m-card-details">
-                <div class="m-card-title course-click-title" data-title="${item.title}">${item.title}</div>
+                <div class="m-card-title course-click-title" data-title="${item.title}" style="text-decoration:${isCancelled ? 'line-through' : 'none'}">${item.title}</div>
                 <div class="m-card-sub" style="color:${theme.text}">
-                  ${formatRoom(item.room) ? `Room ${formatRoom(item.room)}` : 'No room'} 
-                  ${item.instructor ? `· ${item.instructor}` : ''}
+                  ${isCancelled ? '<span style="color:var(--pink); font-weight:800;">CANCELLED</span>' : (formatRoom(item.room) ? `Room ${formatRoom(item.room)}` : 'No room')} 
+                  ${item.instructor && !isCancelled ? `· ${item.instructor}` : ''}
                 </div>
               </div>
-              <span class="m-card-badge" style="background:${theme.badge}; color:#fff">${theme.isLab ? '★ LAB' : item.type}</span>
+              <span class="m-card-badge" style="background:${theme.badge}; color:#fff">${isCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : item.type)}</span>
             </div>
           `;
         });
@@ -1132,8 +1404,19 @@
       CONFIG.activeDays.forEach(dayIdx => {
         const isToday = dayIdx === todayIdx;
         const dayEntries = schedule[dayIdx] || [];
+        const holidayOverride = getOverrideFor(dayIdx);
+        const isHoliday = holidayOverride && holidayOverride.type === 'holiday';
 
         html += `<div class="day-card${isToday ? ' tod' : ''}"><div class="d-name">${DAY_NAMES[dayIdx]}</div>${isToday ? '<span class="d-tag">TODAY</span>' : ''}</div>`;
+
+        if (isHoliday) {
+          html += `
+            <div style="grid-column: span ${intervals.length}; display: flex; align-items: center; justify-content: center; background: rgba(244, 63, 94, 0.05); color: var(--pink2); border: 1.5px dashed var(--pink); font-size: 12px; font-weight: bold; padding: 10px; text-transform: uppercase;" title="${escapeHtml(holidayOverride.announcement.announcement)}">
+              🎉 HOLIDAY: ${escapeHtml(holidayOverride.announcement.title)}
+            </div>
+          `;
+          return;
+        }
 
         let skipUntilIdx = 0;
         intervals.forEach((slot, idx) => {
@@ -1147,14 +1430,23 @@
               else break;
             }
             skipUntilIdx = idx + spanCount;
-            const isLive = isToday && currentMins >= toMinutes(match.start) && currentMins < toMinutes(match.end);
-            const theme = getSubjectTheme(match.title, match.type);
+            
+            const cancelOverride = getOverrideFor(dayIdx, match.title);
+            const isCancelled = !!cancelOverride;
+            const isLive = isToday && currentMins >= toMinutes(match.start) && currentMins < toMinutes(match.end) && !isCancelled;
+            
+            const theme = isCancelled
+              ? { bg: 'linear-gradient(135deg, #1c0a0c, #3f0f13)', border: '#f43f5e', text: '#fca5a5', badge: 'rgba(244, 63, 94, 0.2)' }
+              : getSubjectTheme(match.title, match.type);
 
             html += `
-              <div class="t-card${isLive ? ' live' : ''}" style="grid-column: span ${spanCount}; background:${theme.bg}; border-color:${theme.border}; color:#fff" title="Click to reveal">
-                <div class="t-subj course-click-title" data-title="${match.title}">${match.title}</div>
-                ${match.instructor ? `<div class="t-inst" style="color:${theme.text}">${match.instructor}</div>` : ''}
-                <div class="t-meta"><span style="color:${theme.text}">${formatRoom(match.room) || 'No room'}</span><span class="t-badge" style="background:${theme.badge}; color:#fff">${theme.isLab ? '★ LAB' : match.type}</span></div>
+              <div class="t-card${isLive ? ' live' : ''}" style="grid-column: span ${spanCount}; background:${theme.bg}; border-color:${theme.border}; color:#fff" title="${isCancelled ? 'Cancelled Class' : 'Click to reveal'}">
+                <div class="t-subj course-click-title" data-title="${match.title}" style="text-decoration:${isCancelled ? 'line-through' : 'none'}">${match.title}</div>
+                ${match.instructor && !isCancelled ? `<div class="t-inst" style="color:${theme.text}">${match.instructor}</div>` : ''}
+                <div class="t-meta">
+                  <span style="color:${theme.text}">${isCancelled ? '<span style="color:var(--pink); font-weight:800;">CANCELLED</span>' : (formatRoom(match.room) || 'No room')}</span>
+                  <span class="t-badge" style="background:${theme.badge}; color:#fff">${isCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : match.type)}</span>
+                </div>
               </div>`;
           } else {
             const isLiveEmpty = isToday && (currentMins >= slot.startM && currentMins < slot.endM);
@@ -1424,10 +1716,58 @@
   });
   DOM.announceModalClose.addEventListener('click', () => closeModal(DOM.announceModal));
 
+  DOM.announceList.addEventListener('click', async e => {
+    const btn = e.target.closest('.delete-announce-btn');
+    if (!btn) return;
+    const id = btn.getAttribute('data-id');
+    if (!id) return;
+    
+    if (confirm('Are you sure you want to delete this announcement?')) {
+      await Announcements.delete(id);
+    }
+  });
+
   DOM.newAnnounceBtn.addEventListener('click', () => {
     closeModal(DOM.announceModal);
+    
+    // Reset inputs
+    DOM.paName.value = '';
+    DOM.paType.value = 'general';
+    DOM.paTitle.value = '';
+    DOM.paSubject.value = '';
+    DOM.paContent.value = '';
+    DOM.paPassword.value = '';
+    DOM.paHolidayDetails.value = '';
+    
+    // Auto-fill dates with today
+    const todayStr = new Date().toISOString().split('T')[0];
+    DOM.paCancelDate.value = todayStr;
+    DOM.paHolidayStartDate.value = todayStr;
+    DOM.paHolidayEndDate.value = todayStr;
+    
+    // Populate Subject dropdown
+    const subjects = new Set();
+    Object.values(schedule).forEach(dayClasses => {
+      dayClasses.forEach(c => {
+        if (c.title) subjects.add(c.title);
+      });
+    });
+    
+    DOM.paCancelSubjectSelect.innerHTML = Array.from(subjects)
+      .sort()
+      .map(sub => `<option value="${escapeHtml(sub)}">${escapeHtml(sub)}</option>`)
+      .join('');
+      
+    // Set initial sections visibility
+    DOM.paGeneralSection.style.display = 'block';
+    DOM.paCancellationSection.style.display = 'none';
+    DOM.paHolidaySection.style.display = 'none';
+    DOM.paHolidayEndDateContainer.style.display = 'none';
+    DOM.paHolidayRangeType.value = 'single';
+    
     openModal(DOM.postAnnounceModal);
   });
+
   DOM.postAnnounceClose.addEventListener('click', () => {
     closeModal(DOM.postAnnounceModal);
     openModal(DOM.announceModal);
@@ -1437,76 +1777,139 @@
     openModal(DOM.announceModal);
   });
 
-  // Handle Announcement Type change to show/hide override options
+  // Handle Announcement Type change to show/hide dynamic fields
   DOM.paType.addEventListener('change', () => {
     const val = DOM.paType.value;
-    if (val === 'general') {
-      DOM.overrideSection.style.display = 'none';
-    } else if (val === 'holiday') {
-      DOM.overrideSection.style.display = 'block';
-      DOM.paSubjectOverrideContainer.style.display = 'none';
-    } else if (val === 'cancellation') {
-      DOM.overrideSection.style.display = 'block';
-      DOM.paSubjectOverrideContainer.style.display = 'block';
-    }
+    DOM.paGeneralSection.style.display = val === 'general' ? 'block' : 'none';
+    DOM.paCancellationSection.style.display = val === 'cancellation' ? 'block' : 'none';
+    DOM.paHolidaySection.style.display = val === 'holiday' ? 'block' : 'none';
+  });
+
+  DOM.paHolidayRangeType.addEventListener('change', () => {
+    const val = DOM.paHolidayRangeType.value;
+    DOM.paHolidayEndDateContainer.style.display = val === 'multiple' ? 'block' : 'none';
   });
 
   // Submit Post Announcement
   DOM.postAnnounceSubmit.addEventListener('click', async () => {
     const name = DOM.paName.value.trim();
-    const title = DOM.paTitle.value.trim();
-    const content = DOM.paContent.value.trim();
-    const password = DOM.paPassword.value;
-    const subject = DOM.paSubject.value.trim();
     const type = DOM.paType.value;
-    const date_override = DOM.paDateOverride.value;
-    const subject_override = DOM.paSubjectOverride.value.trim();
+    const password = DOM.paPassword.value;
 
-    if (!name || !title || !content || !password) {
-      showToast('Please fill out all required fields.', 'warning');
-      return;
-    }
-
-    if (type !== 'general' && !date_override) {
-      showToast('Please select a Target Date for the schedule override.', 'warning');
-      return;
-    }
-
-    if (type === 'cancellation' && !subject_override) {
-      showToast('Please specify the Subject to Cancel.', 'warning');
+    if (!name || !password) {
+      showToast('Please fill out Name and Password.', 'warning');
       return;
     }
 
     DOM.postAnnounceSubmit.disabled = true;
     DOM.postAnnounceSubmit.textContent = 'Publishing...';
 
-    const success = await Announcements.publish(name, title, content, password, {
-      subject,
-      type,
-      date_override,
-      subject_override
-    });
+    let success = false;
+
+    if (type === 'general') {
+      const title = DOM.paTitle.value.trim();
+      const content = DOM.paContent.value.trim();
+      const subject = DOM.paSubject.value.trim();
+
+      if (!title || !content) {
+        showToast('Please fill out Title and Details.', 'warning');
+        DOM.postAnnounceSubmit.disabled = false;
+        DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
+        return;
+      }
+
+      success = await Announcements.publish(name, title, content, password, {
+        subject,
+        type: 'general'
+      });
+
+    } else if (type === 'cancellation') {
+      const subject = DOM.paCancelSubjectSelect.value;
+      const date = DOM.paCancelDate.value;
+
+      if (!subject || !date) {
+        showToast('Please select a Subject and Date.', 'warning');
+        DOM.postAnnounceSubmit.disabled = false;
+        DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
+        return;
+      }
+
+      const formattedDate = new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const title = `Class Cancelled: ${subject}`;
+      const content = `Reminding you that the ${subject} class scheduled for ${formattedDate} is cancelled.`;
+
+      success = await Announcements.publish(name, title, content, password, {
+        subject,
+        type: 'cancellation',
+        date_override: date,
+        subject_override: subject
+      });
+
+    } else if (type === 'holiday') {
+      const rangeType = DOM.paHolidayRangeType.value;
+      const startDate = DOM.paHolidayStartDate.value;
+      const holidayName = DOM.paHolidayDetails.value.trim() || 'Holiday';
+
+      if (!startDate) {
+        showToast('Please select a Start Date.', 'warning');
+        DOM.postAnnounceSubmit.disabled = false;
+        DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
+        return;
+      }
+
+      if (rangeType === 'single') {
+        const formattedDate = new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const title = `Holiday: ${holidayName}`;
+        const content = `Holiday / Day Off declared on ${formattedDate}. All classes are suspended.`;
+
+        success = await Announcements.publish(name, title, content, password, {
+          type: 'holiday',
+          date_override: startDate
+        });
+      } else {
+        const endDate = DOM.paHolidayEndDate.value;
+        if (!endDate || endDate < startDate) {
+          showToast('Please select a valid End Date.', 'warning');
+          DOM.postAnnounceSubmit.disabled = false;
+          DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
+          return;
+        }
+
+        const formattedStart = new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const formattedEnd = new Date(endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const title = `Holiday: ${holidayName}`;
+        const content = `Holiday / Day Off declared from ${formattedStart} to ${formattedEnd}. All classes are suspended.`;
+
+        const dates = [];
+        let curr = new Date(startDate);
+        const last = new Date(endDate);
+        while (curr <= last) {
+          dates.push(curr.toISOString().split('T')[0]);
+          curr.setDate(curr.getDate() + 1);
+        }
+
+        for (let i = 0; i < dates.length; i++) {
+          const date = dates[i];
+          const pubSuccess = await Announcements.publish(name, title, content, password, {
+            type: 'holiday',
+            date_override: date
+          });
+          if (pubSuccess) success = true;
+        }
+      }
+    }
 
     DOM.postAnnounceSubmit.disabled = false;
     DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
 
     if (success) {
-      DOM.paName.value = '';
-      DOM.paSubject.value = '';
-      DOM.paTitle.value = '';
-      DOM.paContent.value = '';
-      DOM.paPassword.value = '';
-      DOM.paDateOverride.value = '';
-      DOM.paSubjectOverride.value = '';
-      DOM.paType.value = 'general';
-      DOM.overrideSection.style.display = 'none';
       closeModal(DOM.postAnnounceModal);
       openModal(DOM.announceModal);
     }
   });
 
   // Close modals on backdrop click
-  [DOM.timeModal, DOM.viewModal, DOM.editModal, DOM.notifModal, DOM.announceModal, DOM.postAnnounceModal].forEach(modal => {
+  [DOM.viewModal, DOM.editModal, DOM.notifModal, DOM.announceModal, DOM.postAnnounceModal, DOM.notifHistoryModal].forEach(modal => {
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(modal); });
   });
 
@@ -1547,6 +1950,55 @@
     Storage.saveNotifSettings(settings);
     Notifications.scheduleForToday();
     showToast(`Alert time: ${settings.leadTime} min before class`, 'info');
+  });
+
+  DOM.notifBriefingToggle.addEventListener('change', () => {
+    const settings = Storage.getNotifSettings();
+    settings.briefingEnabled = DOM.notifBriefingToggle.checked;
+    Storage.saveNotifSettings(settings);
+    Notifications.scheduleForToday();
+    showToast(settings.briefingEnabled ? 'Morning briefing enabled' : 'Morning briefing disabled', 'info');
+  });
+
+  DOM.notifBriefingTime.addEventListener('change', () => {
+    const settings = Storage.getNotifSettings();
+    settings.briefingTime = parseInt(DOM.notifBriefingTime.value);
+    Storage.saveNotifSettings(settings);
+    Notifications.scheduleForToday();
+    const h = Math.floor(settings.briefingTime / 60);
+    const m = settings.briefingTime % 60;
+    showToast(`Briefing time set to ${h > 12 ? h - 12 : h}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`, 'info');
+  });
+
+  DOM.notifClassEndToggle.addEventListener('change', () => {
+    const settings = Storage.getNotifSettings();
+    settings.classEndEnabled = DOM.notifClassEndToggle.checked;
+    Storage.saveNotifSettings(settings);
+    Notifications.scheduleForToday();
+    showToast(settings.classEndEnabled ? 'Class end alerts enabled' : 'Class end alerts disabled', 'info');
+  });
+
+  DOM.notifDayDoneToggle.addEventListener('change', () => {
+    const settings = Storage.getNotifSettings();
+    settings.dayDoneEnabled = DOM.notifDayDoneToggle.checked;
+    Storage.saveNotifSettings(settings);
+    Notifications.scheduleForToday();
+    showToast(settings.dayDoneEnabled ? 'Day complete alerts enabled' : 'Day complete alerts disabled', 'info');
+  });
+
+  // Notification History
+  DOM.notifHistoryBtn.addEventListener('click', () => {
+    closeModal(DOM.notifModal);
+    openModal(DOM.notifHistoryModal, () => NotificationLog.renderList(DOM.notifHistoryList));
+  });
+  DOM.notifHistoryClose.addEventListener('click', () => {
+    closeModal(DOM.notifHistoryModal);
+    openModal(DOM.notifModal);
+  });
+  DOM.notifHistoryClear.addEventListener('click', () => {
+    NotificationLog.clear();
+    NotificationLog.renderList(DOM.notifHistoryList);
+    showToast('Notification history cleared', 'info');
   });
 
   // Notification banner buttons
@@ -1701,6 +2153,7 @@
         this.list = await res.json();
         this.renderFeed();
         this.checkBadge();
+        forceUpdate();
       } catch (err) {
         console.error('Error fetching announcements:', err);
         DOM.announceList.innerHTML = `<div class="announce-empty">Failed to load announcements. Make sure Vercel API backend is running.</div>`;
@@ -1718,9 +2171,12 @@
         const dateStr = new Date(item.created_at).toLocaleString();
         html += `
           <div class="announce-card">
-            <div class="announce-card-h">
-              <div class="announce-card-title">${escapeHtml(item.title)}</div>
-              <span class="announce-card-author">${escapeHtml(item.name)}</span>
+            <div class="announce-card-h" style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <div class="announce-card-title">${escapeHtml(item.title)}</div>
+                <span class="announce-card-author">${escapeHtml(item.name)}</span>
+              </div>
+              <button class="delete-announce-btn" data-id="${item.id}" style="background: none; border: none; color: var(--pink); font-size: 14px; cursor: pointer; padding: 4px 8px; opacity: 0.6; transition: opacity 0.2s;" title="Delete Announcement">✕</button>
             </div>
             <div class="announce-card-body">${escapeHtml(item.announcement)}</div>
             <div class="announce-card-date">${dateStr}</div>
@@ -1728,6 +2184,37 @@
         `;
       });
       DOM.announceList.innerHTML = html;
+    },
+
+    async delete(id) {
+      let pwd = sessionDeletePassword;
+      if (!pwd) {
+        pwd = prompt('Enter password to delete announcement:');
+        if (pwd === null) return;
+        if (!pwd) {
+          showToast('Password is required.', 'warning');
+          return;
+        }
+      }
+
+      try {
+        const res = await fetch(`${CONFIG.apiBase || ''}/api/announcements`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, password: pwd })
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'Failed to delete');
+        }
+
+        sessionDeletePassword = pwd;
+        showToast('Announcement deleted.', 'success');
+        await this.fetchAll();
+      } catch (err) {
+        showToast(`Error: ${err.message}`, 'error');
+      }
     },
 
     checkBadge() {
@@ -1771,6 +2258,23 @@
         }
 
         showToast('Announcement published successfully!', 'success');
+
+        // Fire cancellation/holiday notification immediately
+        if (extras.type === 'cancellation' || extras.type === 'holiday') {
+          const notifTitle = extras.type === 'cancellation' 
+            ? '🚫 Class Cancelled' 
+            : '🎉 Holiday Declared!';
+          const notifBody = extras.type === 'cancellation'
+            ? `${extras.subject_override || 'A class'} on ${extras.date_override || 'upcoming'} has been cancelled: ${title}`
+            : `${extras.date_override || 'Upcoming'}: ${title} — ${announcement}`;
+          
+          Notifications.show(notifTitle, notifBody);
+          NotificationLog.add({ type: 'cancellation', title: notifTitle, body: notifBody });
+
+          // Re-schedule today's notifications to account for the override
+          Notifications.scheduleForToday();
+        }
+
         this.fetchAll();
         return true;
       } catch (err) {
