@@ -226,7 +226,6 @@
   const toTimeString = mins => `${pad(Math.floor(mins / 60))}:${pad(Math.floor(mins % 60))}`;
 
   function getCurrentMinutes() {
-    if (simulatedTimeMins !== null) return simulatedTimeMins;
     const now = new Date();
     return now.getHours() * 60 + now.getMinutes();
   }
@@ -982,27 +981,15 @@
      ══════════════════════════════════════════════════════════════════════════ */
 
   function updateClock() {
-    let hours, mins, period;
-
-    if (simulatedTimeMins !== null) {
-      hours = Math.floor(simulatedTimeMins / 60) % 12 || 12;
-      mins = pad(simulatedTimeMins % 60);
-      period = Math.floor(simulatedTimeMins / 60) >= 12 ? 'PM' : 'AM';
-      DOM.simBadge.style.display = 'inline-block';
-    } else {
-      const now = new Date();
-      hours = now.getHours() % 12 || 12;
-      mins = pad(now.getMinutes());
-      period = now.getHours() >= 12 ? 'PM' : 'AM';
-      DOM.simBadge.style.display = 'none';
-    }
+    const now = new Date();
+    const hours = now.getHours() % 12 || 12;
+    const mins = pad(now.getMinutes());
+    const period = now.getHours() >= 12 ? 'PM' : 'AM';
 
     DOM.clockHour.textContent = pad(hours);
     DOM.clockMin.textContent = mins;
     DOM.clockPeriod.textContent = period;
-    DOM.dayDisplay.textContent = DAY_NAMES[new Date().getDay()] || 'Weekend';
-
-    const now = new Date();
+    DOM.dayDisplay.textContent = DAY_NAMES[now.getDay()] || 'Weekend';
     DOM.dateDisplay.textContent = `${MONTHS[now.getMonth()]} ${now.getDate()}`;
   }
 
@@ -1052,7 +1039,7 @@
 
   function updateDashboard() {
     const currentMins = getCurrentMinutes();
-    if (lastRenderedMinute === currentMins && simulatedTimeMins === null) return;
+    if (lastRenderedMinute === currentMins) return;
     lastRenderedMinute = currentMins;
     checkAutoSwitchTomorrow();
     renderCurrentClass();
@@ -1671,23 +1658,7 @@
     if (onClose) onClose();
   }
 
-  // Time Simulator
-  $id('clockTrigger').addEventListener('click', () => openModal(DOM.timeModal));
-  $id('tcC').addEventListener('click', () => closeModal(DOM.timeModal));
-  $id('applyTimeBtn').addEventListener('click', () => {
-    const val = DOM.simTimeInput.value;
-    if (!val) return;
-    simulatedTimeMins = toMinutes(val);
-    updateClock(); forceUpdate();
-    closeModal(DOM.timeModal);
-    showToast(`Time set to ${format12h(val)}`, 'info');
-  });
-  $id('resetTimeBtn').addEventListener('click', () => {
-    simulatedTimeMins = null;
-    updateClock(); forceUpdate();
-    closeModal(DOM.timeModal);
-    showToast('Reset to real time', 'success');
-  });
+  // Clock trigger (no-op — time simulation removed)
 
   // View Weekly Matrix
   $id('vrB').addEventListener('click', () => openModal(DOM.viewModal, renderWeeklyMatrix));
@@ -2068,7 +2039,6 @@
       if (DOM.notifModal.classList.contains('open')) closeModal(DOM.notifModal);
       else if (DOM.editModal.classList.contains('open')) closeModal(DOM.editModal);
       else if (DOM.viewModal.classList.contains('open')) closeModal(DOM.viewModal);
-      else if (DOM.timeModal.classList.contains('open')) closeModal(DOM.timeModal);
     }
     if (e.key === 'e' || e.key === 'E') {
       if (!isModalOpen) $id('editBtn').click();
