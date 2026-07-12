@@ -1,5 +1,5 @@
 {
-  "apiBase": "https://routine-app-iota-one.vercel.app/",
+  "apiBase": "https://routine-app-iota-one.vercel.app",
   "activeDays": [6, 0, 1, 2, 3],
   "matrixIntervals": [
     { "startM": 510, "endM": 585, "lbl": "08:30 → 09:45" },
