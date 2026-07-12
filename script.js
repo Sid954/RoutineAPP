@@ -10,6 +10,7 @@
      ══════════════════════════════════════════════════════════════════════════ */
 
   const CONFIG = {
+    apiBase: 'https://routine-app-iota-one.vercel.app',
     activeDays: [6, 0, 1, 2, 3], // Sat, Sun, Mon, Tue, Wed
     matrixIntervals: [
       { startM: 510, endM: 585, lbl: '08:30 → 09:45' },
@@ -1927,6 +1928,7 @@
         if (configData.labTheme) {
           Object.assign(LAB_THEME, configData.labTheme);
         }
+        if (configData.apiBase) CONFIG.apiBase = configData.apiBase;
       })
       .catch(err => {
         console.warn('Failed to load dynamic config, using default constants:', err);
