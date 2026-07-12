@@ -1,0 +1,25 @@
+{
+  "appId": "com.routine.app",
+  "appName": "My Routine",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "url": "https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPO_NAME/",
+    "cleartext": true
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon",
+      "iconColor": "#38bdf8"
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#06080d"
+    },
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "backgroundColor": "#06080d",
+      "showSpinner": false
+    }
+  }
+}
