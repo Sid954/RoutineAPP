@@ -194,7 +194,13 @@
     paName: $id('paName'),
     paTitle: $id('paTitle'),
     paContent: $id('paContent'),
-    paPassword: $id('paPassword')
+    paPassword: $id('paPassword'),
+    paSubject: $id('paSubject'),
+    paType: $id('paType'),
+    paDateOverride: $id('paDateOverride'),
+    paSubjectOverride: $id('paSubjectOverride'),
+    paSubjectOverrideContainer: $id('paSubjectOverrideContainer'),
+    overrideSection: $id('overrideSection')
   };
 
 
@@ -810,37 +816,66 @@
      ══════════════════════════════════════════════════════════════════════════ */
 
   function renderCurrentClass() {
-    const todayClasses = getClassesForDay(new Date().getDay());
-    const currentMins = getCurrentMinutes();
-    const activeItem = getActiveClass(todayClasses, currentMins);
+    const todayIdx = new Date().getDay();
+    const holidayOverride = getOverrideFor(todayIdx);
     const progressSection = DOM.currentBar.parentElement.parentElement;
     const roomPill = DOM.currentRoom;
     const timePill = DOM.currentTimeRange;
 
+    if (holidayOverride && holidayOverride.type === 'holiday') {
+      progressSection.style.display = 'block';
+      roomPill.parentElement.style.display = 'flex';
+      timePill.style.display = 'inline-block';
+
+      DOM.currentTitle.textContent = "Holiday / Day Off 🎉";
+      roomPill.textContent = "HOLIDAY";
+      timePill.textContent = "All classes suspended";
+      DOM.currentElapsed.textContent = "Classes off";
+      DOM.currentBar.style.width = "0%";
+      DOM.currentRemaining.textContent = holidayOverride.announcement.title;
+      return;
+    }
+
+    const todayClasses = getClassesForDay(todayIdx);
+    const currentMins = getCurrentMinutes();
+    const activeItem = getActiveClass(todayClasses, currentMins);
+
     if (activeItem) {
-      const startMins = toMinutes(activeItem.start);
-      const endMins = toMinutes(activeItem.end);
-      const elapsed = currentMins - startMins;
-      const total = endMins - startMins;
-      const pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
+      const cancelOverride = getOverrideFor(todayIdx, activeItem.title);
+      const isCancelled = !!cancelOverride;
 
       progressSection.style.display = 'block';
       roomPill.parentElement.style.display = 'flex';
       timePill.style.display = 'inline-block';
 
-      DOM.currentTitle.textContent = activeItem.title + (activeItem.instructor ? ` (${activeItem.instructor})` : '');
-      roomPill.textContent = formatRoom(activeItem.room) || '—';
-      timePill.textContent = `${format12h(activeItem.start)} – ${format12h(activeItem.end)}`;
-      DOM.currentElapsed.textContent = `${toTimeString(elapsed)} elapsed`;
-      DOM.currentBar.style.width = `${pct}%`;
-
-      const remaining = total - elapsed;
-      if (remaining > 0) {
-        const rh = Math.floor(remaining / 60);
-        const rm = Math.floor(remaining % 60);
-        DOM.currentRemaining.textContent = `Remaining: ${rh > 0 ? rh + 'h ' : ''}${rm}m`;
+      if (isCancelled) {
+        DOM.currentTitle.textContent = `${activeItem.title} (CANCELLED)`;
+        roomPill.textContent = "CANCELLED";
+        timePill.textContent = `${format12h(activeItem.start)} – ${format12h(activeItem.end)}`;
+        DOM.currentElapsed.textContent = "No class today";
+        DOM.currentBar.style.width = "0%";
+        DOM.currentRemaining.textContent = `Reason: ${cancelOverride.announcement.title}`;
       } else {
-        DOM.currentRemaining.textContent = 'Almost done!';
+        const startMins = toMinutes(activeItem.start);
+        const endMins = toMinutes(activeItem.end);
+        const elapsed = currentMins - startMins;
+        const total = endMins - startMins;
+        const pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
+
+        DOM.currentTitle.textContent = activeItem.title + (activeItem.instructor ? ` (${activeItem.instructor})` : '');
+        roomPill.textContent = formatRoom(activeItem.room) || '—';
+        timePill.textContent = `${format12h(activeItem.start)} – ${format12h(activeItem.end)}`;
+        DOM.currentElapsed.textContent = `${toTimeString(elapsed)} elapsed`;
+        DOM.currentBar.style.width = `${pct}%`;
+
+        const remaining = total - elapsed;
+        if (remaining > 0) {
+          const rh = Math.floor(remaining / 60);
+          const rm = Math.floor(remaining % 60);
+          DOM.currentRemaining.textContent = `Remaining: ${rh > 0 ? rh + 'h ' : ''}${rm}m`;
+        } else {
+          DOM.currentRemaining.textContent = 'Almost done!';
+        }
       }
     } else {
       progressSection.style.display = 'none';
@@ -851,7 +886,18 @@
   }
 
   function renderNextClass() {
-    const todayClasses = getClassesForDay(new Date().getDay());
+    const todayIdx = new Date().getDay();
+    const holidayOverride = getOverrideFor(todayIdx);
+    const subRow = DOM.nextRoom.parentElement;
+
+    if (holidayOverride && holidayOverride.type === 'holiday') {
+      DOM.nextTitle.textContent = 'Enjoy your break!';
+      DOM.nextEta.style.display = 'none';
+      subRow.style.display = 'none';
+      return;
+    }
+
+    const todayClasses = getClassesForDay(todayIdx);
     const currentMins = getCurrentMinutes();
     const activeItem = getActiveClass(todayClasses, currentMins);
     let nextItem = null;
@@ -865,21 +911,28 @@
       nextItem = getNextClass(todayClasses, currentMins);
     }
 
-    const subRow = DOM.nextRoom.parentElement;
     if (nextItem) {
+      const cancelOverride = getOverrideFor(todayIdx, nextItem.title);
+      const isCancelled = !!cancelOverride;
       const diff = toMinutes(nextItem.start) - currentMins;
+
       DOM.nextTitle.textContent = nextItem.title + (nextItem.instructor ? ` (${nextItem.instructor})` : '');
-      DOM.nextRoom.textContent = formatRoom(nextItem.room) || '—';
       DOM.nextTimeRange.textContent = `${format12h(nextItem.start)} – ${format12h(nextItem.end)}`;
       DOM.nextEta.style.display = 'inline-block';
       subRow.style.display = 'block';
 
-      if (diff > 0) {
-        const dh = Math.floor(diff / 60);
-        const dm = Math.floor(diff % 60);
-        DOM.nextEta.textContent = dh > 0 ? `in ${dh}h ${dm}m` : `in ${dm}m`;
+      if (isCancelled) {
+        DOM.nextRoom.textContent = "CANCELLED";
+        DOM.nextEta.textContent = "CANCELLED";
       } else {
-        DOM.nextEta.textContent = 'now';
+        DOM.nextRoom.textContent = formatRoom(nextItem.room) || '—';
+        if (diff > 0) {
+          const dh = Math.floor(diff / 60);
+          const dm = Math.floor(diff % 60);
+          DOM.nextEta.textContent = dh > 0 ? `in ${dh}h ${dm}m` : `in ${dm}m`;
+        } else {
+          DOM.nextEta.textContent = 'now';
+        }
       }
     } else {
       DOM.nextTitle.textContent = 'No upcoming classes 🎉';
@@ -901,6 +954,20 @@
       DOM.timelineTitle.textContent = `${DAY_NAMES[currentViewDayIdx]}'s Classes`;
       const nextDay = (realTodayIdx + 1) % 7;
       DOM.timelineSubtitle.textContent = currentViewDayIdx === nextDay ? 'Tomorrow' : 'Viewing Schedule';
+    }
+
+    // Check holiday override for the day
+    const holidayOverride = getOverrideFor(currentViewDayIdx);
+    if (holidayOverride && holidayOverride.type === 'holiday') {
+      DOM.timelineGrid.innerHTML = `
+        <div class="ch" style="grid-template-columns: 1fr; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1.5px dashed var(--pink) !important; background: rgba(244, 63, 94, 0.08) !important; padding: 26px 20px; box-shadow: 0 0 20px rgba(244, 63, 94, 0.15) !important;">
+          <span style="font-size: 28px; margin-bottom: 8px;">🎉</span>
+          <span class="chn" style="color: var(--pink2); font-weight: 800; font-size: 17px; margin-bottom: 4px; letter-spacing: 0.5px;">HOLIDAY / DAY OFF</span>
+          <span style="font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px;">${escapeHtml(holidayOverride.announcement.title)}</span>
+          <span style="font-size: 12px; color: var(--dim); max-width: 80%;">${escapeHtml(holidayOverride.announcement.announcement)}</span>
+        </div>
+      `;
+      return;
     }
 
     if (!classes.length) {
@@ -930,15 +997,27 @@
       }
       lastEndMins = endMins;
 
+      // Check cancellation override for specific subject
+      const cancelOverride = getOverrideFor(currentViewDayIdx, item.title);
+      const isCancelled = !!cancelOverride;
+
       const isActive = (currentViewDayIdx === realTodayIdx) && (currentMins >= startMins && currentMins < endMins);
       const isPast = (currentViewDayIdx === realTodayIdx) && (endMins <= currentMins);
-      const theme = getSubjectTheme(item.title, item.type);
+      
+      const theme = isCancelled
+        ? { bg: 'linear-gradient(135deg, #1c0a0c, #3f0f13)', border: '#f43f5e', text: '#fca5a5', badge: 'rgba(244, 63, 94, 0.2)' }
+        : getSubjectTheme(item.title, item.type);
 
       html += `
-        <div class="ch${isActive ? ' ca' : ''}${isPast ? ' cp' : ''}" style="animation-delay:${index * 0.07}s; background:${theme.bg}; border-color:${theme.border}; color:#fff">
-          <div class="cht" style="color:${theme.text}">${format12h(item.start)}<br>${format12h(item.end)}</div>
-          <div class="chi"><span class="chn course-click-title" data-title="${item.title}" title="Click to expand">${item.title}</span><span class="chr" style="color:${theme.text}">${formatRoom(item.room)} ${item.instructor ? `· ${item.instructor}` : ''}</span></div>
-          <span class="ctb" style="background:${theme.badge}; color:#fff">${theme.isLab ? '★ LAB' : item.type}</span>
+        <div class="ch${isActive && !isCancelled ? ' ca' : ''}${isPast || isCancelled ? ' cp' : ''}" style="animation-delay:${index * 0.07}s; background:${theme.bg}; border-color:${theme.border}; color:#fff">
+          <div class="cht" style="color:${theme.text}; text-decoration:${isCancelled ? 'line-through' : 'none'}">${format12h(item.start)}<br>${format12h(item.end)}</div>
+          <div class="chi">
+            <span class="chn course-click-title" data-title="${item.title}" title="Click to expand" style="text-decoration:${isCancelled ? 'line-through' : 'none'}">${item.title}</span>
+            <span class="chr" style="color:${theme.text}">
+              ${isCancelled ? `<span style="color:var(--pink); font-weight:800;">CANCELLED: ${escapeHtml(cancelOverride.announcement.title)}</span>` : `${formatRoom(item.room)} ${item.instructor ? `· ${item.instructor}` : ''}`}
+            </span>
+          </div>
+          <span class="ctb" style="background:${theme.badge}; color:#fff">${isCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : item.type)}</span>
         </div>`;
     });
 
@@ -1357,31 +1436,69 @@
     openModal(DOM.announceModal);
   });
 
+  // Handle Announcement Type change to show/hide override options
+  DOM.paType.addEventListener('change', () => {
+    const val = DOM.paType.value;
+    if (val === 'general') {
+      DOM.overrideSection.style.display = 'none';
+    } else if (val === 'holiday') {
+      DOM.overrideSection.style.display = 'block';
+      DOM.paSubjectOverrideContainer.style.display = 'none';
+    } else if (val === 'cancellation') {
+      DOM.overrideSection.style.display = 'block';
+      DOM.paSubjectOverrideContainer.style.display = 'block';
+    }
+  });
+
   // Submit Post Announcement
   DOM.postAnnounceSubmit.addEventListener('click', async () => {
     const name = DOM.paName.value.trim();
     const title = DOM.paTitle.value.trim();
     const content = DOM.paContent.value.trim();
     const password = DOM.paPassword.value;
+    const subject = DOM.paSubject.value.trim();
+    const type = DOM.paType.value;
+    const date_override = DOM.paDateOverride.value;
+    const subject_override = DOM.paSubjectOverride.value.trim();
 
     if (!name || !title || !content || !password) {
-      showToast('Please fill out all fields.', 'warning');
+      showToast('Please fill out all required fields.', 'warning');
+      return;
+    }
+
+    if (type !== 'general' && !date_override) {
+      showToast('Please select a Target Date for the schedule override.', 'warning');
+      return;
+    }
+
+    if (type === 'cancellation' && !subject_override) {
+      showToast('Please specify the Subject to Cancel.', 'warning');
       return;
     }
 
     DOM.postAnnounceSubmit.disabled = true;
     DOM.postAnnounceSubmit.textContent = 'Publishing...';
 
-    const success = await Announcements.publish(name, title, content, password);
+    const success = await Announcements.publish(name, title, content, password, {
+      subject,
+      type,
+      date_override,
+      subject_override
+    });
 
     DOM.postAnnounceSubmit.disabled = false;
     DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
 
     if (success) {
       DOM.paName.value = '';
+      DOM.paSubject.value = '';
       DOM.paTitle.value = '';
       DOM.paContent.value = '';
       DOM.paPassword.value = '';
+      DOM.paDateOverride.value = '';
+      DOM.paSubjectOverride.value = '';
+      DOM.paType.value = 'general';
+      DOM.overrideSection.style.display = 'none';
       closeModal(DOM.postAnnounceModal);
       openModal(DOM.announceModal);
     }
@@ -1534,6 +1651,45 @@
      23. Announcements & Push Notifications System
      ══════════════════════════════════════════════════════════════════════════ */
 
+  function getDateForDayIndex(targetDayIdx) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayIdx = today.getDay();
+    let diff = targetDayIdx - todayIdx;
+    
+    const targetDate = new Date(today);
+    targetDate.setDate(today.getDate() + diff);
+    
+    const y = targetDate.getFullYear();
+    const m = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const d = String(targetDate.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  function getOverrideFor(dayIdx, subjectCode) {
+    if (!Announcements.list || Announcements.list.length === 0) return null;
+
+    const targetDateStr = getDateForDayIndex(dayIdx);
+
+    const holiday = Announcements.list.find(item => 
+      item.type === 'holiday' && 
+      item.date_override === targetDateStr
+    );
+    if (holiday) return { type: 'holiday', announcement: holiday };
+
+    if (subjectCode) {
+      const cancellation = Announcements.list.find(item => 
+        item.type === 'cancellation' && 
+        item.date_override === targetDateStr && 
+        item.subject_override &&
+        item.subject_override.toUpperCase().trim() === subjectCode.toUpperCase().trim()
+      );
+      if (cancellation) return { type: 'cancellation', announcement: cancellation };
+    }
+
+    return null;
+  }
+
   const Announcements = {
     list: [],
 
@@ -1591,12 +1747,21 @@
       DOM.announceBadge.style.display = 'none';
     },
 
-    async publish(name, title, announcement, password) {
+    async publish(name, title, announcement, password, extras = {}) {
       try {
         const res = await fetch(`${CONFIG.apiBase || ''}/api/announcements`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, title, announcement, password })
+          body: JSON.stringify({ 
+            name, 
+            title, 
+            announcement, 
+            password,
+            subject: extras.subject || '',
+            type: extras.type || 'general',
+            date_override: extras.date_override || '',
+            subject_override: extras.subject_override || ''
+          })
         });
 
         if (!res.ok) {

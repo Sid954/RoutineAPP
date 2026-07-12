@@ -4,7 +4,11 @@ CREATE TABLE IF NOT EXISTS public.announcements (
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
     name text NOT NULL,
     title text NOT NULL,
-    announcement text NOT NULL
+    announcement text NOT NULL,
+    subject text,
+    type text DEFAULT 'general' NOT NULL,
+    date_override date,
+    subject_override text
 );
 
 -- Enable Realtime for announcements (Optional, but useful)

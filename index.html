@@ -58,7 +58,7 @@
           </div>
           <div class="hd-actions">
             <button class="hd-btn" id="announcementsBtn" title="Announcements" style="position: relative;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h2"/><path d="M6 9h9l5-5v16l-5-5H6V9z"/><path d="M3 11h3v4H3v-4z"/></svg>
               <span class="badge-dot" id="announceBadge" style="display:none; position: absolute; top: 10px; right: 10px; width: 7px; height: 7px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 8px var(--pink);"></span>
             </button>
             <button class="hd-btn" id="notifSettingsBtn" title="Notification settings">
@@ -284,14 +284,45 @@
       </div>
       <div class="md-sb">Submit an announcement to send notifications to everyone.</div>
       <div class="mf" style="border-top:none; padding-top:15px;">
-        <div class="fg">
-          <label>Your Name</label>
-          <input type="text" id="paName" placeholder="e.g. Dr. John Doe" required />
+        <div class="fr">
+          <div class="fg">
+            <label>Your Name</label>
+            <input type="text" id="paName" placeholder="e.g. Dr. John Doe" required />
+          </div>
+          <div class="fg">
+            <label>Subject (Optional)</label>
+            <input type="text" id="paSubject" placeholder="e.g. EDC" />
+          </div>
         </div>
-        <div class="fg">
-          <label>Title</label>
-          <input type="text" id="paTitle" placeholder="e.g. Class Rescheduled" required />
+        <div class="fr">
+          <div class="fg">
+            <label>Title</label>
+            <input type="text" id="paTitle" placeholder="e.g. Class Rescheduled" required />
+          </div>
+          <div class="fg">
+            <label>Announcement Type</label>
+            <select id="paType" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:10px; font-family:var(--f); font-size:13px;">
+              <option value="general">General</option>
+              <option value="cancellation">Class Cancellation</option>
+              <option value="holiday">Holiday / Day Off</option>
+            </select>
+          </div>
         </div>
+        
+        <div id="overrideSection" style="display: none; border: 1px dashed var(--accent); padding: 12px; border-radius: var(--rx); margin-bottom: 12px; background: rgba(56, 189, 248, 0.03);">
+          <h4 style="font-size: 11px; font-weight: 800; color: var(--accent2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Schedule Override Settings</h4>
+          <div class="fr" style="gap: 10px;">
+            <div class="fg" style="flex: 1;">
+              <label>Target Date</label>
+              <input type="date" id="paDateOverride" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
+            </div>
+            <div class="fg" id="paSubjectOverrideContainer" style="flex: 1;">
+              <label>Subject to Cancel</label>
+              <input type="text" id="paSubjectOverride" placeholder="e.g. EDC" />
+            </div>
+          </div>
+        </div>
+
         <div class="fg">
           <label>Announcement Details</label>
           <textarea id="paContent" placeholder="Write details here..." style="width: 100%; min-height: 100px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: var(--rx); color: var(--text); padding: 10px; font-family: var(--f); font-size: 13px; resize: vertical;" required></textarea>

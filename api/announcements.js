@@ -69,7 +69,7 @@ module.exports = async (req, res) => {
 
   // POST: Publish a new announcement
   if (req.method === 'POST') {
-    const { name, title, announcement, password } = req.body || {};
+    const { name, title, announcement, password, subject, type, date_override, subject_override } = req.body || {};
 
     if (!name || !title || !announcement) {
       return res.status(400).json({ error: 'Missing name, title, or announcement content.' });
@@ -84,7 +84,15 @@ module.exports = async (req, res) => {
       // 1. Insert into Supabase database
       const { data, error } = await supabase
         .from('announcements')
-        .insert([{ name, title, announcement }])
+        .insert([{ 
+          name, 
+          title, 
+          announcement, 
+          subject: subject || null, 
+          type: type || 'general', 
+          date_override: date_override || null, 
+          subject_override: subject_override || null 
+        }])
         .select();
 
       if (error) throw error;
@@ -111,6 +119,7 @@ module.exports = async (req, res) => {
             },
             data: {
               type: 'announcement',
+              announcement_type: type || 'general',
               id: String(newAnnouncement.id)
             },
             tokens: batch
