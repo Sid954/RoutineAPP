@@ -972,18 +972,3 @@ body {
 .notif-type-badge.cancellation { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
 .notif-type-badge.class_end { background: rgba(167, 139, 250, 0.15); color: #a78bfa; }
 .notif-type-badge.day_done { background: rgba(52, 211, 153, 0.15); color: #34d399; }
-
-/* Unique notification type cards design */
-.notif-history-card.reminder { border-color: rgba(56, 189, 248, 0.15); background: rgba(56, 189, 248, 0.02); }
-.notif-history-card.class_start { border-color: rgba(16, 185, 129, 0.15); background: rgba(16, 185, 129, 0.02); }
-.notif-history-card.morning_briefing { border-color: rgba(251, 191, 36, 0.15); background: rgba(251, 191, 36, 0.02); }
-.notif-history-card.cancellation { border-color: rgba(244, 63, 94, 0.15); background: rgba(244, 63, 94, 0.02); }
-.notif-history-card.class_end { border-color: rgba(167, 139, 250, 0.15); background: rgba(167, 139, 250, 0.02); }
-.notif-history-card.day_done { border-color: rgba(52, 211, 153, 0.15); background: rgba(52, 211, 153, 0.02); }
-
-.notif-history-card.reminder .notif-history-emoji { background: rgba(56, 189, 248, 0.1); color: #38bdf8; }
-.notif-history-card.class_start .notif-history-emoji { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-.notif-history-card.morning_briefing .notif-history-emoji { background: rgba(251, 191, 36, 0.1); color: #fbbf24; }
-.notif-history-card.cancellation .notif-history-emoji { background: rgba(244, 63, 94, 0.1); color: #f43f5e; }
-.notif-history-card.class_end .notif-history-emoji { background: rgba(167, 139, 250, 0.1); color: #a78bfa; }
-.notif-history-card.day_done .notif-history-emoji { background: rgba(52, 211, 153, 0.1); color: #34d399; }

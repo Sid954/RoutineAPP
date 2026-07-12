@@ -322,6 +322,7 @@
               <option value="general">General</option>
               <option value="cancellation">Class Cancellation</option>
               <option value="holiday">Holiday / Day Off</option>
+              <option value="online_class">Online Class (overrides holiday)</option>
             </select>
           </div>
         </div>
@@ -380,6 +381,27 @@
           <div class="fg">
             <label>Holiday Name / Reason</label>
             <input type="text" id="paHolidayDetails" placeholder="e.g. Eid Vacation / Winter Break" />
+          </div>
+        </div>
+
+        <!-- Section: Online Class -->
+        <div id="paOnlineSection" style="display: none;">
+          <div style="background: rgba(16, 185, 129, 0.06); border: 1px dashed rgba(16, 185, 129, 0.35); border-radius: var(--rx); padding: 10px 12px; margin-bottom: 10px; font-size: 11.5px; color: #6ee7b7;">
+            📡 This class will run <strong>online</strong> even if a holiday is declared. All other physical classes on that day remain cancelled.
+          </div>
+          <div class="fr">
+            <div class="fg">
+              <label>Subject (Online)</label>
+              <select id="paOnlineSubjectSelect" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:10px; font-family:var(--f); font-size:13px;"></select>
+            </div>
+            <div class="fg">
+              <label>Date</label>
+              <input type="date" id="paOnlineDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
+            </div>
+          </div>
+          <div class="fg">
+            <label>Platform / Link (Optional)</label>
+            <input type="text" id="paOnlineLink" placeholder="e.g. Google Meet, Zoom link, or just Google Meet" style="width:100%;" />
           </div>
         </div>
 

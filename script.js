@@ -204,6 +204,10 @@
     paHolidayEndDateContainer: $id('paHolidayEndDateContainer'),
     paHolidayEndDate: $id('paHolidayEndDate'),
     paHolidayDetails: $id('paHolidayDetails'),
+    paOnlineSection: $id('paOnlineSection'),
+    paOnlineSubjectSelect: $id('paOnlineSubjectSelect'),
+    paOnlineDate: $id('paOnlineDate'),
+    paOnlineLink: $id('paOnlineLink'),
     paPassword: $id('paPassword'),
     notifBriefingToggle: $id('notifBriefingToggle'),
     notifBriefingTime: $id('notifBriefingTime'),
@@ -1066,17 +1070,27 @@
     const timePill = DOM.currentTimeRange;
 
     if (holidayOverride && holidayOverride.type === 'holiday') {
-      progressSection.style.display = 'block';
-      roomPill.parentElement.style.display = 'flex';
-      timePill.style.display = 'inline-block';
+      // Check if there's an online class right now that overrides the holiday
+      const todayClasses = getClassesForDay(todayIdx);
+      const currentMins = getCurrentMinutes();
+      const activeOnline = todayClasses.find(c => {
+        const ov = getOverrideFor(todayIdx, c.title);
+        return ov && ov.type === 'online_class' &&
+               currentMins >= toMinutes(c.start) && currentMins < toMinutes(c.end);
+      });
+      if (!activeOnline) {
+        progressSection.style.display = 'block';
+        roomPill.parentElement.style.display = 'flex';
+        timePill.style.display = 'inline-block';
 
-      DOM.currentTitle.textContent = "Holiday / Day Off 🎉";
-      roomPill.textContent = "HOLIDAY";
-      timePill.textContent = "All classes suspended";
-      DOM.currentElapsed.textContent = "Classes off";
-      DOM.currentBar.style.width = "0%";
-      DOM.currentRemaining.textContent = holidayOverride.announcement.title;
-      return;
+        DOM.currentTitle.textContent = 'Holiday / Day Off 🎉';
+        roomPill.textContent = 'HOLIDAY';
+        timePill.textContent = 'All classes suspended';
+        DOM.currentElapsed.textContent = 'Classes off';
+        DOM.currentBar.style.width = '0%';
+        DOM.currentRemaining.textContent = holidayOverride.announcement.title;
+        return;
+      }
     }
 
     const todayClasses = getClassesForDay(todayIdx);
@@ -1085,13 +1099,22 @@
 
     if (activeItem) {
       const cancelOverride = getOverrideFor(todayIdx, activeItem.title);
-      const isCancelled = !!cancelOverride;
+      const isCancelled = cancelOverride && cancelOverride.type === 'cancellation';
+      const isOnline = cancelOverride && cancelOverride.type === 'online_class';
 
       progressSection.style.display = 'block';
       roomPill.parentElement.style.display = 'flex';
       timePill.style.display = 'inline-block';
 
-      if (isCancelled) {
+      if (isOnline) {
+        const link = cancelOverride.announcement.subject_override || '';
+        DOM.currentTitle.textContent = `${activeItem.title} (ONLINE 📡)`;
+        roomPill.textContent = 'ONLINE';
+        timePill.textContent = `${format12h(activeItem.start)} – ${format12h(activeItem.end)}`;
+        DOM.currentElapsed.textContent = 'Virtual class';
+        DOM.currentBar.style.width = '100%';
+        DOM.currentRemaining.textContent = link ? `Platform: ${link}` : 'Check your class group for the link';
+      } else if (isCancelled) {
         DOM.currentTitle.textContent = `${activeItem.title} (CANCELLED)`;
         roomPill.textContent = "CANCELLED";
         timePill.textContent = `${format12h(activeItem.start)} – ${format12h(activeItem.end)}`;
@@ -1202,15 +1225,24 @@
     // Check holiday override for the day
     const holidayOverride = getOverrideFor(currentViewDayIdx);
     if (holidayOverride && holidayOverride.type === 'holiday') {
-      DOM.timelineGrid.innerHTML = `
-        <div class="ch" style="grid-template-columns: 1fr; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1.5px dashed var(--pink) !important; background: rgba(244, 63, 94, 0.08) !important; padding: 26px 20px; box-shadow: 0 0 20px rgba(244, 63, 94, 0.15) !important;">
-          <span style="font-size: 28px; margin-bottom: 8px;">🎉</span>
-          <span class="chn" style="color: var(--pink2); font-weight: 800; font-size: 17px; margin-bottom: 4px; letter-spacing: 0.5px;">HOLIDAY / DAY OFF</span>
-          <span style="font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px;">${escapeHtml(holidayOverride.announcement.title)}</span>
-          <span style="font-size: 12px; color: var(--dim); max-width: 80%;">${escapeHtml(holidayOverride.announcement.announcement)}</span>
-        </div>
-      `;
-      return;
+      // Check if any class has an online_class override on this day
+      const hasOnlineClasses = classes.some(c => {
+        const ov = getOverrideFor(currentViewDayIdx, c.title);
+        return ov && ov.type === 'online_class';
+      });
+
+      if (!hasOnlineClasses) {
+        DOM.timelineGrid.innerHTML = `
+          <div class="ch" style="grid-template-columns: 1fr; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1.5px dashed var(--pink) !important; background: rgba(244, 63, 94, 0.08) !important; padding: 26px 20px; box-shadow: 0 0 20px rgba(244, 63, 94, 0.15) !important;">
+            <span style="font-size: 28px; margin-bottom: 8px;">🎉</span>
+            <span class="chn" style="color: var(--pink2); font-weight: 800; font-size: 17px; margin-bottom: 4px; letter-spacing: 0.5px;">HOLIDAY / DAY OFF</span>
+            <span style="font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px;">${escapeHtml(holidayOverride.announcement.title)}</span>
+            <span style="font-size: 12px; color: var(--dim); max-width: 80%;">${escapeHtml(holidayOverride.announcement.announcement)}</span>
+          </div>
+        `;
+        return;
+      }
+      // Fall through to render class list so online classes appear mixed in
     }
 
     if (!classes.length) {
@@ -1240,27 +1272,37 @@
       }
       lastEndMins = endMins;
 
-      // Check cancellation override for specific subject
+      // Check override for this specific subject
       const cancelOverride = getOverrideFor(currentViewDayIdx, item.title);
-      const isCancelled = !!cancelOverride;
+      const isCancelled = cancelOverride && cancelOverride.type === 'cancellation';
+      const isOnline = cancelOverride && cancelOverride.type === 'online_class';
+      // If holiday day and NO override for this subject → it's cancelled by holiday
+      const isHolidayCancelled = !isOnline && !isCancelled && holidayOverride && holidayOverride.type === 'holiday';
 
       const isActive = (currentViewDayIdx === realTodayIdx) && (currentMins >= startMins && currentMins < endMins);
       const isPast = (currentViewDayIdx === realTodayIdx) && (endMins <= currentMins);
-      
-      const theme = isCancelled
-        ? { bg: 'linear-gradient(135deg, #1c0a0c, #3f0f13)', border: '#f43f5e', text: '#fca5a5', badge: 'rgba(244, 63, 94, 0.2)' }
-        : getSubjectTheme(item.title, item.type);
+
+      const onlineTheme = { bg: 'linear-gradient(135deg, #052b1a, #073d26)', border: '#10b981', text: '#6ee7b7', badge: 'rgba(16, 185, 129, 0.25)' };
+      const cancelTheme = { bg: 'linear-gradient(135deg, #1c0a0c, #3f0f13)', border: '#f43f5e', text: '#fca5a5', badge: 'rgba(244, 63, 94, 0.2)' };
+      const theme = isOnline ? onlineTheme : (isCancelled || isHolidayCancelled) ? cancelTheme : getSubjectTheme(item.title, item.type);
+
+      const effectiveCancelled = isCancelled || isHolidayCancelled;
+      const platform = isOnline ? (cancelOverride.announcement.announcement || '') : '';
 
       html += `
-        <div class="ch${isActive && !isCancelled ? ' ca' : ''}${isPast || isCancelled ? ' cp' : ''}" style="animation-delay:${index * 0.07}s; background:${theme.bg}; border-color:${theme.border}; color:#fff">
-          <div class="cht" style="color:${theme.text}; text-decoration:${isCancelled ? 'line-through' : 'none'}">${format12h(item.start)}<br>${format12h(item.end)}</div>
+        <div class="ch${isActive && isOnline ? ' ca' : ''}${isActive && !isOnline && !effectiveCancelled ? ' ca' : ''}${isPast || effectiveCancelled ? ' cp' : ''}" style="animation-delay:${index * 0.07}s; background:${theme.bg}; border-color:${theme.border}; color:#fff">
+          <div class="cht" style="color:${theme.text}; text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">${format12h(item.start)}<br>${format12h(item.end)}</div>
           <div class="chi">
-            <span class="chn course-click-title" data-title="${item.title}" title="Click to expand" style="text-decoration:${isCancelled ? 'line-through' : 'none'}">${item.title}</span>
+            <span class="chn course-click-title" data-title="${item.title}" title="Click to expand" style="text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">${item.title}</span>
             <span class="chr" style="color:${theme.text}">
-              ${isCancelled ? `<span style="color:var(--pink); font-weight:800;">CANCELLED: ${escapeHtml(cancelOverride.announcement.title)}</span>` : `${formatRoom(item.room)} ${item.instructor ? `· ${item.instructor}` : ''}`}
+              ${isOnline
+                ? `<span style="color:#6ee7b7; font-weight:800;">📡 ONLINE${platform ? ` · ${escapeHtml(platform)}` : ''}</span>`
+                : effectiveCancelled
+                  ? `<span style="color:var(--pink); font-weight:800;">${isHolidayCancelled ? 'HOLIDAY — NO CLASS' : `CANCELLED: ${escapeHtml(cancelOverride.announcement.title)}`}</span>`
+                  : `${formatRoom(item.room)} ${item.instructor ? `· ${item.instructor}` : ''}`}
             </span>
           </div>
-          <span class="ctb" style="background:${theme.badge}; color:#fff">${isCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : item.type)}</span>
+          <span class="ctb" style="background:${theme.badge}; color:#fff">${isOnline ? '📡 ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : item.type)}</span>
         </div>`;
     });
 
@@ -1716,23 +1758,28 @@
     DOM.paHolidayStartDate.value = todayStr;
     DOM.paHolidayEndDate.value = todayStr;
     
-    // Populate Subject dropdown
+    // Populate Subject dropdowns for cancellation + online class
     const subjects = new Set();
     Object.values(schedule).forEach(dayClasses => {
       dayClasses.forEach(c => {
         if (c.title) subjects.add(c.title);
       });
     });
-    
-    DOM.paCancelSubjectSelect.innerHTML = Array.from(subjects)
+    const subjectOptions = Array.from(subjects)
       .sort()
       .map(sub => `<option value="${escapeHtml(sub)}">${escapeHtml(sub)}</option>`)
       .join('');
+    
+    DOM.paCancelSubjectSelect.innerHTML = subjectOptions;
+    DOM.paOnlineSubjectSelect.innerHTML = subjectOptions;
+    DOM.paOnlineDate.value = todayStr;
+    DOM.paOnlineLink.value = '';
       
     // Set initial sections visibility
     DOM.paGeneralSection.style.display = 'block';
     DOM.paCancellationSection.style.display = 'none';
     DOM.paHolidaySection.style.display = 'none';
+    DOM.paOnlineSection.style.display = 'none';
     DOM.paHolidayEndDateContainer.style.display = 'none';
     DOM.paHolidayRangeType.value = 'single';
     
@@ -1754,6 +1801,7 @@
     DOM.paGeneralSection.style.display = val === 'general' ? 'block' : 'none';
     DOM.paCancellationSection.style.display = val === 'cancellation' ? 'block' : 'none';
     DOM.paHolidaySection.style.display = val === 'holiday' ? 'block' : 'none';
+    DOM.paOnlineSection.style.display = val === 'online_class' ? 'block' : 'none';
   });
 
   DOM.paHolidayRangeType.addEventListener('change', () => {
@@ -1868,6 +1916,30 @@
           if (pubSuccess) success = true;
         }
       }
+    } else if (type === 'online_class') {
+      const subject = DOM.paOnlineSubjectSelect.value;
+      const date = DOM.paOnlineDate.value;
+      const platform = DOM.paOnlineLink.value.trim();
+
+      if (!subject || !date) {
+        showToast('Please select a Subject and Date.', 'warning');
+        DOM.postAnnounceSubmit.disabled = false;
+        DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
+        return;
+      }
+
+      const formattedDate = new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const title = `Online Class: ${subject}`;
+      const content = platform
+        ? `${platform}`
+        : ``;
+
+      success = await Announcements.publish(name, title, content, password, {
+        type: 'online_class',
+        date_override: date,
+        subject_override: subject,
+        // Re-use announcement field to store the platform link
+      });
     }
 
     DOM.postAnnounceSubmit.disabled = false;
@@ -2094,16 +2166,29 @@
 
     const targetDateStr = getDateForDayIndex(dayIdx);
 
-    const holiday = Announcements.list.find(item => 
-      item.type === 'holiday' && 
+    // If checking a specific subject, online_class BEATS holiday for that subject
+    if (subjectCode) {
+      const onlineClass = Announcements.list.find(item =>
+        item.type === 'online_class' &&
+        item.date_override === targetDateStr &&
+        item.subject_override &&
+        item.subject_override.toUpperCase().trim() === subjectCode.toUpperCase().trim()
+      );
+      if (onlineClass) return { type: 'online_class', announcement: onlineClass };
+    }
+
+    // Holiday covers all classes on that day (except online_class overrides above)
+    const holiday = Announcements.list.find(item =>
+      item.type === 'holiday' &&
       item.date_override === targetDateStr
     );
     if (holiday) return { type: 'holiday', announcement: holiday };
 
+    // Specific cancellation for a subject
     if (subjectCode) {
-      const cancellation = Announcements.list.find(item => 
-        item.type === 'cancellation' && 
-        item.date_override === targetDateStr && 
+      const cancellation = Announcements.list.find(item =>
+        item.type === 'cancellation' &&
+        item.date_override === targetDateStr &&
         item.subject_override &&
         item.subject_override.toUpperCase().trim() === subjectCode.toUpperCase().trim()
       );
@@ -2115,20 +2200,44 @@
 
   const Announcements = {
     list: [],
+    CACHE_KEY: 'routine_announcements_cache',
+
+    loadCached() {
+      try {
+        const saved = localStorage.getItem(this.CACHE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            this.list = parsed;
+            this.renderFeed();
+            this.checkBadge();
+            forceUpdate(); // Apply overrides from cache immediately on startup
+          }
+        }
+      } catch (e) {
+        console.warn('Could not load cached announcements:', e);
+      }
+    },
 
     async fetchAll() {
       try {
         const res = await fetch(`${CONFIG.apiBase || ''}/api/announcements`);
         if (!res.ok) throw new Error('Failed to fetch');
         this.list = await res.json();
+        // Persist to localStorage so next startup is instant
+        try { localStorage.setItem(this.CACHE_KEY, JSON.stringify(this.list)); } catch (e) {}
         this.renderFeed();
         this.checkBadge();
         forceUpdate();
       } catch (err) {
         console.error('Error fetching announcements:', err);
-        DOM.announceList.innerHTML = `<div class="announce-empty">Failed to load announcements. Make sure Vercel API backend is running.</div>`;
+        // Already showing cached data; only show error if nothing loaded
+        if (!this.list.length) {
+          DOM.announceList.innerHTML = `<div class="announce-empty">Failed to load announcements. Check your connection.</div>`;
+        }
       }
     },
+
 
     renderFeed() {
       if (!this.list || this.list.length === 0) {
@@ -2136,13 +2245,25 @@
         return;
       }
 
+      const typeMeta = {
+        general:       { label: '📢 General',    color: '#6366f1', bg: 'rgba(99,102,241,0.15)' },
+        cancellation:  { label: '🚫 Cancelled',  color: '#f43f5e', bg: 'rgba(244,63,94,0.12)'  },
+        holiday:       { label: '🎉 Holiday',    color: '#fb923c', bg: 'rgba(251,146,60,0.12)'  },
+        online_class:  { label: '📡 Online',     color: '#10b981', bg: 'rgba(16,185,129,0.12)'  },
+      };
+
       let html = '';
       this.list.forEach(item => {
         const dateStr = new Date(item.created_at).toLocaleString();
+        const meta = typeMeta[item.type] || typeMeta.general;
         html += `
-          <div class="announce-card">
+          <div class="announce-card" style="border-left: 3px solid ${meta.color};">
             <div class="announce-card-h" style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div>
+              <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:6px; margin-bottom:3px;">
+                  <span style="font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:99px; background:${meta.bg}; color:${meta.color}; white-space:nowrap;">${meta.label}</span>
+                  ${item.date_override ? `<span style="font-size:10px; color:var(--dim);">📅 ${item.date_override}</span>` : ''}
+                </div>
                 <div class="announce-card-title">${escapeHtml(item.title)}</div>
                 <span class="announce-card-author">${escapeHtml(item.name)}</span>
               </div>
@@ -2155,6 +2276,7 @@
       });
       DOM.announceList.innerHTML = html;
     },
+
 
     async delete(id) {
       let pwd = sessionDeletePassword;
@@ -2229,17 +2351,22 @@
 
         showToast('Announcement published successfully!', 'success');
 
-        // Fire cancellation/holiday notification immediately
-        if (extras.type === 'cancellation' || extras.type === 'holiday') {
-          const notifTitle = extras.type === 'cancellation' 
-            ? '🚫 Class Cancelled' 
-            : '🎉 Holiday Declared!';
-          const notifBody = extras.type === 'cancellation'
-            ? `${extras.subject_override || 'A class'} on ${extras.date_override || 'upcoming'} has been cancelled: ${title}`
-            : `${extras.date_override || 'Upcoming'}: ${title} — ${announcement}`;
+        // Fire cancellation/holiday/online notification immediately
+        if (extras.type === 'cancellation' || extras.type === 'holiday' || extras.type === 'online_class') {
+          let notifTitle, notifBody;
+          if (extras.type === 'cancellation') {
+            notifTitle = '🚫 Class Cancelled';
+            notifBody = `${extras.subject_override || 'A class'} on ${extras.date_override || 'upcoming'} has been cancelled: ${title}`;
+          } else if (extras.type === 'holiday') {
+            notifTitle = '🎉 Holiday Declared!';
+            notifBody = `${extras.date_override || 'Upcoming'}: ${title} — ${announcement}`;
+          } else {
+            notifTitle = '📡 Online Class Scheduled';
+            notifBody = `${extras.subject_override || 'A class'} on ${extras.date_override || 'upcoming'} will be online. ${announcement}`;
+          }
           
           Notifications.show(notifTitle, notifBody);
-          NotificationLog.add({ type: 'cancellation', title: notifTitle, body: notifBody });
+          NotificationLog.add({ type: extras.type === 'online_class' ? 'online_class' : extras.type, title: notifTitle, body: notifBody });
 
           // Re-schedule today's notifications to account for the override
           Notifications.scheduleForToday();
@@ -2414,6 +2541,7 @@
       .then(data => {
         schedule = normalizeSchedule(data);
         Storage.saveSchedule();
+        Announcements.loadCached(); // Apply cached overrides before first render
         forceUpdate();
       })
       .catch(() => {
@@ -2424,6 +2552,7 @@
           schedule = JSON.parse(JSON.stringify(normalizeSchedule(CONFIG.defaultRoutine)));
           Storage.saveSchedule();
         }
+        Announcements.loadCached(); // Apply cached overrides before first render
         forceUpdate();
       })
       .finally(() => {
