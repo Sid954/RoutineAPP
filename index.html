@@ -57,6 +57,10 @@
             <div class="dr"><span id="dayD">Wednesday</span><span class="db" id="dateD">Jul 11</span></div>
           </div>
           <div class="hd-actions">
+            <button class="hd-btn" id="announcementsBtn" title="Announcements" style="position: relative;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+              <span class="badge-dot" id="announceBadge" style="display:none; position: absolute; top: 10px; right: 10px; width: 7px; height: 7px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 8px var(--pink);"></span>
+            </button>
             <button class="hd-btn" id="notifSettingsBtn" title="Notification settings">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             </button>
@@ -245,6 +249,60 @@
               <span class="notif-setting-desc" id="notifPermStatus">Checking...</span>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Announcements -->
+  <div class="mo" id="announceModal">
+    <div class="md" style="max-width: 500px;">
+      <div class="md-h">
+        <h2>Announcements</h2>
+        <button class="cls" id="announceModalClose">✕</button>
+      </div>
+      <div class="md-sb">Stay updated with course announcements.</div>
+      
+      <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
+        <button class="day-nav-btn" id="newAnnounceBtn">+ Post Announcement</button>
+      </div>
+      
+      <div class="announce-list" id="announceList" style="margin-top: 15px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 5px;">
+        <!-- Loaded dynamically -->
+        <div class="skeleton-card" style="height: 80px;"></div>
+        <div class="skeleton-card" style="height: 80px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Post Announcement -->
+  <div class="mo" id="postAnnounceModal">
+    <div class="md" style="max-width: 450px;">
+      <div class="md-h">
+        <h2>Post Announcement</h2>
+        <button class="cls" id="postAnnounceClose">✕</button>
+      </div>
+      <div class="md-sb">Submit an announcement to send notifications to everyone.</div>
+      <div class="mf" style="border-top:none; padding-top:15px;">
+        <div class="fg">
+          <label>Your Name</label>
+          <input type="text" id="paName" placeholder="e.g. Dr. John Doe" required />
+        </div>
+        <div class="fg">
+          <label>Title</label>
+          <input type="text" id="paTitle" placeholder="e.g. Class Rescheduled" required />
+        </div>
+        <div class="fg">
+          <label>Announcement Details</label>
+          <textarea id="paContent" placeholder="Write details here..." style="width: 100%; min-height: 100px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: var(--rx); color: var(--text); padding: 10px; font-family: var(--f); font-size: 13px; resize: vertical;" required></textarea>
+        </div>
+        <div class="fg">
+          <label>Password</label>
+          <input type="password" id="paPassword" placeholder="Enter password to publish" required />
+        </div>
+        <div class="ma" style="justify-content: flex-end; gap: 10px; margin-top: 15px;">
+          <button class="bd" id="postAnnounceCancel">Cancel</button>
+          <button class="bp" id="postAnnounceSubmit">Publish & Notify</button>
         </div>
       </div>
     </div>

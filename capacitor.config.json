@@ -12,6 +12,9 @@
       "smallIcon": "ic_stat_icon",
       "iconColor": "#38bdf8"
     },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    },
     "StatusBar": {
       "style": "DARK",
       "backgroundColor": "#06080d"

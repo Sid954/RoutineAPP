@@ -1,8 +1,15 @@
 {
+  "scripts": {
+    "build": "node build.js",
+    "sync": "npm run build && npx cap sync"
+  },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
     "@capacitor/cli": "^8.4.1",
     "@capacitor/core": "^8.4.1",
-    "@capacitor/local-notifications": "^8.2.0"
+    "@capacitor/local-notifications": "^8.2.0",
+    "@capacitor/push-notifications": "^8.1.1",
+    "@supabase/supabase-js": "^2.43.0",
+    "firebase-admin": "^12.1.0"
   }
 }

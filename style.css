@@ -824,3 +824,71 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ==========================================================================
+   26. Announcements Modal & Feed Styling
+   ========================================================================== */
+.announce-list::-webkit-scrollbar {
+  width: 6px;
+}
+.announce-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+.announce-list::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 10px;
+}
+.announce-list::-webkit-scrollbar-thumb:hover {
+  background: var(--dim);
+}
+
+.announce-card {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--rx);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: cardSlideIn 0.3s ease both;
+  text-align: left;
+}
+.announce-card-h {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+.announce-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.announce-card-author {
+  font-size: 11px;
+  color: var(--accent2);
+  background: rgba(56, 189, 248, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.announce-card-body {
+  font-size: 13px;
+  color: var(--dim);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.announce-card-date {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  align-self: flex-end;
+  font-family: var(--m);
+}
+.announce-empty {
+  padding: 30px 10px;
+  text-align: center;
+  color: var(--dim);
+  font-size: 13px;
+}

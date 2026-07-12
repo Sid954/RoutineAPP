@@ -94,9 +94,9 @@
   let dashboardIntervalId = null;
 
   // Initialize to a valid active day
-  if (!CONFIG.activeDays.includes(currentViewDayIdx)) currentViewDayIdx = 6;
-  if (!CONFIG.activeDays.includes(selectedDay)) selectedDay = 6;
-  if (!CONFIG.activeDays.includes(matrixSelectedDayIdx)) matrixSelectedDayIdx = 6;
+  if (!CONFIG.activeDays.includes(currentViewDayIdx)) currentViewDayIdx = CONFIG.activeDays[0];
+  if (!CONFIG.activeDays.includes(selectedDay)) selectedDay = CONFIG.activeDays[0];
+  if (!CONFIG.activeDays.includes(matrixSelectedDayIdx)) matrixSelectedDayIdx = CONFIG.activeDays[0];
 
 
   /* ══════════════════════════════════════════════════════════════════════════
@@ -178,7 +178,23 @@
     undoBtn: $id('undoB'),
 
     // Canvas
-    canvas: $id('ptc')
+    canvas: $id('ptc'),
+
+    // Announcements
+    announcementsBtn: $id('announcementsBtn'),
+    announceBadge: $id('announceBadge'),
+    announceModal: $id('announceModal'),
+    announceModalClose: $id('announceModalClose'),
+    newAnnounceBtn: $id('newAnnounceBtn'),
+    announceList: $id('announceList'),
+    postAnnounceModal: $id('postAnnounceModal'),
+    postAnnounceClose: $id('postAnnounceClose'),
+    postAnnounceCancel: $id('postAnnounceCancel'),
+    postAnnounceSubmit: $id('postAnnounceSubmit'),
+    paName: $id('paName'),
+    paTitle: $id('paTitle'),
+    paContent: $id('paContent'),
+    paPassword: $id('paPassword')
   };
 
 
@@ -510,7 +526,12 @@
       DOM.notifToggle.checked = settings.enabled;
       DOM.notifLeadTime.value = settings.leadTime;
 
-      if (settings.enabled) await this.scheduleForToday();
+      if (settings.enabled) {
+        await this.scheduleForToday();
+        if (NativePush.isSupported()) {
+          NativePush.init();
+        }
+      }
       await this.maybeShowBanner();
     }
   };
@@ -1303,7 +1324,7 @@
   // Edit Schedule
   $id('editBtn').addEventListener('click', () => {
     openModal(DOM.editModal, () => {
-      selectedDay = CONFIG.activeDays.includes(new Date().getDay()) ? new Date().getDay() : 6;
+      selectedDay = CONFIG.activeDays.includes(new Date().getDay()) ? new Date().getDay() : CONFIG.activeDays[0];
       populateDaySelect();
       renderEditColumns();
     });
@@ -1316,9 +1337,58 @@
   });
   $id('notifModalClose').addEventListener('click', () => closeModal(DOM.notifModal));
 
+  // Announcements Modal triggers
+  DOM.announcementsBtn.addEventListener('click', () => {
+    openModal(DOM.announceModal, () => Announcements.fetchAll());
+    Announcements.markAsRead();
+  });
+  DOM.announceModalClose.addEventListener('click', () => closeModal(DOM.announceModal));
+
+  DOM.newAnnounceBtn.addEventListener('click', () => {
+    closeModal(DOM.announceModal);
+    openModal(DOM.postAnnounceModal);
+  });
+  DOM.postAnnounceClose.addEventListener('click', () => {
+    closeModal(DOM.postAnnounceModal);
+    openModal(DOM.announceModal);
+  });
+  DOM.postAnnounceCancel.addEventListener('click', () => {
+    closeModal(DOM.postAnnounceModal);
+    openModal(DOM.announceModal);
+  });
+
+  // Submit Post Announcement
+  DOM.postAnnounceSubmit.addEventListener('click', async () => {
+    const name = DOM.paName.value.trim();
+    const title = DOM.paTitle.value.trim();
+    const content = DOM.paContent.value.trim();
+    const password = DOM.paPassword.value;
+
+    if (!name || !title || !content || !password) {
+      showToast('Please fill out all fields.', 'warning');
+      return;
+    }
+
+    DOM.postAnnounceSubmit.disabled = true;
+    DOM.postAnnounceSubmit.textContent = 'Publishing...';
+
+    const success = await Announcements.publish(name, title, content, password);
+
+    DOM.postAnnounceSubmit.disabled = false;
+    DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
+
+    if (success) {
+      DOM.paName.value = '';
+      DOM.paTitle.value = '';
+      DOM.paContent.value = '';
+      DOM.paPassword.value = '';
+      closeModal(DOM.postAnnounceModal);
+      openModal(DOM.announceModal);
+    }
+  });
 
   // Close modals on backdrop click
-  [DOM.timeModal, DOM.viewModal, DOM.editModal, DOM.notifModal].forEach(modal => {
+  [DOM.timeModal, DOM.viewModal, DOM.editModal, DOM.notifModal, DOM.announceModal, DOM.postAnnounceModal].forEach(modal => {
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(modal); });
   });
 
@@ -1339,6 +1409,9 @@
         showToast('Notification permission denied by browser.', 'error');
       } else {
         showToast('Notifications enabled!', 'success');
+        if (NativePush.isSupported()) {
+          NativePush.init();
+        }
       }
     } else {
       Notifications.cancelAll();
@@ -1369,6 +1442,9 @@
       Storage.saveNotifSettings(settings);
       DOM.notifToggle.checked = true;
       Notifications.scheduleForToday();
+      if (NativePush.isSupported()) {
+        NativePush.init();
+      }
       showToast('Notifications enabled!', 'success');
     } else {
       showToast('Permission denied — you can enable later in settings.', 'warning');
@@ -1455,7 +1531,165 @@
 
 
   /* ══════════════════════════════════════════════════════════════════════════
-     23. Debounced Resize Handler
+     23. Announcements & Push Notifications System
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  const Announcements = {
+    list: [],
+
+    async fetchAll() {
+      try {
+        const res = await fetch(`${CONFIG.apiBase || ''}/api/announcements`);
+        if (!res.ok) throw new Error('Failed to fetch');
+        this.list = await res.json();
+        this.renderFeed();
+        this.checkBadge();
+      } catch (err) {
+        console.error('Error fetching announcements:', err);
+        DOM.announceList.innerHTML = `<div class="announce-empty">Failed to load announcements. Make sure Vercel API backend is running.</div>`;
+      }
+    },
+
+    renderFeed() {
+      if (!this.list || this.list.length === 0) {
+        DOM.announceList.innerHTML = `<div class="announce-empty">No announcements yet. Be the first to post!</div>`;
+        return;
+      }
+
+      let html = '';
+      this.list.forEach(item => {
+        const dateStr = new Date(item.created_at).toLocaleString();
+        html += `
+          <div class="announce-card">
+            <div class="announce-card-h">
+              <div class="announce-card-title">${escapeHtml(item.title)}</div>
+              <span class="announce-card-author">${escapeHtml(item.name)}</span>
+            </div>
+            <div class="announce-card-body">${escapeHtml(item.announcement)}</div>
+            <div class="announce-card-date">${dateStr}</div>
+          </div>
+        `;
+      });
+      DOM.announceList.innerHTML = html;
+    },
+
+    checkBadge() {
+      if (!this.list || this.list.length === 0) return;
+      const latestId = this.list[0].id;
+      const lastViewedId = localStorage.getItem('last_viewed_announcement_id');
+      if (!lastViewedId || parseInt(latestId) > parseInt(lastViewedId)) {
+        DOM.announceBadge.style.display = 'block';
+      } else {
+        DOM.announceBadge.style.display = 'none';
+      }
+    },
+
+    markAsRead() {
+      if (!this.list || this.list.length === 0) return;
+      const latestId = this.list[0].id;
+      localStorage.setItem('last_viewed_announcement_id', latestId);
+      DOM.announceBadge.style.display = 'none';
+    },
+
+    async publish(name, title, announcement, password) {
+      try {
+        const res = await fetch(`${CONFIG.apiBase || ''}/api/announcements`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, title, announcement, password })
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'Failed to post');
+        }
+
+        showToast('Announcement published successfully!', 'success');
+        this.fetchAll();
+        return true;
+      } catch (err) {
+        showToast(`Error: ${err.message}`, 'error');
+        return false;
+      }
+    }
+  };
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  const NativePush = {
+    isSupported() {
+      return window.Capacitor && window.Capacitor.isNativePlatform();
+    },
+
+    async init() {
+      if (!this.isSupported()) return;
+
+      try {
+        const { PushNotifications } = window.Capacitor.Plugins;
+
+        // Request permissions
+        let permStatus = await PushNotifications.checkPermissions();
+        if (permStatus.receive === 'prompt') {
+          permStatus = await PushNotifications.requestPermissions();
+        }
+
+        if (permStatus.receive === 'granted') {
+          // Register with Google FCM / Apple APNS
+          await PushNotifications.register();
+        }
+
+        // On success, save the token to the database
+        PushNotifications.addListener('registration', async token => {
+          console.log('Push registration success, token: ' + token.value);
+          try {
+            await fetch(`${CONFIG.apiBase || ''}/api/register-token`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                token: token.value,
+                platform: window.Capacitor.getPlatform()
+              })
+            });
+          } catch (err) {
+            console.error('Failed to register device token on server:', err);
+          }
+        });
+
+        // On error
+        PushNotifications.addListener('registrationError', error => {
+          console.error('Push registration error: ', error);
+        });
+
+        // Handle receiving push notifications while app is in foreground
+        PushNotifications.addListener('pushNotificationReceived', notification => {
+          console.log('Push notification received in foreground: ', notification);
+          showToast(`${notification.title}: ${notification.body}`, 'info');
+          Announcements.fetchAll();
+        });
+
+        // Handle actions when push notification is clicked/tapped
+        PushNotifications.addListener('pushNotificationActionPerformed', notification => {
+          console.log('Push notification action performed: ', notification);
+          openModal(DOM.announceModal);
+          Announcements.markAsRead();
+        });
+      } catch (err) {
+        console.error('Error initializing Capacitor Push Notifications plugin:', err);
+      }
+    }
+  };
+
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     24. Debounced Resize Handler
      ══════════════════════════════════════════════════════════════════════════ */
 
   let resizeTimer = null;
@@ -1507,7 +1741,34 @@
     // Update streak on app open
     Streak.update();
 
-    fetch('schedule.json?t=' + Date.now())
+    fetch('config.json?t=' + Date.now())
+      .then(res => { if (!res.ok) throw new Error('Config not found'); return res.json(); })
+      .then(configData => {
+        if (configData.activeDays) {
+          CONFIG.activeDays = configData.activeDays;
+          if (!CONFIG.activeDays.includes(currentViewDayIdx)) currentViewDayIdx = CONFIG.activeDays[0];
+          if (!CONFIG.activeDays.includes(selectedDay)) selectedDay = CONFIG.activeDays[0];
+          if (!CONFIG.activeDays.includes(matrixSelectedDayIdx)) matrixSelectedDayIdx = CONFIG.activeDays[0];
+        }
+        if (configData.matrixIntervals) CONFIG.matrixIntervals = configData.matrixIntervals;
+        if (configData.fullCourseNames) {
+          Object.keys(FULL_COURSE_NAMES).forEach(k => delete FULL_COURSE_NAMES[k]);
+          Object.assign(FULL_COURSE_NAMES, configData.fullCourseNames);
+        }
+        if (configData.subjectPalettes) {
+          SUBJECT_PALETTES.length = 0;
+          SUBJECT_PALETTES.push(...configData.subjectPalettes);
+        }
+        if (configData.labTheme) {
+          Object.assign(LAB_THEME, configData.labTheme);
+        }
+      })
+      .catch(err => {
+        console.warn('Failed to load dynamic config, using default constants:', err);
+      })
+      .then(() => {
+        return fetch('schedule.json?t=' + Date.now());
+      })
       .then(res => { if (!res.ok) throw new Error('Not found'); return res.json(); })
       .then(data => {
         schedule = normalizeSchedule(data);
@@ -1536,8 +1797,9 @@
         clockIntervalId = setInterval(updateClock, CONFIG.updateIntervalMs);
         dashboardIntervalId = setInterval(updateDashboard, CONFIG.updateIntervalMs);
 
-        // Initialize notifications
+        // Initialize notifications & announcements
         Notifications.init();
+        Announcements.fetchAll();
       });
   }
 
