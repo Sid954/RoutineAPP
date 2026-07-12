@@ -333,65 +333,154 @@
     timeouts: [],
 
     isSupported() {
+      if (window.Capacitor && window.Capacitor.isNativePlatform()) return true;
       return 'Notification' in window;
     },
 
-    getPermission() {
+    async getPermission() {
+      if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+        try {
+          const { LocalNotifications } = window.Capacitor.Plugins;
+          const status = await LocalNotifications.checkPermissions();
+          return status.display;
+        } catch (e) {
+          return 'denied';
+        }
+      }
       if (!this.isSupported()) return 'unsupported';
       return Notification.permission;
     },
 
     async requestPermission() {
+      if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+        try {
+          const { LocalNotifications } = window.Capacitor.Plugins;
+          const status = await LocalNotifications.requestPermissions();
+          await this.updatePermissionUI();
+          return status.display === 'granted';
+        } catch (e) {
+          return false;
+        }
+      }
       if (!this.isSupported()) return false;
       const result = await Notification.requestPermission();
-      this.updatePermissionUI();
+      await this.updatePermissionUI();
       return result === 'granted';
     },
 
-    updatePermissionUI() {
-      const perm = this.getPermission();
-      const labels = { granted: 'Granted ✓', denied: 'Blocked by browser', default: 'Not yet requested', unsupported: 'Not supported' };
+    async updatePermissionUI() {
+      const perm = await this.getPermission();
+      const labels = { granted: 'Granted ✓', denied: 'Blocked by browser', default: 'Not yet requested', prompt: 'Not yet requested', unsupported: 'Not supported' };
       DOM.notifPermStatus.textContent = labels[perm] || perm;
       DOM.notifPermStatus.style.color = perm === 'granted' ? '#10b981' : perm === 'denied' ? '#f43f5e' : '';
     },
 
-    scheduleForToday() {
-      this.cancelAll();
+    async scheduleForToday() {
+      await this.cancelAll();
       const settings = Storage.getNotifSettings();
-      if (!settings.enabled || !this.isSupported() || Notification.permission !== 'granted') return;
+      if (!settings.enabled) return;
+
+      const hasPerm = (await this.getPermission()) === 'granted';
+      if (!hasPerm) return;
 
       const todayIdx = new Date().getDay();
       const classes = schedule[todayIdx] || [];
       const now = getCurrentMinutes();
+      const isNative = window.Capacitor && window.Capacitor.isNativePlatform();
 
-      classes.forEach(cls => {
-        const startMins = toMinutes(cls.start);
+      if (isNative) {
+        const { LocalNotifications } = window.Capacitor.Plugins;
+        const nativeNotifs = [];
 
-        // Pre-class warning
-        const alertMins = startMins - settings.leadTime;
-        if (alertMins > now) {
-          const delay = (alertMins - now) * 60000;
-          this.timeouts.push(setTimeout(() => {
-            this.show(
-              `${cls.title} in ${settings.leadTime} min`,
-              `Room ${formatRoom(cls.room)} · ${format12h(cls.start)} – ${format12h(cls.end)}`
-            );
-          }, delay));
+        classes.forEach((cls, idx) => {
+          const startMins = toMinutes(cls.start);
+
+          // Pre-class warning
+          const alertMins = startMins - settings.leadTime;
+          if (alertMins > now) {
+            const alertDate = new Date();
+            alertDate.setHours(Math.floor(alertMins / 60));
+            alertDate.setMinutes(alertMins % 60);
+            alertDate.setSeconds(0);
+
+            nativeNotifs.push({
+              title: `${cls.title} in ${settings.leadTime} min`,
+              body: `Room ${formatRoom(cls.room)} · ${format12h(cls.start)} – ${format12h(cls.end)}`,
+              id: idx * 2,
+              schedule: { at: alertDate },
+              smallIcon: 'ic_stat_icon',
+              iconColor: '#38bdf8'
+            });
+          }
+
+          // Class starting now
+          if (startMins > now) {
+            const startDate = new Date();
+            startDate.setHours(Math.floor(startMins / 60));
+            startDate.setMinutes(startMins % 60);
+            startDate.setSeconds(0);
+
+            nativeNotifs.push({
+              title: `${cls.title} starting now`,
+              body: `Room ${formatRoom(cls.room)}`,
+              id: idx * 2 + 1,
+              schedule: { at: startDate },
+              smallIcon: 'ic_stat_icon',
+              iconColor: '#38bdf8'
+            });
+          }
+        });
+
+        if (nativeNotifs.length) {
+          try {
+            await LocalNotifications.schedule({ notifications: nativeNotifs });
+          } catch (e) {
+            console.error('Failed to schedule native alarms:', e);
+          }
         }
+      } else {
+        // Standard Web Browser timeouts
+        classes.forEach(cls => {
+          const startMins = toMinutes(cls.start);
 
-        // Class starting now
-        if (startMins > now) {
-          const delay = (startMins - now) * 60000;
-          this.timeouts.push(setTimeout(() => {
-            this.show(`${cls.title} starting now`, `Room ${formatRoom(cls.room)}`);
-          }, delay));
-        }
-      });
+          // Pre-class warning
+          const alertMins = startMins - settings.leadTime;
+          if (alertMins > now) {
+            const delay = (alertMins - now) * 60000;
+            this.timeouts.push(setTimeout(() => {
+              this.show(
+                `${cls.title} in ${settings.leadTime} min`,
+                `Room ${formatRoom(cls.room)} · ${format12h(cls.start)} – ${format12h(cls.end)}`
+              );
+            }, delay));
+          }
+
+          // Class starting now
+          if (startMins > now) {
+            const delay = (startMins - now) * 60000;
+            this.timeouts.push(setTimeout(() => {
+              this.show(`${cls.title} starting now`, `Room ${formatRoom(cls.room)}`);
+            }, delay));
+          }
+        });
+      }
     },
 
-    cancelAll() {
+    async cancelAll() {
       this.timeouts.forEach(t => clearTimeout(t));
       this.timeouts = [];
+
+      if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+        try {
+          const { LocalNotifications } = window.Capacitor.Plugins;
+          const pending = await LocalNotifications.getPending();
+          if (pending.notifications.length) {
+            await LocalNotifications.cancel(pending);
+          }
+        } catch (e) {
+          console.error('Failed to cancel native alarms:', e);
+        }
+      }
     },
 
     show(title, body) {
@@ -407,22 +496,22 @@
       } catch {}
     },
 
-    /** Show the permission banner if conditions are met */
-    maybeShowBanner() {
+    async maybeShowBanner() {
       if (!this.isSupported()) return;
-      if (Notification.permission !== 'default') return;
+      const perm = await this.getPermission();
+      if (perm !== 'default' && perm !== 'prompt') return;
       if (Storage.isBannerDismissed(Storage.BANNER_DISMISS_KEY)) return;
       DOM.notifBanner.classList.add('show');
     },
 
-    init() {
-      this.updatePermissionUI();
+    async init() {
+      await this.updatePermissionUI();
       const settings = Storage.getNotifSettings();
       DOM.notifToggle.checked = settings.enabled;
       DOM.notifLeadTime.value = settings.leadTime;
 
-      if (settings.enabled) this.scheduleForToday();
-      this.maybeShowBanner();
+      if (settings.enabled) await this.scheduleForToday();
+      await this.maybeShowBanner();
     }
   };
 
