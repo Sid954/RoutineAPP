@@ -1,0 +1,98 @@
+{
+  "Saturday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "CENG",
+      "room": "1004",
+      "instructor": "INZAMAM",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:55 PM",
+      "subject": "BS",
+      "room": "613",
+      "instructor": "SN",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "DEPT",
+      "room": "902",
+      "instructor": "NM",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "OOP",
+      "room": "1002",
+      "instructor": "RA",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "IP",
+      "room": "606",
+      "instructor": "AVISHEK CHOW",
+      "type": "Lab"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "CGVA",
+      "room": "1004",
+      "instructor": "ABSAR",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "OOPL",
+      "room": "606",
+      "instructor": "RA",
+      "type": "Lab"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "DEPTL",
+      "room": "506",
+      "instructor": "KMAY",
+      "type": "Lab"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "CGVA",
+      "room": "901",
+      "instructor": "ABSAR",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "OOP",
+      "room": "405",
+      "instructor": "RA",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "NM",
+      "room": "905",
+      "instructor": "TASMIN",
+      "type": "Lab"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "DEPT",
+      "room": "406",
+      "instructor": "NM",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

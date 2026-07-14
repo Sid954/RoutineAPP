@@ -1,0 +1,105 @@
+{
+  "Saturday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "DBMSL",
+      "room": "1008",
+      "instructor": "MRI",
+      "type": "Lab"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "MLADE",
+      "room": "611",
+      "instructor": "AU",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "BFE",
+      "room": "903",
+      "instructor": "ZAHID",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "ALGOL",
+      "room": "606",
+      "instructor": "FJD",
+      "type": "Lab"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "MML",
+      "room": "503",
+      "instructor": "MRRC",
+      "type": "Lab"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "BFE",
+      "room": "613",
+      "instructor": "ZAHID",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "MLADE",
+      "room": "411",
+      "instructor": "AU",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "MM",
+      "room": "1002",
+      "instructor": "MRRC",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "ALGO",
+      "room": "1003",
+      "instructor": "FJD",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "ALGO",
+      "room": "403",
+      "instructor": "FJD",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "DBMS",
+      "room": "910",
+      "instructor": "MRI",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "DBMS",
+      "room": "1002",
+      "instructor": "MRI",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "MM",
+      "room": "610",
+      "instructor": "MRRC",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

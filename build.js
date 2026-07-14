@@ -67,6 +67,31 @@ function build() {
     }
   });
 
+  // Generate version.json and inject version into config.js
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
+    const version = pkg.version || '1.0.0';
+    
+    // 1. Generate version.json in www/
+    const versionData = {
+      version: version,
+      url: `https://sid954.github.io/RoutineAPP/www.zip`
+    };
+    fs.writeFileSync(path.join(DIST_DIR, 'version.json'), JSON.stringify(versionData, null, 2));
+    console.log(`Generated version.json for version ${version}`);
+
+    // 2. Inject version into output config.js
+    const configPath = path.join(DIST_DIR, 'src', 'core', 'config.js');
+    if (fs.existsSync(configPath)) {
+      let configContent = fs.readFileSync(configPath, 'utf8');
+      configContent = configContent.replace(/version:\s*'[^']*'/, `version: '${version}'`);
+      fs.writeFileSync(configPath, configContent, 'utf8');
+      console.log(`Injected version ${version} into www/src/core/config.js`);
+    }
+  } catch (e) {
+    console.warn('Warning: version generation or config injection failed:', e);
+  }
+
   console.log('Build completed! Web assets are in the /www folder.');
 }
 

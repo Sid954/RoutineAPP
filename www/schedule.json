@@ -1,0 +1,26 @@
+{
+  "Saturday": [
+    { "time": "09:45 AM - 11:00 AM", "subject": "EDC", "room": "1002", "instructor": "AIR", "type": "Theory" },
+    { "time": "11:00 AM - 01:30 PM", "subject": "DSL", "room": "905", "instructor": "MHE", "type": "Lab" },
+    { "time": "01:30 PM - 02:45 PM", "subject": "ICMP", "room": "406", "instructor": "NME", "type": "Theory" },
+    { "time": "02:45 PM - 04:00 PM", "subject": "DS", "room": "404", "instructor": "MHE", "type": "Theory" }
+  ],
+  "Sunday": [
+    { "time": "08:30 AM - 11:00 AM", "subject": "EDCL", "room": "508", "instructor": "RSN", "type": "Lab" },
+    { "time": "12:15 PM - 01:30 PM", "subject": "DMNT", "room": "612", "instructor": "ST", "type": "Theory" }
+  ],
+  "Monday": [
+    { "time": "09:45 AM - 11:00 AM", "subject": "EE", "room": "1001", "instructor": "IFTEKAR MIA", "type": "Theory" },
+    { "time": "11:00 AM - 12:15 PM", "subject": "ICMP", "room": "404", "instructor": "NME", "type": "Theory" }
+  ],
+  "Tuesday": [
+    { "time": "09:45 AM - 11:00 AM", "subject": "DMNT", "room": "408", "instructor": "ST", "type": "Theory" },
+    { "time": "11:00 AM - 01:30 PM", "subject": "PHYL", "room": "505", "instructor": "NJS", "type": "Lab" },
+    { "time": "01:30 PM - 02:45 PM", "subject": "CPL", "room": "608", "instructor": "MHN", "type": "Theory" }
+  ],
+  "Wednesday": [
+    { "time": "11:00 AM - 12:15 PM", "subject": "DS", "room": "510", "instructor": "MHE", "type": "Theory" },
+    { "time": "12:15 PM - 01:30 PM", "subject": "EDC", "room": "901", "instructor": "AIR", "type": "Theory" },
+    { "time": "01:30 PM - 02:45 PM", "subject": "EE", "room": "910", "instructor": "IFTEKAR MIA", "type": "Theory" }
+  ]
+}

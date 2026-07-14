@@ -1,0 +1,70 @@
+/* ==========================================================================
+   Modals — General modal backdrop, container, headers and form controls
+   ========================================================================== */
+.mo {
+  display: none; position: fixed; inset: 0;
+  background: rgba(6, 8, 13, 0.98); align-items: center; justify-content: center;
+  z-index: 999; padding: 12px; transition: opacity 0.3s ease;
+}
+.mo.open { display: flex; animation: modalBgIn 0.25s ease; }
+@keyframes modalBgIn { from { opacity: 0; } to { opacity: 1; } }
+
+.md {
+  background: var(--card); border-radius: var(--r); width: 100%;
+  max-height: 92vh; overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--border);
+  animation: modalIn 0.35s cubic-bezier(0.16, 1, 0.3, 1); position: relative;
+}
+.md.md-wide { max-width: 96vw; }
+@media (min-width: 1024px) {
+  .md.md-wide { max-width: 1200px; }
+}
+@keyframes modalIn { from { opacity: 0; transform: translateY(30px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* Absolute Close Button */
+.cls.absolute-close {
+  position: absolute; top: 16px; left: 16px; z-index: 100;
+  background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+  border-radius: 10px; width: 44px; height: 44px; font-size: 16px;
+  cursor: pointer; color: var(--dim);
+  transition: transform var(--t), color var(--t), background var(--t);
+  display: flex; align-items: center; justify-content: center;
+}
+.cls.absolute-close:hover { border-color: var(--pink); color: var(--pink); transform: rotate(90deg); background: rgba(244, 63, 94, 0.1); }
+
+/* Mobile Rotation Button */
+#mobileRotateFab {
+  display: none; position: absolute; top: 16px; right: 16px; z-index: 100;
+  width: 44px; height: 44px; border-radius: 10px;
+  background: rgba(56, 189, 248, 0.15); border: 1px solid var(--accent);
+  color: var(--accent); font-size: 20px; cursor: pointer; transition: transform var(--t);
+}
+#mobileRotateFab:active { transform: scale(0.9); }
+
+/* Fullscreen Landscape Rotation */
+.mo.rotated-mode .md.view-md {
+  position: fixed !important;
+  top: 0 !important;
+  left: 100% !important;
+  transform-origin: top left !important;
+  transform: rotate(90deg) !important;
+  width: 100vh !important; width: 100dvh !important;
+  height: 100vw !important; height: 100dvw !important;
+  max-width: none !important; max-height: none !important;
+  border-radius: 0 !important; border: none !important;
+  margin: 0 !important; padding: 0 !important;
+  display: flex; flex-direction: column;
+}
+.mo.rotated-mode .tw { flex: 1; height: 100%; padding: 24px; margin: 0; }
+
+/* Modal Headers */
+.md-h { padding: 22px 24px 0; display: flex; justify-content: space-between; align-items: flex-start; }
+.md-h h2 { font-size: 26px; font-weight: 800; background: linear-gradient(135deg, #fff, var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.md-h .cls { background: none; border: 1px solid var(--border); border-radius: 10px; width: 38px; height: 38px; font-size: 18px; cursor: pointer; color: var(--dim); transition: transform var(--t), color var(--t); display: flex; align-items: center; justify-content: center; }
+.md-h .cls:hover { border-color: var(--pink); color: var(--pink); transform: rotate(90deg); }
+.md-sb { color: var(--dim); font-size: 14px; padding: 6px 24px 0; font-weight: 500; }
+.md-acts { display: flex; gap: 8px; padding: 16px 24px; flex-wrap: wrap; }
+.md-acts button { padding: 10px 18px; border-radius: var(--rx); border: 1px solid var(--border); background: var(--card2); color: var(--text); cursor: pointer; font-size: 13px; transition: box-shadow var(--t), border-color var(--t), color var(--t); font-family: var(--f); font-weight: 700; }
+.md-acts button:hover { border-color: var(--accent); color: var(--accent2); box-shadow: 0 0 16px var(--ag); }
+.md-acts button:active { transform: scale(0.97); }

@@ -1,0 +1,126 @@
+{
+  "Saturday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "MAD",
+      "room": "905",
+      "instructor": "TMC",
+      "type": "Lab"
+    },
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "OSL",
+      "room": "606",
+      "instructor": "AJT",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "MAD",
+      "room": "1008",
+      "instructor": "RM",
+      "type": "Lab"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "COA",
+      "room": "405",
+      "instructor": "MAHBUBUL",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "OS",
+      "room": "611",
+      "instructor": "AJT",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "SAP",
+      "room": "610",
+      "instructor": "FORKAN",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "OS",
+      "room": "410",
+      "instructor": "AJT",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "AI",
+      "room": "406",
+      "instructor": "TASMIN",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "ISD",
+      "room": "902",
+      "instructor": "TMC",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "AIL",
+      "room": "604",
+      "instructor": "ST",
+      "type": "Lab"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "AIL",
+      "room": "1008",
+      "instructor": "RA",
+      "type": "Lab"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "COA",
+      "room": "510",
+      "instructor": "MAHBUBUL",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "SAP",
+      "room": "610",
+      "instructor": "FORKAN",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "ISD",
+      "room": "910",
+      "instructor": "TMC",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "AI",
+      "room": "1001",
+      "instructor": "TASMIN",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "OSL",
+      "room": "606",
+      "instructor": "AJT",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

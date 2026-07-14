@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="Smart university timetable dashboard with class notifications, progress tracking, and weekly schedule views.">
+  <meta name="theme-color" content="#06080d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>My Routine — Smart Timetable</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-512.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/main.css">
+</head>
+<body>
+
+  <!-- Background Particle Canvas -->
+  <canvas id="ptc"></canvas>
+
+  <!-- Notification Permission Banner -->
+  <div class="notif-banner" id="notifBanner">
+    <div class="notif-banner-content">
+      <span class="notif-banner-icon">🔔</span>
+      <div class="notif-banner-text">
+        <strong>Never miss a class</strong>
+        <span>Get alerts before each class starts</span>
+      </div>
+      <div class="notif-banner-actions">
+        <button class="notif-btn-allow" id="notifAllow">Enable</button>
+        <button class="notif-btn-dismiss" id="notifDismiss">Later</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Install PWA Banner -->
+  <div class="install-banner" id="installBanner">
+    <span class="install-banner-text">📲 Install My Routine for the best experience</span>
+    <button class="install-btn" id="installBtn">Install</button>
+    <button class="install-dismiss" id="installDismiss">✕</button>
+  </div>
+
+  <!-- Main Dashboard -->
+  <div class="ww">
+    <div class="w" id="app">
+      <div class="wi">
+
+        <!-- Header: Clock, Date, Controls -->
+        <header class="hd">
+          <div>
+            <div class="tm" id="clockTrigger">
+              <span id="hD">12</span>:<span id="mD">30</span> <span class="ap" id="apD">PM</span>
+            </div>
+            <div class="dr"><span id="dayD">Wednesday</span><span class="db" id="dateD">Jul 11</span></div>
+          </div>
+          <div class="hd-actions">
+            <button class="hd-btn" id="announcementsBtn" title="Announcements" style="position: relative;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h2"/><path d="M6 9h9l5-5v16l-5-5H6V9z"/><path d="M3 11h3v4H3v-4z"/></svg>
+              <span class="badge-dot" id="announceBadge" style="display:none; position: absolute; top: 10px; right: 10px; width: 7px; height: 7px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 8px var(--pink);"></span>
+            </button>
+            <button class="hd-btn" id="notifSettingsBtn" title="Notification settings">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </button>
+            <button class="eb" id="editBtn" title="Edit schedule"><span>✎</span></button>
+          </div>
+        </header>
+
+        <!-- Smart Greeting -->
+        <div class="greeting" id="greeting">
+          <span class="greeting-text" id="greetText">Good morning</span>
+          <span class="greeting-sub" id="greetSub">Loading schedule...</span>
+        </div>
+
+        <!-- Current Active Class -->
+        <section class="cc" id="cc">
+          <div class="lb">
+            <span class="lb-left"><span class="pd"></span>CURRENT</span>
+            <span class="lb-right" id="cTR">—</span>
+          </div>
+          <h2 class="tt" id="cT">Loading...</h2>
+          <div class="mr"><span class="rp" id="cR">—</span></div>
+          <div class="ps">
+            <div class="pi"><span id="cEl"></span></div>
+            <div class="pt"><div class="pf" id="cBar"></div></div>
+            <div class="rm" id="cRm">Remaining: —</div>
+          </div>
+        </section>
+
+        <!-- Next Upcoming Class -->
+        <section class="nc">
+          <div class="lb">NEXT</div>
+          <div class="rw"><span class="tt" id="nT">—</span><span class="eta" id="nE">—</span></div>
+          <div class="sb">Room: <span class="rm" id="nR">—</span>&nbsp;·&nbsp;<span id="nTR">—</span></div>
+        </section>
+
+        <!-- Day Timeline with Switcher -->
+        <section class="cs" id="chS">
+          <div class="cs-header">
+            <button class="day-nav-btn" id="prevDayBtn" title="Previous Day">← Prev</button>
+            <div class="csh-wrapper">
+              <div class="csh" id="timelineTitle">Today's Classes</div>
+              <div class="csh-sub" id="timelineSubtitle">Wednesday</div>
+            </div>
+            <button class="day-nav-btn" id="nextDayBtn" title="Next Day">Next →</button>
+          </div>
+          <div class="chg" id="chG">
+            <!-- Skeleton loader -->
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+          </div>
+        </section>
+
+        <!-- View Full Routine Button -->
+        <div class="vrw">
+          <button class="vrb" id="vrB"><span>View Full Routine</span><span class="ar">→</span></button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Weekly Timetable Matrix -->
+  <div class="mo" id="viewModal">
+    <div class="md md-wide view-md">
+      <div class="md-h">
+        <h2>Weekly Routine</h2>
+        <button class="cls" id="vcC">✕</button>
+      </div>
+      <div class="tw">
+        <div class="t-grid" id="tGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Edit Routine -->
+  <div class="mo" id="editModal">
+    <div class="md">
+      <div class="md-h">
+        <h2>Edit Schedule</h2>
+        <button class="cls" id="ecC">✕</button>
+      </div>
+      <div class="md-sb">Select a day column below to add, remove, or modify your routine entries.</div>
+
+      <!-- Section: Routine Selection -->
+      <div style="padding: 0 24px; margin-bottom: 8px; margin-top: 15px;">
+        <div style="font-size: 13px; font-weight: 800; color: var(--accent2); margin-bottom: 10px; letter-spacing: 0.5px; text-transform: uppercase;">Timetable Routine</div>
+        <div style="display: flex; gap: 12px;">
+          <div style="flex: 1;">
+            <label style="display: block; font-size: 10px; font-weight: 700; color: var(--dim); margin-bottom: 6px;">Semester</label>
+            <select id="routineSemesterSelect" style="width: 100%; height: 38px; padding: 0 10px; border-radius: var(--rx); background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); font-family: var(--f); font-size: 13px; font-weight: 600;"></select>
+          </div>
+          <div style="flex: 1;">
+            <label style="display: block; font-size: 10px; font-weight: 700; color: var(--dim); margin-bottom: 6px;">Section</label>
+            <select id="routineSectionSelect" style="width: 100%; height: 38px; padding: 0 10px; border-radius: var(--rx); background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); font-family: var(--f); font-size: 13px; font-weight: 600;"></select>
+          </div>
+        </div>
+      </div>
+      <div class="md-acts">
+        <button id="imB">Import JSON</button>
+        <input type="file" id="imF" accept=".json" style="display:none"/>
+        <button id="exB">Export JSON</button>
+        <button class="rst" id="rstB">Reset to Default</button>
+      </div>
+
+      <div class="rc">
+        <div class="rci" id="rCols"></div>
+      </div>
+
+      <div class="mf">
+        <div class="fr">
+          <div class="fg"><label>Start Time</label><input type="time" id="eS" value="09:45"/></div>
+          <div class="fg"><label>End Time</label><input type="time" id="eE" value="11:00"/></div>
+        </div>
+        <div class="fr">
+          <div class="fg"><label>Subject Title</label><input type="text" id="eT" placeholder="e.g. DSL"/></div>
+          <div class="fg"><label>Room / Hall</label><input type="text" id="eR" placeholder="e.g. 905"/></div>
+        </div>
+        <div class="fr">
+          <div class="fg"><label>Instructor (Optional)</label><input type="text" id="eI" placeholder="e.g. MHE"/></div>
+          <div class="fg">
+            <label>Class Type</label>
+            <select id="eTy">
+              <option value="Theory">Theory</option>
+              <option value="Lab">Lab</option>
+              <option value="Break">Break</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="fr">
+          <div class="fg" style="grid-column:span 2">
+            <label>Target Day</label>
+            <select id="eDay"></select>
+          </div>
+        </div>
+        <div class="ma">
+          <button class="bd" id="clrB">Clear Selected Day</button>
+          <button class="bp" id="addB">+ Add Entry</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Notification Settings -->
+  <div class="mo" id="notifModal">
+    <div class="md" style="max-width: 420px;">
+      <div class="md-h">
+        <h2>Notifications</h2>
+        <button class="cls" id="notifModalClose">✕</button>
+      </div>
+      <div class="md-sb">Configure class reminders and alerts.</div>
+      <div class="mf" style="border-top:none; padding-top:20px;">
+        <div class="notif-settings">
+          <div class="notif-setting-row">
+            <div class="notif-setting-info">
+              <span class="notif-setting-title">Class Reminders</span>
+              <span class="notif-setting-desc">Get notified before each class starts</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notifToggle">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="notif-setting-row">
+            <div class="notif-setting-info">
+              <span class="notif-setting-title">Alert Lead Time</span>
+              <span class="notif-setting-desc">How early to notify before class</span>
+            </div>
+            <select id="notifLeadTime" class="notif-select">
+              <option value="5">5 min</option>
+              <option value="10">10 min</option>
+              <option value="15">15 min</option>
+              <option value="30">30 min</option>
+            </select>
+          </div>
+          <div class="notif-setting-row">
+            <div class="notif-setting-info">
+              <span class="notif-setting-title">Morning Briefing</span>
+              <span class="notif-setting-desc">Daily schedule summary notification</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notifBriefingToggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="notif-setting-row" id="briefingTimeRow">
+            <div class="notif-setting-info">
+              <span class="notif-setting-title">Briefing Time</span>
+              <span class="notif-setting-desc">When to receive your daily summary</span>
+            </div>
+            <select id="notifBriefingTime" class="notif-select">
+              <option value="390">6:30 AM</option>
+              <option value="420">7:00 AM</option>
+              <option value="450">7:30 AM</option>
+              <option value="480">8:00 AM</option>
+              <option value="510">8:30 AM</option>
+            </select>
+          </div>
+          <div class="notif-setting-row">
+            <div class="notif-setting-info">
+              <span class="notif-setting-title">Class End Alerts</span>
+              <span class="notif-setting-desc">Notify 5 min before class ends</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notifClassEndToggle">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="notif-setting-row">
+            <div class="notif-setting-info">
+              <span class="notif-setting-title">Day Complete Alert</span>
+              <span class="notif-setting-desc">Celebrate when all classes are done</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notifDayDoneToggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="notif-setting-row">
+            <div class="notif-setting-info">
+              <span class="notif-setting-title">Permission Status</span>
+              <span class="notif-setting-desc" id="notifPermStatus">Checking...</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px;">
+          <button class="bp" id="notifHistoryBtn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            View Notification History
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Announcements -->
+  <div class="mo" id="announceModal">
+    <div class="md" style="max-width: 500px;">
+      <div class="md-h">
+        <h2>Announcements</h2>
+        <button class="cls" id="announceModalClose">✕</button>
+      </div>
+      <div class="md-sb">Stay updated with course announcements.</div>
+      
+      <div style="margin-top: 10px; display: flex; justify-content: flex-end;padding: 10px;">
+        <button class="day-nav-btn" id="newAnnounceBtn">+ Post Announcement</button>
+      </div>
+      
+      <div class="announce-list" id="announceList" style="margin-top: 15px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 5px;">
+        <!-- Loaded dynamically -->
+        <div class="skeleton-card" style="height: 80px;"></div>
+        <div class="skeleton-card" style="height: 80px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Post Announcement -->
+  <div class="mo" id="postAnnounceModal">
+    <div class="md" style="max-width: 450px;">
+      <div class="md-h">
+        <h2>Post Announcement</h2>
+        <button class="cls" id="postAnnounceClose">✕</button>
+      </div>
+      <div class="md-sb">Submit an announcement to send notifications to everyone.</div>
+      <div class="mf" style="border-top:none; padding-top:15px;">
+        <div class="fr">
+          <div class="fg">
+            <label>Your Name</label>
+            <input type="text" id="paName" placeholder="e.g. Dr. John Doe" required />
+          </div>
+          <div class="fg">
+            <label>Announcement Type</label>
+            <select id="paType" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:10px; font-family:var(--f); font-size:13px;">
+              <option value="general">General</option>
+              <option value="cancellation">Class Cancellation</option>
+              <option value="holiday">Holiday / Day Off</option>
+              <option value="online_class">Online Class (overrides holiday)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Section: General -->
+        <div id="paGeneralSection">
+          <div class="fr">
+            <div class="fg">
+              <label>Title</label>
+              <input type="text" id="paTitle" placeholder="e.g. Special Guest Lecture" />
+            </div>
+            <div class="fg">
+              <label>Subject (Optional)</label>
+              <input type="text" id="paSubject" placeholder="e.g. EDC" />
+            </div>
+          </div>
+          <div class="fg">
+            <label>Announcement Details</label>
+            <textarea id="paContent" placeholder="Write details here..." style="width: 100%; min-height: 100px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: var(--rx); color: var(--text); padding: 10px; font-family: var(--f); font-size: 13px; resize: vertical;"></textarea>
+          </div>
+        </div>
+
+        <!-- Section: Cancellation -->
+        <div id="paCancellationSection" style="display: none;">
+          <div class="fr">
+            <div class="fg">
+              <label>Subject to Cancel</label>
+              <select id="paCancelSubjectSelect" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:10px; font-family:var(--f); font-size:13px;"></select>
+            </div>
+            <div class="fg">
+              <label>Cancel Date</label>
+              <input type="date" id="paCancelDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Holiday -->
+        <div id="paHolidaySection" style="display: none;">
+          <div class="fr">
+            <div class="fg">
+              <label>Holiday Duration</label>
+              <select id="paHolidayRangeType" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:10px; font-family:var(--f); font-size:13px;">
+                <option value="single">One Day</option>
+                <option value="multiple">Multiple Days</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Start Date</label>
+              <input type="date" id="paHolidayStartDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
+            </div>
+          </div>
+          <div class="fg" id="paHolidayEndDateContainer" style="display: none;">
+            <label>End Date (Inclusive)</label>
+            <input type="date" id="paHolidayEndDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
+          </div>
+          <div class="fg">
+            <label>Holiday Name / Reason</label>
+            <input type="text" id="paHolidayDetails" placeholder="e.g. Eid Vacation / Winter Break" />
+          </div>
+        </div>
+
+        <!-- Section: Online Class -->
+        <div id="paOnlineSection" style="display: none;">
+          <div style="background: rgba(16, 185, 129, 0.06); border: 1px dashed rgba(16, 185, 129, 0.35); border-radius: var(--rx); padding: 10px 12px; margin-bottom: 10px; font-size: 11.5px; color: #6ee7b7;">
+            📡 This class will run <strong>online</strong> even if a holiday is declared. All other physical classes on that day remain cancelled.
+          </div>
+          <div class="fr">
+            <div class="fg">
+              <label>Subject (Online)</label>
+              <select id="paOnlineSubjectSelect" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:10px; font-family:var(--f); font-size:13px;"></select>
+            </div>
+            <div class="fg">
+              <label>Date</label>
+              <input type="date" id="paOnlineDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
+            </div>
+          </div>
+          <div class="fr">
+            <div class="fg">
+              <label>Start Time</label>
+              <input type="time" id="paOnlineStart" value="09:45" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
+            </div>
+            <div class="fg">
+              <label>End Time</label>
+              <input type="time" id="paOnlineEnd" value="11:00" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
+            </div>
+          </div>
+          <div class="fg">
+            <label>Platform / Link (Optional)</label>
+            <input type="text" id="paOnlineLink" placeholder="e.g. Google Meet, Zoom link, or just Google Meet" style="width:100%;" />
+          </div>
+        </div>
+
+        <div class="fg" style="margin-top: 10px;">
+          <label>Password</label>
+          <input type="password" id="paPassword" placeholder="Enter password to publish" required />
+        </div>
+        <div class="ma" style="justify-content: flex-end; gap: 10px; margin-top: 15px;">
+          <button class="bd" id="postAnnounceCancel">Cancel</button>
+          <button class="bp" id="postAnnounceSubmit">Publish & Notify</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Notification History -->
+  <div class="mo" id="notifHistoryModal">
+    <div class="md" style="max-width: 500px;">
+      <div class="md-h">
+        <h2>Notification History</h2>
+        <button class="cls" id="notifHistoryClose">✕</button>
+      </div>
+      <div class="md-sb" style="display: flex; justify-content: space-between; align-items: center;">
+        <span>Recent notifications & alerts</span>
+        <button class="bd" id="notifHistoryClear" style="font-size: 11px; padding: 4px 10px;">Clear All</button>
+      </div>
+      <div id="notifHistoryList" style="margin-top: 15px; max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;">
+        <div class="skeleton-card" style="height: 60px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <span class="toast-icon" id="toastIcon"></span>
+    <span class="msg"></span>
+    <button class="ub" id="undoB" style="display:none">UNDO</button>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

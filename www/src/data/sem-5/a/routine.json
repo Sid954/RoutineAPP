@@ -1,0 +1,104 @@
+{
+  "Saturday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "ISD",
+      "room": "411",
+      "instructor": "ATIQUR",
+      "type": "Theory"
+    },
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "OSL",
+      "room": "904",
+      "instructor": "RM",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "COA",
+      "room": "405",
+      "instructor": "MAHBUBUL",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "MAD",
+      "room": "905",
+      "instructor": "TMC",
+      "type": "Lab"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "OS",
+      "room": "1003",
+      "instructor": "RM",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "AI",
+      "room": "404",
+      "instructor": "TH",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "AI",
+      "room": "406",
+      "instructor": "TH",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "OS",
+      "room": "1002",
+      "instructor": "RM",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "SAP",
+      "room": "611",
+      "instructor": "AZAD",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "ISD",
+      "room": "405",
+      "instructor": "ATIQUR",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "AIL",
+      "room": "606",
+      "instructor": "TH",
+      "type": "Lab"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "SAP",
+      "room": "613",
+      "instructor": "AZAD",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "COA",
+      "room": "510",
+      "instructor": "MAHBUBUL",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [],
+  "Thursday": [],
+  "Friday": []
+}

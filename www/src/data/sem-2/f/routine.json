@@ -1,0 +1,112 @@
+{
+  "Saturday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "ICMP",
+      "room": "612",
+      "instructor": "MIHIR",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "EE",
+      "room": "408",
+      "instructor": "TMH",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "CPL",
+      "room": "909",
+      "instructor": "FJD",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "ICMP",
+      "room": "611",
+      "instructor": "MIHIR",
+      "type": "Theory"
+    },
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "EE",
+      "room": "408",
+      "instructor": "TMH",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "DMNT",
+      "room": "1001",
+      "instructor": "MFF",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "DS",
+      "room": "903",
+      "instructor": "FJD",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "EDCL",
+      "room": "506",
+      "instructor": "MTS",
+      "type": "Lab"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "EDC",
+      "room": "411",
+      "instructor": "MTS",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "DS",
+      "room": "903",
+      "instructor": "FJD",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "DMNT",
+      "room": "411",
+      "instructor": "MFF",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "DSL",
+      "room": "606",
+      "instructor": "FJD",
+      "type": "Lab"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "PHYL",
+      "room": "505",
+      "instructor": "NJS",
+      "type": "Lab"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "EDC",
+      "room": "408",
+      "instructor": "MTS",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

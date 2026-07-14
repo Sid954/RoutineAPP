@@ -1,0 +1,112 @@
+{
+  "Saturday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "DMNT",
+      "room": "409",
+      "instructor": "ST",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "EDC",
+      "room": "1002",
+      "instructor": "AIR",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "ICMP",
+      "room": "406",
+      "instructor": "NME",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "DS",
+      "room": "611",
+      "instructor": "FSC",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "DSL",
+      "room": "608",
+      "instructor": "FSC",
+      "type": "Lab"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "DMNT",
+      "room": "612",
+      "instructor": "ST",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "EE",
+      "room": "1001",
+      "instructor": "IFTEKAR MIA",
+      "type": "Theory"
+    },
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "ICMP",
+      "room": "404",
+      "instructor": "NME",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "CPL",
+      "room": "606",
+      "instructor": "MHN",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "PHYL",
+      "room": "505",
+      "instructor": "NJS",
+      "type": "Lab"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "EDCL",
+      "room": "506",
+      "instructor": "MRRC",
+      "type": "Lab"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "DS",
+      "room": "610",
+      "instructor": "FSC",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "EDC",
+      "room": "901",
+      "instructor": "AIR",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "EE",
+      "room": "910",
+      "instructor": "IFTEKAR MIA",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

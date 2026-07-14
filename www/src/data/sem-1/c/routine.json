@@ -1,0 +1,112 @@
+{
+  "Saturday": [
+    {
+      "time": "08:55 AM - 10:35 AM",
+      "subject": "FBL",
+      "room": "610",
+      "instructor": "TASLIMA",
+      "type": "Lab"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "GE",
+      "room": "902",
+      "instructor": "RMA",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "MED",
+      "room": "909",
+      "instructor": "MR",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "IEE",
+      "room": "409",
+      "instructor": "CFK",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "PFL",
+      "room": "604",
+      "instructor": "MHN",
+      "type": "Lab"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "DIC",
+      "room": "404",
+      "instructor": "KLD",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "PF",
+      "room": "408",
+      "instructor": "MHN",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "IEE",
+      "room": "411",
+      "instructor": "CFK",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "DIC",
+      "room": "902",
+      "instructor": "KLD",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "DIC",
+      "room": "903",
+      "instructor": "KLD",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "IEEL",
+      "room": "506",
+      "instructor": "CFK",
+      "type": "Lab"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "CFE",
+      "room": "902",
+      "instructor": "AMS",
+      "type": "Lab"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "GE",
+      "room": "404",
+      "instructor": "RMA",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "PF",
+      "room": "404",
+      "instructor": "MHN",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

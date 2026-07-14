@@ -1,0 +1,105 @@
+{
+  "Saturday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "ISD",
+      "room": "411",
+      "instructor": "ATIQUR",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "AIL",
+      "room": "604",
+      "instructor": "TH",
+      "type": "Lab"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "COA",
+      "room": "405",
+      "instructor": "MAHBUBUL",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "OS",
+      "room": "411",
+      "instructor": "AJT",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "MAD",
+      "room": "904",
+      "instructor": "TMC",
+      "type": "Lab"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "AI",
+      "room": "1003",
+      "instructor": "TH",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "OS",
+      "room": "612",
+      "instructor": "AJT",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "SAP",
+      "room": "611",
+      "instructor": "AZAD",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "ISD",
+      "room": "405",
+      "instructor": "ATIQUR",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "COA",
+      "room": "613",
+      "instructor": "MAHBUBUL",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "SAP",
+      "room": "613",
+      "instructor": "AZAD",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "AI",
+      "room": "411",
+      "instructor": "TH",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "OSL",
+      "room": "606",
+      "instructor": "RM",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

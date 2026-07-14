@@ -1,0 +1,112 @@
+{
+  "Saturday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "ICMP",
+      "room": "404",
+      "instructor": "DAB",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "EDC",
+      "room": "1002",
+      "instructor": "AIR",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "EE",
+      "room": "902",
+      "instructor": "AWAL",
+      "type": "Theory"
+    },
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "ICMP",
+      "room": "404",
+      "instructor": "DAB",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "PHYL",
+      "room": "505",
+      "instructor": "NJS",
+      "type": "Lab"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "DSL",
+      "room": "608",
+      "instructor": "FSC",
+      "type": "Lab"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "DS",
+      "room": "409",
+      "instructor": "FSC",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "CPL",
+      "room": "904",
+      "instructor": "MHN",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "DS",
+      "room": "410",
+      "instructor": "FSC",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "DMNT",
+      "room": "610",
+      "instructor": "FSC",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "EDCL",
+      "room": "508",
+      "instructor": "JBA",
+      "type": "Lab"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "EDC",
+      "room": "901",
+      "instructor": "AIR",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "EE",
+      "room": "902",
+      "instructor": "AWAL",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "DMNT",
+      "room": "410",
+      "instructor": "FSC",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

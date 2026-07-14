@@ -1,0 +1,112 @@
+{
+  "Saturday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "TWP",
+      "room": "901",
+      "instructor": "SAIFUL",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "ML",
+      "room": "1003",
+      "instructor": "SHUHENA",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "09:20 AM - 11:00 AM",
+      "subject": "TC",
+      "room": "901",
+      "instructor": "AD",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "CC",
+      "room": "611",
+      "instructor": "KD",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "CCL",
+      "room": "601",
+      "instructor": "KD",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "CCL",
+      "room": "601",
+      "instructor": "KD",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "CC",
+      "room": "409",
+      "instructor": "KD",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "STQA",
+      "room": "611",
+      "instructor": "THA",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "SEE",
+      "room": "405",
+      "instructor": "ASIF",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "STQA",
+      "room": "1001",
+      "instructor": "THA",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "STQAL",
+      "room": "904",
+      "instructor": "THA",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "SEE",
+      "room": "409",
+      "instructor": "ASIF",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "MLL",
+      "room": "1008",
+      "instructor": "YR",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "ML",
+      "room": "406",
+      "instructor": "SHUHENA",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

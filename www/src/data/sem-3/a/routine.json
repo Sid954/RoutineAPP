@@ -1,0 +1,98 @@
+{
+  "Saturday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "OOP",
+      "room": "612",
+      "instructor": "SMAI",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "CENG",
+      "room": "1001",
+      "instructor": "ALAMGIR",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 03:10 PM",
+      "subject": "BS",
+      "room": "404",
+      "instructor": "AZMAIN",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "CGVA",
+      "room": "613",
+      "instructor": "JU",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "DEPTL",
+      "room": "508",
+      "instructor": "ASIF",
+      "type": "Lab"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "CGVA",
+      "room": "610",
+      "instructor": "JU",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "DEPT",
+      "room": "613",
+      "instructor": "JUA",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "IP",
+      "room": "905",
+      "instructor": "MTH",
+      "type": "Lab"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "OOP",
+      "room": "613",
+      "instructor": "SMAI",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "OOPL",
+      "room": "601",
+      "instructor": "SMAI",
+      "type": "Lab"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "DEPT",
+      "room": "613",
+      "instructor": "JUA",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "NM",
+      "room": "608",
+      "instructor": "TDM",
+      "type": "Lab"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

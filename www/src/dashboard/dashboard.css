@@ -1,0 +1,159 @@
+/* ==========================================================================
+   Dashboard — Container, Header, Greeting, Stats, Current & Next Class
+   ========================================================================== */
+
+/* Main Dashboard Container */
+.ww {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  border-radius: calc(var(--r) + 2px);
+  padding: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--pink), var(--lime), var(--accent));
+  background-size: 300% 100%;
+  animation: borderPan 6s linear infinite;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  transition: max-width var(--t);
+  transform: translateZ(0);
+}
+@keyframes borderPan { 0% { background-position: 0% 0; } 100% { background-position: -300% 0; } }
+
+.w {
+  background: var(--card);
+  border-radius: var(--r);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  height: 100%;
+  animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+.w::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 20% 0%, rgba(56, 189, 248, 0.08), transparent 60%),
+              radial-gradient(ellipse at 80% 100%, rgba(244, 63, 94, 0.06), transparent 50%);
+  pointer-events: none; z-index: 0;
+}
+.wi { padding: 28px 24px 24px; position: relative; z-index: 1; transition: padding var(--t); }
+
+/* Header */
+.hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; animation: headerIn 0.5s 0.12s both; }
+@keyframes headerIn { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: translateY(0); } }
+
+.hd .tm {
+  font-family: var(--m); font-size: clamp(32px, 5vw, 38px); font-weight: 700;
+  letter-spacing: -1.5px; line-height: 1;
+  background: linear-gradient(135deg, var(--text), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  cursor: pointer; transition: transform var(--t), filter var(--t);
+  display: flex; align-items: center; gap: 8px;
+}
+.hd .tm:hover { transform: scale(1.03); filter: drop-shadow(0 0 12px var(--ag)); }
+.hd .tm:active { transform: scale(0.98); }
+.hd .tm .ap { font-size: 16px; font-weight: 600; -webkit-text-fill-color: var(--accent); }
+
+.sim-badge {
+  font-family: var(--f); font-size: 9px; font-weight: 800;
+  -webkit-text-fill-color: #000; background: var(--amber);
+  padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.hd .dr { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 14px; color: var(--dim); font-weight: 500; }
+.hd .db {
+  background: rgba(56, 189, 248, 0.12); color: var(--accent2); font-weight: 700;
+  padding: 3px 12px; border-radius: 20px; font-size: 11px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.hd-actions { display: flex; align-items: center; gap: 8px; }
+.hd-btn {
+  background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border);
+  border-radius: 14px; width: 44px; height: 44px; cursor: pointer;
+  transition: transform var(--t), border-color var(--t), color var(--t);
+  display: flex; align-items: center; justify-content: center; color: var(--dim);
+}
+.hd-btn:hover { color: var(--accent); border-color: var(--accent); transform: scale(1.05); }
+.hd-btn:active { transform: scale(0.95); }
+
+.eb {
+  background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border);
+  border-radius: 14px; width: 48px; height: 48px; font-size: 20px;
+  cursor: pointer; transition: transform var(--t), border-color var(--t), box-shadow var(--t), color var(--t);
+  display: flex; align-items: center; justify-content: center; color: var(--dim);
+  position: relative; overflow: hidden;
+}
+.eb::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--accent), var(--pink));
+  opacity: 0; transition: opacity var(--t);
+}
+.eb:hover { color: #fff; border-color: transparent; transform: rotate(90deg) scale(1.08); box-shadow: 0 0 24px var(--ag); }
+.eb:hover::before { opacity: 1; }
+.eb:active { transform: rotate(90deg) scale(0.95); }
+.eb span { position: relative; z-index: 1; }
+
+/* Greeting */
+.greeting {
+  display: flex; flex-direction: column; gap: 2px;
+  margin-bottom: 16px; padding: 0 2px;
+  animation: headerIn 0.5s 0.18s both;
+}
+.greeting-text { font-size: 15px; font-weight: 700; color: var(--text); }
+.greeting-sub { font-size: 12px; font-weight: 500; color: var(--dim); }
+
+/* Current Class Card */
+.cc {
+  border-radius: var(--rs); padding: 24px 26px 22px; color: #fff;
+  margin-bottom: 16px; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #0f172a 0%, #083344 100%);
+  border: 1px solid #164e63;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  animation: cardSlideIn 0.5s 0.28s both; text-align: center;
+}
+@keyframes cardSlideIn { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: translateX(0); } }
+
+.cc .lb { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 800; letter-spacing: 1px; opacity: 0.85; margin-bottom: 12px; position: relative; z-index: 1; color: var(--accent2); }
+.cc .lb-left { display: flex; align-items: center; gap: 7px; text-transform: uppercase; }
+.cc .lb-right { font-family: var(--m); font-size: 11px; background: rgba(0, 0, 0, 0.3); padding: 3px 10px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; }
+.cc .pd { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: liveDot 1.5s ease-in-out infinite; box-shadow: 0 0 10px var(--accent); }
+@keyframes liveDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.2; transform: scale(0.5); } }
+
+.cc .tt { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; position: relative; z-index: 1; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3); margin: 6px 0; }
+.cc .mr { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 6px; font-size: 15px; opacity: 0.95; position: relative; z-index: 1; }
+.cc .rp { background: rgba(0, 0, 0, 0.2); padding: 4px 16px; border-radius: 20px; font-weight: 700; border: 1px solid rgba(255, 255, 255, 0.1); }
+
+.cc .ps { margin-top: 22px; position: relative; z-index: 1; }
+.cc .pi { display: flex; justify-content: flex-end; font-size: 13px; opacity: 0.8; margin-bottom: 8px; font-weight: 600; }
+.cc .pt { height: 8px; background: rgba(0, 0, 0, 0.4); border-radius: 10px; overflow: hidden; position: relative; padding: 2px; }
+.cc .pf {
+  height: 100%; border-radius: 10px; width: 0%;
+  background: linear-gradient(90deg, #38bdf8, #34d8ac, #f43f5e);
+  background-size: 200% 100%;
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.8);
+  animation: barShimmer 3s linear infinite;
+  will-change: background-position;
+}
+@keyframes barShimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+.cc .rm { font-size: 14px; font-weight: 600; opacity: 0.9; margin-top: 10px; text-align: center; }
+
+/* Next Class Card */
+.nc {
+  background: var(--card2); border-radius: var(--rs); padding: 20px 24px;
+  margin-bottom: 20px; border: 1px solid var(--border);
+  position: relative; overflow: hidden;
+  transition: border-color var(--t), box-shadow var(--t); text-align: center;
+}
+.nc:hover { border-color: rgba(56, 189, 248, 0.4); box-shadow: 0 0 24px rgba(56, 189, 248, 0.08); }
+.nc::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.5; }
+.nc .lb { display: block; width: 100%; text-align: center; font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--dim); margin-bottom: 10px; }
+.nc .rw { display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.nc .rw .tt { font-size: 22px; font-weight: 700; }
+.nc .rw .eta { font-size: 13px; font-weight: 700; color: var(--accent2); background: rgba(56, 189, 248, 0.12); padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.25); white-space: nowrap; }
+.nc .sb { font-size: 14px; color: var(--dim); margin-top: 6px; font-weight: 500; }
+.nc .sb .rm { font-weight: 700; color: var(--text); }
