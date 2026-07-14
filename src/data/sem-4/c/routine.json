@@ -1,0 +1,105 @@
+{
+  "Saturday": [
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "BFE",
+      "room": "903",
+      "instructor": "JA",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "MML",
+      "room": "03",
+      "instructor": "MRRC",
+      "type": "Lab"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "ALGO",
+      "room": "410",
+      "instructor": "NR",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "ALGOL",
+      "room": "606",
+      "instructor": "NR",
+      "type": "Lab"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "DBMS",
+      "room": "410",
+      "instructor": "AD",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "MM",
+      "room": "910",
+      "instructor": "MRRC",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "MLADE",
+      "room": "510",
+      "instructor": "AKK",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "BFE",
+      "room": "901",
+      "instructor": "JA",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "ALGO",
+      "room": "409",
+      "instructor": "NR",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "MM",
+      "room": "1001",
+      "instructor": "MRRC",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "DBMS",
+      "room": "612",
+      "instructor": "AD",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "DBMSL",
+      "room": "608",
+      "instructor": "AD",
+      "type": "Lab"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "MLADE",
+      "room": "611",
+      "instructor": "AKK",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

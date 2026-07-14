@@ -6,6 +6,21 @@ export const Storage = {
   STREAK_KEY: 'routine_streak',
   BANNER_DISMISS_KEY: 'routine_notif_banner_dismissed',
   INSTALL_DISMISS_KEY: 'routine_install_dismissed',
+  SEMESTER_KEY: 'genz_routine_semester',
+  SECTION_KEY: 'genz_routine_section',
+
+  getSemester() {
+    try { return localStorage.getItem(this.SEMESTER_KEY) || '2'; } catch { return '2'; }
+  },
+  saveSemester(sem) {
+    try { localStorage.setItem(this.SEMESTER_KEY, sem); } catch {}
+  },
+  getSection() {
+    try { return localStorage.getItem(this.SECTION_KEY) || 'c'; } catch { return 'c'; }
+  },
+  saveSection(sec) {
+    try { localStorage.setItem(this.SECTION_KEY, sec); } catch {}
+  },
 
   saveSchedule() {
     try { localStorage.setItem(this.SCHEDULE_KEY, JSON.stringify(State.schedule)); } catch {}

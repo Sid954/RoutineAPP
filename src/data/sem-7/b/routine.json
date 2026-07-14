@@ -1,0 +1,126 @@
+{
+  "Saturday": [
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "TWP",
+      "room": "901",
+      "instructor": "SAIFUL",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "CC",
+      "room": "910",
+      "instructor": "KMN",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "ML",
+      "room": "1003",
+      "instructor": "SHUHENA",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "MLL",
+      "room": "601",
+      "instructor": "YR",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "SEE",
+      "room": "910",
+      "instructor": "TASNIM",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 03:10 PM",
+      "subject": "TC",
+      "room": "611",
+      "instructor": "AD",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "STQAL",
+      "room": "904",
+      "instructor": "TMC",
+      "type": "Theory"
+    },
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "CCL",
+      "room": "909",
+      "instructor": "KMN",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "CC",
+      "room": "1001",
+      "instructor": "KMN",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "SEE",
+      "room": "404",
+      "instructor": "TASNIM",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "MLL",
+      "room": "601",
+      "instructor": "YR",
+      "type": "Theory"
+    },
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "STQAL",
+      "room": "904",
+      "instructor": "TMC",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "STQA",
+      "room": "903",
+      "instructor": "TMC",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "CCL",
+      "room": "606",
+      "instructor": "KD",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "ML",
+      "room": "406",
+      "instructor": "SHUHENA",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "STQA",
+      "room": "903",
+      "instructor": "TMC",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

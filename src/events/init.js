@@ -11,6 +11,7 @@ import { updateClock } from '../clock/clock.js';
 import { updateGreeting } from '../dashboard/greeting.js';
 import { updateStats } from '../dashboard/stats.js';
 import { updateDashboard, forceUpdate } from '../dashboard/update.js';
+import { DOM } from '../core/dom.js';
 
 export function initializeApp() {
   if (FEATURES.streak) Streak.update();
@@ -83,7 +84,9 @@ export function initializeApp() {
     .catch(() => { /* Silent fallback: offline or config unchanged */ });
 
   // B. Schedule fetch
-  fetch('schedule.json?t=' + Date.now())
+  const currentSem = Storage.getSemester();
+  const currentSec = Storage.getSection();
+  fetch(`./src/data/sem-${currentSem}/${currentSec}/routine.json?t=${Date.now()}`)
     .then(res => { if (!res.ok) throw new Error(); return res.json(); })
     .then(data => {
       const freshSchedule = normalizeSchedule(data);
@@ -108,4 +111,88 @@ export function initializeApp() {
       }
     }).catch(() => { /* Silent fallback: offline */ });
   }
+
+  // ── STEP 5: Initialize Routine Selection Dropdowns
+  initRoutineSelector();
+}
+
+const ROUTINE_STRUCTURE = {
+  '1': ['a', 'b', 'c', 'd', 'e', 'f'],
+  '2': ['a', 'b', 'c', 'd', 'e', 'f'],
+  '3': ['a', 'b', 'c', 'd', 'e', 'f'],
+  '4': ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
+  '5': ['a', 'b', 'c'],
+  '6': ['a', 'b', 'c', 'd', 'e', 'f'],
+  '7': ['a', 'b'],
+  '8': ['a', 'b', 'c', 'd', 'e']
+};
+
+function initRoutineSelector() {
+  const semSelect = DOM.routineSemesterSelect;
+  const secSelect = DOM.routineSectionSelect;
+  if (!semSelect || !secSelect) return;
+
+  const currentSem = Storage.getSemester();
+  const currentSec = Storage.getSection();
+
+  // 1. Populate Semester dropdown options
+  semSelect.innerHTML = Object.keys(ROUTINE_STRUCTURE)
+    .map(sem => `<option value="${sem}"${sem === currentSem ? ' selected' : ''}>Semester ${sem}</option>`)
+    .join('');
+
+  // 2. Populate Section options depending on selected semester
+  function populateSections(sem, selectedSec) {
+    const sections = ROUTINE_STRUCTURE[sem] || [];
+    secSelect.innerHTML = sections
+      .map(sec => `<option value="${sec}"${sec === selectedSec ? ' selected' : ''}>Section ${sec.toUpperCase()}</option>`)
+      .join('');
+  }
+
+  populateSections(currentSem, currentSec);
+
+  // 3. Helper to fetch and load new routine
+  function loadRoutine(sem, sec) {
+    const path = `./src/data/sem-${sem}/${sec}/routine.json`;
+    import('../toast/toast.js').then(({ showToast }) => {
+      fetch(`${path}?t=${Date.now()}`)
+        .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+        .then(data => {
+          State.schedule = normalizeSchedule(data);
+          Storage.saveSchedule();
+          Storage.saveSemester(sem);
+          Storage.saveSection(sec);
+          forceUpdate();
+          import('../edit-schedule/editor.js').then(({ renderEditColumns }) => {
+            renderEditColumns();
+          });
+          if (FEATURES.notifications) {
+            Notifications.scheduleForToday();
+          }
+          showToast(`Loaded Semester ${sem} - Section ${sec.toUpperCase()}`, 'success');
+        })
+        .catch(err => {
+          console.error('Failed to load routine:', err);
+          showToast('Failed to load selected routine', 'error');
+          // Revert selection in dropdowns
+          semSelect.value = Storage.getSemester();
+          populateSections(semSelect.value, Storage.getSection());
+        });
+    });
+  }
+
+  // 4. Bind change listeners
+  semSelect.addEventListener('change', () => {
+    const sem = semSelect.value;
+    const availableSections = ROUTINE_STRUCTURE[sem] || [];
+    let sec = secSelect.value;
+    if (!availableSections.includes(sec)) {
+      sec = availableSections[0] || 'a';
+    }
+    populateSections(sem, sec);
+    loadRoutine(sem, sec);
+  });
+
+  secSelect.addEventListener('change', () => {
+    loadRoutine(semSelect.value, secSelect.value);
+  });
 }

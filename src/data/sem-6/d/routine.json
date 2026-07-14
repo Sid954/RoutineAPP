@@ -1,0 +1,112 @@
+{
+  "Saturday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "DC",
+      "room": "409",
+      "instructor": "HKR",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "PME",
+      "room": "410",
+      "instructor": "TASNIA",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "CCS",
+      "room": "411",
+      "instructor": "AYESHA BANU",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "PME",
+      "room": "405",
+      "instructor": "TASNIA",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "CCS",
+      "room": "910",
+      "instructor": "AYESHA BANU",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "SE",
+      "room": "405",
+      "instructor": "EAS",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "SDP",
+      "room": "601",
+      "instructor": "RM",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "DC",
+      "room": "610",
+      "instructor": "HKR",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "SE",
+      "room": "410",
+      "instructor": "EAS",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "CN",
+      "room": "409",
+      "instructor": "NBH",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "CN",
+      "room": "903",
+      "instructor": "NBH",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "CNL",
+      "room": "601",
+      "instructor": "KD",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "SEL",
+      "room": "608",
+      "instructor": "EAS",
+      "type": "Theory"
+    },
+    {
+      "time": "03:10 PM - 04:00 PM",
+      "subject": "SDP",
+      "room": "901",
+      "instructor": "RM",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

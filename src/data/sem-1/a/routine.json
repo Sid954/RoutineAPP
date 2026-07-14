@@ -1,0 +1,105 @@
+{
+  "Saturday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "GE",
+      "room": "902",
+      "instructor": "RMA",
+      "type": "Theory"
+    },
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "MED",
+      "room": "909",
+      "instructor": "MR",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:40 PM",
+      "subject": "FBL",
+      "room": "610",
+      "instructor": "TASLIMA",
+      "type": "Lab"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "PFL",
+      "room": "604",
+      "instructor": "AJT",
+      "type": "Lab"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "DIC",
+      "room": "403",
+      "instructor": "KLD",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "CFE",
+      "room": "902",
+      "instructor": "AMS",
+      "type": "Lab"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "IEEL",
+      "room": "508",
+      "instructor": "KMAY",
+      "type": "Lab"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "IEE",
+      "room": "1004",
+      "instructor": "KMAY",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "DIC",
+      "room": "613",
+      "instructor": "KLD",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "PF",
+      "room": "411",
+      "instructor": "AJT",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "IEE",
+      "room": "405",
+      "instructor": "KMAY",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "GE",
+      "room": "404",
+      "instructor": "RMA",
+      "type": "Theory"
+    },
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "PF",
+      "room": "410",
+      "instructor": "AJT",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

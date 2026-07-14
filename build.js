@@ -13,9 +13,6 @@ const FILES_TO_COPY = [
   'icon-192.png',
   'icon-512.png',
   '512.png',
-  // Legacy files kept as fallback — not loaded by index.html anymore
-  'style.css',
-  'script.js',
 ];
 
 // Directories to copy recursively

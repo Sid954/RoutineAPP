@@ -58,6 +58,8 @@ export const DOM = {
   notifToggle: $id('notifToggle'),
   notifLeadTime: $id('notifLeadTime'),
   notifPermStatus: $id('notifPermStatus'),
+  routineSemesterSelect: $id('routineSemesterSelect'),
+  routineSectionSelect: $id('routineSectionSelect'),
 
   // Banners
   notifBanner: $id('notifBanner'),

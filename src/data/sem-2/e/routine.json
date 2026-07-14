@@ -1,0 +1,112 @@
+{
+  "Saturday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "EE",
+      "room": "408",
+      "instructor": "TMH",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "ICMP",
+      "room": "406",
+      "instructor": "NP",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "CPL",
+      "room": "909",
+      "instructor": "FJD",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "EE",
+      "room": "408",
+      "instructor": "TMH",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "DMNT",
+      "room": "1003",
+      "instructor": "MFF",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "EDC",
+      "room": "613",
+      "instructor": "JUA",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "ICMP",
+      "room": "612",
+      "instructor": "NP",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "EDCL",
+      "room": "508",
+      "instructor": "MI",
+      "type": "Lab"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "DMNT",
+      "room": "1004",
+      "instructor": "MFF",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "DS",
+      "room": "902",
+      "instructor": "KMN",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "DSL",
+      "room": "909",
+      "instructor": "KMN",
+      "type": "Lab"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "EDC",
+      "room": "613",
+      "instructor": "JUA",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "DS",
+      "room": "902",
+      "instructor": "KMN",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "PHYL",
+      "room": "505",
+      "instructor": "NJS",
+      "type": "Lab"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

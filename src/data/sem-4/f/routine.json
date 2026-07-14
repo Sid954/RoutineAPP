@@ -1,0 +1,105 @@
+{
+  "Saturday": [
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "ALGOL",
+      "room": "904",
+      "instructor": "MHN",
+      "type": "Lab"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "BFE",
+      "room": "612",
+      "instructor": "AYESHA",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "DBMS",
+      "room": "510",
+      "instructor": "NAK",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "MM",
+      "room": "411",
+      "instructor": "KMAY",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "ALGO",
+      "room": "510",
+      "instructor": "MHE",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "MML",
+      "room": "503",
+      "instructor": "KMAY",
+      "type": "Lab"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "DBMS",
+      "room": "510",
+      "instructor": "NAK",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "MM",
+      "room": "510",
+      "instructor": "KMAY",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "MLADE",
+      "room": "611",
+      "instructor": "KLD",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "BFE",
+      "room": "612",
+      "instructor": "AYESHA",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "MLADE",
+      "room": "1004",
+      "instructor": "KLD",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "ALGO",
+      "room": "510",
+      "instructor": "MHE",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "DBMSL",
+      "room": "604",
+      "instructor": "NAK",
+      "type": "Lab"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

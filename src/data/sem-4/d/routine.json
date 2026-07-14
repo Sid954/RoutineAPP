@@ -1,0 +1,112 @@
+{
+  "Saturday": [
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "ALGOL",
+      "room": "601",
+      "instructor": "NR",
+      "type": "Lab"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "BFE",
+      "room": "903",
+      "instructor": "ZAHID",
+      "type": "Theory"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "MLADE",
+      "room": "611",
+      "instructor": "AU",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "MM",
+      "room": "910",
+      "instructor": "FORHAD",
+      "type": "Theory"
+    },
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "DBMS",
+      "room": "1001",
+      "instructor": "EAS",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "ALGO",
+      "room": "510",
+      "instructor": "NR",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "BFE",
+      "room": "613",
+      "instructor": "ZAHID",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "MLADE",
+      "room": "411",
+      "instructor": "AU",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "MM",
+      "room": "902",
+      "instructor": "FORHAD",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "MML",
+      "room": "503",
+      "instructor": "MHE",
+      "type": "Lab"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "DBMSL",
+      "room": "604",
+      "instructor": "EAS",
+      "type": "Lab"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "DBMSL",
+      "room": "604",
+      "instructor": "EAS",
+      "type": "Lab"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "ALGO",
+      "room": "408",
+      "instructor": "NR",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "DBMS",
+      "room": "1002",
+      "instructor": "EAS",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

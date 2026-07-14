@@ -1,0 +1,63 @@
+{
+  "Saturday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "BDA",
+      "room": "1003",
+      "instructor": "ROKON",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "DM",
+      "room": "510",
+      "instructor": "KAMAL",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "FMA",
+      "room": "406",
+      "instructor": "SAGAR",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "BDA",
+      "room": "611",
+      "instructor": "ROKON",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "FMA",
+      "room": "406",
+      "instructor": "SAGAR",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "BDAL",
+      "room": "904",
+      "instructor": "MTH",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "DM",
+      "room": "612",
+      "instructor": "KAMAL",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

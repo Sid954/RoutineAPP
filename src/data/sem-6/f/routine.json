@@ -1,0 +1,119 @@
+{
+  "Saturday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "CNL",
+      "room": "601",
+      "instructor": "NBH",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "PME",
+      "room": "410",
+      "instructor": "ZIA",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "CCS",
+      "room": "510",
+      "instructor": "KAMAL",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "DC",
+      "room": "409",
+      "instructor": "HKR",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "SDP",
+      "room": "604",
+      "instructor": "RM",
+      "type": "Theory"
+    },
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "SDP",
+      "room": "604",
+      "instructor": "RM",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "SE",
+      "room": "1002",
+      "instructor": "YR",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "PME",
+      "room": "405",
+      "instructor": "ZIA",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "SEL",
+      "room": "905",
+      "instructor": "YR",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "DC",
+      "room": "610",
+      "instructor": "HKR",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "SE",
+      "room": "1002",
+      "instructor": "YR",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "CN",
+      "room": "510",
+      "instructor": "NBH",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "CCS",
+      "room": "612",
+      "instructor": "KAMAL",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "CN",
+      "room": "613",
+      "instructor": "NBH",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:20 PM",
+      "subject": "SDP",
+      "room": "901",
+      "instructor": "RM",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

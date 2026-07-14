@@ -1,0 +1,105 @@
+{
+  "Saturday": [
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "MML",
+      "room": "503",
+      "instructor": "KMAY",
+      "type": "Lab"
+    },
+    {
+      "time": "02:45 PM - 04:00 PM",
+      "subject": "BFE",
+      "room": "612",
+      "instructor": "AYESHA",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "DBMS",
+      "room": "901",
+      "instructor": "MRI",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "MM",
+      "room": "411",
+      "instructor": "KMAY",
+      "type": "Theory"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "ALGO",
+      "room": "910",
+      "instructor": "FJD",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "DBMSL",
+      "room": "608",
+      "instructor": "MRI",
+      "type": "Lab"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "MLADE",
+      "room": "613",
+      "instructor": "KLD",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "DBMS",
+      "room": "1002",
+      "instructor": "MRI",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "MLADE",
+      "room": "613",
+      "instructor": "KLD",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "ALGO",
+      "room": "910",
+      "instructor": "FJD",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "BFE",
+      "room": "612",
+      "instructor": "AYESHA",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "MM",
+      "room": "510",
+      "instructor": "KMAY",
+      "type": "Theory"
+    },
+    {
+      "time": "11:00 AM - 01:30 PM",
+      "subject": "ALGOL",
+      "room": "904",
+      "instructor": "FJD",
+      "type": "Lab"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}

@@ -1,0 +1,105 @@
+{
+  "Saturday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "IEEL",
+      "room": "506",
+      "instructor": "CFK",
+      "type": "Lab"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "MED",
+      "room": "608",
+      "instructor": "MA",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "GE",
+      "room": "611",
+      "instructor": "Ataur",
+      "type": "Theory"
+    }
+  ],
+  "Sunday": [
+    {
+      "time": "09:45 AM - 11:25 AM",
+      "subject": "FBL",
+      "room": "610",
+      "instructor": "MAWLA",
+      "type": "Lab"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "IEE",
+      "room": "409",
+      "instructor": "CFK",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 04:00 PM",
+      "subject": "PFL",
+      "room": "604",
+      "instructor": "MHN",
+      "type": "Lab"
+    }
+  ],
+  "Monday": [
+    {
+      "time": "08:30 AM - 11:00 AM",
+      "subject": "CFE",
+      "room": "901",
+      "instructor": "AMS",
+      "type": "Lab"
+    },
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "IEE",
+      "room": "405",
+      "instructor": "CFK",
+      "type": "Theory"
+    }
+  ],
+  "Tuesday": [
+    {
+      "time": "08:30 AM - 09:45 AM",
+      "subject": "GE",
+      "room": "611",
+      "instructor": "Ataur",
+      "type": "Theory"
+    },
+    {
+      "time": "09:45 AM - 11:00 AM",
+      "subject": "DIC",
+      "room": "1003",
+      "instructor": "ABSAR",
+      "type": "Theory"
+    },
+    {
+      "time": "12:15 PM - 01:30 PM",
+      "subject": "PF",
+      "room": "406",
+      "instructor": "MHN",
+      "type": "Theory"
+    }
+  ],
+  "Wednesday": [
+    {
+      "time": "11:00 AM - 12:15 PM",
+      "subject": "PF",
+      "room": "610",
+      "instructor": "MHN",
+      "type": "Theory"
+    },
+    {
+      "time": "01:30 PM - 02:45 PM",
+      "subject": "DIC",
+      "room": "404",
+      "instructor": "ABSAR",
+      "type": "Theory"
+    }
+  ],
+  "Thursday": [],
+  "Friday": []
+}
