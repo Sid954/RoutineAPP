@@ -1,4 +1,5 @@
 export const CONFIG = {
+  version: '1.0.3',
   apiBase: 'https://routine-app-iota-one.vercel.app',
   activeDays: [6, 0, 1, 2, 3], // Sat, Sun, Mon, Tue, Wed
   matrixIntervals: [
