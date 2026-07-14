@@ -114,11 +114,6 @@ export function initializeApp() {
 
   // ── STEP 5: Initialize Routine Selection Dropdowns
   initRoutineSelector();
-
-  // ── STEP 6: Check for Live Updates (non-blocking)
-  import('./live-update.js').then(({ checkLiveUpdates }) => {
-    checkLiveUpdates();
-  });
 }
 
 const ROUTINE_STRUCTURE = {
