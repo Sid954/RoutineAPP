@@ -7,6 +7,9 @@
     "cleartext": true
   },
   "plugins": {
+    "CapacitorUpdater": {
+      "autoUpdate": false
+    },
     "LocalNotifications": {
       "smallIcon": "ic_stat_icon",
       "iconColor": "#38bdf8"

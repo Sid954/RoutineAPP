@@ -46,6 +46,7 @@ export async function checkLiveUpdates() {
       DOM.undoBtn.textContent = 'RELOAD';
     }
   } catch (e) {
-    console.warn('Live Update check failed (offline or connection issue):', e);
+    console.error('Live Update check failed:', e);
+    showToast('Update failed: ' + (e.message || e), 'error');
   }
 }
