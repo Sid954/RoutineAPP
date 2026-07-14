@@ -1,5 +1,5 @@
 {
-  "version": "1.0.3",
+  "version": "1.0.4",
   "scripts": {
     "build": "node build.js",
     "sync": "npm run build && npx cap sync"
