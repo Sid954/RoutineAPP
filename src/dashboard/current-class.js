@@ -94,6 +94,6 @@ export function renderCurrentClass() {
     progressSection.style.display = 'none';
     roomPill.parentElement.style.display = 'none';
     timePill.style.display = 'none';
-    DOM.currentTitle.textContent = 'Free Time ☕';
+    DOM.currentTitle.textContent = 'Free Time ';
   }
 }
