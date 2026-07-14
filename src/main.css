@@ -1,0 +1,17 @@
+/**
+ * main.css — Master CSS entry point
+ *
+ * Imports all feature CSS in the correct order.
+ * Comment out any @import to visually disable that feature's styles.
+ */
+
+@import './core/core.css';
+@import './banners/banners.css';
+@import './dashboard/dashboard.css';
+@import './timeline/timeline.css';
+@import './modals/modal.css';
+@import './weekly-matrix/matrix.css';
+@import './edit-schedule/editor.css';
+@import './notifications/notifications.css';
+@import './toast/toast.css';
+@import './announcements/announcements.css';

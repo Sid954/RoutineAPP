@@ -1,0 +1,82 @@
+/* ==========================================================================
+   Banners — Notification Permission & PWA Install
+   ========================================================================== */
+.notif-banner {
+  display: none;
+  position: fixed;
+  top: calc(var(--sat) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1050;
+  width: calc(100% - 32px);
+  max-width: 520px;
+  animation: slideDown 0.4s var(--t);
+}
+.notif-banner.show { display: block; }
+@keyframes slideDown { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+.notif-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: var(--rs);
+  padding: 16px 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 20px var(--ag);
+  backdrop-filter: blur(12px);
+}
+.notif-banner-icon { font-size: 28px; flex-shrink: 0; }
+.notif-banner-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.notif-banner-text strong { font-size: 14px; font-weight: 700; }
+.notif-banner-text span { font-size: 12px; color: var(--dim); }
+.notif-banner-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.notif-btn-allow {
+  background: linear-gradient(135deg, var(--accent), var(--lime));
+  color: #000; border: none; padding: 8px 18px; border-radius: 10px;
+  font-weight: 700; font-size: 13px; cursor: pointer; font-family: var(--f);
+  transition: transform var(--t), box-shadow var(--t);
+}
+.notif-btn-allow:hover { transform: translateY(-1px); box-shadow: 0 4px 16px var(--ag); }
+.notif-btn-allow:active { transform: scale(0.96); }
+.notif-btn-dismiss {
+  background: transparent; color: var(--dim); border: 1px solid var(--border);
+  padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 13px;
+  cursor: pointer; font-family: var(--f); transition: color var(--t);
+}
+.notif-btn-dismiss:hover { color: var(--text); }
+
+.install-banner {
+  display: none;
+  position: fixed;
+  bottom: calc(var(--sab) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1050;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--rs);
+  padding: 12px 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+  align-items: center;
+  gap: 14px;
+  max-width: 480px;
+  width: calc(100% - 32px);
+  animation: slideUp 0.4s var(--t);
+}
+.install-banner.show { display: flex; }
+@keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+.install-banner-text { flex: 1; font-size: 13px; font-weight: 600; }
+.install-btn {
+  background: linear-gradient(135deg, var(--accent), var(--pink));
+  color: #fff; border: none; padding: 8px 20px; border-radius: 10px;
+  font-weight: 700; font-size: 13px; cursor: pointer; font-family: var(--f);
+  transition: transform var(--t); flex-shrink: 0;
+}
+.install-btn:hover { transform: translateY(-1px); }
+.install-btn:active { transform: scale(0.96); }
+.install-dismiss {
+  background: none; border: none; color: var(--dim); font-size: 18px;
+  cursor: pointer; padding: 4px; transition: color var(--t); flex-shrink: 0;
+}
+.install-dismiss:hover { color: var(--text); }

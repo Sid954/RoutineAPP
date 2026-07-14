@@ -1,0 +1,33 @@
+/* ==========================================================================
+   Toast — Notification toasts and undo button
+   ========================================================================== */
+.toast {
+  position: fixed; bottom: calc(var(--sab) + 30px); left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--card); color: var(--text);
+  padding: 14px 24px; border-radius: var(--rs);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+  font-size: 15px; font-weight: 600;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+  opacity: 0; z-index: 1100; border: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+.toast-icon { font-size: 18px; flex-shrink: 0; }
+.toast.toast-success { border-color: var(--lime); }
+.toast.toast-success .toast-icon::after { content: '✅'; }
+.toast.toast-error { border-color: var(--pink); }
+.toast.toast-error .toast-icon::after { content: '❌'; }
+.toast.toast-warning { border-color: var(--amber); }
+.toast.toast-warning .toast-icon::after { content: '⚠️'; }
+.toast.toast-info { border-color: var(--accent); }
+.toast.toast-info .toast-icon::after { content: 'ℹ️'; }
+
+.toast .ub {
+  background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff;
+  border: none; padding: 6px 18px; border-radius: 8px;
+  font-size: 13px; font-weight: 800; cursor: pointer;
+  transition: transform var(--t), box-shadow var(--t); font-family: var(--f); letter-spacing: 0.5px;
+}
+.toast .ub:hover { transform: scale(1.05); box-shadow: 0 2px 12px var(--ag); }

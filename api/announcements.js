@@ -67,17 +67,21 @@ module.exports = async (req, res) => {
     }
   }
 
-  // POST: Publish a new announcement
+  // POST: Publish a new announcement OR check password
   if (req.method === 'POST') {
-    const { name, title, announcement, password, subject, type, date_override, subject_override } = req.body || {};
-
-    if (!name || !title || !announcement) {
-      return res.status(400).json({ error: 'Missing name, title, or announcement content.' });
-    }
+    const { name, title, announcement, password, subject, type, date_override, subject_override, checkPasswordOnly } = req.body || {};
 
     const expectedPassword = process.env.ANNOUNCEMENT_PASSWORD || 'test123';
     if (password !== expectedPassword) {
       return res.status(401).json({ error: 'Unauthorized: Invalid password.' });
+    }
+
+    if (checkPasswordOnly) {
+      return res.status(200).json({ success: true, valid: true });
+    }
+
+    if (!name || !title || !announcement) {
+      return res.status(400).json({ error: 'Missing name, title, or announcement content.' });
     }
 
     try {

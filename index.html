@@ -13,7 +13,7 @@
   <link rel="apple-touch-icon" href="icon-512.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="src/main.css">
 </head>
 <body>
 
@@ -290,11 +290,11 @@
       </div>
       <div class="md-sb">Stay updated with course announcements.</div>
       
-      <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
+      <div style="margin-top: 10px; display: flex; justify-content: flex-end;padding: 10px;">
         <button class="day-nav-btn" id="newAnnounceBtn">+ Post Announcement</button>
       </div>
       
-      <div class="announce-list" id="announceList" style="margin-top: 15px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 5px;">
+      <div class="announce-list" id="announceList" style="margin-top: 15px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 5px;">
         <!-- Loaded dynamically -->
         <div class="skeleton-card" style="height: 80px;"></div>
         <div class="skeleton-card" style="height: 80px;"></div>
@@ -399,6 +399,16 @@
               <input type="date" id="paOnlineDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
             </div>
           </div>
+          <div class="fr">
+            <div class="fg">
+              <label>Start Time</label>
+              <input type="time" id="paOnlineStart" value="09:45" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
+            </div>
+            <div class="fg">
+              <label>End Time</label>
+              <input type="time" id="paOnlineEnd" value="11:00" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
+            </div>
+          </div>
           <div class="fg">
             <label>Platform / Link (Optional)</label>
             <input type="text" id="paOnlineLink" placeholder="e.g. Google Meet, Zoom link, or just Google Meet" style="width:100%;" />
@@ -441,6 +451,6 @@
     <button class="ub" id="undoB" style="display:none">UNDO</button>
   </div>
 
-  <script src="script.js"></script>
+  <script type="module" src="src/main.js"></script>
 </body>
 </html>

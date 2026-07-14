@@ -1,0 +1,62 @@
+/* ==========================================================================
+   Edit Schedule — CRUD columns and form controls
+   ========================================================================== */
+.rc { padding: 0 24px; margin: 10px 0 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: var(--border) transparent; scroll-snap-type: x mandatory; }
+.rc::-webkit-scrollbar { height: 4px; }
+.rc::-webkit-scrollbar-track { background: transparent; }
+.rc::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.rci { display: flex; gap: 10px; min-width: max-content; padding-bottom: 4px; }
+.dc {
+  min-width: 150px; max-width: 170px; flex-shrink: 0;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--rs);
+  overflow: hidden; transition: transform var(--t), border-color var(--t);
+  animation: dayColIn 0.4s ease both; scroll-snap-align: start;
+}
+.dc:hover { border-color: var(--border2); transform: translateY(-2px); }
+.dc:active { transform: scale(0.98); }
+.dc.tod { border-color: var(--accent); box-shadow: 0 0 20px var(--ag); }
+@keyframes dayColIn { from { opacity: 0; transform: translateY(12px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+.dc-h { padding: 10px 14px 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.dc.tod .dc-h { background: rgba(56, 189, 248, 0.08); border-bottom-color: rgba(56, 189, 248, 0.2); }
+.dc-h .dn { font-size: 13px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--dim); }
+.dc.tod .dc-h .dn { color: var(--accent2); }
+.dc-h .cnt { font-size: 11px; font-weight: 700; color: var(--dim); background: var(--border); padding: 1px 8px; border-radius: 10px; }
+.dc.tod .dc-h .cnt { background: rgba(56, 189, 248, 0.15); color: var(--accent2); }
+.dc-b { padding: 6px; }
+.dc-e {
+  padding: 8px 10px; border-radius: var(--rx); margin-bottom: 4px;
+  cursor: default; transition: background var(--t), border-color var(--t);
+  position: relative; border: 1px solid transparent;
+}
+.dc-e:hover { background: var(--card); border-color: var(--border); }
+.dc-e.ac { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.2); }
+.dc-e .et { font-family: var(--m); font-size: 10px; color: var(--dim); margin-bottom: 2px; font-weight: 600; }
+.dc-e .en { font-size: 14px; font-weight: 700; line-height: 1.3; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dc-e .ei { font-size: 11px; color: var(--accent2); font-weight: 600; margin-bottom: 2px; }
+.dc-e .er { font-size: 11px; color: var(--dim); font-weight: 500; }
+.dc-e .ed {
+  position: absolute; top: 6px; right: 6px; width: 22px; height: 22px;
+  border-radius: 6px; border: none; background: transparent; color: var(--dim);
+  cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity var(--t), background var(--t), color var(--t);
+}
+.dc-e:hover .ed { opacity: 0.6; }
+.dc-e .ed:hover { opacity: 1; background: rgba(244, 63, 94, 0.15); color: var(--pink); }
+.dc-empty { padding: 20px 12px; text-align: center; font-size: 12px; color: var(--dim); opacity: 0.5; font-weight: 500; }
+
+/* Form Controls */
+.mf { padding: 18px 26px 24px; border-top: 1px solid var(--border); }
+.mf .fr { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.mf .fg { margin-bottom: 14px; }
+.mf .fg label { display: block; font-size: 12px; font-weight: 800; margin-bottom: 6px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.5px; }
+.mf .fg input, .mf .fg select { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--rx); background: var(--bg2); color: var(--text); font-size: 15px; transition: border-color var(--t), box-shadow var(--t); font-family: var(--f); font-weight: 500; }
+.mf .fg input:focus, .mf .fg select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--ag); }
+.mf .ma { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; flex-wrap: wrap; }
+.mf .ma button { padding: 12px 26px; border-radius: var(--rx); border: none; font-weight: 700; font-size: 15px; cursor: pointer; transition: transform var(--t), box-shadow var(--t), background var(--t); font-family: var(--f); }
+.mf .ma button:active { transform: scale(0.96); }
+.mf .ma .bp { background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; }
+.mf .ma .bp:hover { box-shadow: 0 4px 20px var(--ag); transform: translateY(-1px); }
+.mf .ma .bd { background: rgba(244, 63, 94, 0.12); color: var(--pink); border: 1px solid rgba(244, 63, 94, 0.2); }
+.mf .ma .bd:hover { background: rgba(244, 63, 94, 0.2); }

@@ -1,0 +1,16 @@
+export const State = {
+  schedule: {},
+  announcementsList: [],
+  undoCallback: null,
+  toastTimer: null,
+  selectedDay: new Date().getDay(),
+  currentViewDayIdx: new Date().getDay(),
+  matrixSelectedDayIdx: new Date().getDay(),
+  isModalOpen: false,
+  lastRenderedMinute: -1,
+  clockIntervalId: null,
+  dashboardIntervalId: null,
+  sessionDeletePassword: '',
+  deferredInstallPrompt: null,
+  resizeTimer: null,
+};
