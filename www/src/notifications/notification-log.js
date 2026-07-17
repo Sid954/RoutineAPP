@@ -123,29 +123,5 @@ export const NotificationLog = {
     this.markAllRead();
   },
 
-  initEvents() {
-    DOM.notifHistoryBtn.addEventListener('click', () => {
-      closeModal(DOM.notifModal);
-      openModal(DOM.notifHistoryModal, () => this.renderList(DOM.notifHistoryList));
-    });
-    DOM.notifHistoryClose.addEventListener('click', () => {
-      closeModal(DOM.notifHistoryModal);
-      openModal(DOM.notifModal);
-    });
-    DOM.notifHistoryClear.addEventListener('click', () => {
-      this.clear();
-      this.renderList(DOM.notifHistoryList);
-      showToast('Notification history cleared', 'info');
-    });
 
-    // Event delegation for individual notification card actions (delete)
-    DOM.notifHistoryList.addEventListener('click', async e => {
-      const btn = e.target.closest('.delete-notif-btn');
-      if (!btn) return;
-      const id = btn.getAttribute('data-id');
-      if (id) {
-        await this.delete(id);
-      }
-    });
-  }
 };

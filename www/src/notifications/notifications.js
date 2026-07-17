@@ -431,25 +431,5 @@ export const Notifications = {
       Notifications.scheduleForToday();
       showToast(settings.dayDoneEnabled ? 'Day complete alerts enabled' : 'Day complete alerts disabled', 'info');
     });
-
-    // Notification History
-    DOM.notifHistoryBtn.addEventListener('click', () => {
-      // Import closeModal/openModal dynamically to avoid circular at this level
-      import('../modals/modal.js').then(({ closeModal, openModal }) => {
-        closeModal(DOM.notifModal);
-        openModal(DOM.notifHistoryModal, () => NotificationLog.renderList(DOM.notifHistoryList));
-      });
-    });
-    DOM.notifHistoryClose.addEventListener('click', () => {
-      import('../modals/modal.js').then(({ closeModal, openModal }) => {
-        closeModal(DOM.notifHistoryModal);
-        openModal(DOM.notifModal);
-      });
-    });
-    DOM.notifHistoryClear.addEventListener('click', () => {
-      NotificationLog.clear();
-      NotificationLog.renderList(DOM.notifHistoryList);
-      showToast('Notification history cleared', 'info');
-    });
   }
 };

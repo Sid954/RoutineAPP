@@ -44,30 +44,29 @@ document.getElementById('notifSettingsBtn').addEventListener('click', () => {
 });
 document.getElementById('notifModalClose').addEventListener('click', () => closeModal(DOM.notifModal));
 
-/* ── Notification History ─────────────────────────────────────── */
-if (FEATURES.notificationLog) {
-  NotificationLog.initEvents();
-}
-
-/* ── Notification settings event listeners ────────────────────── */
-if (FEATURES.notifications) {
-  Notifications.initEvents();
-}
 
 /* ── Edit Schedule modal ──────────────────────────────────────── */
 if (FEATURES.editSchedule) {
   const { populateDaySelect, renderEditColumns, initEditorEvents } = await import('./edit-schedule/editor.js');
-  const { initImportExport } = await import('./edit-schedule/import-export.js');
 
   // initEditorEvents registers add/clear/reset/select listeners
   initEditorEvents();
-  initImportExport();
 
   document.getElementById('editBtn').addEventListener('click', () => {
     openModal(DOM.editModal, () => {
       State.selectedDay = CONFIG.activeDays.includes(new Date().getDay()) ? new Date().getDay() : CONFIG.activeDays[0];
       populateDaySelect();
       renderEditColumns();
+      
+      // Reset toggles to collapsed by default on open
+      const addForm = document.getElementById('addClassForm');
+      const addBtn = document.getElementById('toggleAddClassBtn');
+      if (addForm && addBtn) {
+        addForm.style.display = 'none';
+        addBtn.textContent = '+ Add Class';
+        addBtn.style.borderColor = '';
+        addBtn.style.color = '';
+      }
     });
   });
   document.getElementById('ecC').addEventListener('click', () => closeModal(DOM.editModal));

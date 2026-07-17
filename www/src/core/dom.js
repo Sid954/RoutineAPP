@@ -110,9 +110,5 @@ export const DOM = {
   notifBriefingTime: $id('notifBriefingTime'),
   notifClassEndToggle: $id('notifClassEndToggle'),
   notifDayDoneToggle: $id('notifDayDoneToggle'),
-  notifHistoryBtn: $id('notifHistoryBtn'),
-  notifHistoryModal: $id('notifHistoryModal'),
-  notifHistoryClose: $id('notifHistoryClose'),
-  notifHistoryClear: $id('notifHistoryClear'),
-  notifHistoryList: $id('notifHistoryList')
+
 };

@@ -15,6 +15,7 @@
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8);
   border: 1px solid var(--border);
   animation: modalIn 0.35s cubic-bezier(0.16, 1, 0.3, 1); position: relative;
+  will-change: transform, opacity;
 }
 .md.md-wide { max-width: 96vw; }
 @media (min-width: 1024px) {

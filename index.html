@@ -125,6 +125,7 @@
   <!-- Modal: Weekly Timetable Matrix -->
   <div class="mo" id="viewModal">
     <div class="md md-wide view-md">
+      <button id="mobileRotateFab" title="Rotate Timetable">🔄</button>
       <div class="md-h">
         <h2>Weekly Routine</h2>
         <button class="cls" id="vcC">✕</button>
@@ -159,9 +160,6 @@
         </div>
       </div>
       <div class="md-acts">
-        <button id="imB">Import JSON</button>
-        <input type="file" id="imF" accept=".json" style="display:none"/>
-        <button id="exB">Export JSON</button>
         <button class="rst" id="rstB">Reset to Default</button>
       </div>
 
@@ -169,7 +167,10 @@
         <div class="rci" id="rCols"></div>
       </div>
 
-      <div class="mf">
+      <!-- Toggle Button to Show/Hide Add Class Form -->
+      <button id="toggleAddClassBtn" style="width: calc(100% - 48px); margin: 15px 24px; padding: 12px; border-radius: var(--rx); border: 1.5px dashed var(--border); background: var(--card2); color: var(--text); font-family: var(--f); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: border-color var(--t), background var(--t); font-size: 13px;">+ Add Class</button>
+
+      <div class="mf" id="addClassForm" style="display: none; border-top: 1px solid var(--border); margin-top: 0; padding-top: 20px;">
         <div class="fr">
           <div class="fg"><label>Start Time</label><input type="time" id="eS" value="09:45"/></div>
           <div class="fg"><label>End Time</label><input type="time" id="eE" value="11:00"/></div>
@@ -286,12 +287,7 @@
             </div>
           </div>
         </div>
-        <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px;">
-          <button class="bp" id="notifHistoryBtn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            View Notification History
-          </button>
-        </div>
+
       </div>
     </div>
   </div>

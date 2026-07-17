@@ -27,9 +27,9 @@ export const Particles = {
   },
 
   render() {
-    // Skip rendering when modal is open or tab is hidden
+    // Stop rendering loop when modal is open or tab is hidden to save CPU/battery
     if (State.isModalOpen || document.hidden) {
-      this.rafId = requestAnimationFrame(() => this.render());
+      this.stop();
       return;
     }
 

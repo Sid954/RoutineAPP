@@ -23,3 +23,25 @@ export function smoothSwitchDay(direction) {
 // Register day nav button listeners at module load
 document.getElementById('prevDayBtn').addEventListener('click', () => smoothSwitchDay('prev'));
 document.getElementById('nextDayBtn').addEventListener('click', () => smoothSwitchDay('next'));
+
+// Register mobile touch swipe gestures on daily timeline container
+let touchStartX = 0;
+let touchStartY = 0;
+DOM.timelineGrid.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+DOM.timelineGrid.addEventListener('touchend', e => {
+  const diffX = e.changedTouches[0].clientX - touchStartX;
+  const diffY = e.changedTouches[0].clientY - touchStartY;
+  
+  // Swipe is triggered if horizontal distance is > 80px and vertical scroll deviation is < 50px
+  if (Math.abs(diffX) > 80 && Math.abs(diffY) < 50) {
+    if (diffX > 0) {
+      smoothSwitchDay('prev');
+    } else {
+      smoothSwitchDay('next');
+    }
+  }
+});

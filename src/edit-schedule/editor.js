@@ -151,6 +151,19 @@ export function initEditorEvents() {
     });
   });
 
+  // Toggle Add Class form
+  const toggleAddClassBtn = document.getElementById('toggleAddClassBtn');
+  const addClassForm = document.getElementById('addClassForm');
+  if (toggleAddClassBtn && addClassForm) {
+    toggleAddClassBtn.addEventListener('click', () => {
+      const isHidden = addClassForm.style.display === 'none';
+      addClassForm.style.display = isHidden ? 'block' : 'none';
+      toggleAddClassBtn.textContent = isHidden ? '✕ Hide Form' : '+ Add Class';
+      toggleAddClassBtn.style.borderColor = isHidden ? 'var(--pink)' : '';
+      toggleAddClassBtn.style.color = isHidden ? 'var(--pink)' : '';
+    });
+  }
+
   // Note: editBtn and ecC modal open/close are handled by main.js
   // to keep modal management centralized.
 }

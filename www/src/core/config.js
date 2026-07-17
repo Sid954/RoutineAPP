@@ -1,5 +1,4 @@
 export const CONFIG = {
-  version: '1.0.4',
   apiBase: 'https://routine-app-iota-one.vercel.app',
   activeDays: [6, 0, 1, 2, 3], // Sat, Sun, Mon, Tue, Wed
   matrixIntervals: [
@@ -11,7 +10,7 @@ export const CONFIG = {
     { startM: 885, endM: 960, lbl: '02:45 → 04:00' }
   ],
   particles: { countMobile: 15, countDesktop: 30, maxDistance: 115, colors: ['56,189,248', '244,63,94', '16,185,129'] },
-  updateIntervalMs: 1000,
+  updateIntervalMs: 10000,
   defaultRoutine: {
     Saturday: [
       { time: '09:45 AM - 11:00 AM', subject: 'EDC', room: '1002', instructor: 'AIR', type: 'Theory' },
