@@ -112,82 +112,37 @@ body {
     gap: 12px;
   }
 
-  /* Mobile Matrix View Styling */
-  .m-matrix-tabs {
-    display: flex;
-    justify-content: space-between;
-    gap: 6px;
-    background: var(--bg2);
-    padding: 6px;
-    border-radius: var(--rs);
-    border: 1px solid var(--border);
-    margin-bottom: 8px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .m-matrix-tabs::-webkit-scrollbar { display: none; }
-  .m-matrix-tab {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 8px;
-    background: transparent;
-    border: none;
-    border-radius: var(--rx);
-    color: var(--dim);
-    font-family: var(--f);
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    position: relative;
-    transition: background var(--t), color var(--t);
-    min-width: 55px;
-  }
-  .m-matrix-tab:hover { color: var(--text); }
-  .m-matrix-tab.active { background: var(--card2); color: var(--accent2); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-  .m-matrix-tab.today { color: var(--text); }
-  .m-matrix-tab.today.active { color: var(--accent2); }
-  .m-tab-dot {
-    position: absolute; bottom: 4px;
-    width: 4px; height: 4px;
-    background: var(--accent); border-radius: 50%;
-    box-shadow: 0 0 6px var(--accent);
-  }
-  .m-matrix-cards { display: flex; flex-direction: column; gap: 10px; }
-  .m-matrix-card {
-    display: grid; grid-template-columns: 1fr auto; gap: 8px;
-    border: 1px solid var(--border); border-radius: var(--rs);
-    padding: 16px; background: var(--card2);
-    transition: transform var(--t), border-color var(--t);
-    animation: fadeInUp 0.4s ease both;
-  }
-  .m-matrix-card.live { border-color: var(--accent) !important; box-shadow: 0 0 20px var(--ag); }
-  .m-matrix-card.past { opacity: 0.45; filter: saturate(0.3); }
-  .m-card-time {
-    grid-column: 1 / span 2; font-family: var(--m); font-size: 11px;
-    font-weight: 600; opacity: 0.8; margin-bottom: 2px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .m-card-arrow { opacity: 0.5; }
-  .m-card-details { display: flex; flex-direction: column; gap: 4px; }
-  .m-card-title { font-size: 16px; font-weight: 800; line-height: 1.2; cursor: pointer; }
-  .m-card-sub { font-size: 12px; font-weight: 600; opacity: 0.9; }
-  .m-card-badge {
-    align-self: center; font-size: 9px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 0.5px;
-    padding: 4px 10px; border-radius: 6px; white-space: nowrap;
-  }
-  .m-matrix-empty {
-    padding: 40px 20px; text-align: center;
-    color: var(--dim); font-size: 14px; font-weight: 500;
-    background: rgba(255,255,255,0.01);
-    border: 1px dashed var(--border); border-radius: var(--rs);
-  }
-
   .notif-banner-content { flex-wrap: wrap; }
   .notif-banner-actions { width: 100%; justify-content: flex-end; }
+}
+
+/* Truncation & smooth expansion for long text in routine boxes */
+.expandable-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  max-height: 2.8em;
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Hover expansion */
+.t-card:hover .expandable-text,
+.m-matrix-card:hover .expandable-text,
+.ch:hover .expandable-text,
+/* Click/Tap toggle expansion */
+.t-card.expanded .expandable-text,
+.m-matrix-card.expanded .expandable-text,
+.ch.expanded .expandable-text {
+  -webkit-line-clamp: unset;
+  max-height: 500px;
+}
+
+/* Make sure container heights adapt smoothly */
+.t-card, .m-matrix-card, .ch {
+  transition: transform var(--t), filter var(--t), box-shadow var(--t), max-height 0.4s ease, height 0.4s ease;
 }
 
 @media (prefers-reduced-motion: reduce) {

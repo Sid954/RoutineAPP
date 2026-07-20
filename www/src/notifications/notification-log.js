@@ -95,12 +95,12 @@ export const NotificationLog = {
     const typeEmoji = {
       reminder: '⏰', class_start: '📚', morning_briefing: '☀️',
       cancellation: '🚫', class_end: '⌛', day_done: '🎉',
-      online_class: '📡', holiday: '🎉'
+      online_class: '📡', holiday: '🎉', class_test: '📝'
     };
     const typeLabel = {
       reminder: 'Reminder', class_start: 'Class Start', morning_briefing: 'Briefing',
       cancellation: 'Cancelled', class_end: 'Ending Soon', day_done: 'Day Done',
-      online_class: 'Online Class', holiday: 'Holiday'
+      online_class: 'Online Class', holiday: 'Holiday', class_test: 'Class Test'
     };
 
     container.innerHTML = log.map(entry => {

@@ -4,7 +4,8 @@ import { DOM } from '../core/dom.js';
 import { showToast } from '../toast/toast.js';
 import { escapeHtml } from '../core/utils.js';
 import { NotificationLog } from '../notifications/notification-log.js';
-import { openModal, closeModal } from '../modals/modal.js';
+import { openModal, closeModal, showConfirm } from '../modals/modal.js';
+import { Notifications } from '../notifications/notifications.js';
 
 export const Announcements = {
   list: [],
@@ -31,12 +32,43 @@ export const Announcements = {
 
   async fetchAll() {
     try {
+      const cachedList = [];
+      try {
+        const saved = localStorage.getItem(this.CACHE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) cachedList.push(...parsed);
+        }
+      } catch (e) {}
+
       const res = await fetch(`${CONFIG.apiBase || ''}/api/announcements`);
       if (!res.ok) throw new Error('Failed to fetch');
       this.list = await res.json();
       State.announcementsList = this.list;
+
       // Persist to localStorage so next startup is instant
       try { localStorage.setItem(this.CACHE_KEY, JSON.stringify(this.list)); } catch (e) {}
+
+      // Trigger notifications for new announcements (only if cache had items before, to prevent startup spam)
+      if (cachedList.length > 0) {
+        const newAnnouncements = this.list.filter(item => !cachedList.some(c => c.id === item.id));
+        newAnnouncements.forEach(announce => {
+          let bodyText = announce.announcement;
+          if (announce.type === 'class_test') {
+            try {
+              const parsed = JSON.parse(announce.announcement);
+              bodyText = `Exam: ${parsed.exam_name || 'Class Test'}\nTopics: ${parsed.topics || 'Not Specified'}`;
+            } catch (e) {}
+          } else if (announce.type === 'online_class') {
+            try {
+              const parsed = JSON.parse(announce.announcement);
+              bodyText = `Platform: ${parsed.platform || 'Online'}\nTime: ${parsed.start_time || '—'} – ${parsed.end_time || '—'}`;
+            } catch (e) {}
+          }
+          Notifications.showInstant(announce.title, bodyText, announce.type);
+        });
+      }
+
       this.renderFeed();
       this.checkBadge();
       return true; // signals success — caller should forceUpdate
@@ -61,6 +93,7 @@ export const Announcements = {
       cancellation: { label: '🚫 Cancelled',  color: '#f43f5e', bg: 'rgba(244,63,94,0.12)'  },
       holiday:      { label: '🎉 Holiday',    color: '#fb923c', bg: 'rgba(251,146,60,0.12)'  },
       online_class: { label: '📡 Online',     color: '#10b981', bg: 'rgba(16,185,129,0.12)'  },
+      class_test:   { label: '📝 Class Test', color: '#f97316', bg: 'rgba(249,115,22,0.15)'  },
     };
 
     let html = '';
@@ -68,11 +101,19 @@ export const Announcements = {
       const dateStr = new Date(item.created_at).toLocaleString();
       const meta = typeMeta[item.type] || typeMeta.general;
       let bodyText = item.announcement;
+      
       if (item.type === 'online_class') {
         try {
           const parsed = JSON.parse(item.announcement);
           const platformStr = parsed.platform ? `Platform: ${parsed.platform}` : 'Check class group';
           bodyText = `🕒 Time: ${parsed.start_time || '—'} – ${parsed.end_time || '—'}\n📡 ${platformStr}`;
+        } catch (e) {
+          // Fallback if not valid JSON
+        }
+      } else if (item.type === 'class_test') {
+        try {
+          const parsed = JSON.parse(item.announcement);
+          bodyText = `✍️ Exam: ${parsed.exam_name || 'Class Test'}\n📚 Topics: ${parsed.topics || 'Not Specified'}`;
         } catch (e) {
           // Fallback if not valid JSON
         }
@@ -99,15 +140,10 @@ export const Announcements = {
     DOM.announceList.innerHTML = html;
   },
 
-  async delete(id) {
-    let pwd = State.sessionDeletePassword;
+  async delete(id, pwd) {
     if (!pwd) {
-      pwd = prompt('Enter password to delete announcement:');
-      if (pwd === null) return;
-      if (!pwd) {
-        showToast('Password is required.', 'warning');
-        return;
-      }
+      showToast('Password is required.', 'warning');
+      return;
     }
 
     try {
@@ -172,27 +208,38 @@ export const Announcements = {
 
       showToast('Announcement published successfully!', 'success');
 
-      // Fire cancellation/holiday/online notification immediately
-      if (extras.type === 'cancellation' || extras.type === 'holiday' || extras.type === 'online_class') {
-        let notifTitle, notifBody;
-        if (extras.type === 'cancellation') {
-          notifTitle = '🚫 Class Cancelled';
-          notifBody = `${extras.subject_override || 'A class'} on ${extras.date_override || 'upcoming'} has been cancelled: ${title}`;
-        } else if (extras.type === 'holiday') {
-          notifTitle = '🎉 Holiday Declared!';
-          notifBody = `${extras.date_override || 'Upcoming'}: ${title} — ${announcement}`;
-        } else {
-          notifTitle = '📡 Online Class Scheduled';
-          notifBody = `${extras.subject_override || 'A class'} on ${extras.date_override || 'upcoming'} will be online. ${announcement}`;
-        }
+      // Fire cancellation/holiday/online/exam/general notification immediately
+      let notifTitle = '📢 New Announcement';
+      let notifBody = `${name}: ${title}`;
+      let notifType = extras.type || 'general';
 
-        // Fire notification via lazy import to avoid circular dep
-        import('../notifications/notifications.js').then(({ Notifications }) => {
-          Notifications.show(notifTitle, notifBody);
-          Notifications.scheduleForToday();
-        });
-        NotificationLog.add({ type: extras.type === 'online_class' ? 'online_class' : extras.type, title: notifTitle, body: notifBody });
+      if (extras.type === 'cancellation') {
+        notifTitle = '🚫 Class Cancelled';
+        notifBody = `${extras.subject_override || 'A class'} on ${extras.date_override || 'upcoming'} has been cancelled: ${title}`;
+      } else if (extras.type === 'holiday') {
+        notifTitle = '🎉 Holiday Declared!';
+        notifBody = `${extras.date_override || 'Upcoming'}: ${title} — ${announcement}`;
+      } else if (extras.type === 'online_class') {
+        notifTitle = '📡 Online Class Scheduled';
+        notifBody = `${extras.subject_override || 'A class'} on ${extras.date_override || 'upcoming'} will be online.`;
+        try {
+          const parsed = JSON.parse(announcement);
+          notifBody += ` Platform: ${parsed.platform || 'Online'}\nTime: ${parsed.start_time || '—'} – ${parsed.end_time || '—'}`;
+        } catch (e) {}
+      } else if (extras.type === 'class_test') {
+        notifTitle = '📝 Class Test Scheduled';
+        notifBody = `${extras.subject_override || 'A class'} on ${extras.date_override || 'upcoming'} has an exam.`;
+        try {
+          const parsed = JSON.parse(announcement);
+          notifBody += ` Exam: ${parsed.exam_name || 'Class Test'}\nTopics: ${parsed.topics || 'Not Specified'}`;
+        } catch (e) {}
+      } else {
+        notifTitle = `📢 ${title || 'New Announcement'}`;
+        notifBody = announcement;
       }
+
+      Notifications.showInstant(notifTitle, notifBody, notifType);
+      Notifications.scheduleForToday();
 
       this.fetchAll();
       return true;
@@ -219,8 +266,17 @@ export function initAnnouncementEvents() {
     if (!btn) return;
     const id = btn.getAttribute('data-id');
     if (!id) return;
-    if (confirm('Are you sure you want to delete this announcement?')) {
-      await Announcements.delete(id);
-    }
+    
+    const needsPassword = !State.sessionDeletePassword;
+    
+    showConfirm(
+      'Delete Announcement',
+      'Are you sure you want to delete this announcement? This action cannot be undone.',
+      async (pwdVal) => {
+        const activePwd = State.sessionDeletePassword || pwdVal;
+        await Announcements.delete(id, activePwd);
+      },
+      needsPassword
+    );
   });
 }

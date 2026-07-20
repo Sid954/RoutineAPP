@@ -4,7 +4,7 @@ import { DAY_NAMES } from '../core/config.js';
 import { getClassesForDay } from '../schedule/queries.js';
 import { getOverrideFor } from '../announcements/overrides.js';
 import { getSubjectTheme } from '../schedule/themes.js';
-import { toMinutes, format12h, toTimeString, getCurrentMinutes, escapeHtml, formatRoom } from '../core/utils.js';
+import { toMinutes, format12h, toTimeString, getCurrentMinutes, escapeHtml, formatRoom, truncateText } from '../core/utils.js';
 import { bindCourseTitleClicks } from './course-title.js';
 
 export function renderTimeline() {
@@ -76,6 +76,7 @@ export function renderTimeline() {
     const cancelOverride = getOverrideFor(State.currentViewDayIdx, item.title);
     const isCancelled = cancelOverride && cancelOverride.type === 'cancellation';
     const isOnline = cancelOverride && cancelOverride.type === 'online_class';
+    const isClassTest = item.isExam || (cancelOverride && cancelOverride.type === 'class_test');
     // If holiday day and NO override for this subject → it's cancelled by holiday
     const isHolidayCancelled = !isOnline && !isCancelled && holidayOverride && holidayOverride.type === 'holiday';
 
@@ -84,7 +85,8 @@ export function renderTimeline() {
 
     const onlineTheme = { bg: 'linear-gradient(135deg, #052b1a, #073d26)', border: '#10b981', text: '#6ee7b7', badge: 'rgba(16, 185, 129, 0.25)' };
     const cancelTheme = { bg: 'linear-gradient(135deg, #1c0a0c, #3f0f13)', border: '#f43f5e', text: '#fca5a5', badge: 'rgba(244, 63, 94, 0.2)' };
-    const theme = isOnline ? onlineTheme : (isCancelled || isHolidayCancelled) ? cancelTheme : getSubjectTheme(item.title, item.type);
+    const examTheme = { bg: 'linear-gradient(135deg, #2d1506, #3d1f0a)', border: '#f97316', text: '#fdba74', badge: 'rgba(249, 115, 22, 0.30)' };
+    const theme = isClassTest ? examTheme : isOnline ? onlineTheme : (isCancelled || isHolidayCancelled) ? cancelTheme : getSubjectTheme(item.title, item.type);
 
     const effectiveCancelled = isCancelled || isHolidayCancelled;
     let platform = '';
@@ -96,21 +98,52 @@ export function renderTimeline() {
         platform = cancelOverride.announcement.announcement;
       }
     }
+    let examName = item.examName || '';
+    let examTopics = item.examTopics || '';
+    if (isClassTest && !examName && cancelOverride && cancelOverride.announcement.announcement) {
+      try {
+        const parsed = JSON.parse(cancelOverride.announcement.announcement);
+        examName = parsed.exam_name || 'Class Test';
+        examTopics = parsed.topics || 'Not Specified';
+      } catch (e) {
+        examName = 'Class Test';
+        examTopics = 'Not Specified';
+      }
+    }
+
+    const detailsData = {
+      title: item.title,
+      start: format12h(item.start),
+      end: format12h(item.end),
+      type: item.type,
+      room: item.room,
+      instructor: item.instructor,
+      isExam: isClassTest,
+      examName: examName,
+      examTopics: examTopics,
+      isOnline: isOnline,
+      platform: platform,
+      isCancelled: effectiveCancelled,
+      cancellationType: isHolidayCancelled ? 'holiday' : (isCancelled ? 'cancellation' : '')
+    };
 
     html += `
-      <div class="ch${isActive && isOnline ? ' ca' : ''}${isActive && !isOnline && !effectiveCancelled ? ' ca' : ''}${isPast || effectiveCancelled ? ' cp' : ''}" style="animation-delay:${index * 0.07}s; background:${theme.bg}; border-color:${theme.border}; color:#fff">
+      <div class="ch${isActive && isOnline ? ' ca' : ''}${isActive && !isOnline && !effectiveCancelled ? ' ca' : ''}${isPast || effectiveCancelled ? ' cp' : ''}" style="animation-delay:${index * 0.07}s; background:${theme.bg}; border-color:${theme.border}; color:#fff" data-detail="${escapeHtml(JSON.stringify(detailsData))}">
         <div class="cht" style="color:${theme.text}; text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">${format12h(item.start)}<br>${format12h(item.end)}</div>
         <div class="chi">
-          <span class="chn course-click-title" data-title="${item.title}" title="Click to expand" style="text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">${item.title}</span>
+          <span class="chn course-click-title" data-title="${item.title}" title="Click to view details" style="text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">${escapeHtml(truncateText(item.title, 10))}</span>
           <span class="chr" style="color:${theme.text}">
-            ${isOnline
-              ? (platform ? `<span style="color:#6ee7b7; font-weight:800;">${escapeHtml(platform)}</span>` : '')
+            ${isClassTest
+              ? `<span style="color:#fdba74; font-weight:800; display:block;">Click to view topics</span>
+                 <span style="font-size: 11px; opacity: 0.85;">${formatRoom(item.room) ? `Room ${formatRoom(item.room)}` : 'No room'} ${item.instructor ? `· ${item.instructor}` : ''}</span>`
+              : isOnline
+              ? (platform ? `<span style="color:#6ee7b7; font-weight:800; display:block;">${escapeHtml(truncateText(platform, 10))}</span>` : '')
               : effectiveCancelled
                 ? `<span style="color:var(--pink); font-weight:800;">${isHolidayCancelled ? 'HOLIDAY — NO CLASS' : 'CANCELLED'}</span>`
                 : `${formatRoom(item.room)} ${item.instructor ? `· ${item.instructor}` : ''}`}
           </span>
         </div>
-        <span class="ctb" style="background:${theme.badge}; color:#fff">${isOnline ? '📡 ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : item.type)}</span>
+        <span class="ctb" style="background:${theme.badge}; color:#fff">${isClassTest ? `📝 ${truncateText(examName, 10)}` : isOnline ? '📡 ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : item.type)}</span>
       </div>`;
   });
 

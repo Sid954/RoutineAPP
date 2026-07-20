@@ -4,7 +4,7 @@
 .tw { padding: 24px 20px; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 40px; border-radius: 0 0 var(--r) var(--r); position: relative; }
 
 .t-grid { width: 100%; min-width: 880px; display: grid; grid-template-columns: 110px repeat(6, minmax(120px, 1fr)); gap: 8px; align-items: stretch; }
-.t-header { font-family: var(--m); font-size: clamp(10px, 1.1vw, 12px); font-weight: 700; color: var(--dim); background: var(--bg2); padding: 10px 4px; border-radius: var(--rx); border: 1px solid var(--border); text-align: center; display: flex; flex-direction: column; justify-content: center; letter-spacing: 0.3px; transition: transform var(--t); }
+.t-header { font-family: var(--m); font-size: clamp(10px, 1.1vw, 14px); font-weight: 700; color: var(--dim); background: var(--bg2); padding: 10px 4px; border-radius: var(--rx); border: 1px solid var(--border); text-align: center; display: flex; flex-direction: column; justify-content: center; letter-spacing: 0.3px; transition: transform var(--t); }
 .t-header.th-day { text-align: left; padding-left: 14px; background: var(--card); border-color: var(--border2); color: var(--text); font-weight: 800; font-family: var(--f); position: sticky; left: 0; z-index: 20; border-radius: var(--rx) 0 0 var(--rx); border-right: 1px solid var(--border); }
 
 .day-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--rx) 0 0 var(--rx); border-right: 1px solid var(--border); padding: 10px 12px; height: 100%; display: flex; flex-direction: column; justify-content: center; min-height: 75px; position: sticky; left: 0; z-index: 10; }
@@ -130,8 +130,12 @@
     border-radius: var(--rs);
     padding: 16px;
     background: var(--card2);
-    transition: transform var(--t), border-color var(--t);
+    cursor: pointer;
+    transition: transform var(--t), border-color var(--t), box-shadow var(--t);
     animation: fadeInUp 0.4s ease both;
+  }
+  .m-matrix-card:active {
+    transform: scale(0.97);
   }
   .m-matrix-card.live {
     border-color: var(--accent) !important;

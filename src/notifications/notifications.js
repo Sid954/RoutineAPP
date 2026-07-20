@@ -336,6 +336,31 @@ export const Notifications = {
     } catch {}
   },
 
+  async showInstant(title, body, type = 'general') {
+    const hasPerm = (await this.getPermission()) === 'granted';
+    if (!hasPerm) return;
+
+    if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+      try {
+        const { LocalNotifications } = window.Capacitor.Plugins;
+        await LocalNotifications.schedule({
+          notifications: [{
+            title,
+            body,
+            id: Math.floor(Math.random() * 1000000),
+            smallIcon: 'ic_stat_icon',
+            iconColor: type === 'class_test' ? '#f97316' : (type === 'online_class' ? '#10b981' : (type === 'cancellation' ? '#f43f5e' : '#38bdf8'))
+          }]
+        });
+      } catch (e) {
+        console.error('Failed to trigger native notification:', e);
+      }
+    } else {
+      this.show(title, body);
+    }
+    NotificationLog.add({ type, title, body });
+  },
+
   async maybeShowBanner() {
     if (!this.isSupported()) return;
     const perm = await this.getPermission();

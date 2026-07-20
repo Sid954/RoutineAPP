@@ -80,22 +80,6 @@
 .hd-btn:hover { color: var(--accent); border-color: var(--accent); transform: scale(1.05); }
 .hd-btn:active { transform: scale(0.95); }
 
-.eb {
-  background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border);
-  border-radius: 14px; width: 48px; height: 48px; font-size: 20px;
-  cursor: pointer; transition: transform var(--t), border-color var(--t), box-shadow var(--t), color var(--t);
-  display: flex; align-items: center; justify-content: center; color: var(--dim);
-  position: relative; overflow: hidden;
-}
-.eb::before {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(135deg, var(--accent), var(--pink));
-  opacity: 0; transition: opacity var(--t);
-}
-.eb:hover { color: #fff; border-color: transparent; transform: rotate(90deg) scale(1.08); box-shadow: 0 0 24px var(--ag); }
-.eb:hover::before { opacity: 1; }
-.eb:active { transform: rotate(90deg) scale(0.95); }
-.eb span { position: relative; z-index: 1; }
 
 /* Greeting */
 .greeting {

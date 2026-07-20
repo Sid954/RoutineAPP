@@ -39,6 +39,17 @@ export function getOverrideFor(dayIdx, subjectCode) {
     if (onlineClass) return { type: 'online_class', announcement: onlineClass };
   }
 
+  // Class test for specific subject
+  if (subjectCode) {
+    const classTest = State.announcementsList.find(item =>
+      item.type === 'class_test' &&
+      item.date_override === targetDateStr &&
+      item.subject_override &&
+      item.subject_override.toUpperCase().trim() === subjectCode.toUpperCase().trim()
+    );
+    if (classTest) return { type: 'class_test', announcement: classTest };
+  }
+
   // Holiday covers all classes on that day (except online_class overrides above)
   const holiday = State.announcementsList.find(item =>
     item.type === 'holiday' &&

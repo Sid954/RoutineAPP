@@ -42,6 +42,10 @@ export const DOM = {
   viewModal: $id('viewModal'),
   editModal: $id('editModal'),
   notifModal: $id('notifModal'),
+  classDetailModal: $id('classDetailModal'),
+  classDetailClose: $id('classDetailClose'),
+  classDetailBody: $id('classDetailBody'),
+  confirmModal: $id('confirmModal'),
 
   // Edit modal
   editCols: $id('rCols'),
@@ -105,6 +109,12 @@ export const DOM = {
   paOnlineLink: $id('paOnlineLink'),
   paOnlineStart: $id('paOnlineStart'),
   paOnlineEnd: $id('paOnlineEnd'),
+  paClassTestSection: $id('paClassTestSection'),
+  paClassTestDate: $id('paClassTestDate'),
+  paClassTestSubjectSelect: $id('paClassTestSubjectSelect'),
+  paClassTestName: $id('paClassTestName'),
+  paClassTestTopics: $id('paClassTestTopics'),
+  paClassTestShowAllSubjects: $id('paClassTestShowAllSubjects'),
   paPassword: $id('paPassword'),
   notifBriefingToggle: $id('notifBriefingToggle'),
   notifBriefingTime: $id('notifBriefingTime'),

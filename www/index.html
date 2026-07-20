@@ -63,7 +63,7 @@
             <button class="hd-btn" id="notifSettingsBtn" title="Notification settings">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             </button>
-            <button class="eb" id="editBtn" title="Edit schedule"><span>✎</span></button>
+            <button class="hd-btn" id="editBtn" title="Edit schedule"><span>⚙️</span></button>
           </div>
         </header>
 
@@ -138,16 +138,15 @@
 
   <!-- Modal: Edit Routine -->
   <div class="mo" id="editModal">
-    <div class="md">
+    <div class="md md-wide view-md">
       <div class="md-h">
         <h2>Edit Schedule</h2>
         <button class="cls" id="ecC">✕</button>
       </div>
-      <div class="md-sb">Select a day column below to add, remove, or modify your routine entries.</div>
 
       <!-- Section: Routine Selection -->
       <div style="padding: 0 24px; margin-bottom: 8px; margin-top: 15px;">
-        <div style="font-size: 13px; font-weight: 800; color: var(--accent2); margin-bottom: 10px; letter-spacing: 0.5px; text-transform: uppercase;">Timetable Routine</div>
+
         <div style="display: flex; gap: 12px;">
           <div style="flex: 1;">
             <label style="display: block; font-size: 10px; font-weight: 700; color: var(--dim); margin-bottom: 6px;">Semester</label>
@@ -335,6 +334,7 @@
               <option value="cancellation">Class Cancellation</option>
               <option value="holiday">Holiday / Day Off</option>
               <option value="online_class">Online Class (overrides holiday)</option>
+              <option value="class_test">📝 Class Test / Exam</option>
             </select>
           </div>
         </div>
@@ -427,6 +427,36 @@
           </div>
         </div>
 
+        <!-- Section: Class Test -->
+        <div id="paClassTestSection" style="display: none;">
+          <div style="background: rgba(251, 146, 60, 0.06); border: 1px dashed rgba(251, 146, 60, 0.35); border-radius: var(--rx); padding: 10px 12px; margin-bottom: 10px; font-size: 11.5px; color: #fdba74;">
+            📝 Schedule a <strong>class test or exam</strong> for a specific subject on a specific date. The routine card will show a distinct exam design.
+          </div>
+          <div class="fr">
+            <div class="fg">
+              <label>Test Date</label>
+              <input type="date" id="paClassTestDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
+            </div>
+            <div class="fg">
+              <label>Subject</label>
+              <select id="paClassTestSubjectSelect" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:10px; font-family:var(--f); font-size:13px;"><option value="">Select a date first</option></select>
+              <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 6px; cursor: pointer; color: var(--dim); user-select: none;">
+                <input type="checkbox" id="paClassTestShowAllSubjects" style="width: auto; height: auto; margin: 0;" /> Out-of-schedule subject
+              </label>
+            </div>
+          </div>
+          <div class="fr">
+            <div class="fg">
+              <label>Exam Name</label>
+              <input type="text" id="paClassTestName" placeholder="e.g. CT-1, Quiz-2, Mid" style="width:100%;" />
+            </div>
+          </div>
+          <div class="fg">
+            <label>Topics (Optional)</label>
+            <textarea id="paClassTestTopics" placeholder="e.g. Chapter 1-3, Arrays, Linked Lists..." style="width: 100%; min-height: 70px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: var(--rx); color: var(--text); padding: 10px; font-family: var(--f); font-size: 13px; resize: vertical;"></textarea>
+          </div>
+        </div>
+
         <div class="fg" style="margin-top: 10px;">
           <label>Password</label>
           <input type="password" id="paPassword" placeholder="Enter password to publish" required />
@@ -452,6 +482,38 @@
       </div>
       <div id="notifHistoryList" style="margin-top: 15px; max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;">
         <div class="skeleton-card" style="height: 60px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Class Detail Popover -->
+  <div class="mo" id="classDetailModal" style="z-index: 1000;">
+    <div class="md" style="width: calc(100% - 24px); max-width: 360px; padding: 16px; background: rgba(15, 18, 26, 0.95); backdrop-filter: blur(16px); border: 1.5px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.8); box-sizing: border-box;">
+      <div class="md-h" style="border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; padding: 0 0 12px;">
+        <h2 id="cdTitle" style="font-size: 18px; font-weight: 800; color: #fff; line-height: 1.2;">Class Details</h2>
+        <button class="cls" id="classDetailClose">✕</button>
+      </div>
+      <div id="classDetailBody" style="display: flex; flex-direction: column; gap: 14px; font-size: 13.5px; color: var(--text);">
+        <!-- Loaded dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Custom Confirm -->
+  <div class="mo" id="confirmModal" style="z-index: 1100;">
+    <div class="md" style="max-width: 320px; background: rgba(20, 24, 36, 0.95); backdrop-filter: blur(20px); border: 1.5px solid var(--border); box-shadow: var(--sh); text-align: center; padding: 24px;">
+      <span style="font-size: 32px; display: block; margin-bottom: 12px;">⚠️</span>
+      <h3 id="confirmTitle" style="font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 8px;">Confirm Action</h3>
+      <p id="confirmMessage" style="font-size: 13px; color: var(--dim); line-height: 1.4; margin-bottom: 16px;">Are you sure you want to proceed?</p>
+      
+      <!-- Password input for confirmations -->
+      <div id="confirmPasswordContainer" style="display: none; margin-bottom: 20px; text-align: left;">
+        <input type="password" id="confirmPassword" placeholder="Enter password" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--rx); color: #fff; font-size: 13px; outline: none; transition: border-color 0.2s;" />
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button class="bd" id="confirmCancelBtn" style="padding: 8px 16px; font-size: 12px;">Cancel</button>
+        <button class="bp" id="confirmOkBtn" style="padding: 8px 16px; font-size: 12px; background: var(--pink) !important; color: #fff !important; border-color: var(--pink) !important; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);">Delete</button>
       </div>
     </div>
   </div>

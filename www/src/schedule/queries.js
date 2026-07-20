@@ -9,7 +9,7 @@ function getDateForDayIndex(targetDayIdx) {
   const todayIdx = today.getDay();
 
   const todayOffset = dayOrder.indexOf(todayIdx);
-  const targetOffset = dayOrder.indexOf(targetDayIdx);
+  const targetOffset = dayOrder.indexOf(Number(targetDayIdx));
   const diff = targetOffset - todayOffset;
 
   const targetDate = new Date(today);
@@ -28,8 +28,9 @@ export function getClassesForDay(dayIdx) {
   // Convert target day index to date string (e.g. "2026-07-14")
   const targetDateStr = getDateForDayIndex(target);
 
-  // Search online class overrides for this date and merge them dynamically
+  // Search announcements for overrides/class tests on this date
   if (State.announcementsList && State.announcementsList.length > 0) {
+    // 1. Process Online Class Overrides
     const onlineClasses = State.announcementsList.filter(item => 
       item.type === 'online_class' && 
       item.date_override === targetDateStr &&
@@ -85,6 +86,65 @@ export function getClassesForDay(dayIdx) {
           room: "ONLINE",
           instructor: instructor,
           type: "Theory"
+        });
+      }
+    });
+
+    // 2. Process Class Test / Exam Overrides
+    const classTests = State.announcementsList.filter(item => 
+      item.type === 'class_test' && 
+      item.date_override === targetDateStr &&
+      item.subject_override
+    );
+
+    classTests.forEach(item => {
+      let examName = "Class Test";
+      let topics = "";
+      try {
+        const parsed = JSON.parse(item.announcement);
+        examName = parsed.exam_name || "Class Test";
+        topics = parsed.topics || "";
+      } catch (e) {
+        examName = item.title || "Class Test";
+        topics = item.announcement || "";
+      }
+
+      const existing = baseClasses.find(c => c.title && c.title.toUpperCase() === item.subject_override.toUpperCase());
+      if (existing) {
+        existing.type = "Exam";
+        existing.isExam = true;
+        existing.examName = examName;
+        existing.examTopics = topics;
+      } else {
+        // Out of date subject exam: find normal times, room, instructor
+        let startTime = "09:45 AM";
+        let endTime = "11:00 AM";
+        let room = "TBA";
+        let instructor = "";
+        for (const day in State.schedule) {
+          const match = State.schedule[day].find(c => c.title && c.title.toUpperCase() === item.subject_override.toUpperCase());
+          if (match) {
+            startTime = match.start;
+            endTime = match.end;
+            if (match.room) room = match.room;
+            if (match.instructor) instructor = match.instructor;
+            break;
+          }
+        }
+
+        startTime = parseTo24h(startTime);
+        endTime = parseTo24h(endTime);
+
+        baseClasses.push({
+          start: startTime,
+          end: endTime,
+          title: item.subject_override,
+          room: room,
+          instructor: instructor,
+          type: "Exam",
+          isExam: true,
+          examName: examName,
+          examTopics: topics
         });
       }
     });

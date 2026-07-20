@@ -39,3 +39,10 @@ export function escapeHtml(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+
+export function truncateText(str, maxLen = 10) {
+  if (!str) return '';
+  const cleanStr = String(str).trim();
+  if (cleanStr.length <= maxLen) return cleanStr;
+  return cleanStr.substring(0, maxLen) + '...';
+}

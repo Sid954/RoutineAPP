@@ -46,9 +46,46 @@ export function initPostForm() {
     }
   }
 
+  function updateClassTestSubjects() {
+    const dateVal = DOM.paClassTestDate.value;
+    if (!dateVal) {
+      DOM.paClassTestSubjectSelect.innerHTML = '<option value="">Select a date first</option>';
+      return;
+    }
+
+    const [y, m, d] = dateVal.split('-').map(Number);
+    const dayIdx = new Date(y, m - 1, d).getDay();
+
+    const showAll = DOM.paClassTestShowAllSubjects && DOM.paClassTestShowAllSubjects.checked;
+    let subjects = [];
+    if (showAll) {
+      const allSubjs = new Set();
+      Object.values(State.schedule).forEach(dayClasses => {
+        dayClasses.forEach(c => { if (c.title) allSubjs.add(c.title); });
+      });
+      subjects = Array.from(allSubjs);
+    } else {
+      const classes = getClassesForDay(dayIdx);
+      subjects = Array.from(new Set(classes.map(c => c.title).filter(Boolean)));
+    }
+
+    if (subjects.length === 0) {
+      DOM.paClassTestSubjectSelect.innerHTML = `<option value="">No classes on this ${showAll ? 'schedule' : 'day'}</option>`;
+    } else {
+      DOM.paClassTestSubjectSelect.innerHTML = subjects
+        .sort()
+        .map(sub => `<option value="${escapeHtml(sub)}">${escapeHtml(sub)}</option>`)
+        .join('');
+    }
+  }
+
   DOM.paOnlineSubjectSelect.addEventListener('change', autoFillOnlineTimes);
   DOM.paOnlineDate.addEventListener('change', autoFillOnlineTimes);
   DOM.paCancelDate.addEventListener('change', updateCancelSubjects);
+  DOM.paClassTestDate.addEventListener('change', updateClassTestSubjects);
+  if (DOM.paClassTestShowAllSubjects) {
+    DOM.paClassTestShowAllSubjects.addEventListener('change', updateClassTestSubjects);
+  }
 
   DOM.newAnnounceBtn.addEventListener('click', () => {
     closeModal(DOM.announceModal);
@@ -61,6 +98,11 @@ export function initPostForm() {
     DOM.paContent.value = '';
     DOM.paPassword.value = '';
     DOM.paHolidayDetails.value = '';
+    DOM.paClassTestName.value = '';
+    DOM.paClassTestTopics.value = '';
+    if (DOM.paClassTestShowAllSubjects) {
+      DOM.paClassTestShowAllSubjects.checked = false;
+    }
 
     // Auto-fill dates with today
     const todayStr = new Date().toISOString().split('T')[0];
@@ -80,6 +122,8 @@ export function initPostForm() {
 
     DOM.paOnlineSubjectSelect.innerHTML = subjectOptions;
     DOM.paOnlineDate.value = todayStr;
+    DOM.paClassTestDate.value = todayStr;
+    updateClassTestSubjects();
     DOM.paOnlineLink.value = '';
 
     // Populate cancel dropdown for today's date dynamically
@@ -93,6 +137,7 @@ export function initPostForm() {
     DOM.paCancellationSection.style.display = 'none';
     DOM.paHolidaySection.style.display = 'none';
     DOM.paOnlineSection.style.display = 'none';
+    DOM.paClassTestSection.style.display = 'none';
     DOM.paHolidayEndDateContainer.style.display = 'none';
     DOM.paHolidayRangeType.value = 'single';
 
@@ -115,6 +160,7 @@ export function initPostForm() {
     DOM.paCancellationSection.style.display = val === 'cancellation' ? 'block' : 'none';
     DOM.paHolidaySection.style.display = val === 'holiday' ? 'block' : 'none';
     DOM.paOnlineSection.style.display = val === 'online_class' ? 'block' : 'none';
+    DOM.paClassTestSection.style.display = val === 'class_test' ? 'block' : 'none';
   });
 
   DOM.paHolidayRangeType.addEventListener('change', () => {
@@ -250,6 +296,29 @@ export function initPostForm() {
 
       success = await Announcements.publish(name, title, content, password, {
         type: 'online_class',
+        date_override: date,
+        subject_override: subject
+      });
+    } else if (type === 'class_test') {
+      const subject = DOM.paClassTestSubjectSelect.value;
+      const date = DOM.paClassTestDate.value;
+      const examName = DOM.paClassTestName.value.trim() || 'Class Test';
+      const topics = DOM.paClassTestTopics.value.trim() || 'Not Specified';
+
+      if (!subject || !date) {
+        showToast('Please select a Subject and Date.', 'warning');
+        DOM.postAnnounceSubmit.disabled = false;
+        DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
+        return;
+      }
+
+      const [y, m, d] = date.split('-').map(Number);
+      const formattedDate = new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const title = `${examName}: ${subject}`;
+      const content = JSON.stringify({ exam_name: examName, topics });
+
+      success = await Announcements.publish(name, title, content, password, {
+        type: 'class_test',
         date_override: date,
         subject_override: subject
       });

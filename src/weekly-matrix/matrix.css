@@ -130,8 +130,12 @@
     border-radius: var(--rs);
     padding: 16px;
     background: var(--card2);
-    transition: transform var(--t), border-color var(--t);
+    cursor: pointer;
+    transition: transform var(--t), border-color var(--t), box-shadow var(--t);
     animation: fadeInUp 0.4s ease both;
+  }
+  .m-matrix-card:active {
+    transform: scale(0.97);
   }
   .m-matrix-card.live {
     border-color: var(--accent) !important;
