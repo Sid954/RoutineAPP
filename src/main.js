@@ -98,7 +98,7 @@ if (FEATURES.particles) {
 }
 
 /* ── Close modals on backdrop click ──────────────────────────── */
-[DOM.viewModal, DOM.editModal, DOM.notifModal, DOM.announceModal, DOM.postAnnounceModal, DOM.notifHistoryModal, DOM.classDetailModal]
+[DOM.viewModal, DOM.editModal, DOM.notifModal, DOM.announceModal, DOM.postAnnounceModal, DOM.notifHistoryModal, DOM.classDetailModal, DOM.confirmModal]
   .filter(Boolean)
   .forEach(modal => {
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(modal); });
@@ -266,26 +266,18 @@ function showClassDetails(data) {
   openModal(DOM.classDetailModal);
 }
 
-let lastCardTapTime = 0;
-function handleCardActivation(e) {
+document.addEventListener('click', e => {
   const card = e.target.closest('.t-card, .m-matrix-card, .ch');
-  if (!card || !card.dataset.detail) return;
-  if (e.target.closest('button, a, select, input')) return;
-
-  const now = Date.now();
-  if (now - lastCardTapTime < 300) return; // Prevent double trigger
-  lastCardTapTime = now;
-
-  try {
-    const data = JSON.parse(card.dataset.detail);
-    showClassDetails(data);
-  } catch (err) {
-    console.error('Failed to parse card details:', err);
+  if (card && card.dataset.detail) {
+    if (e.target.closest('button, a, select, input')) return;
+    try {
+      const data = JSON.parse(card.dataset.detail);
+      showClassDetails(data);
+    } catch (err) {
+      console.error('Failed to parse card details:', err);
+    }
   }
-}
-
-document.addEventListener('click', handleCardActivation);
-document.addEventListener('touchend', handleCardActivation, { passive: true });
+});
 
 /* ── Global handlers ──────────────────────────────────────────── */
 initKeyboard();

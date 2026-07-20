@@ -152,3 +152,86 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ==========================================================================
+   Mobile App Smoothness & Performance
+   ========================================================================== */
+
+/* Remove 300ms tap delay & highlight on all touch targets */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+button, a, .ch, .t-card, .m-matrix-card, .m-tab-btn, .day-nav-btn {
+  touch-action: manipulation;
+}
+
+/* GPU-accelerated smooth scrolling for all scrollable containers */
+.mo .md,
+.announce-list,
+.chg,
+.tw {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Class Detail & Confirm modal — mobile slide-up sheet */
+@media (max-width: 640px) {
+  #classDetailModal,
+  #confirmModal {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  #classDetailModal > .md {
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 85vh !important;
+    max-height: 85dvh !important;
+    overflow-y: auto !important;
+    animation: sheetSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px) !important;
+  }
+
+  #confirmModal > .md {
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    animation: sheetSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px) !important;
+  }
+
+  /* Drag handle indicator for bottom-sheet feel */
+  #classDetailModal > .md::before,
+  #confirmModal > .md::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    margin: 8px auto 4px;
+  }
+}
+
+@keyframes sheetSlideUp {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Clickable cards — active press feedback on mobile */
+@media (hover: none) and (pointer: coarse) {
+  .ch:active,
+  .t-card:active,
+  .m-matrix-card:active {
+    transform: scale(0.97) !important;
+    transition: transform 0.1s ease !important;
+  }
+
+  .day-nav-btn:active,
+  .m-tab-btn:active,
+  button:active {
+    transform: scale(0.95) !important;
+    transition: transform 0.1s ease !important;
+  }
+}
