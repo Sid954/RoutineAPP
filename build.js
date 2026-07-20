@@ -67,6 +67,16 @@ function build() {
     }
   });
 
+  // Inject dynamic CACHE_VERSION into output sw.js
+  const swPath = path.join(DIST_DIR, 'sw.js');
+  if (fs.existsSync(swPath)) {
+    let swContent = fs.readFileSync(swPath, 'utf8');
+    const versionId = Date.now();
+    swContent = swContent.replace(/const CACHE_VERSION = '[^']*'/, `const CACHE_VERSION = 'routine-cache-${versionId}'`);
+    fs.writeFileSync(swPath, swContent, 'utf8');
+    console.log(`Injected dynamic CACHE_VERSION: routine-cache-${versionId} into www/sw.js`);
+  }
+
 
 
   console.log('Build completed! Web assets are in the /www folder.');

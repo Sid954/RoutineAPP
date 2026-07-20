@@ -164,6 +164,28 @@ export function initEditorEvents() {
     });
   }
 
+  // Manual Check for Updates
+  const checkUpdateBtn = document.getElementById('checkUpdateBtn');
+  if (checkUpdateBtn) {
+    checkUpdateBtn.addEventListener('click', () => {
+      if ('serviceWorker' in navigator) {
+        showToast('Checking for updates...', 'info');
+        navigator.serviceWorker.ready.then(reg => {
+          reg.update().then(updatedReg => {
+            if (!updatedReg.installing && !updatedReg.waiting) {
+              showToast('App is already up to date!', 'success');
+            }
+          }).catch(err => {
+            console.error('Update check failed:', err);
+            showToast('Update check failed.', 'error');
+          });
+        });
+      } else {
+        showToast('Updates not supported in this environment.', 'warning');
+      }
+    });
+  }
+
   // Note: editBtn and ecC modal open/close are handled by main.js
   // to keep modal management centralized.
 }
