@@ -56,9 +56,8 @@ export const Particles = {
         const dx = p.x - q.x, dy = p.y - q.y;
         const distSq = dx * dx + dy * dy;
         if (distSq < maxDistSq) {
-          const dist = Math.sqrt(distSq);
           ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
-          ctx.strokeStyle = `rgba(56,189,248,${0.06 * (1 - dist / CONFIG.particles.maxDistance)})`;
+          ctx.strokeStyle = `rgba(56,189,248,${0.06 * (1 - distSq / maxDistSq)})`;
           ctx.lineWidth = 0.5; ctx.stroke();
         }
       }

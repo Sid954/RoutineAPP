@@ -13,6 +13,18 @@ import { updateStats } from '../dashboard/stats.js';
 import { updateDashboard, forceUpdate } from '../dashboard/update.js';
 import { DOM } from '../core/dom.js';
 
+export function fetchAnnouncementsAndNotify() {
+  return Announcements.fetchAll().then(fetched => {
+    if (fetched) {
+      State.lastRenderedMinute = -1;
+      updateDashboard();
+      if (FEATURES.notifications) {
+        Notifications.scheduleForToday();
+      }
+    }
+  }).catch(() => { /* Silent fallback: offline */ });
+}
+
 export function initializeApp() {
   if (FEATURES.streak) Streak.update();
 
@@ -47,12 +59,13 @@ export function initializeApp() {
 
   if (FEATURES.notifications) {
     Notifications.init();
+    Notifications.initEvents();
   }
 
   // ── STEP 4: Asynchronously fetch latest config, schedule & announcements (non-blocking)
   // This executes in the background and will not slow down the app startup or require an internet connection to display the routine.
   
-  // A. Config fetch
+  // A. Config fetch — MUST complete before announcements fetch (sets CONFIG.apiBase)
   fetch('config.json?t=' + Date.now())
     .then(res => { if (!res.ok) throw new Error(); return res.json(); })
     .then(configData => {
@@ -80,17 +93,26 @@ export function initializeApp() {
       if (needsRefresh) {
         forceUpdate();
       }
-    })
-    .catch(() => { /* Silent fallback: offline or config unchanged */ });
 
-  // B. Schedule fetch
+      // Now that apiBase is set, fetch announcements
+      if (FEATURES.announcements) {
+        fetchAnnouncementsAndNotify();
+      }
+    })
+    .catch(() => {
+      // Config failed but still try announcements with whatever apiBase we have
+      if (FEATURES.announcements) {
+        fetchAnnouncementsAndNotify();
+      }
+    });
+
+  // B. Schedule fetch (independent of config)
   const currentSem = Storage.getSemester();
   const currentSec = Storage.getSection();
   fetch(`./src/data/sem-${currentSem}/${currentSec}/routine.json?t=${Date.now()}`)
     .then(res => { if (!res.ok) throw new Error(); return res.json(); })
     .then(data => {
       const freshSchedule = normalizeSchedule(data);
-      // Compare if it actually changed to avoid unnecessary renders
       if (JSON.stringify(State.schedule) !== JSON.stringify(freshSchedule)) {
         State.schedule = freshSchedule;
         Storage.saveSchedule();
@@ -102,14 +124,9 @@ export function initializeApp() {
     })
     .catch(() => { /* Silent fallback: offline or schedule unchanged */ });
 
-  // C. Announcements fetch
+  // C. Poll for new announcements every 30 seconds while app is open
   if (FEATURES.announcements) {
-    Announcements.fetchAll().then(fetched => {
-      if (fetched) {
-        State.lastRenderedMinute = -1; // Bypass throttle to apply overrides immediately
-        updateDashboard();
-      }
-    }).catch(() => { /* Silent fallback: offline */ });
+    setInterval(() => fetchAnnouncementsAndNotify(), 30 * 1000);
   }
 
   // ── STEP 5: Initialize Routine Selection Dropdowns

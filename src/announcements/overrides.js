@@ -7,8 +7,9 @@ export function getDateForDayIndex(targetDayIdx) {
   const todayIdx = today.getDay();
 
   const todayOffset = dayOrder.indexOf(todayIdx);
-  const targetOffset = dayOrder.indexOf(targetDayIdx);
-  const diff = targetOffset - todayOffset;
+  const targetOffset = dayOrder.indexOf(Number(targetDayIdx));
+  let diff = targetOffset - todayOffset;
+  if (diff < 0) diff += 7;
 
   const targetDate = new Date(today);
   targetDate.setDate(today.getDate() + diff);

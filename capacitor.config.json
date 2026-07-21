@@ -4,7 +4,6 @@
   "webDir": "www",
   "server": {
     "androidScheme": "https",
-    "url": "https://sid954.github.io/RoutineAPP/",
     "cleartext": true
   },
   "plugins": {

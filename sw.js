@@ -1,7 +1,7 @@
 /**
  * Service Worker — Handles caching, offline support, and notification events.
  */
-const CACHE_VERSION = 'routine-cache-v8';
+const CACHE_VERSION = 'routine-cache-1784664048016';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -20,7 +20,6 @@ self.addEventListener('install', event => {
       .then(cache => cache.addAll(STATIC_ASSETS).catch(err => {
         console.warn('Cache pre-load skipped for some files:', err);
       }))
-      .then(() => self.skipWaiting())
   );
 });
 
@@ -48,8 +47,8 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Stale-while-revalidate for static assets (fast loads + eventual freshness)
-  event.respondWith(staleWhileRevalidate(event.request));
+  // Network-first for all assets (ensures fresh content after updates)
+  event.respondWith(networkFirst(event.request));
 });
 
 /**

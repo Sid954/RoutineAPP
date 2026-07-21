@@ -46,56 +46,40 @@ document.getElementById('notifSettingsBtn').addEventListener('click', () => {
 document.getElementById('notifModalClose').addEventListener('click', () => closeModal(DOM.notifModal));
 
 
-/* ── Edit Schedule modal ──────────────────────────────────────── */
-if (FEATURES.editSchedule) {
-  const { populateDaySelect, renderEditColumns, initEditorEvents } = await import('./edit-schedule/editor.js');
-
-  // initEditorEvents registers add/clear/reset/select listeners
-  initEditorEvents();
-
-  document.getElementById('editBtn').addEventListener('click', () => {
-    openModal(DOM.editModal, () => {
-      State.selectedDay = CONFIG.activeDays.includes(new Date().getDay()) ? new Date().getDay() : CONFIG.activeDays[0];
-      populateDaySelect();
-      renderEditColumns();
-      
-      // Reset toggles to collapsed by default on open
-      const addForm = document.getElementById('addClassForm');
-      const addBtn = document.getElementById('toggleAddClassBtn');
-      if (addForm && addBtn) {
-        addForm.style.display = 'none';
-        addBtn.textContent = '+ Add Class';
-        addBtn.style.borderColor = '';
-        addBtn.style.color = '';
-      }
+/* ── Dynamic feature imports (parallel for faster boot) ───────── */
+await Promise.all([
+  FEATURES.editSchedule ? import('./edit-schedule/editor.js').then(({ populateDaySelect, renderEditColumns, initEditorEvents }) => {
+    initEditorEvents();
+    document.getElementById('editBtn').addEventListener('click', () => {
+      openModal(DOM.editModal, () => {
+        State.selectedDay = CONFIG.activeDays.includes(new Date().getDay()) ? new Date().getDay() : CONFIG.activeDays[0];
+        populateDaySelect();
+        renderEditColumns();
+        const addForm = document.getElementById('addClassForm');
+        const addBtn = document.getElementById('toggleAddClassBtn');
+        if (addForm && addBtn) {
+          addForm.style.display = 'none';
+          addBtn.textContent = '+ Add Class';
+          addBtn.style.borderColor = '';
+          addBtn.style.color = '';
+        }
+      });
     });
-  });
-  document.getElementById('ecC').addEventListener('click', () => closeModal(DOM.editModal));
-}
+    document.getElementById('ecC').addEventListener('click', () => closeModal(DOM.editModal));
+  }) : null,
 
-/* ── Announcements ────────────────────────────────────────────── */
-if (FEATURES.announcements) {
-  const { initAnnouncementEvents } = await import('./announcements/announcements.js');
-  const { initPostForm } = await import('./announcements/post-form.js');
-  initAnnouncementEvents();
-  initPostForm();
-}
+  FEATURES.announcements ? Promise.all([
+    import('./announcements/announcements.js'),
+    import('./announcements/post-form.js')
+  ]).then(([{ initAnnouncementEvents }, { initPostForm }]) => {
+    initAnnouncementEvents();
+    initPostForm();
+  }) : null,
 
-/* ── Banners ──────────────────────────────────────────────────── */
-if (FEATURES.notifBanner) {
-  const { initNotifBanner } = await import('./banners/notif-banner.js');
-  initNotifBanner();
-}
-if (FEATURES.installBanner) {
-  const { initInstallBanner } = await import('./banners/install-banner.js');
-  initInstallBanner();
-}
-
-/* ── Particles resize ─────────────────────────────────────────── */
-if (FEATURES.particles) {
-  const { initResize } = await import('./events/resize.js');
-  initResize();
-}
+  FEATURES.notifBanner ? import('./banners/notif-banner.js').then(({ initNotifBanner }) => initNotifBanner()) : null,
+  FEATURES.installBanner ? import('./banners/install-banner.js').then(({ initInstallBanner }) => initInstallBanner()) : null,
+  FEATURES.particles ? import('./events/resize.js').then(({ initResize }) => initResize()) : null,
+].filter(Boolean));
 
 /* ── Close modals on backdrop click ──────────────────────────── */
 [DOM.viewModal, DOM.editModal, DOM.notifModal, DOM.announceModal, DOM.postAnnounceModal, DOM.notifHistoryModal, DOM.classDetailModal, DOM.confirmModal]

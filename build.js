@@ -67,14 +67,24 @@ function build() {
     }
   });
 
+  const versionId = Date.now();
+
   // Inject dynamic CACHE_VERSION into output sw.js
   const swPath = path.join(DIST_DIR, 'sw.js');
   if (fs.existsSync(swPath)) {
     let swContent = fs.readFileSync(swPath, 'utf8');
-    const versionId = Date.now();
     swContent = swContent.replace(/const CACHE_VERSION = '[^']*'/, `const CACHE_VERSION = 'routine-cache-${versionId}'`);
     fs.writeFileSync(swPath, swContent, 'utf8');
     console.log(`Injected dynamic CACHE_VERSION: routine-cache-${versionId} into www/sw.js`);
+  }
+
+  // Also update root sw.js so GitHub Pages serves fresh cache version
+  const rootSwPath = path.join(__dirname, 'sw.js');
+  if (fs.existsSync(rootSwPath)) {
+    let rootSwContent = fs.readFileSync(rootSwPath, 'utf8');
+    rootSwContent = rootSwContent.replace(/const CACHE_VERSION = '[^']*'/, `const CACHE_VERSION = 'routine-cache-${versionId}'`);
+    fs.writeFileSync(rootSwPath, rootSwContent, 'utf8');
+    console.log(`Injected dynamic CACHE_VERSION: routine-cache-${versionId} into root sw.js`);
   }
 
 

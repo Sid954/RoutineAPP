@@ -1,25 +1,6 @@
 import { State } from '../core/state.js';
 import { toMinutes, parseTo24h } from '../core/utils.js';
-
-// Helper to determine date for a target day index
-function getDateForDayIndex(targetDayIdx) {
-  const dayOrder = [6, 0, 1, 2, 3, 4, 5]; // Sat, Sun, Mon, Tue, Wed, Thu, Fri
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayIdx = today.getDay();
-
-  const todayOffset = dayOrder.indexOf(todayIdx);
-  const targetOffset = dayOrder.indexOf(Number(targetDayIdx));
-  const diff = targetOffset - todayOffset;
-
-  const targetDate = new Date(today);
-  targetDate.setDate(today.getDate() + diff);
-
-  const y = targetDate.getFullYear();
-  const m = String(targetDate.getMonth() + 1).padStart(2, '0');
-  const d = String(targetDate.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
+import { getDateForDayIndex } from '../announcements/overrides.js';
 
 export function getClassesForDay(dayIdx) {
   const target = dayIdx !== undefined ? dayIdx : State.currentViewDayIdx;

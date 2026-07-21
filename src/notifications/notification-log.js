@@ -86,6 +86,7 @@ export const NotificationLog = {
   },
 
   renderList(container) {
+    if (!container) return;
     const log = this.getAll();
     if (!log.length) {
       container.innerHTML = '<div class="notif-history-empty"><span style="font-size: 28px; display: block; margin-bottom: 8px;">🔕</span>No notifications yet.<br>Enable notifications to start receiving alerts.</div>';

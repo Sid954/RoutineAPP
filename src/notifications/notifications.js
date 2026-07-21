@@ -5,6 +5,7 @@ import { NotificationLog } from './notification-log.js';
 import { getOverrideFor } from '../announcements/overrides.js';
 import { format12h, formatRoom, toMinutes, getCurrentMinutes } from '../core/utils.js';
 import { showToast } from '../toast/toast.js';
+import { getClassesForDay } from '../schedule/queries.js';
 
 // NativePush circular dep fix: NativePush registers itself via setNativePush()
 export let _nativePush = null;
@@ -65,7 +66,7 @@ export const Notifications = {
     if (!hasPerm) return;
 
     const todayIdx = new Date().getDay();
-    const classes = State.schedule[todayIdx] || [];
+    const classes = getClassesForDay(todayIdx);
     const now = getCurrentMinutes();
     const isNative = window.Capacitor && window.Capacitor.isNativePlatform();
 
@@ -104,8 +105,7 @@ export const Notifications = {
             title: '☀️ Good Morning! Today\'s Schedule',
             body: briefBody,
             id: notifId++,
-            schedule: { at: briefDate },
-            smallIcon: 'ic_stat_icon',
+            schedule: { at: briefDate, allowWhileIdle: true },
             iconColor: '#fbbf24'
           });
           NotificationLog.add({ type: 'morning_briefing', title: '☀️ Good Morning! Today\'s Schedule', body: briefBody });
@@ -119,39 +119,45 @@ export const Notifications = {
           const cancelOverride = getOverrideFor(todayIdx, cls.title);
           if (cancelOverride) return; // Skip cancelled classes
 
-          // ── Pre-class Reminder ──
+          const isExam = cls.isExam;
+
+          // ── Pre-class / Pre-exam Reminder ──
           const alertMins = startMins - settings.leadTime;
           if (alertMins > now) {
             const alertDate = new Date();
             alertDate.setHours(Math.floor(alertMins / 60), alertMins % 60, 0, 0);
-            const titleText = `⏰ ${cls.title} in ${settings.leadTime} min`;
-            const bodyText = `Room ${formatRoom(cls.room)} · ${cls.instructor || ''} · ${format12h(cls.start)} – ${format12h(cls.end)}`;
+            const titleText = isExam
+              ? `📝 ${cls.examName || 'Exam'}: ${cls.title} in ${settings.leadTime} min`
+              : `⏰ ${cls.title} in ${settings.leadTime} min`;
+            const bodyText = isExam
+              ? `Topics: ${cls.examTopics || 'See app for details'} · Room ${formatRoom(cls.room)}`
+              : `Room ${formatRoom(cls.room)} · ${cls.instructor || ''} · ${format12h(cls.start)} – ${format12h(cls.end)}`;
             nativeNotifs.push({
               title: titleText,
               body: bodyText,
               id: notifId++,
-              schedule: { at: alertDate },
-              smallIcon: 'ic_stat_icon',
-              iconColor: '#38bdf8'
+              schedule: { at: alertDate, allowWhileIdle: true },
+              iconColor: isExam ? '#f97316' : '#38bdf8'
             });
-            NotificationLog.add({ type: 'reminder', title: titleText, body: bodyText });
+            NotificationLog.add({ type: isExam ? 'class_test' : 'reminder', title: titleText, body: bodyText });
           }
 
-          // ── Class Starting Now ──
+          // ── Class / Exam Starting Now ──
           if (startMins > now) {
             const startDate = new Date();
             startDate.setHours(Math.floor(startMins / 60), startMins % 60, 0, 0);
-            const titleText = `📚 ${cls.title} starting now!`;
+            const titleText = isExam
+              ? `📝 ${cls.examName || 'Exam'}: ${cls.title} starting now!`
+              : `📚 ${cls.title} starting now!`;
             const bodyText = `Head to Room ${formatRoom(cls.room)}${cls.instructor ? ` · Instructor: ${cls.instructor}` : ''}`;
             nativeNotifs.push({
               title: titleText,
               body: bodyText,
               id: notifId++,
-              schedule: { at: startDate },
-              smallIcon: 'ic_stat_icon',
-              iconColor: '#10b981'
+              schedule: { at: startDate, allowWhileIdle: true },
+              iconColor: isExam ? '#f97316' : '#10b981'
             });
-            NotificationLog.add({ type: 'class_start', title: titleText, body: bodyText });
+            NotificationLog.add({ type: isExam ? 'class_test' : 'class_start', title: titleText, body: bodyText });
           }
 
           // ── Class Ending Soon (5 min before end) ──
@@ -172,8 +178,7 @@ export const Notifications = {
                 title: titleText,
                 body: nextClassInfo,
                 id: notifId++,
-                schedule: { at: endAlertDate },
-                smallIcon: 'ic_stat_icon',
+                schedule: { at: endAlertDate, allowWhileIdle: true },
                 iconColor: '#a78bfa'
               });
               NotificationLog.add({ type: 'class_end', title: titleText, body: nextClassInfo });
@@ -196,8 +201,7 @@ export const Notifications = {
                 title: titleText,
                 body: bodyText,
                 id: notifId++,
-                schedule: { at: doneDate },
-                smallIcon: 'ic_stat_icon',
+                schedule: { at: doneDate, allowWhileIdle: true },
                 iconColor: '#34d399'
               });
               NotificationLog.add({ type: 'day_done', title: titleText, body: bodyText });
@@ -245,26 +249,34 @@ export const Notifications = {
           const cancelOverride = getOverrideFor(todayIdx, cls.title);
           if (cancelOverride) return;
 
-          // Pre-class Reminder
+          const isExam = cls.isExam;
+
+          // Pre-class / Pre-exam Reminder
           const alertMins = startMins - settings.leadTime;
           if (alertMins > now) {
             const delay = (alertMins - now) * 60000;
             this.timeouts.push(setTimeout(() => {
-              const title = `⏰ ${cls.title} in ${settings.leadTime} min`;
-              const body = `Room ${formatRoom(cls.room)} · ${cls.instructor || ''} · ${format12h(cls.start)} – ${format12h(cls.end)}`;
+              const title = isExam
+                ? `📝 ${cls.examName || 'Exam'}: ${cls.title} in ${settings.leadTime} min`
+                : `⏰ ${cls.title} in ${settings.leadTime} min`;
+              const body = isExam
+                ? `Topics: ${cls.examTopics || 'See app for details'} · Room ${formatRoom(cls.room)}`
+                : `Room ${formatRoom(cls.room)} · ${cls.instructor || ''} · ${format12h(cls.start)} – ${format12h(cls.end)}`;
               this.show(title, body);
-              NotificationLog.add({ type: 'reminder', title, body });
+              NotificationLog.add({ type: isExam ? 'class_test' : 'reminder', title, body });
             }, delay));
           }
 
-          // Class Starting Now
+          // Class / Exam Starting Now
           if (startMins > now) {
             const delay = (startMins - now) * 60000;
             this.timeouts.push(setTimeout(() => {
-              const title = `📚 ${cls.title} starting now!`;
+              const title = isExam
+                ? `📝 ${cls.examName || 'Exam'}: ${cls.title} starting now!`
+                : `📚 ${cls.title} starting now!`;
               const body = `Head to Room ${formatRoom(cls.room)}${cls.instructor ? ` · Instructor: ${cls.instructor}` : ''}`;
               this.show(title, body);
-              NotificationLog.add({ type: 'class_start', title, body });
+              NotificationLog.add({ type: isExam ? 'class_test' : 'class_start', title, body });
             }, delay));
           }
 
@@ -324,7 +336,8 @@ export const Notifications = {
   },
 
   show(title, body) {
-    if (!this.isSupported() || Notification.permission !== 'granted') return;
+    if (window.Capacitor && window.Capacitor.isNativePlatform()) return;
+    if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
     try {
       new Notification(title, {
         body,
@@ -348,7 +361,6 @@ export const Notifications = {
             title,
             body,
             id: Math.floor(Math.random() * 1000000),
-            smallIcon: 'ic_stat_icon',
             iconColor: type === 'class_test' ? '#f97316' : (type === 'online_class' ? '#10b981' : (type === 'cancellation' ? '#f43f5e' : '#38bdf8'))
           }]
         });
