@@ -57,175 +57,44 @@ export const Notifications = {
     DOM.notifPermStatus.style.color = perm === 'granted' ? '#10b981' : perm === 'denied' ? '#f43f5e' : '';
   },
 
-  async scheduleForToday() {
-    await this.cancelAll();
-    const settings = Storage.getNotifSettings();
-    if (!settings.enabled) return;
+  _lastScheduleTime: 0,
 
-    const hasPerm = (await this.getPermission()) === 'granted';
-    if (!hasPerm) return;
-
-    const todayIdx = new Date().getDay();
-    const classes = getClassesForDay(todayIdx);
-    const now = getCurrentMinutes();
-    const isNative = window.Capacitor && window.Capacitor.isNativePlatform();
-
-    // Check holiday override
-    const holidayOverride = getOverrideFor(todayIdx);
-    const isHoliday = holidayOverride && holidayOverride.type === 'holiday';
-
-    if (isNative) {
-      const { LocalNotifications } = window.Capacitor.Plugins;
-      const nativeNotifs = [];
-      let notifId = 100;
-
-      // ── Morning Briefing ──
-      if (settings.briefingEnabled !== false) {
-        const briefingMins = settings.briefingTime || 450;
-        if (briefingMins > now) {
-          const briefDate = new Date();
-          briefDate.setHours(Math.floor(briefingMins / 60), briefingMins % 60, 0, 0);
-
-          let briefBody;
-          if (isHoliday) {
-            briefBody = `No classes today! ${holidayOverride.announcement.title} 🎉`;
-          } else if (!classes.length) {
-            briefBody = 'No classes scheduled today. Enjoy your day off! 🎉';
-          } else {
-            const first = classes[0];
-            let cancelCount = 0;
-            classes.forEach(c => { if (getOverrideFor(todayIdx, c.title)) cancelCount++; });
-            const activeCount = classes.length - cancelCount;
-            briefBody = `You have ${activeCount} class${activeCount !== 1 ? 'es' : ''} today.`;
-            if (cancelCount > 0) briefBody += ` (${cancelCount} cancelled)`;
-            briefBody += ` First up: ${first.title} at ${format12h(first.start)} in Room ${formatRoom(first.room)}`;
-          }
-
-          nativeNotifs.push({
-            title: '☀️ Good Morning! Today\'s Schedule',
-            body: briefBody,
-            id: notifId++,
-            schedule: { at: briefDate, allowWhileIdle: true },
-            iconColor: '#fbbf24'
-          });
-          NotificationLog.add({ type: 'morning_briefing', title: '☀️ Good Morning! Today\'s Schedule', body: briefBody });
-        }
+  async scheduleForToday(force = false) {
+    try {
+      const nowTs = Date.now();
+      if (!force && nowTs - this._lastScheduleTime < 5000) {
+        return;
       }
+      this._lastScheduleTime = nowTs;
 
-      if (!isHoliday) {
-        classes.forEach((cls) => {
-          const startMins = toMinutes(cls.start);
-          const endMins = toMinutes(cls.end);
-          const cancelOverride = getOverrideFor(todayIdx, cls.title);
-          if (cancelOverride) return; // Skip cancelled classes
+      await this.cancelAll();
+      const settings = Storage.getNotifSettings();
+      if (!settings.enabled) return;
 
-          const isExam = cls.isExam;
+      const hasPerm = (await this.getPermission()) === 'granted';
+      if (!hasPerm) return;
 
-          // ── Pre-class / Pre-exam Reminder ──
-          const alertMins = startMins - settings.leadTime;
-          if (alertMins > now) {
-            const alertDate = new Date();
-            alertDate.setHours(Math.floor(alertMins / 60), alertMins % 60, 0, 0);
-            const titleText = isExam
-              ? `📝 ${cls.examName || 'Exam'}: ${cls.title} in ${settings.leadTime} min`
-              : `⏰ ${cls.title} in ${settings.leadTime} min`;
-            const bodyText = isExam
-              ? `Topics: ${cls.examTopics || 'See app for details'} · Room ${formatRoom(cls.room)}`
-              : `Room ${formatRoom(cls.room)} · ${cls.instructor || ''} · ${format12h(cls.start)} – ${format12h(cls.end)}`;
-            nativeNotifs.push({
-              title: titleText,
-              body: bodyText,
-              id: notifId++,
-              schedule: { at: alertDate, allowWhileIdle: true },
-              iconColor: isExam ? '#f97316' : '#38bdf8'
-            });
-            NotificationLog.add({ type: isExam ? 'class_test' : 'reminder', title: titleText, body: bodyText });
-          }
+      const todayIdx = new Date().getDay();
+      const classes = getClassesForDay(todayIdx);
+      const now = getCurrentMinutes();
+      const isNative = window.Capacitor && window.Capacitor.isNativePlatform();
 
-          // ── Class / Exam Starting Now ──
-          if (startMins > now) {
-            const startDate = new Date();
-            startDate.setHours(Math.floor(startMins / 60), startMins % 60, 0, 0);
-            const titleText = isExam
-              ? `📝 ${cls.examName || 'Exam'}: ${cls.title} starting now!`
-              : `📚 ${cls.title} starting now!`;
-            const bodyText = `Head to Room ${formatRoom(cls.room)}${cls.instructor ? ` · Instructor: ${cls.instructor}` : ''}`;
-            nativeNotifs.push({
-              title: titleText,
-              body: bodyText,
-              id: notifId++,
-              schedule: { at: startDate, allowWhileIdle: true },
-              iconColor: isExam ? '#f97316' : '#10b981'
-            });
-            NotificationLog.add({ type: isExam ? 'class_test' : 'class_start', title: titleText, body: bodyText });
-          }
+      // Check holiday override
+      const holidayOverride = getOverrideFor(todayIdx);
+      const isHoliday = holidayOverride && holidayOverride.type === 'holiday';
 
-          // ── Class Ending Soon (5 min before end) ──
-          if (settings.classEndEnabled) {
-            const endAlertMins = endMins - 5;
-            if (endAlertMins > now) {
-              const endAlertDate = new Date();
-              endAlertDate.setHours(Math.floor(endAlertMins / 60), endAlertMins % 60, 0, 0);
+      if (isNative) {
+        const { LocalNotifications } = window.Capacitor.Plugins;
+        const nativeNotifs = [];
+        let notifId = 100;
 
-              let nextClassInfo = 'Free time after this!';
-              const remaining = classes.filter(c => toMinutes(c.start) >= endMins && !getOverrideFor(todayIdx, c.title));
-              if (remaining.length) {
-                nextClassInfo = `Next up: ${remaining[0].title} at ${format12h(remaining[0].start)}`;
-              }
+        // ── Morning Briefing ──
+        if (settings.briefingEnabled !== false) {
+          const briefingMins = settings.briefingTime || 450;
+          if (briefingMins > now) {
+            const briefDate = new Date();
+            briefDate.setHours(Math.floor(briefingMins / 60), briefingMins % 60, 0, 0);
 
-              const titleText = `⌛ ${cls.title} ending in 5 min`;
-              nativeNotifs.push({
-                title: titleText,
-                body: nextClassInfo,
-                id: notifId++,
-                schedule: { at: endAlertDate, allowWhileIdle: true },
-                iconColor: '#a78bfa'
-              });
-              NotificationLog.add({ type: 'class_end', title: titleText, body: nextClassInfo });
-            }
-          }
-        });
-
-        // ── Day Complete ──
-        if (settings.dayDoneEnabled !== false && classes.length > 0) {
-          const activeClasses = classes.filter(c => !getOverrideFor(todayIdx, c.title));
-          if (activeClasses.length > 0) {
-            const lastClass = activeClasses[activeClasses.length - 1];
-            const lastEndMins = toMinutes(lastClass.end);
-            if (lastEndMins > now) {
-              const doneDate = new Date();
-              doneDate.setHours(Math.floor(lastEndMins / 60), lastEndMins % 60, 0, 0);
-              const titleText = '🎉 All classes done for today!';
-              const bodyText = `Great job! You completed ${activeClasses.length} class${activeClasses.length !== 1 ? 'es' : ''} today.`;
-              nativeNotifs.push({
-                title: titleText,
-                body: bodyText,
-                id: notifId++,
-                schedule: { at: doneDate, allowWhileIdle: true },
-                iconColor: '#34d399'
-              });
-              NotificationLog.add({ type: 'day_done', title: titleText, body: bodyText });
-            }
-          }
-        }
-      }
-
-      if (nativeNotifs.length) {
-        try {
-          await LocalNotifications.schedule({ notifications: nativeNotifs });
-        } catch (e) {
-          console.error('Failed to schedule native alarms:', e);
-        }
-      }
-    } else {
-      // ── Web Browser Notifications ──
-
-      // Morning Briefing
-      if (settings.briefingEnabled !== false) {
-        const briefingMins = settings.briefingTime || 450;
-        if (briefingMins > now) {
-          const delay = (briefingMins - now) * 60000;
-          this.timeouts.push(setTimeout(() => {
             let briefBody;
             if (isHoliday) {
               briefBody = `No classes today! ${holidayOverride.announcement.title} 🎉`;
@@ -233,88 +102,244 @@ export const Notifications = {
               briefBody = 'No classes scheduled today. Enjoy your day off! 🎉';
             } else {
               const first = classes[0];
-              briefBody = `You have ${classes.length} class${classes.length !== 1 ? 'es' : ''} today. First up: ${first.title} at ${format12h(first.start)} in Room ${formatRoom(first.room)}`;
+              let cancelCount = 0;
+              classes.forEach(c => { if (getOverrideFor(todayIdx, c.title)) cancelCount++; });
+              const activeCount = classes.length - cancelCount;
+              briefBody = `You have ${activeCount} class${activeCount !== 1 ? 'es' : ''} today.`;
+              if (cancelCount > 0) briefBody += ` (${cancelCount} cancelled)`;
+              briefBody += ` First up: ${first.title} at ${format12h(first.start)} in Room ${formatRoom(first.room)}`;
             }
-            const title = '☀️ Good Morning! Today\'s Schedule';
-            this.show(title, briefBody);
-            NotificationLog.add({ type: 'morning_briefing', title, body: briefBody });
-          }, delay));
+
+            nativeNotifs.push({
+              title: '☀️ Good Morning! Today\'s Schedule',
+              body: briefBody,
+              id: notifId++,
+              schedule: { at: briefDate, allowWhileIdle: true },
+              iconColor: '#fbbf24'
+            });
+            NotificationLog.add({ type: 'morning_briefing', title: '☀️ Good Morning! Today\'s Schedule', body: briefBody });
+          }
         }
-      }
 
-      if (!isHoliday) {
-        classes.forEach((cls) => {
-          const startMins = toMinutes(cls.start);
-          const endMins = toMinutes(cls.end);
-          const cancelOverride = getOverrideFor(todayIdx, cls.title);
-          if (cancelOverride) return;
+        if (!isHoliday) {
+          classes.forEach((cls) => {
+            const startMins = toMinutes(cls.start);
+            const endMins = toMinutes(cls.end);
+            const cancelOverride = getOverrideFor(todayIdx, cls.title);
+            if (cancelOverride) return; // Skip cancelled classes
 
-          const isExam = cls.isExam;
+            const isExam = cls.isExam;
 
-          // Pre-class / Pre-exam Reminder
-          const alertMins = startMins - settings.leadTime;
-          if (alertMins > now) {
-            const delay = (alertMins - now) * 60000;
-            this.timeouts.push(setTimeout(() => {
-              const title = isExam
+            // ── Pre-class / Pre-exam Reminder ──
+            const alertMins = startMins - settings.leadTime;
+            if (alertMins > now) {
+              const alertDate = new Date();
+              alertDate.setHours(Math.floor(alertMins / 60), alertMins % 60, 0, 0);
+              const titleText = isExam
                 ? `📝 ${cls.examName || 'Exam'}: ${cls.title} in ${settings.leadTime} min`
                 : `⏰ ${cls.title} in ${settings.leadTime} min`;
-              const body = isExam
+              const bodyText = isExam
                 ? `Topics: ${cls.examTopics || 'See app for details'} · Room ${formatRoom(cls.room)}`
                 : `Room ${formatRoom(cls.room)} · ${cls.instructor || ''} · ${format12h(cls.start)} – ${format12h(cls.end)}`;
-              this.show(title, body);
-              NotificationLog.add({ type: isExam ? 'class_test' : 'reminder', title, body });
-            }, delay));
-          }
+              nativeNotifs.push({
+                title: titleText,
+                body: bodyText,
+                id: notifId++,
+                schedule: { at: alertDate, allowWhileIdle: true },
+                iconColor: isExam ? '#f97316' : '#38bdf8'
+              });
+              NotificationLog.add({ type: isExam ? 'class_test' : 'reminder', title: titleText, body: bodyText });
+            }
 
-          // Class / Exam Starting Now
-          if (startMins > now) {
-            const delay = (startMins - now) * 60000;
-            this.timeouts.push(setTimeout(() => {
-              const title = isExam
+            // ── Class / Exam Starting Now ──
+            if (startMins > now) {
+              const startDate = new Date();
+              startDate.setHours(Math.floor(startMins / 60), startMins % 60, 0, 0);
+              const titleText = isExam
                 ? `📝 ${cls.examName || 'Exam'}: ${cls.title} starting now!`
                 : `📚 ${cls.title} starting now!`;
-              const body = `Head to Room ${formatRoom(cls.room)}${cls.instructor ? ` · Instructor: ${cls.instructor}` : ''}`;
-              this.show(title, body);
-              NotificationLog.add({ type: isExam ? 'class_test' : 'class_start', title, body });
-            }, delay));
-          }
+              const bodyText = `Head to Room ${formatRoom(cls.room)}${cls.instructor ? ` · Instructor: ${cls.instructor}` : ''}`;
+              nativeNotifs.push({
+                title: titleText,
+                body: bodyText,
+                id: notifId++,
+                schedule: { at: startDate, allowWhileIdle: true },
+                iconColor: isExam ? '#f97316' : '#10b981'
+              });
+              NotificationLog.add({ type: isExam ? 'class_test' : 'class_start', title: titleText, body: bodyText });
+            }
 
-          // Class Ending Soon
-          if (settings.classEndEnabled) {
-            const endAlertMins = endMins - 5;
-            if (endAlertMins > now) {
-              const delay = (endAlertMins - now) * 60000;
-              this.timeouts.push(setTimeout(() => {
-                let nextInfo = 'Free time after this!';
+            // ── Class Ending Soon (5 min before end) ──
+            if (settings.classEndEnabled) {
+              const endAlertMins = endMins - 5;
+              if (endAlertMins > now) {
+                const endAlertDate = new Date();
+                endAlertDate.setHours(Math.floor(endAlertMins / 60), endAlertMins % 60, 0, 0);
+
+                let nextClassInfo = 'Free time after this!';
                 const remaining = classes.filter(c => toMinutes(c.start) >= endMins && !getOverrideFor(todayIdx, c.title));
-                if (remaining.length) nextInfo = `Next up: ${remaining[0].title} at ${format12h(remaining[0].start)}`;
-                const title = `⌛ ${cls.title} ending in 5 min`;
-                this.show(title, nextInfo);
-                NotificationLog.add({ type: 'class_end', title, body: nextInfo });
-              }, delay));
+                if (remaining.length) {
+                  nextClassInfo = `Next up: ${remaining[0].title} at ${format12h(remaining[0].start)}`;
+                }
+
+                const titleText = `⌛ ${cls.title} ending in 5 min`;
+                nativeNotifs.push({
+                  title: titleText,
+                  body: nextClassInfo,
+                  id: notifId++,
+                  schedule: { at: endAlertDate, allowWhileIdle: true },
+                  iconColor: '#a78bfa'
+                });
+                NotificationLog.add({ type: 'class_end', title: titleText, body: nextClassInfo });
+              }
+            }
+          });
+
+          // ── Day Complete ──
+          if (settings.dayDoneEnabled !== false && classes.length > 0) {
+            const activeClasses = classes.filter(c => !getOverrideFor(todayIdx, c.title));
+            if (activeClasses.length > 0) {
+              const lastClass = activeClasses[activeClasses.length - 1];
+              const lastEndMins = toMinutes(lastClass.end);
+              if (lastEndMins > now) {
+                const doneDate = new Date();
+                doneDate.setHours(Math.floor(lastEndMins / 60), lastEndMins % 60, 0, 0);
+                const titleText = '🎉 All classes done for today!';
+                const bodyText = `Great job! You completed ${activeClasses.length} class${activeClasses.length !== 1 ? 'es' : ''} today.`;
+                nativeNotifs.push({
+                  title: titleText,
+                  body: bodyText,
+                  id: notifId++,
+                  schedule: { at: doneDate, allowWhileIdle: true },
+                  iconColor: '#34d399'
+                });
+                NotificationLog.add({ type: 'day_done', title: titleText, body: bodyText });
+              }
             }
           }
-        });
+        }
 
-        // Day Complete
-        if (settings.dayDoneEnabled !== false && classes.length > 0) {
-          const activeClasses = classes.filter(c => !getOverrideFor(todayIdx, c.title));
-          if (activeClasses.length > 0) {
-            const lastClass = activeClasses[activeClasses.length - 1];
-            const lastEndMins = toMinutes(lastClass.end);
-            if (lastEndMins > now) {
-              const delay = (lastEndMins - now) * 60000;
+        if (nativeNotifs.length) {
+          try {
+            await LocalNotifications.schedule({ notifications: nativeNotifs });
+          } catch (e) {
+            console.warn('Exact alarm schedule failed (SecurityException fallback):', e);
+            // Fallback: strip allowWhileIdle if exact alarm permission is missing/restricted
+            const safeNotifs = nativeNotifs.map(n => ({
+              title: n.title,
+              body: n.body,
+              id: n.id,
+              schedule: { at: n.schedule.at },
+              iconColor: n.iconColor
+            }));
+            try {
+              await LocalNotifications.schedule({ notifications: safeNotifs });
+            } catch (e2) {
+              console.error('Safe native notification schedule failed:', e2);
+            }
+          }
+        }
+      } else {
+        // ── Web Browser Notifications ──
+
+        // Morning Briefing
+        if (settings.briefingEnabled !== false) {
+          const briefingMins = settings.briefingTime || 450;
+          if (briefingMins > now) {
+            const delay = (briefingMins - now) * 60000;
+            this.timeouts.push(setTimeout(() => {
+              let briefBody;
+              if (isHoliday) {
+                briefBody = `No classes today! ${holidayOverride.announcement.title} 🎉`;
+              } else if (!classes.length) {
+                briefBody = 'No classes scheduled today. Enjoy your day off! 🎉';
+              } else {
+                const first = classes[0];
+                briefBody = `You have ${classes.length} class${classes.length !== 1 ? 'es' : ''} today. First up: ${first.title} at ${format12h(first.start)} in Room ${formatRoom(first.room)}`;
+              }
+              const title = '☀️ Good Morning! Today\'s Schedule';
+              this.show(title, briefBody);
+              NotificationLog.add({ type: 'morning_briefing', title, body: briefBody });
+            }, delay));
+          }
+        }
+
+        if (!isHoliday) {
+          classes.forEach((cls) => {
+            const startMins = toMinutes(cls.start);
+            const endMins = toMinutes(cls.end);
+            const cancelOverride = getOverrideFor(todayIdx, cls.title);
+            if (cancelOverride) return;
+
+            const isExam = cls.isExam;
+
+            // Pre-class / Pre-exam Reminder
+            const alertMins = startMins - settings.leadTime;
+            if (alertMins > now) {
+              const delay = (alertMins - now) * 60000;
               this.timeouts.push(setTimeout(() => {
-                const title = '🎉 All classes done for today!';
-                const body = `Great job! You completed ${activeClasses.length} class${activeClasses.length !== 1 ? 'es' : ''} today.`;
+                const title = isExam
+                  ? `📝 ${cls.examName || 'Exam'}: ${cls.title} in ${settings.leadTime} min`
+                  : `⏰ ${cls.title} in ${settings.leadTime} min`;
+                const body = isExam
+                  ? `Topics: ${cls.examTopics || 'See app for details'} · Room ${formatRoom(cls.room)}`
+                  : `Room ${formatRoom(cls.room)} · ${cls.instructor || ''} · ${format12h(cls.start)} – ${format12h(cls.end)}`;
                 this.show(title, body);
-                NotificationLog.add({ type: 'day_done', title, body });
+                NotificationLog.add({ type: isExam ? 'class_test' : 'reminder', title, body });
               }, delay));
+            }
+
+            // Class / Exam Starting Now
+            if (startMins > now) {
+              const delay = (startMins - now) * 60000;
+              this.timeouts.push(setTimeout(() => {
+                const title = isExam
+                  ? `📝 ${cls.examName || 'Exam'}: ${cls.title} starting now!`
+                  : `📚 ${cls.title} starting now!`;
+                const body = `Head to Room ${formatRoom(cls.room)}${cls.instructor ? ` · Instructor: ${cls.instructor}` : ''}`;
+                this.show(title, body);
+                NotificationLog.add({ type: isExam ? 'class_test' : 'class_start', title, body });
+              }, delay));
+            }
+
+            // Class Ending Soon
+            if (settings.classEndEnabled) {
+              const endAlertMins = endMins - 5;
+              if (endAlertMins > now) {
+                const delay = (endAlertMins - now) * 60000;
+                this.timeouts.push(setTimeout(() => {
+                  let nextInfo = 'Free time after this!';
+                  const remaining = classes.filter(c => toMinutes(c.start) >= endMins && !getOverrideFor(todayIdx, c.title));
+                  if (remaining.length) nextInfo = `Next up: ${remaining[0].title} at ${format12h(remaining[0].start)}`;
+                  const title = `⌛ ${cls.title} ending in 5 min`;
+                  this.show(title, nextInfo);
+                  NotificationLog.add({ type: 'class_end', title, body: nextInfo });
+                }, delay));
+              }
+            }
+          });
+
+          // Day Complete
+          if (settings.dayDoneEnabled !== false && classes.length > 0) {
+            const activeClasses = classes.filter(c => !getOverrideFor(todayIdx, c.title));
+            if (activeClasses.length > 0) {
+              const lastClass = activeClasses[activeClasses.length - 1];
+              const lastEndMins = toMinutes(lastClass.end);
+              if (lastEndMins > now) {
+                const delay = (lastEndMins - now) * 60000;
+                this.timeouts.push(setTimeout(() => {
+                  const title = '🎉 All classes done for today!';
+                  const body = `Great job! You completed ${activeClasses.length} class${activeClasses.length !== 1 ? 'es' : ''} today.`;
+                  this.show(title, body);
+                  NotificationLog.add({ type: 'day_done', title, body });
+                }, delay));
+              }
             }
           }
         }
       }
+    } catch (e) {
+      console.warn('scheduleForToday failed:', e);
     }
   },
 
@@ -325,12 +350,16 @@ export const Notifications = {
     if (window.Capacitor && window.Capacitor.isNativePlatform()) {
       try {
         const { LocalNotifications } = window.Capacitor.Plugins;
-        const pending = await LocalNotifications.getPending();
-        if (pending.notifications.length) {
-          await LocalNotifications.cancel(pending);
+        if (LocalNotifications) {
+          const pending = await LocalNotifications.getPending();
+          if (pending && pending.notifications && pending.notifications.length) {
+            await LocalNotifications.cancel({
+              notifications: pending.notifications.map(n => ({ id: n.id }))
+            });
+          }
         }
       } catch (e) {
-        console.error('Failed to cancel native alarms:', e);
+        console.warn('Failed to cancel native alarms:', e);
       }
     }
   },
@@ -356,16 +385,18 @@ export const Notifications = {
     if (window.Capacitor && window.Capacitor.isNativePlatform()) {
       try {
         const { LocalNotifications } = window.Capacitor.Plugins;
-        await LocalNotifications.schedule({
-          notifications: [{
-            title,
-            body,
-            id: Math.floor(Math.random() * 1000000),
-            iconColor: type === 'class_test' ? '#f97316' : (type === 'online_class' ? '#10b981' : (type === 'cancellation' ? '#f43f5e' : '#38bdf8'))
-          }]
-        });
+        if (LocalNotifications) {
+          await LocalNotifications.schedule({
+            notifications: [{
+              title,
+              body,
+              id: Math.floor(Math.random() * 1000000),
+              iconColor: type === 'class_test' ? '#f97316' : (type === 'online_class' ? '#10b981' : (type === 'cancellation' ? '#f43f5e' : '#38bdf8'))
+            }]
+          });
+        }
       } catch (e) {
-        console.error('Failed to trigger native notification:', e);
+        console.warn('Failed to trigger native notification:', e);
       }
     } else {
       this.show(title, body);
@@ -374,30 +405,40 @@ export const Notifications = {
   },
 
   async maybeShowBanner() {
-    if (!this.isSupported()) return;
-    const perm = await this.getPermission();
-    if (perm !== 'default' && perm !== 'prompt') return;
-    if (Storage.isBannerDismissed(Storage.BANNER_DISMISS_KEY)) return;
-    DOM.notifBanner.classList.add('show');
+    try {
+      if (!this.isSupported()) return;
+      const perm = await this.getPermission();
+      if (perm !== 'default' && perm !== 'prompt') return;
+      if (Storage.isBannerDismissed(Storage.BANNER_DISMISS_KEY)) return;
+      if (DOM.notifBanner) DOM.notifBanner.classList.add('show');
+    } catch (e) {}
   },
 
   async init() {
-    await this.updatePermissionUI();
-    const settings = Storage.getNotifSettings();
-    DOM.notifToggle.checked = settings.enabled;
-    DOM.notifLeadTime.value = settings.leadTime;
-    DOM.notifBriefingToggle.checked = settings.briefingEnabled !== false;
-    DOM.notifBriefingTime.value = settings.briefingTime || 450;
-    DOM.notifClassEndToggle.checked = !!settings.classEndEnabled;
-    DOM.notifDayDoneToggle.checked = settings.dayDoneEnabled !== false;
+    try {
+      await this.updatePermissionUI();
+      const settings = Storage.getNotifSettings();
+      if (DOM.notifToggle) DOM.notifToggle.checked = !!settings.enabled;
+      if (DOM.notifLeadTime) DOM.notifLeadTime.value = settings.leadTime || 10;
+      if (DOM.notifBriefingToggle) DOM.notifBriefingToggle.checked = settings.briefingEnabled !== false;
+      if (DOM.notifBriefingTime) DOM.notifBriefingTime.value = settings.briefingTime || 450;
+      if (DOM.notifClassEndToggle) DOM.notifClassEndToggle.checked = !!settings.classEndEnabled;
+      if (DOM.notifDayDoneToggle) DOM.notifDayDoneToggle.checked = settings.dayDoneEnabled !== false;
 
-    if (settings.enabled) {
-      await this.scheduleForToday();
-      if (_nativePush && _nativePush.isSupported()) {
-        _nativePush.init();
+      if (settings.enabled) {
+        await this.scheduleForToday();
+        if (_nativePush && _nativePush.isSupported()) {
+          try {
+            await _nativePush.init();
+          } catch (e) {
+            console.warn('Native push init error:', e);
+          }
+        }
       }
+      await this.maybeShowBanner();
+    } catch (e) {
+      console.warn('Notifications.init error:', e);
     }
-    await this.maybeShowBanner();
   },
 
   initEvents() {

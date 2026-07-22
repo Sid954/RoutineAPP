@@ -13,58 +13,11 @@ export const NativePush = {
 
   async init() {
     if (!this.isSupported()) return;
-
-    try {
-      const { PushNotifications } = window.Capacitor.Plugins;
-
-      // Request permissions
-      let permStatus = await PushNotifications.checkPermissions();
-      if (permStatus.receive === 'prompt') {
-        permStatus = await PushNotifications.requestPermissions();
-      }
-
-      if (permStatus.receive === 'granted') {
-        await PushNotifications.register();
-      }
-
-      // On success, save the token to the database
-      PushNotifications.addListener('registration', async token => {
-        console.log('Push registration success, token: ' + token.value);
-        try {
-          await fetch(`${CONFIG.apiBase || ''}/api/register-token`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              token: token.value,
-              platform: window.Capacitor.getPlatform()
-            })
-          });
-        } catch (err) {
-          console.error('Failed to register device token on server:', err);
-        }
-      });
-
-      // On error
-      PushNotifications.addListener('registrationError', error => {
-        console.error('Push registration error: ', error);
-      });
-
-      // Handle receiving push notifications while app is in foreground
-      PushNotifications.addListener('pushNotificationReceived', notification => {
-        console.log('Push notification received in foreground: ', notification);
-        showToast(`${notification.title}: ${notification.body}`, 'info');
-        Announcements.fetchAll();
-      });
-
-      // Handle actions when push notification is clicked/tapped
-      PushNotifications.addListener('pushNotificationActionPerformed', notification => {
-        console.log('Push notification action performed: ', notification);
-        openModal(DOM.announceModal);
-        Announcements.markAsRead();
-      });
-    } catch (err) {
-      console.error('Error initializing Capacitor Push Notifications plugin:', err);
-    }
+    // PushNotifications.register() requires Firebase google-services.json on Android.
+    // Since Firebase is not configured in this build, we skip PushNotifications.register()
+    // to prevent native IllegalStateException / app process crash.
+    // LocalNotifications will handle all class reminders & announcement alerts locally.
+    console.log('NativePush initialized in LocalNotifications mode (PushNotifications skipped to prevent Firebase crash).');
   }
 };
 
