@@ -31,6 +31,7 @@
   padding: 16px 14px; cursor: pointer;
   transition: transform var(--t), box-shadow var(--t), border-color var(--t);
   position: relative; overflow: hidden; transform: translateZ(0);
+  will-change: transform, opacity;
 }
 .ch::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; border-radius: 0 4px 4px 0; transition: width var(--t); }
 .ch:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); }

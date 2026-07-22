@@ -9,17 +9,25 @@ import { Notifications } from '../notifications/notifications.js';
 import { fetchAnnouncementsAndNotify } from './init.js';
 
 export function initVisibility() {
+  let _resumeTimer = null;
+
   function handleResume() {
-    updateClock();
-    forceUpdate();
-    updateGreeting();
-    updateStats();
-    if (FEATURES.notifications) {
-      Notifications.scheduleForToday();
-    }
-    if (FEATURES.announcements) {
-      fetchAnnouncementsAndNotify();
-    }
+    // Debounce: visibilitychange + focus + appStateChange can all fire within 50ms
+    // Only process the last one to avoid 3× redundant full re-renders
+    if (_resumeTimer) clearTimeout(_resumeTimer);
+    _resumeTimer = setTimeout(() => {
+      _resumeTimer = null;
+      updateClock();
+      forceUpdate();
+      updateGreeting();
+      updateStats();
+      if (FEATURES.notifications) {
+        Notifications.scheduleForToday();
+      }
+      if (FEATURES.announcements) {
+        fetchAnnouncementsAndNotify();
+      }
+    }, 200);
   }
 
   document.addEventListener('visibilitychange', () => {

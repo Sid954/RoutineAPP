@@ -1,7 +1,7 @@
 /**
  * Service Worker — Handles caching, offline support, and notification events.
  */
-const CACHE_VERSION = 'routine-cache-1784665107332';
+const CACHE_VERSION = 'routine-cache-1784717898082';
 const STATIC_ASSETS = [
   './',
   './index.html',

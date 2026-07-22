@@ -7,10 +7,17 @@ import { getSubjectTheme } from '../schedule/themes.js';
 import { toMinutes, format12h, toTimeString, getCurrentMinutes, escapeHtml, formatRoom, truncateText } from '../core/utils.js';
 import { bindCourseTitleClicks } from './course-title.js';
 
-export function renderTimeline() {
+let _lastRenderHash = '';
+
+export function renderTimeline(force = false) {
   const classes = getClassesForDay(State.currentViewDayIdx);
   const currentMins = getCurrentMinutes();
   const realTodayIdx = new Date().getDay();
+
+  // Skip redundant re-renders: same day + same minute = identical output
+  const renderHash = `${State.currentViewDayIdx}:${State.currentViewDayIdx === realTodayIdx ? currentMins : -1}`;
+  if (!force && renderHash === _lastRenderHash) return;
+  _lastRenderHash = renderHash;
 
   // Update section titles
   if (State.currentViewDayIdx === realTodayIdx) {

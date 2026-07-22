@@ -143,6 +143,7 @@ body {
 /* Make sure container heights adapt smoothly */
 .t-card, .m-matrix-card, .ch {
   transition: transform var(--t), filter var(--t), box-shadow var(--t), max-height 0.4s ease, height 0.4s ease;
+  contain: content;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -172,6 +173,8 @@ button, a, .ch, .t-card, .m-matrix-card, .m-tab-btn, .day-nav-btn {
 .tw {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
 }
 
 /* Class Detail & Confirm modal — mobile slide-up sheet */
@@ -219,19 +222,39 @@ button, a, .ch, .t-card, .m-matrix-card, .m-tab-btn, .day-nav-btn {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Clickable cards — active press feedback on mobile */
+/* Clickable cards & buttons — native-feel press physics
+   Default transition = slow springy release (0.3s)
+   :active overrides to instant press (0.05s)
+   On finger lift → snaps back with spring curve = iOS button feel */
+.ch, .t-card, .m-matrix-card {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              filter var(--t), box-shadow var(--t), border-color var(--t),
+              max-height 0.4s ease, height 0.4s ease;
+}
+.day-nav-btn, .m-tab-btn, .m-matrix-tab, button, .hd-btn, .vrb, .notif-btn-allow, .install-btn {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow var(--t), border-color var(--t), background var(--t), color var(--t);
+}
+
 @media (hover: none) and (pointer: coarse) {
   .ch:active,
   .t-card:active,
   .m-matrix-card:active {
-    transform: scale(0.97) !important;
-    transition: transform 0.1s ease !important;
+    transform: scale(0.97);
+    transition-duration: 0.05s;
+    transition-timing-function: ease-out;
   }
 
   .day-nav-btn:active,
   .m-tab-btn:active,
-  button:active {
-    transform: scale(0.95) !important;
-    transition: transform 0.1s ease !important;
+  .m-matrix-tab:active,
+  button:active,
+  .hd-btn:active,
+  .vrb:active,
+  .notif-btn-allow:active,
+  .install-btn:active {
+    transform: scale(0.94);
+    transition-duration: 0.05s;
+    transition-timing-function: ease-out;
   }
 }

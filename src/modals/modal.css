@@ -5,6 +5,7 @@
   display: none; position: fixed; inset: 0;
   background: rgba(6, 8, 13, 0.98); align-items: center; justify-content: center;
   z-index: 999; padding: 12px; transition: opacity 0.3s ease;
+  will-change: opacity;
 }
 .mo.open { display: flex; animation: modalBgIn 0.25s ease; }
 @keyframes modalBgIn { from { opacity: 0; } to { opacity: 1; } }
@@ -16,6 +17,7 @@
   border: 1px solid var(--border);
   animation: modalIn 0.35s cubic-bezier(0.16, 1, 0.3, 1); position: relative;
   will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 .md.md-wide { max-width: 96vw; }
 @media (min-width: 1024px) {
