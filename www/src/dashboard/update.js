@@ -6,6 +6,7 @@ import { renderCurrentClass } from './current-class.js';
 import { renderNextClass } from './next-class.js';
 import { renderTimeline } from '../timeline/timeline.js';
 import { renderWeeklyMatrix } from '../weekly-matrix/matrix.js';
+import { updateNativeWidget } from '../widget/widget.js';
 
 function checkAutoSwitchTomorrow() {
   const realTodayIdx = new Date().getDay();
@@ -28,6 +29,7 @@ export function updateDashboard() {
   renderNextClass();
   renderTimeline();
   if (DOM.viewModal.classList.contains('open')) renderWeeklyMatrix();
+  updateNativeWidget();
 }
 
 export function forceUpdate() {

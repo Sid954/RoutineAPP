@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="4dp">
+
+    <!-- TOP CARD: CURRENT ACTIVE CLASS -->
+    <LinearLayout
+        android:id="@+id/widget_card_current"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.2"
+        android:orientation="vertical"
+        android:background="@drawable/widget_card_current_bg"
+        android:padding="14dp"
+        android:layout_marginBottom="8dp">
+
+        <!-- Top Row: CURRENT Label, Time Pill & Refresh Button -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/widget_current_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:text="● CURRENT"
+                android:textColor="#38bdf8"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/widget_current_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="11:00 AM – 12:15 PM"
+                    android:textColor="#cbd5e1"
+                    android:background="@drawable/widget_time_pill_bg"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:letterSpacing="0.05" />
+
+                <ImageView
+                    android:id="@+id/widget_reload_btn"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_refresh"
+                    android:padding="4dp"
+                    android:layout_marginLeft="6dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Reload Widget" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <!-- Main Title: DS (MHE) -->
+        <TextView
+            android:id="@+id/widget_current_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DS (MHE)"
+            android:textColor="#ffffff"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginTop="6dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <!-- Room Pill: 510 -->
+        <TextView
+            android:id="@+id/widget_current_room"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="510"
+            android:textColor="#e2e8f0"
+            android:background="@drawable/widget_room_pill_bg"
+            android:textSize="11.5sp"
+            android:textStyle="bold"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="3dp"
+            android:layout_marginTop="4dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Progress Section -->
+        <TextView
+            android:id="@+id/widget_current_elapsed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="00:42 elapsed"
+            android:textColor="#94a3b8"
+            android:textSize="10.5sp"
+            android:gravity="right"
+            android:layout_marginBottom="3dp" />
+
+        <ProgressBar
+            android:id="@+id/widget_current_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:progressDrawable="@drawable/widget_progress_drawable"
+            android:max="100"
+            android:progress="40" />
+
+        <TextView
+            android:id="@+id/widget_current_remaining"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Remaining: 33m"
+            android:textColor="#e2e8f0"
+            android:textSize="11.5sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginTop="5dp" />
+    </LinearLayout>
+
+    <!-- BOTTOM CARD: NEXT CLASS -->
+    <LinearLayout
+        android:id="@+id/widget_card_next"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.8"
+        android:orientation="vertical"
+        android:background="@drawable/widget_card_next_bg"
+        android:padding="12dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/widget_next_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="NEXT"
+            android:textColor="#64748b"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:letterSpacing="0.1" />
+
+        <!-- Title & ETA Row -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="2dp">
+
+            <TextView
+                android:id="@+id/widget_next_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EDC (AIR)"
+                android:textColor="#ffffff"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/widget_next_eta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="in 33m"
+                android:textColor="#38bdf8"
+                android:background="@drawable/widget_eta_pill_bg"
+                android:textSize="10.5sp"
+                android:textStyle="bold"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="3dp"
+                android:layout_marginLeft="8dp" />
+        </LinearLayout>
+
+        <!-- Room & Time Info -->
+        <TextView
+            android:id="@+id/widget_next_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Room: 901 · 12:15 PM – 01:30 PM"
+            android:textColor="#94a3b8"
+            android:textSize="11sp"
+            android:gravity="center"
+            android:layout_marginTop="3dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+
+</LinearLayout>
