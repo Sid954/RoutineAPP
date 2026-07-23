@@ -79,6 +79,47 @@ function build() {
     console.log(`Injected dynamic CACHE_VERSION: routine-cache-${versionId} into www/sw.js`);
   }
 
+  // Read version.json as single source of truth and sync to build.gradle & config.js
+  const versionJsonPath = path.join(__dirname, 'version.json');
+  if (fs.existsSync(versionJsonPath)) {
+    try {
+      const vData = JSON.parse(fs.readFileSync(versionJsonPath, 'utf8'));
+      const vCode = vData.versionCode || 1;
+      const vName = vData.versionName || '1.0.0';
+
+      // Sync version to android/app/build.gradle
+      const gradlePath = path.join(__dirname, 'android', 'app', 'build.gradle');
+      if (fs.existsSync(gradlePath)) {
+        let gContent = fs.readFileSync(gradlePath, 'utf8');
+        gContent = gContent.replace(/versionCode \d+/, `versionCode ${vCode}`);
+        gContent = gContent.replace(/versionName "[^"]+"/, `versionName "${vName}"`);
+        fs.writeFileSync(gradlePath, gContent, 'utf8');
+        console.log(`Synced Gradle to versionCode ${vCode}, versionName "${vName}"`);
+      }
+
+      // Sync version to src/core/config.js
+      const configJsPath = path.join(__dirname, 'src', 'core', 'config.js');
+      if (fs.existsSync(configJsPath)) {
+        let cContent = fs.readFileSync(configJsPath, 'utf8');
+        cContent = cContent.replace(/appVersionCode: \d+/, `appVersionCode: ${vCode}`);
+        cContent = cContent.replace(/appVersionName: '[^']+'/, `appVersionName: '${vName}'`);
+        fs.writeFileSync(configJsPath, cContent, 'utf8');
+      }
+
+      // Sync version to www/src/core/config.js
+      const wwwConfigJsPath = path.join(DIST_DIR, 'src', 'core', 'config.js');
+      if (fs.existsSync(wwwConfigJsPath)) {
+        let wcContent = fs.readFileSync(wwwConfigJsPath, 'utf8');
+        wcContent = wcContent.replace(/appVersionCode: \d+/, `appVersionCode: ${vCode}`);
+        wcContent = wcContent.replace(/appVersionName: '[^']+'/, `appVersionName: '${vName}'`);
+        fs.writeFileSync(wwwConfigJsPath, wcContent, 'utf8');
+        console.log(`Synced CONFIG to appVersionCode ${vCode}, appVersionName '${vName}'`);
+      }
+    } catch (e) {
+      console.warn('Could not sync version.json:', e);
+    }
+  }
+
   // Also update root sw.js so GitHub Pages serves fresh cache version
   const rootSwPath = path.join(__dirname, 'sw.js');
   if (fs.existsSync(rootSwPath)) {
