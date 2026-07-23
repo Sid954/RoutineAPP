@@ -13,7 +13,6 @@ const FILES_TO_COPY = [
   'sw.js',
   'icon-192.png',
   'icon-512.png',
-  '512.png',
 ];
 
 // Directories to copy recursively
