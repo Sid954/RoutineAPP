@@ -1,8 +1,8 @@
 {
-  "versionCode": 3,
-  "versionName": "1.1.1",
+  "versionCode": 4,
+  "versionName": "1.1.2",
   "apkUrl": "https://github.com/sid954/RoutineAPP/releases/latest/download/app-release.apk",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "🚀 Official v1.1.1 Release — Smart In-App Auto Updater & Priority APK Update System!",
+  "releaseNotes": "Official v1.1.2 Release — Priority APK Update & Smart Auto Sync System",
   "minRequiredVersionCode": 1
 }

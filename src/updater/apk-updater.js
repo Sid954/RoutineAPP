@@ -42,16 +42,19 @@ function showApkUpdatePermissionModal(apkVersionData) {
   }
 
   const targetUrl = apkVersionData.apkUrl || apkVersionData.downloadUrl || 'https://github.com/sid954/RoutineAPP/releases';
-  const currentVer = CONFIG.appVersionName ? `v${CONFIG.appVersionName}` : `Code ${CONFIG.appVersionCode || 1}`;
-  const remoteVer = apkVersionData.versionName ? `v${apkVersionData.versionName}` : `Code ${apkVersionData.versionCode}`;
+  const currentVerClean = CONFIG.appVersionName || (CONFIG.appVersionCode ? `${CONFIG.appVersionCode}` : '1.0.0');
+  const remoteVerClean = apkVersionData.versionName || (apkVersionData.versionCode ? `${apkVersionData.versionCode}` : '1.1.2');
 
   modal.innerHTML = `
-    <div class="md" style="max-width: 360px; padding: 24px 20px; text-align: center; background: #0f172a; border: 1.5px solid var(--accent); box-shadow: 0 20px 50px rgba(0,0,0,0.85);">
+    <div class="md" style="max-width: 360px; padding: 26px 20px; text-align: center; background: #0f172a; border: 1.5px solid var(--accent); box-shadow: 0 20px 50px rgba(0,0,0,0.85);">
       <div style="font-size: 38px; margin-bottom: 6px;">🚀</div>
-      <h2 style="font-size: 19px; font-weight: 800; color: #fff; margin-bottom: 8px;">New Version Available!</h2>
+      <h2 style="font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px;">New Version Available!</h2>
+      <div style="font-size: 19px; font-weight: 900; color: var(--accent2); margin-bottom: 6px; letter-spacing: 0.5px; font-family: var(--f);">
+        v${escapeHtml(remoteVerClean)}
+      </div>
       
-      <div style="font-size: 12px; color: var(--accent); font-weight: 700; margin-bottom: 20px; font-family: var(--m); background: rgba(56, 189, 248, 0.08); padding: 8px 14px; border-radius: 20px; display: inline-block; border: 1px solid rgba(56, 189, 248, 0.25);">
-        Installed ${escapeHtml(currentVer)} &nbsp;→&nbsp; <span style="color: var(--lime); font-weight: 800;">${escapeHtml(remoteVer)}</span>
+      <div style="font-size: 11.5px; color: var(--dim); margin-bottom: 22px; font-family: var(--m);">
+        Installed on device: <span style="color: var(--text); font-weight: 700;">v${escapeHtml(currentVerClean)}</span>
       </div>
       
       <div style="display: flex; gap: 10px;">
@@ -131,8 +134,8 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
     // ── PRIORITY 1: NATIVE APK UPDATE FOUND ──
     if (apkUpdateAvailable) {
       const targetUrl = apkVersionData.apkUrl || apkVersionData.downloadUrl || 'https://github.com/sid954/RoutineAPP/releases';
-      const currentVer = CONFIG.appVersionName ? `v${CONFIG.appVersionName}` : `Code ${localVersionCode}`;
-      const remoteVer = apkVersionData.versionName ? `v${apkVersionData.versionName}` : `Code ${apkVersionData.versionCode}`;
+      const currentVerClean = CONFIG.appVersionName || (CONFIG.appVersionCode ? `${CONFIG.appVersionCode}` : '1.0.0');
+      const remoteVerClean = apkVersionData.versionName || (apkVersionData.versionCode ? `${apkVersionData.versionCode}` : '1.1.2');
 
       // On Manual Check in Edit Schedule modal: Show ONLY the APK update card
       if (containerEl) {
@@ -140,15 +143,14 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
           <div style="background: rgba(56, 189, 248, 0.1); border: 1.5px solid var(--accent); border-radius: var(--rx); padding: 14px;">
             <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
               <div>
-                <div style="font-weight: 800; color: #fff; font-size: 13.5px;">🚀 New Version Available!</div>
-                <div style="font-size: 11.5px; color: var(--accent); font-weight: 700; margin-top: 3px; font-family: var(--m);">
-                  Installed ${escapeHtml(currentVer)} &nbsp;→&nbsp; <span style="color: var(--lime); font-weight: 800;">${escapeHtml(remoteVer)}</span>
-                </div>
+                <div style="font-weight: 800; color: #fff; font-size: 14px;">🚀 New Version Available!</div>
+                <div style="font-size: 15px; font-weight: 900; color: var(--accent2); margin-top: 2px;">v${escapeHtml(remoteVerClean)}</div>
+                <div style="font-size: 11px; color: var(--dim); margin-top: 2px;">Installed on device: v${escapeHtml(currentVerClean)}</div>
               </div>
             </div>
             <div style="margin-top: 12px;">
               <button id="downloadApkBtn" style="width: 100%; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; border: none; padding: 9px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; font-family: var(--f); box-shadow: 0 0 12px rgba(56,189,248,0.3);">
-                📦 Install APK (${escapeHtml(remoteVer)})
+                📦 Install APK (v${escapeHtml(remoteVerClean)})
               </button>
             </div>
           </div>
