@@ -9,6 +9,7 @@ const FILES_TO_COPY = [
   'schedule.json',
   'config.json',
   'manifest.json',
+  'version.json',
   'sw.js',
   'icon-192.png',
   'icon-512.png',

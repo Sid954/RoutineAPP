@@ -12,6 +12,7 @@ import { updateGreeting } from '../dashboard/greeting.js';
 import { updateStats } from '../dashboard/stats.js';
 import { updateDashboard, forceUpdate } from '../dashboard/update.js';
 import { DOM } from '../core/dom.js';
+import { performUnifiedUpdateCheck } from '../updater/apk-updater.js';
 
 export function fetchAnnouncementsAndNotify() {
   return Announcements.fetchAll().then(fetched => {
@@ -131,6 +132,11 @@ export function initializeApp() {
 
   // ── STEP 5: Initialize Routine Selection Dropdowns
   initRoutineSelector();
+
+  // ── STEP 6: Check for App & Schedule updates in background (non-blocking)
+  setTimeout(() => {
+    performUnifiedUpdateCheck(null, false);
+  }, 4000);
 }
 
 const ROUTINE_STRUCTURE = {
