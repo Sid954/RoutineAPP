@@ -29,11 +29,61 @@ export async function getActiveCacheVersion() {
 }
 
 /**
- * Unified Update Checker — inspects both Native APK Releases and Web/Schedule OTA Cache updates.
+ * Show a permission modal for APK updates on automatic launch.
+ */
+function showApkUpdatePermissionModal(apkVersionData) {
+  let modal = document.getElementById('apkUpdatePermissionModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'apkUpdatePermissionModal';
+    modal.className = 'mo';
+    modal.style.zIndex = '9999';
+    document.body.appendChild(modal);
+  }
+
+  const targetUrl = apkVersionData.apkUrl || apkVersionData.downloadUrl || 'https://github.com/sid954/RoutineAPP/releases';
+
+  modal.innerHTML = `
+    <div class="md" style="max-width: 380px; padding: 22px; text-align: center; background: #0f172a; border: 1.5px solid var(--accent); box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
+      <div style="font-size: 36px; margin-bottom: 6px;">🚀</div>
+      <h2 style="font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px;">New RoutineAPP Version!</h2>
+      <div style="font-size: 12px; color: var(--accent); font-weight: 700; margin-bottom: 12px;">v${escapeHtml(apkVersionData.versionName || '1.1.0')}</div>
+      
+      <div style="font-size: 11.5px; color: var(--text); line-height: 1.5; background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 18px; text-align: left;">
+        ${escapeHtml(apkVersionData.releaseNotes || 'Includes new features and performance updates.')}
+      </div>
+      
+      <div style="display: flex; gap: 10px;">
+        <button id="apkModalLaterBtn" style="flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--dim); font-weight: 700; font-size: 12px; cursor: pointer;">Later</button>
+        <button id="apkModalInstallBtn" style="flex: 1.5; padding: 10px; border-radius: 10px; border: none; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 0 12px rgba(56,189,248,0.3);">📥 Install APK</button>
+      </div>
+    </div>
+  `;
+
+  modal.classList.add('open');
+
+  document.getElementById('apkModalLaterBtn').addEventListener('click', () => {
+    modal.classList.remove('open');
+  });
+
+  document.getElementById('apkModalInstallBtn').addEventListener('click', () => {
+    modal.classList.remove('open');
+    showToast('Opening APK download link...', 'info');
+    window.open(targetUrl, '_system') || window.open(targetUrl, '_blank');
+  });
+}
+
+/**
+ * Unified Update Checker:
+ * 1. If APK update found: Shows ONLY APK update prompt (asks permission).
+ * 2. If normal schedule/web update found:
+ *    - On startup: Updates AUTOMATICALLY without asking!
+ *    - On manual check: Offers 1-tap sync button.
  */
 export async function performUnifiedUpdateCheck(containerEl = null, isManual = false) {
   const remoteBase = getRemoteBaseUrl();
-  const isNative = window.Capacitor && window.Capacitor.isNativePlatform();
+  const currentCacheVersion = await getActiveCacheVersion();
+  const localVersionCode = CONFIG.appVersionCode || 1;
 
   if (containerEl) {
     containerEl.style.display = 'block';
@@ -42,18 +92,10 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
         <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent);"></span>
         <span>Checking for updates...</span>
       </div>
-      <div style="margin-top: 6px; font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 3px;">
-        <div>• Checking native APK version manifest (version.json)...</div>
-        <div>• Inspecting web build cache version (sw.js)...</div>
-        <div>• Validating remote schedule & config assets...</div>
-      </div>
     `;
   }
 
   if (isManual) showToast('Checking for updates...', 'info');
-
-  const currentCacheVersion = await getActiveCacheVersion();
-  const localVersionCode = CONFIG.appVersionCode || 1;
 
   if (!navigator.onLine) {
     if (containerEl) {
@@ -64,16 +106,64 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
         <div style="font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 4px;">
           <div>• App Version: <span style="color: var(--text);">v${CONFIG.appVersionName || '1.0.0'} (Code ${localVersionCode})</span></div>
           <div>• Cache Version: <span style="color: var(--text);">${currentCacheVersion}</span></div>
-          <div>• Connection: <span style="color: var(--amber);">No internet connection</span></div>
         </div>
       `;
     }
-    if (isManual) showToast('Offline — cannot check remote server.', 'warning');
+    if (isManual) showToast('Offline — cannot check server.', 'warning');
     return null;
   }
 
   try {
-    // 1. Check Service Worker waiting worker
+    // 1. Fetch version.json to check for Native APK Release Update
+    let apkUpdateAvailable = false;
+    let apkVersionData = null;
+    try {
+      const verRes = await fetch(`${remoteBase}/version.json?t=${Date.now()}`, { cache: 'no-store' });
+      if (verRes.ok) {
+        apkVersionData = await verRes.json();
+        if (apkVersionData.versionCode && apkVersionData.versionCode > localVersionCode) {
+          apkUpdateAvailable = true;
+        }
+      }
+    } catch (verErr) {}
+
+    // ── PRIORITY 1: NATIVE APK UPDATE FOUND ──
+    if (apkUpdateAvailable) {
+      const targetUrl = apkVersionData.apkUrl || apkVersionData.downloadUrl || 'https://github.com/sid954/RoutineAPP/releases';
+
+      // On Manual Check in Edit Schedule modal: Show ONLY the APK update card
+      if (containerEl) {
+        containerEl.innerHTML = `
+          <div style="background: rgba(56, 189, 248, 0.1); border: 1.5px solid var(--accent); border-radius: var(--rx); padding: 12px 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap;">
+              <div style="flex: 1;">
+                <div style="font-weight: 800; color: #fff; font-size: 13px;">🚀 New Native APK v${escapeHtml(apkVersionData.versionName || '1.1.0')} Available!</div>
+                <div style="font-size: 11px; color: var(--text); margin-top: 4px; line-height: 1.4;">${escapeHtml(apkVersionData.releaseNotes || 'New native features and updates.')}</div>
+                <div style="font-size: 10px; color: var(--dim); margin-top: 4px;">Installed: v${CONFIG.appVersionName || '1.0.0'} (Code ${localVersionCode}) → New: Code ${apkVersionData.versionCode}</div>
+              </div>
+            </div>
+            <div style="margin-top: 10px;">
+              <button id="downloadApkBtn" style="width: 100%; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; font-family: var(--f); box-shadow: 0 0 12px rgba(56,189,248,0.3);">
+                📥 Download & Install APK
+              </button>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('downloadApkBtn').addEventListener('click', () => {
+          showToast('Opening APK download link...', 'info');
+          window.open(targetUrl, '_system') || window.open(targetUrl, '_blank');
+        });
+      } else if (!isManual) {
+        // Automatic startup: Ask permission via permission modal
+        showApkUpdatePermissionModal(apkVersionData);
+      }
+
+      if (isManual) showToast('New APK update found!', 'info');
+      return { apkUpdateAvailable: true, apkVersionData };
+    }
+
+    // ── PRIORITY 2: NORMAL SCHEDULE & WEB ASSET OTA UPDATE ──
     let swWaitingWorker = null;
     if ('serviceWorker' in navigator) {
       try {
@@ -91,22 +181,6 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
       } catch (swErr) {}
     }
 
-    // 2. Fetch version.json for APK updates
-    let apkUpdateAvailable = false;
-    let apkVersionData = null;
-    try {
-      const verRes = await fetch(`${remoteBase}/version.json?t=${Date.now()}`, { cache: 'no-store' });
-      if (verRes.ok) {
-        apkVersionData = await verRes.json();
-        if (apkVersionData.versionCode && apkVersionData.versionCode > localVersionCode) {
-          apkUpdateAvailable = true;
-        }
-      }
-    } catch (verErr) {
-      console.warn('version.json fetch warning:', verErr);
-    }
-
-    // 3. Fetch sw.js for Web/Cache updates
     let remoteCacheVersion = currentCacheVersion;
     try {
       const swRes = await fetch(`${remoteBase}/sw.js?t=${Date.now()}`, { cache: 'no-store' });
@@ -117,131 +191,110 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
           remoteCacheVersion = match[1];
         }
       }
-    } catch (swFetchErr) {}
+    } catch (e) {}
 
-    // 4. Fetch schedule.json validation
     const schedRes = await fetch(`${remoteBase}/schedule.json?t=${Date.now()}`, { cache: 'no-store' }).catch(() => null);
     const isSchedOk = schedRes && schedRes.ok;
 
     const cacheUpdateAvailable = (remoteCacheVersion !== currentCacheVersion) || !!swWaitingWorker;
 
-    // Render Results in Container if present
-    if (containerEl) {
-      if (apkUpdateAvailable || cacheUpdateAvailable) {
-        let html = `
-          <div style="border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 8px;">
-            <div style="display: flex; align-items: center; gap: 6px; color: var(--lime); font-weight: 800; font-size: 13px;">
-              <span>🎉 Update Found!</span>
-            </div>
-          </div>
-        `;
+    if (cacheUpdateAvailable) {
+      // RULE: Automatically update normal updates on startup without asking permission!
+      if (!isManual && !containerEl) {
+        try {
+          if (isSchedOk) {
+            const freshSched = await schedRes.json();
+            State.schedule = normalizeSchedule(freshSched);
+            Storage.saveSchedule();
+          }
 
-        if (apkUpdateAvailable) {
-          const downloadTargetUrl = apkVersionData.apkUrl || apkVersionData.downloadUrl || 'https://github.com/sid954/RoutineAPP/releases';
-          html += `
-            <div style="background: rgba(56, 189, 248, 0.08); border: 1px dashed var(--accent); border-radius: var(--rx); padding: 10px 12px; margin-bottom: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <div>
-                  <div style="font-weight: 800; color: #fff; font-size: 12px;">📱 New Android APK v${escapeHtml(apkVersionData.versionName || '1.1.0')}</div>
-                  <div style="font-size: 10.5px; color: var(--dim); margin-top: 2px;">${escapeHtml(apkVersionData.releaseNotes || 'New native features & updates')}</div>
-                </div>
-                <button id="downloadApkBtn" style="background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 800; font-size: 11.5px; cursor: pointer; font-family: var(--f); white-space: nowrap;">
-                  📥 Download APK
-                </button>
-              </div>
-            </div>
-          `;
+          localStorage.setItem('active_app_cache_version', remoteCacheVersion);
+
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map(k => caches.delete(k)));
+          }
+
+          forceUpdate();
+          Notifications.scheduleForToday();
+
+          if (swWaitingWorker) {
+            swWaitingWorker.postMessage({ action: 'skipWaiting' });
+          }
+
+          showToast('Schedule & app updated automatically!', 'success');
+        } catch (autoErr) {
+          console.warn('Auto update error:', autoErr);
         }
-
-        if (cacheUpdateAvailable) {
-          html += `
-            <div style="background: rgba(16, 185, 129, 0.08); border: 1px dashed var(--lime); border-radius: var(--rx); padding: 10px 12px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <div>
-                  <div style="font-weight: 800; color: #fff; font-size: 12px;">⚡ Schedule & Web Asset Update</div>
-                  <div style="font-size: 10.5px; color: var(--dim); margin-top: 2px;">New Version: <span style="color: var(--lime); font-family: var(--m); font-weight: 700;">${remoteCacheVersion}</span></div>
-                </div>
-                <button id="applyUpdateNowBtn" style="background: linear-gradient(135deg, var(--lime), #059669); color: #fff; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 800; font-size: 11.5px; cursor: pointer; font-family: var(--f); white-space: nowrap;">
-                  ⚡ Sync & Reload
-                </button>
-              </div>
-            </div>
-          `;
-        }
-
-        containerEl.innerHTML = html;
-
-        // Bind APK Download Button
-        const downloadApkBtn = document.getElementById('downloadApkBtn');
-        if (downloadApkBtn && apkVersionData) {
-          const downloadTargetUrl = apkVersionData.apkUrl || apkVersionData.downloadUrl || 'https://github.com/sid954/RoutineAPP/releases';
-          downloadApkBtn.addEventListener('click', () => {
-            showToast('Opening APK download...', 'info');
-            window.open(downloadTargetUrl, '_system') || window.open(downloadTargetUrl, '_blank');
-          });
-        }
-
-        // Bind Cache Sync Button
-        const applyBtn = document.getElementById('applyUpdateNowBtn');
-        if (applyBtn) {
-          applyBtn.addEventListener('click', async () => {
-            try {
-              showToast('Syncing latest schedule & assets...', 'info');
-
-              if (isSchedOk) {
-                try {
-                  const freshSched = await schedRes.json();
-                  State.schedule = normalizeSchedule(freshSched);
-                  Storage.saveSchedule();
-                } catch (e) {}
-              }
-
-              localStorage.setItem('active_app_cache_version', remoteCacheVersion);
-
-              if ('caches' in window) {
-                try {
-                  const keys = await caches.keys();
-                  await Promise.all(keys.map(k => caches.delete(k)));
-                } catch (e) {}
-              }
-
-              forceUpdate();
-              Notifications.scheduleForToday();
-
-              if (swWaitingWorker) {
-                swWaitingWorker.postMessage({ action: 'skipWaiting' });
-              }
-
-              showToast(`Updated to ${remoteCacheVersion}!`, 'success');
-              setTimeout(() => window.location.reload(), 400);
-            } catch (err) {
-              showToast('Failed to apply update: ' + err.message, 'error');
-            }
-          });
-        }
-
-      } else {
-        const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      } else if (containerEl) {
+        // Manual check UI card
         containerEl.innerHTML = `
-          <div style="display: flex; align-items: center; gap: 6px; color: var(--lime); font-weight: 800; margin-bottom: 6px;">
-            <span>✅ App & Schedule are fully up to date!</span>
-          </div>
-          <div style="font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 4px;">
-            <div>• Native APK: <span style="color: var(--text);">v${CONFIG.appVersionName || '1.0.0'} (Code ${localVersionCode}) — Latest</span></div>
-            <div>• Web Cache: <span style="color: var(--text);">${currentCacheVersion} — Matches Server</span></div>
-            <div>• Last Checked: <span style="color: var(--text);">${nowStr}</span></div>
+          <div style="background: rgba(16, 185, 129, 0.08); border: 1px dashed var(--lime); border-radius: var(--rx); padding: 10px 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <div>
+                <div style="font-weight: 800; color: #fff; font-size: 12px;">⚡ Schedule & Asset Update Available</div>
+                <div style="font-size: 10.5px; color: var(--dim); margin-top: 2px;">Version: <span style="color: var(--lime); font-weight: 700;">${remoteCacheVersion}</span></div>
+              </div>
+              <button id="applyUpdateNowBtn" style="background: linear-gradient(135deg, var(--lime), #059669); color: #fff; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 800; font-size: 11.5px; cursor: pointer; font-family: var(--f);">
+                ⚡ Sync & Reload
+              </button>
+            </div>
           </div>
         `;
+
+        document.getElementById('applyUpdateNowBtn').addEventListener('click', async () => {
+          try {
+            showToast('Syncing latest schedule...', 'info');
+
+            if (isSchedOk) {
+              const freshSched = await schedRes.json();
+              State.schedule = normalizeSchedule(freshSched);
+              Storage.saveSchedule();
+            }
+
+            localStorage.setItem('active_app_cache_version', remoteCacheVersion);
+
+            if ('caches' in window) {
+              const keys = await caches.keys();
+              await Promise.all(keys.map(k => caches.delete(k)));
+            }
+
+            forceUpdate();
+            Notifications.scheduleForToday();
+
+            if (swWaitingWorker) {
+              swWaitingWorker.postMessage({ action: 'skipWaiting' });
+            }
+
+            showToast(`Updated to ${remoteCacheVersion}!`, 'success');
+            setTimeout(() => window.location.reload(), 400);
+          } catch (err) {
+            showToast('Failed to apply update: ' + err.message, 'error');
+          }
+        });
       }
+
+      if (isManual) showToast('Schedule update available!', 'info');
+      return { cacheUpdateAvailable: true, remoteCacheVersion };
     }
 
-    if (apkUpdateAvailable || cacheUpdateAvailable) {
-      if (isManual) showToast('Update found!', 'info');
-      return { apkUpdateAvailable, cacheUpdateAvailable, apkVersionData, remoteCacheVersion };
-    } else {
-      if (isManual) showToast('App is already up to date!', 'success');
-      return { apkUpdateAvailable: false, cacheUpdateAvailable: false };
+    // ── ALL UP TO DATE ──
+    if (containerEl) {
+      const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      containerEl.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 6px; color: var(--lime); font-weight: 800; margin-bottom: 6px;">
+          <span>✅ App & Schedule are fully up to date!</span>
+        </div>
+        <div style="font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 4px;">
+          <div>• Native APK: <span style="color: var(--text);">v${CONFIG.appVersionName || '1.0.0'} (Code ${localVersionCode}) — Latest</span></div>
+          <div>• Web Cache: <span style="color: var(--text);">${currentCacheVersion} — Matches Server</span></div>
+          <div>• Last Checked: <span style="color: var(--text);">${nowStr}</span></div>
+        </div>
+      `;
     }
+
+    if (isManual) showToast('App is already up to date!', 'success');
+    return { apkUpdateAvailable: false, cacheUpdateAvailable: false };
 
   } catch (err) {
     console.error('Unified update check error:', err);
