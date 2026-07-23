@@ -14,6 +14,26 @@ export function getRemoteBaseUrl() {
   return '.';
 }
 
+/**
+ * Gets the active installed app version code & name, dynamically resolving
+ * between local JS CONFIG and synced localStorage overrides.
+ */
+export function getActiveVersionInfo() {
+  const savedCodeStr = localStorage.getItem('active_app_version_code');
+  const savedName = localStorage.getItem('active_app_version_name');
+  
+  const savedCode = savedCodeStr ? parseInt(savedCodeStr, 10) : 0;
+  const configCode = CONFIG.appVersionCode || 1;
+
+  const code = Math.max(savedCode, configCode);
+  let name = CONFIG.appVersionName || '1.0.0';
+  if (savedName && savedCode >= configCode) {
+    name = savedName;
+  }
+
+  return { code, name };
+}
+
 export async function getActiveCacheVersion() {
   const syncedVersion = localStorage.getItem('active_app_cache_version');
   if (syncedVersion) return syncedVersion;
@@ -51,8 +71,9 @@ function showApkUpdatePermissionModal(apkVersionData) {
   }
 
   const targetUrl = apkVersionData.apkUrl || apkVersionData.downloadUrl || 'https://github.com/sid954/RoutineAPP/releases';
-  const currentVerClean = CONFIG.appVersionName || (CONFIG.appVersionCode ? `${CONFIG.appVersionCode}` : '1.0.0');
-  const remoteVerClean = apkVersionData.versionName || (apkVersionData.versionCode ? `${apkVersionData.versionCode}` : '1.1.2');
+  const activeVer = getActiveVersionInfo();
+  const currentVerClean = activeVer.name;
+  const remoteVerClean = apkVersionData.versionName || (apkVersionData.versionCode ? `${apkVersionData.versionCode}` : '1.1.4');
 
   modal.innerHTML = `
     <div class="md" style="max-width: 360px; padding: 26px 20px; text-align: center; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); border: 1.5px solid rgba(56, 189, 248, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56,189,248,0.15); border-radius: 20px;">
@@ -83,6 +104,13 @@ function showApkUpdatePermissionModal(apkVersionData) {
 
   document.getElementById('apkModalInstallBtn').addEventListener('click', () => {
     modal.classList.remove('open');
+    // Save anticipated active version code & name so upon launching installed APK, it is up to date!
+    if (apkVersionData.versionCode) {
+      localStorage.setItem('active_app_version_code', apkVersionData.versionCode);
+      if (apkVersionData.versionName) {
+        localStorage.setItem('active_app_version_name', apkVersionData.versionName);
+      }
+    }
     showToast('Downloading APK in browser... Tap to install once downloaded!', 'info', null, 5000);
     window.open(targetUrl, '_system') || window.open(targetUrl, '_blank');
   });
@@ -98,7 +126,9 @@ function showApkUpdatePermissionModal(apkVersionData) {
 export async function performUnifiedUpdateCheck(containerEl = null, isManual = false) {
   const remoteBase = getRemoteBaseUrl();
   const currentCacheVersion = await getActiveCacheVersion();
-  const localVersionCode = CONFIG.appVersionCode || 1;
+  const activeVer = getActiveVersionInfo();
+  const localVersionCode = activeVer.code;
+  const currentVerClean = activeVer.name;
 
   if (containerEl) {
     containerEl.style.display = 'block';
@@ -119,7 +149,7 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
           <span>⚠️ Offline Mode</span>
         </div>
         <div style="font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 4px;">
-          <div>• App Version: <span style="color: var(--text);">v${CONFIG.appVersionName || '1.0.0'} (Code ${localVersionCode})</span></div>
+          <div>• App Version: <span style="color: var(--text);">v${currentVerClean} (Code ${localVersionCode})</span></div>
           <div>• Cache Version: <span style="color: var(--text);">${currentCacheVersion}</span></div>
         </div>
       `;
@@ -136,8 +166,16 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
       const verRes = await fetch(`${remoteBase}/version.json?t=${Date.now()}`, { cache: 'no-store' });
       if (verRes.ok) {
         apkVersionData = await verRes.json();
-        if (apkVersionData.versionCode && apkVersionData.versionCode > localVersionCode) {
-          apkUpdateAvailable = true;
+        if (apkVersionData.versionCode) {
+          if (apkVersionData.versionCode > localVersionCode) {
+            apkUpdateAvailable = true;
+          } else {
+            // Keep active version tracking in sync with server when up to date
+            localStorage.setItem('active_app_version_code', apkVersionData.versionCode);
+            if (apkVersionData.versionName) {
+              localStorage.setItem('active_app_version_name', apkVersionData.versionName);
+            }
+          }
         }
       }
     } catch (verErr) {}
@@ -145,8 +183,7 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
     // ── PRIORITY 1: NATIVE APK UPDATE FOUND ──
     if (apkUpdateAvailable) {
       const targetUrl = apkVersionData.apkUrl || apkVersionData.downloadUrl || 'https://github.com/sid954/RoutineAPP/releases';
-      const currentVerClean = CONFIG.appVersionName || (CONFIG.appVersionCode ? `${CONFIG.appVersionCode}` : '1.0.0');
-      const remoteVerClean = apkVersionData.versionName || (apkVersionData.versionCode ? `${apkVersionData.versionCode}` : '1.1.2');
+      const remoteVerClean = apkVersionData.versionName || (apkVersionData.versionCode ? `${apkVersionData.versionCode}` : '1.1.4');
 
       // On Manual Check in Edit Schedule modal: Show ONLY the APK update card
       if (containerEl) {
@@ -168,6 +205,12 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
         `;
 
         document.getElementById('downloadApkBtn').addEventListener('click', () => {
+          if (apkVersionData.versionCode) {
+            localStorage.setItem('active_app_version_code', apkVersionData.versionCode);
+            if (apkVersionData.versionName) {
+              localStorage.setItem('active_app_version_name', apkVersionData.versionName);
+            }
+          }
           showToast('Downloading APK in browser... Tap to install once downloaded!', 'info', null, 5000);
           window.open(targetUrl, '_system') || window.open(targetUrl, '_blank');
         });
@@ -226,6 +269,12 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
           }
 
           localStorage.setItem('active_app_cache_version', remoteCacheVersion);
+          if (apkVersionData && apkVersionData.versionCode) {
+            localStorage.setItem('active_app_version_code', apkVersionData.versionCode);
+            if (apkVersionData.versionName) {
+              localStorage.setItem('active_app_version_name', apkVersionData.versionName);
+            }
+          }
 
           if ('caches' in window) {
             const keys = await caches.keys();
@@ -270,6 +319,12 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
             }
 
             localStorage.setItem('active_app_cache_version', remoteCacheVersion);
+            if (apkVersionData && apkVersionData.versionCode) {
+              localStorage.setItem('active_app_version_code', apkVersionData.versionCode);
+              if (apkVersionData.versionName) {
+                localStorage.setItem('active_app_version_name', apkVersionData.versionName);
+              }
+            }
 
             if ('caches' in window) {
               const keys = await caches.keys();
@@ -303,7 +358,7 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
           <span>✅ App & Schedule are fully up to date!</span>
         </div>
         <div style="font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 4px;">
-          <div>• Native APK: <span style="color: var(--text);">v${CONFIG.appVersionName || '1.0.0'} (Code ${localVersionCode}) — Latest</span></div>
+          <div>• Native APK: <span style="color: var(--text);">v${currentVerClean} (Code ${localVersionCode}) — Latest</span></div>
           <div>• Web Cache: <span style="color: var(--text);">${currentCacheVersion} — Matches Server</span></div>
           <div>• Last Checked: <span style="color: var(--text);">${nowStr}</span></div>
         </div>
