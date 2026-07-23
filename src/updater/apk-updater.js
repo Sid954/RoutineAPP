@@ -1,4 +1,3 @@
-import { App } from '@capacitor/app';
 import { CONFIG } from '../core/config.js';
 import { State } from '../core/state.js';
 import { Storage } from '../storage/storage.js';
@@ -16,14 +15,14 @@ export function getRemoteBaseUrl() {
 }
 
 /**
- * Directly queries Android OS PackageManager (via Capacitor App.getInfo())
+ * Directly queries Android OS PackageManager (via Capacitor.Plugins.App.getInfo())
  * for the true native installed APK versionCode & versionName.
  * On Web, queries compiled CONFIG directly. NO localStorage or cache used!
  */
 export async function getActiveVersionInfo() {
-  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+  if (window.Capacitor && window.Capacitor.isNativePlatform() && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
     try {
-      const info = await App.getInfo();
+      const info = await window.Capacitor.Plugins.App.getInfo();
       if (info && info.build) {
         const nativeCode = parseInt(info.build, 10);
         const nativeName = info.version || CONFIG.appVersionName || '1.0.0';
@@ -36,7 +35,7 @@ export async function getActiveVersionInfo() {
     }
   }
 
-  // Pure direct read from compiled app CONFIG (no localstorage, no cache)
+  // Pure direct read from compiled app CONFIG (no localstorage, no cache, no bare imports)
   return {
     code: CONFIG.appVersionCode || 1,
     name: CONFIG.appVersionName || '1.0.0'
