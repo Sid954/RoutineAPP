@@ -1,3 +1,4 @@
+import { App } from '@capacitor/app';
 import { CONFIG } from '../core/config.js';
 import { State } from '../core/state.js';
 import { Storage } from '../storage/storage.js';
@@ -15,23 +16,31 @@ export function getRemoteBaseUrl() {
 }
 
 /**
- * Gets the active installed app version code & name, dynamically resolving
- * between local JS CONFIG and synced localStorage overrides.
+ * Directly queries Android OS PackageManager (via Capacitor App.getInfo())
+ * for the true native installed APK versionCode & versionName.
+ * On Web, queries compiled CONFIG directly. NO localStorage or cache used!
  */
-export function getActiveVersionInfo() {
-  const savedCodeStr = localStorage.getItem('active_app_version_code');
-  const savedName = localStorage.getItem('active_app_version_name');
-  
-  const savedCode = savedCodeStr ? parseInt(savedCodeStr, 10) : 0;
-  const configCode = CONFIG.appVersionCode || 1;
-
-  const code = Math.max(savedCode, configCode);
-  let name = CONFIG.appVersionName || '1.0.0';
-  if (savedName && savedCode >= configCode) {
-    name = savedName;
+export async function getActiveVersionInfo() {
+  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+    try {
+      const info = await App.getInfo();
+      if (info && info.build) {
+        const nativeCode = parseInt(info.build, 10);
+        const nativeName = info.version || CONFIG.appVersionName || '1.0.0';
+        if (!isNaN(nativeCode) && nativeCode > 0) {
+          return { code: nativeCode, name: nativeName };
+        }
+      }
+    } catch (err) {
+      console.warn('Native App.getInfo() warning:', err);
+    }
   }
 
-  return { code, name };
+  // Pure direct read from compiled app CONFIG (no localstorage, no cache)
+  return {
+    code: CONFIG.appVersionCode || 1,
+    name: CONFIG.appVersionName || '1.0.0'
+  };
 }
 
 export async function getActiveCacheVersion() {
@@ -52,11 +61,10 @@ export async function getActiveCacheVersion() {
  * Show a permission modal for APK updates on automatic launch.
  * Respects session dismissal so user is not nagged repeatedly in a single session.
  */
-function showApkUpdatePermissionModal(apkVersionData) {
+async function showApkUpdatePermissionModal(apkVersionData) {
   const remoteVerCode = apkVersionData.versionCode || 1;
   const dismissKey = `apk_update_dismissed_v${remoteVerCode}`;
 
-  // If user tapped 'Later' in this session, don't nag again until next session
   if (sessionStorage.getItem(dismissKey) === 'true') {
     return;
   }
@@ -71,9 +79,9 @@ function showApkUpdatePermissionModal(apkVersionData) {
   }
 
   const targetUrl = apkVersionData.apkUrl || apkVersionData.downloadUrl || 'https://github.com/sid954/RoutineAPP/releases';
-  const activeVer = getActiveVersionInfo();
+  const activeVer = await getActiveVersionInfo();
   const currentVerClean = activeVer.name;
-  const remoteVerClean = apkVersionData.versionName || (apkVersionData.versionCode ? `${apkVersionData.versionCode}` : '1.1.4');
+  const remoteVerClean = apkVersionData.versionName || (apkVersionData.versionCode ? `${apkVersionData.versionCode}` : '');
 
   modal.innerHTML = `
     <div class="md" style="max-width: 360px; padding: 26px 20px; text-align: center; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); border: 1.5px solid rgba(56, 189, 248, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56,189,248,0.15); border-radius: 20px;">
@@ -104,13 +112,6 @@ function showApkUpdatePermissionModal(apkVersionData) {
 
   document.getElementById('apkModalInstallBtn').addEventListener('click', () => {
     modal.classList.remove('open');
-    // Save anticipated active version code & name so upon launching installed APK, it is up to date!
-    if (apkVersionData.versionCode) {
-      localStorage.setItem('active_app_version_code', apkVersionData.versionCode);
-      if (apkVersionData.versionName) {
-        localStorage.setItem('active_app_version_name', apkVersionData.versionName);
-      }
-    }
     showToast('Downloading APK in browser... Tap to install once downloaded!', 'info', null, 5000);
     window.open(targetUrl, '_system') || window.open(targetUrl, '_blank');
   });
@@ -118,15 +119,17 @@ function showApkUpdatePermissionModal(apkVersionData) {
 
 /**
  * Unified Update Checker:
- * 1. If APK update found: Shows ONLY APK update prompt (asks permission).
- * 2. If normal schedule/web update found:
+ * 1. Directly queries Native Android App info & GitHub version.json.
+ * 2. If APK update found (remote versionCode > native Android versionCode):
+ *    - Shows ONLY APK update prompt (asks permission).
+ * 3. If normal schedule/web update found:
  *    - On startup: Updates AUTOMATICALLY without asking!
  *    - On manual check: Offers 1-tap sync button.
  */
 export async function performUnifiedUpdateCheck(containerEl = null, isManual = false) {
   const remoteBase = getRemoteBaseUrl();
   const currentCacheVersion = await getActiveCacheVersion();
-  const activeVer = getActiveVersionInfo();
+  const activeVer = await getActiveVersionInfo();
   const localVersionCode = activeVer.code;
   const currentVerClean = activeVer.name;
 
@@ -159,23 +162,15 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
   }
 
   try {
-    // 1. Fetch version.json to check for Native APK Release Update
+    // 1. Fetch version.json from GitHub to compare directly against Native App Info
     let apkUpdateAvailable = false;
     let apkVersionData = null;
     try {
       const verRes = await fetch(`${remoteBase}/version.json?t=${Date.now()}`, { cache: 'no-store' });
       if (verRes.ok) {
         apkVersionData = await verRes.json();
-        if (apkVersionData.versionCode) {
-          if (apkVersionData.versionCode > localVersionCode) {
-            apkUpdateAvailable = true;
-          } else {
-            // Keep active version tracking in sync with server when up to date
-            localStorage.setItem('active_app_version_code', apkVersionData.versionCode);
-            if (apkVersionData.versionName) {
-              localStorage.setItem('active_app_version_name', apkVersionData.versionName);
-            }
-          }
+        if (apkVersionData.versionCode && apkVersionData.versionCode > localVersionCode) {
+          apkUpdateAvailable = true;
         }
       }
     } catch (verErr) {}
@@ -183,7 +178,7 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
     // ── PRIORITY 1: NATIVE APK UPDATE FOUND ──
     if (apkUpdateAvailable) {
       const targetUrl = apkVersionData.apkUrl || apkVersionData.downloadUrl || 'https://github.com/sid954/RoutineAPP/releases';
-      const remoteVerClean = apkVersionData.versionName || (apkVersionData.versionCode ? `${apkVersionData.versionCode}` : '1.1.4');
+      const remoteVerClean = apkVersionData.versionName || (apkVersionData.versionCode ? `${apkVersionData.versionCode}` : '');
 
       // On Manual Check in Edit Schedule modal: Show ONLY the APK update card
       if (containerEl) {
@@ -205,18 +200,12 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
         `;
 
         document.getElementById('downloadApkBtn').addEventListener('click', () => {
-          if (apkVersionData.versionCode) {
-            localStorage.setItem('active_app_version_code', apkVersionData.versionCode);
-            if (apkVersionData.versionName) {
-              localStorage.setItem('active_app_version_name', apkVersionData.versionName);
-            }
-          }
           showToast('Downloading APK in browser... Tap to install once downloaded!', 'info', null, 5000);
           window.open(targetUrl, '_system') || window.open(targetUrl, '_blank');
         });
       } else if (!isManual) {
         // Automatic startup: Ask permission via permission modal
-        showApkUpdatePermissionModal(apkVersionData);
+        await showApkUpdatePermissionModal(apkVersionData);
       }
 
       if (isManual) showToast('New APK update found!', 'info');
@@ -269,12 +258,6 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
           }
 
           localStorage.setItem('active_app_cache_version', remoteCacheVersion);
-          if (apkVersionData && apkVersionData.versionCode) {
-            localStorage.setItem('active_app_version_code', apkVersionData.versionCode);
-            if (apkVersionData.versionName) {
-              localStorage.setItem('active_app_version_name', apkVersionData.versionName);
-            }
-          }
 
           if ('caches' in window) {
             const keys = await caches.keys();
@@ -319,12 +302,6 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
             }
 
             localStorage.setItem('active_app_cache_version', remoteCacheVersion);
-            if (apkVersionData && apkVersionData.versionCode) {
-              localStorage.setItem('active_app_version_code', apkVersionData.versionCode);
-              if (apkVersionData.versionName) {
-                localStorage.setItem('active_app_version_name', apkVersionData.versionName);
-              }
-            }
 
             if ('caches' in window) {
               const keys = await caches.keys();
