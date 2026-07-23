@@ -42,20 +42,21 @@ function showApkUpdatePermissionModal(apkVersionData) {
   }
 
   const targetUrl = apkVersionData.apkUrl || apkVersionData.downloadUrl || 'https://github.com/sid954/RoutineAPP/releases';
+  const currentVer = CONFIG.appVersionName ? `v${CONFIG.appVersionName}` : `Code ${CONFIG.appVersionCode || 1}`;
+  const remoteVer = apkVersionData.versionName ? `v${apkVersionData.versionName}` : `Code ${apkVersionData.versionCode}`;
 
   modal.innerHTML = `
-    <div class="md" style="max-width: 380px; padding: 22px; text-align: center; background: #0f172a; border: 1.5px solid var(--accent); box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
-      <div style="font-size: 36px; margin-bottom: 6px;">🚀</div>
-      <h2 style="font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px;">New RoutineAPP Version!</h2>
-      <div style="font-size: 12px; color: var(--accent); font-weight: 700; margin-bottom: 12px;">v${escapeHtml(apkVersionData.versionName || '1.1.0')}</div>
+    <div class="md" style="max-width: 360px; padding: 24px 20px; text-align: center; background: #0f172a; border: 1.5px solid var(--accent); box-shadow: 0 20px 50px rgba(0,0,0,0.85);">
+      <div style="font-size: 38px; margin-bottom: 6px;">🚀</div>
+      <h2 style="font-size: 19px; font-weight: 800; color: #fff; margin-bottom: 8px;">New Version Available!</h2>
       
-      <div style="font-size: 11.5px; color: var(--text); line-height: 1.5; background: rgba(0,0,0,0.3); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 18px; text-align: left;">
-        ${escapeHtml(apkVersionData.releaseNotes || 'Includes new features and performance updates.')}
+      <div style="font-size: 12px; color: var(--accent); font-weight: 700; margin-bottom: 20px; font-family: var(--m); background: rgba(56, 189, 248, 0.08); padding: 8px 14px; border-radius: 20px; display: inline-block; border: 1px solid rgba(56, 189, 248, 0.25);">
+        Installed ${escapeHtml(currentVer)} &nbsp;→&nbsp; <span style="color: var(--lime); font-weight: 800;">${escapeHtml(remoteVer)}</span>
       </div>
       
       <div style="display: flex; gap: 10px;">
-        <button id="apkModalLaterBtn" style="flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--dim); font-weight: 700; font-size: 12px; cursor: pointer;">Later</button>
-        <button id="apkModalInstallBtn" style="flex: 1.5; padding: 10px; border-radius: 10px; border: none; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 0 12px rgba(56,189,248,0.3);">📥 Install APK</button>
+        <button id="apkModalLaterBtn" style="flex: 1; padding: 11px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--dim); font-weight: 700; font-size: 12px; cursor: pointer;">Later</button>
+        <button id="apkModalInstallBtn" style="flex: 1.5; padding: 11px; border-radius: 10px; border: none; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 0 14px rgba(56,189,248,0.35);">📦 Install APK</button>
       </div>
     </div>
   `;
@@ -130,21 +131,24 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
     // ── PRIORITY 1: NATIVE APK UPDATE FOUND ──
     if (apkUpdateAvailable) {
       const targetUrl = apkVersionData.apkUrl || apkVersionData.downloadUrl || 'https://github.com/sid954/RoutineAPP/releases';
+      const currentVer = CONFIG.appVersionName ? `v${CONFIG.appVersionName}` : `Code ${localVersionCode}`;
+      const remoteVer = apkVersionData.versionName ? `v${apkVersionData.versionName}` : `Code ${apkVersionData.versionCode}`;
 
       // On Manual Check in Edit Schedule modal: Show ONLY the APK update card
       if (containerEl) {
         containerEl.innerHTML = `
-          <div style="background: rgba(56, 189, 248, 0.1); border: 1.5px solid var(--accent); border-radius: var(--rx); padding: 12px 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap;">
-              <div style="flex: 1;">
-                <div style="font-weight: 800; color: #fff; font-size: 13px;">🚀 New Native APK v${escapeHtml(apkVersionData.versionName || '1.1.0')} Available!</div>
-                <div style="font-size: 11px; color: var(--text); margin-top: 4px; line-height: 1.4;">${escapeHtml(apkVersionData.releaseNotes || 'New native features and updates.')}</div>
-                <div style="font-size: 10px; color: var(--dim); margin-top: 4px;">Installed: v${CONFIG.appVersionName || '1.0.0'} (Code ${localVersionCode}) → New: Code ${apkVersionData.versionCode}</div>
+          <div style="background: rgba(56, 189, 248, 0.1); border: 1.5px solid var(--accent); border-radius: var(--rx); padding: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <div>
+                <div style="font-weight: 800; color: #fff; font-size: 13.5px;">🚀 New Version Available!</div>
+                <div style="font-size: 11.5px; color: var(--accent); font-weight: 700; margin-top: 3px; font-family: var(--m);">
+                  Installed ${escapeHtml(currentVer)} &nbsp;→&nbsp; <span style="color: var(--lime); font-weight: 800;">${escapeHtml(remoteVer)}</span>
+                </div>
               </div>
             </div>
-            <div style="margin-top: 10px;">
-              <button id="downloadApkBtn" style="width: 100%; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; font-family: var(--f); box-shadow: 0 0 12px rgba(56,189,248,0.3);">
-                📥 Download & Install APK
+            <div style="margin-top: 12px;">
+              <button id="downloadApkBtn" style="width: 100%; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; border: none; padding: 9px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; font-family: var(--f); box-shadow: 0 0 12px rgba(56,189,248,0.3);">
+                📦 Install APK (${escapeHtml(remoteVer)})
               </button>
             </div>
           </div>
