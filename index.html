@@ -164,6 +164,9 @@
         <button class="rst" id="rstB">Reset to Default</button>
       </div>
 
+      <!-- Detailed Update Check Panel -->
+      <div id="updateCheckDetails" style="display: none; margin: 0 24px 12px; padding: 12px 14px; border-radius: var(--rx); background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border); font-size: 12px; line-height: 1.5; color: var(--text);"></div>
+
       <div class="rc">
         <div class="rci" id="rCols"></div>
       </div>
@@ -202,6 +205,12 @@
           <button class="bd" id="clrB">Clear Selected Day</button>
           <button class="bp" id="addB">+ Add Entry</button>
         </div>
+      </div>
+
+      <!-- Footer: Cache Version & Network Status -->
+      <div class="edit-modal-footer" style="padding: 12px 24px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--dim); font-family: var(--m); background: rgba(0,0,0,0.15); border-radius: 0 0 var(--r) var(--r);">
+        <div>Cache Version: <span id="editCacheVersion" style="color: var(--accent2); font-weight: 700;">Loading...</span></div>
+        <div id="editCacheStatus" style="font-weight: 600; color: var(--lime);">Active</div>
       </div>
     </div>
   </div>

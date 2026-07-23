@@ -48,13 +48,14 @@ document.getElementById('notifModalClose').addEventListener('click', () => close
 
 /* ── Dynamic feature imports (parallel for faster boot) ───────── */
 await Promise.all([
-  FEATURES.editSchedule ? import('./edit-schedule/editor.js').then(({ populateDaySelect, renderEditColumns, initEditorEvents }) => {
+  FEATURES.editSchedule ? import('./edit-schedule/editor.js').then(({ populateDaySelect, renderEditColumns, initEditorEvents, updateEditModalCacheInfo }) => {
     initEditorEvents();
     document.getElementById('editBtn').addEventListener('click', () => {
       openModal(DOM.editModal, () => {
         State.selectedDay = CONFIG.activeDays.includes(new Date().getDay()) ? new Date().getDay() : CONFIG.activeDays[0];
         populateDaySelect();
         renderEditColumns();
+        updateEditModalCacheInfo();
         const addForm = document.getElementById('addClassForm');
         const addBtn = document.getElementById('toggleAddClassBtn');
         if (addForm && addBtn) {

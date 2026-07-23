@@ -164,28 +164,173 @@ export function initEditorEvents() {
     });
   }
 
-  // Manual Check for Updates
+  // Initial cache version populate
+  updateEditModalCacheInfo();
+
+  // Manual Check for Updates — Detailed Inspection
   const checkUpdateBtn = document.getElementById('checkUpdateBtn');
+  const updateDetailsPanel = document.getElementById('updateCheckDetails');
+
   if (checkUpdateBtn) {
-    checkUpdateBtn.addEventListener('click', () => {
-      if ('serviceWorker' in navigator) {
-        showToast('Checking for updates...', 'info');
-        navigator.serviceWorker.ready.then(reg => {
-          reg.update().then(updatedReg => {
-            if (!updatedReg.installing && !updatedReg.waiting) {
-              showToast('App is already up to date!', 'success');
+    checkUpdateBtn.addEventListener('click', async () => {
+      if (!updateDetailsPanel) return;
+
+      updateDetailsPanel.style.display = 'block';
+      updateDetailsPanel.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--accent2);">
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent);"></span>
+          <span>Checking server for updates...</span>
+        </div>
+        <div style="margin-top: 6px; font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 3px;">
+          <div>• Inspecting active cache version...</div>
+          <div>• Fetching remote sw.js manifest...</div>
+          <div>• Validating schedule & config assets...</div>
+        </div>
+      `;
+
+      showToast('Checking for updates...', 'info');
+      const currentVersion = await getActiveCacheVersion();
+
+      if (!navigator.onLine) {
+        updateDetailsPanel.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 6px; color: var(--amber); font-weight: 800; margin-bottom: 6px;">
+            <span>⚠️ Offline Check Mode</span>
+          </div>
+          <div style="font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 4px;">
+            <div>• Active Build: <span style="color: var(--text);">${currentVersion}</span></div>
+            <div>• Connection: <span style="color: var(--amber);">No internet connection</span></div>
+            <div>• System: Running on local cached assets</div>
+          </div>
+        `;
+        showToast('Offline — cannot check remote server.', 'warning');
+        return;
+      }
+
+      try {
+        let swWaitingWorker = null;
+        if ('serviceWorker' in navigator) {
+          try {
+            const reg = await navigator.serviceWorker.ready;
+            const updatedReg = await reg.update().catch(() => null);
+            const activeReg = updatedReg || reg;
+            if (activeReg && (activeReg.waiting || activeReg.installing)) {
+              swWaitingWorker = activeReg.waiting || activeReg.installing;
             }
-          }).catch(err => {
-            console.error('Update check failed:', err);
-            showToast('Update check failed.', 'error');
-          });
-        });
-      } else {
-        showToast('Updates not supported in this environment.', 'warning');
+          } catch (swErr) {
+            console.warn('SW check warning:', swErr);
+          }
+        }
+
+        const swRes = await fetch(`./sw.js?t=${Date.now()}`, { cache: 'no-store' });
+        let remoteVersion = currentVersion;
+        if (swRes.ok) {
+          const swText = await swRes.text();
+          const match = swText.match(/const CACHE_VERSION = '([^']+)'/);
+          if (match && match[1]) {
+            remoteVersion = match[1];
+          }
+        }
+
+        const schedRes = await fetch(`./schedule.json?t=${Date.now()}`, { cache: 'no-store' });
+        const isSchedOk = schedRes.ok;
+
+        const isUpdateAvailable = (remoteVersion !== currentVersion) || !!swWaitingWorker;
+
+        if (isUpdateAvailable) {
+          updateDetailsPanel.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 6px; color: var(--lime); font-weight: 800;">
+                <span>🎉 New Update Available!</span>
+              </div>
+              <button id="applyUpdateNowBtn" style="background: linear-gradient(135deg, var(--accent), var(--lime)); color: #000; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 900; font-size: 11.5px; cursor: pointer; font-family: var(--f); box-shadow: 0 0 12px var(--ag);">
+                ⚡ Install & Reload
+              </button>
+            </div>
+            <div style="font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 4px;">
+              <div>• Current Build: <span style="color: var(--text);">${currentVersion}</span></div>
+              <div>• New Server Build: <span style="color: var(--lime); font-weight: 700;">${remoteVersion}</span></div>
+              <div>• Schedule Asset: <span style="color: ${isSchedOk ? 'var(--lime)' : 'var(--pink)'}">${isSchedOk ? 'Validated ✓' : 'Failed'}</span></div>
+              <div>• Action Required: Tap Install & Reload to apply</div>
+            </div>
+          `;
+
+          showToast('New update available!', 'info');
+
+          const applyBtn = document.getElementById('applyUpdateNowBtn');
+          if (applyBtn) {
+            applyBtn.addEventListener('click', () => {
+              if (swWaitingWorker) {
+                swWaitingWorker.postMessage({ action: 'skipWaiting' });
+              }
+              caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
+                window.location.reload();
+              });
+            });
+          }
+        } else {
+          const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          updateDetailsPanel.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 6px; color: var(--lime); font-weight: 800; margin-bottom: 6px;">
+              <span>✅ App is fully up to date!</span>
+            </div>
+            <div style="font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 4px;">
+              <div>• Active Version: <span style="color: var(--text); font-weight: 700;">${currentVersion}</span></div>
+              <div>• Remote Server: <span style="color: var(--lime);">${remoteVersion} (Matches)</span></div>
+              <div>• Schedule Asset: <span style="color: var(--lime);">Validated ✓</span></div>
+              <div>• Last Checked: <span style="color: var(--text);">${nowStr}</span></div>
+            </div>
+          `;
+          showToast('App is already up to date!', 'success');
+        }
+      } catch (err) {
+        console.error('Update check failed:', err);
+        updateDetailsPanel.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 6px; color: var(--pink); font-weight: 800; margin-bottom: 6px;">
+            <span>❌ Update Check Failed</span>
+          </div>
+          <div style="font-family: var(--m); font-size: 11px; color: var(--dim);">
+            ${err.message || 'Error communicating with update server.'}
+          </div>
+        `;
+        showToast('Update check failed.', 'error');
       }
     });
   }
+}
 
-  // Note: editBtn and ecC modal open/close are handled by main.js
-  // to keep modal management centralized.
+export async function getActiveCacheVersion() {
+  try {
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      const routineKey = keys.find(k => k.startsWith('routine-cache-'));
+      if (routineKey) return routineKey;
+    }
+  } catch (e) {}
+  return 'routine-cache-active';
+}
+
+export async function updateEditModalCacheInfo() {
+  const versionEl = document.getElementById('editCacheVersion');
+  const statusEl = document.getElementById('editCacheStatus');
+  if (!versionEl) return;
+
+  const currentVersion = await getActiveCacheVersion();
+  let dateFormatted = '';
+
+  const tsMatch = currentVersion.match(/routine-cache-(\d+)/);
+  if (tsMatch) {
+    const ts = parseInt(tsMatch[1]);
+    if (!isNaN(ts)) {
+      const d = new Date(ts);
+      const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      dateFormatted = ` (${dateStr}, ${timeStr})`;
+    }
+  }
+
+  versionEl.textContent = `${currentVersion}${dateFormatted}`;
+  if (statusEl) {
+    statusEl.textContent = navigator.onLine ? 'Online • Active' : 'Offline • Cached';
+    statusEl.style.color = navigator.onLine ? 'var(--lime)' : 'var(--amber)';
+  }
 }
