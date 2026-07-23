@@ -24,6 +24,13 @@ android {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.annotation:annotation-experimental:1.4.1'
+        force 'androidx.annotation:annotation:1.9.1'
+    }
+}
+
 repositories {
     flatDir{
         dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'

@@ -3,7 +3,7 @@ import { State } from '../core/state.js';
 import { CONFIG, DAY_NAMES, DAY_SHORT } from '../core/config.js';
 import { getClassesForDay } from '../schedule/queries.js';
 import { getSubjectTheme } from '../schedule/themes.js';
-import { toMinutes, format12h, getCurrentMinutes, formatRoom } from '../core/utils.js';
+import { toMinutes, format12h, getCurrentMinutes, formatRoom, escapeHtml } from '../core/utils.js';
 import { Storage } from '../storage/storage.js';
 import { showToast } from '../toast/toast.js';
 import { forceUpdate } from '../dashboard/update.js';
@@ -221,11 +221,16 @@ export function initEditorEvents() {
         let swWaitingWorker = null;
         if ('serviceWorker' in navigator) {
           try {
-            const reg = await navigator.serviceWorker.ready;
-            const updatedReg = await reg.update().catch(() => null);
-            const activeReg = updatedReg || reg;
-            if (activeReg && (activeReg.waiting || activeReg.installing)) {
-              swWaitingWorker = activeReg.waiting || activeReg.installing;
+            const reg = await Promise.race([
+              navigator.serviceWorker.getRegistration(),
+              new Promise(resolve => setTimeout(() => resolve(null), 1500))
+            ]);
+            if (reg) {
+              const updatedReg = await reg.update().catch(() => null);
+              const activeReg = updatedReg || reg;
+              if (activeReg && (activeReg.waiting || activeReg.installing)) {
+                swWaitingWorker = activeReg.waiting || activeReg.installing;
+              }
             }
           } catch (swErr) {
             console.warn('SW check warning:', swErr);
