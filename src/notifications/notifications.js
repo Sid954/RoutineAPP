@@ -419,7 +419,7 @@ export const Notifications = {
       await this.updatePermissionUI();
       const settings = Storage.getNotifSettings();
       if (DOM.notifToggle) DOM.notifToggle.checked = !!settings.enabled;
-      if (DOM.notifLeadTime) DOM.notifLeadTime.value = settings.leadTime || 10;
+      if (DOM.notifLeadTime) DOM.notifLeadTime.value = settings.leadTime || 15;
       if (DOM.notifBriefingToggle) DOM.notifBriefingToggle.checked = settings.briefingEnabled !== false;
       if (DOM.notifBriefingTime) DOM.notifBriefingTime.value = settings.briefingTime || 450;
       if (DOM.notifClassEndToggle) DOM.notifClassEndToggle.checked = !!settings.classEndEnabled;

@@ -35,8 +35,8 @@ export const Storage = {
   getNotifSettings() {
     try {
       const saved = localStorage.getItem(this.NOTIF_KEY);
-      return saved ? JSON.parse(saved) : { enabled: false, leadTime: 5, briefingEnabled: true, briefingTime: 450, classEndEnabled: false, dayDoneEnabled: true };
-    } catch { return { enabled: false, leadTime: 5, briefingEnabled: true, briefingTime: 450, classEndEnabled: false, dayDoneEnabled: true }; }
+      return saved ? JSON.parse(saved) : { enabled: false, leadTime: 15, briefingEnabled: true, briefingTime: 450, classEndEnabled: false, dayDoneEnabled: true };
+    } catch { return { enabled: false, leadTime: 15, briefingEnabled: true, briefingTime: 450, classEndEnabled: false, dayDoneEnabled: true }; }
   },
   saveNotifSettings(settings) {
     try { localStorage.setItem(this.NOTIF_KEY, JSON.stringify(settings)); } catch {}
