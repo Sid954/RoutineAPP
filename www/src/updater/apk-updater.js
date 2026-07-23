@@ -30,8 +30,17 @@ export async function getActiveCacheVersion() {
 
 /**
  * Show a permission modal for APK updates on automatic launch.
+ * Respects session dismissal so user is not nagged repeatedly in a single session.
  */
 function showApkUpdatePermissionModal(apkVersionData) {
+  const remoteVerCode = apkVersionData.versionCode || 1;
+  const dismissKey = `apk_update_dismissed_v${remoteVerCode}`;
+
+  // If user tapped 'Later' in this session, don't nag again until next session
+  if (sessionStorage.getItem(dismissKey) === 'true') {
+    return;
+  }
+
   let modal = document.getElementById('apkUpdatePermissionModal');
   if (!modal) {
     modal = document.createElement('div');
@@ -46,10 +55,11 @@ function showApkUpdatePermissionModal(apkVersionData) {
   const remoteVerClean = apkVersionData.versionName || (apkVersionData.versionCode ? `${apkVersionData.versionCode}` : '1.1.2');
 
   modal.innerHTML = `
-    <div class="md" style="max-width: 360px; padding: 26px 20px; text-align: center; background: #0f172a; border: 1.5px solid var(--accent); box-shadow: 0 20px 50px rgba(0,0,0,0.85);">
-      <div style="font-size: 38px; margin-bottom: 6px;">🚀</div>
-      <h2 style="font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px;">New Version Available!</h2>
-      <div style="font-size: 19px; font-weight: 900; color: var(--accent2); margin-bottom: 6px; letter-spacing: 0.5px; font-family: var(--f);">
+    <div class="md" style="max-width: 360px; padding: 26px 20px; text-align: center; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); border: 1.5px solid rgba(56, 189, 248, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56,189,248,0.15); border-radius: 20px;">
+      <div style="font-size: 40px; margin-bottom: 4px; filter: drop-shadow(0 0 10px rgba(56,189,248,0.5));">🚀</div>
+      <h2 style="font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 4px; letter-spacing: -0.3px;">New Version Available!</h2>
+      
+      <div style="font-size: 19px; font-weight: 900; color: var(--accent2); margin-bottom: 6px; letter-spacing: 0.5px; font-family: var(--f); text-shadow: 0 0 12px rgba(56,189,248,0.4);">
         v${escapeHtml(remoteVerClean)}
       </div>
       
@@ -58,8 +68,8 @@ function showApkUpdatePermissionModal(apkVersionData) {
       </div>
       
       <div style="display: flex; gap: 10px;">
-        <button id="apkModalLaterBtn" style="flex: 1; padding: 11px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--dim); font-weight: 700; font-size: 12px; cursor: pointer;">Later</button>
-        <button id="apkModalInstallBtn" style="flex: 1.5; padding: 11px; border-radius: 10px; border: none; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 0 14px rgba(56,189,248,0.35);">📦 Install APK</button>
+        <button id="apkModalLaterBtn" style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--dim); font-weight: 700; font-size: 12px; cursor: pointer; transition: all 0.2s;">Later</button>
+        <button id="apkModalInstallBtn" style="flex: 1.5; padding: 12px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 16px rgba(56,189,248,0.4); transition: transform 0.15s active;">📦 Install APK</button>
       </div>
     </div>
   `;
@@ -68,11 +78,12 @@ function showApkUpdatePermissionModal(apkVersionData) {
 
   document.getElementById('apkModalLaterBtn').addEventListener('click', () => {
     modal.classList.remove('open');
+    sessionStorage.setItem(dismissKey, 'true');
   });
 
   document.getElementById('apkModalInstallBtn').addEventListener('click', () => {
     modal.classList.remove('open');
-    showToast('Opening APK download link...', 'info');
+    showToast('Downloading APK in browser... Tap to install once downloaded!', 'info', null, 5000);
     window.open(targetUrl, '_system') || window.open(targetUrl, '_blank');
   });
 }
@@ -93,7 +104,7 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
     containerEl.style.display = 'block';
     containerEl.innerHTML = `
       <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--accent2);">
-        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent);"></span>
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 1.5s infinite;"></span>
         <span>Checking for updates...</span>
       </div>
     `;
@@ -140,7 +151,7 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
       // On Manual Check in Edit Schedule modal: Show ONLY the APK update card
       if (containerEl) {
         containerEl.innerHTML = `
-          <div style="background: rgba(56, 189, 248, 0.1); border: 1.5px solid var(--accent); border-radius: var(--rx); padding: 14px;">
+          <div style="background: rgba(56, 189, 248, 0.1); border: 1.5px solid var(--accent); border-radius: var(--rx); padding: 14px; box-shadow: 0 0 20px rgba(56,189,248,0.15);">
             <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
               <div>
                 <div style="font-weight: 800; color: #fff; font-size: 14px;">🚀 New Version Available!</div>
@@ -149,7 +160,7 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
               </div>
             </div>
             <div style="margin-top: 12px;">
-              <button id="downloadApkBtn" style="width: 100%; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; border: none; padding: 9px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; font-family: var(--f); box-shadow: 0 0 12px rgba(56,189,248,0.3);">
+              <button id="downloadApkBtn" style="width: 100%; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; font-family: var(--f); box-shadow: 0 4px 14px rgba(56,189,248,0.35);">
                 📦 Install APK (v${escapeHtml(remoteVerClean)})
               </button>
             </div>
@@ -157,7 +168,7 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
         `;
 
         document.getElementById('downloadApkBtn').addEventListener('click', () => {
-          showToast('Opening APK download link...', 'info');
+          showToast('Downloading APK in browser... Tap to install once downloaded!', 'info', null, 5000);
           window.open(targetUrl, '_system') || window.open(targetUrl, '_blank');
         });
       } else if (!isManual) {
@@ -235,13 +246,13 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
       } else if (containerEl) {
         // Manual check UI card
         containerEl.innerHTML = `
-          <div style="background: rgba(16, 185, 129, 0.08); border: 1px dashed var(--lime); border-radius: var(--rx); padding: 10px 12px;">
+          <div style="background: rgba(16, 185, 129, 0.08); border: 1px dashed var(--lime); border-radius: var(--rx); padding: 12px 14px;">
             <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
               <div>
-                <div style="font-weight: 800; color: #fff; font-size: 12px;">⚡ Schedule & Asset Update Available</div>
-                <div style="font-size: 10.5px; color: var(--dim); margin-top: 2px;">Version: <span style="color: var(--lime); font-weight: 700;">${remoteCacheVersion}</span></div>
+                <div style="font-weight: 800; color: #fff; font-size: 12.5px;">⚡ Schedule & Asset Update Available</div>
+                <div style="font-size: 11px; color: var(--dim); margin-top: 2px;">Version: <span style="color: var(--lime); font-weight: 700; font-family: var(--m);">${remoteCacheVersion}</span></div>
               </div>
-              <button id="applyUpdateNowBtn" style="background: linear-gradient(135deg, var(--lime), #059669); color: #fff; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 800; font-size: 11.5px; cursor: pointer; font-family: var(--f);">
+              <button id="applyUpdateNowBtn" style="background: linear-gradient(135deg, var(--lime), #059669); color: #fff; border: none; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 11.5px; cursor: pointer; font-family: var(--f);">
                 ⚡ Sync & Reload
               </button>
             </div>

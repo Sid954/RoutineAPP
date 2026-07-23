@@ -101,8 +101,8 @@ function build() {
       const configJsPath = path.join(__dirname, 'src', 'core', 'config.js');
       if (fs.existsSync(configJsPath)) {
         let cContent = fs.readFileSync(configJsPath, 'utf8');
-        cContent = cContent.replace(/appVersionCode: \d+/, `appVersionCode: ${vCode}`);
-        cContent = cContent.replace(/appVersionName: '[^']+'/, `appVersionName: '${vName}'`);
+        cContent = cContent.replace(/appVersionCode:\s*\d+/, `appVersionCode: ${vCode}`);
+        cContent = cContent.replace(/appVersionName:\s*['"][^'"]+['"]/, `appVersionName: '${vName}'`);
         fs.writeFileSync(configJsPath, cContent, 'utf8');
       }
 
@@ -110,8 +110,8 @@ function build() {
       const wwwConfigJsPath = path.join(DIST_DIR, 'src', 'core', 'config.js');
       if (fs.existsSync(wwwConfigJsPath)) {
         let wcContent = fs.readFileSync(wwwConfigJsPath, 'utf8');
-        wcContent = wcContent.replace(/appVersionCode: \d+/, `appVersionCode: ${vCode}`);
-        wcContent = wcContent.replace(/appVersionName: '[^']+'/, `appVersionName: '${vName}'`);
+        wcContent = wcContent.replace(/appVersionCode:\s*\d+/, `appVersionCode: ${vCode}`);
+        wcContent = wcContent.replace(/appVersionName:\s*['"][^'"]+['"]/, `appVersionName: '${vName}'`);
         fs.writeFileSync(wwwConfigJsPath, wcContent, 'utf8');
         console.log(`Synced CONFIG to appVersionCode ${vCode}, appVersionName '${vName}'`);
       }
