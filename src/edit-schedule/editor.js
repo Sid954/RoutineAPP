@@ -167,6 +167,14 @@ export function initEditorEvents() {
   // Initial cache version populate
   updateEditModalCacheInfo();
 
+  // Helper: get base URL for update checks (remote server on native app, relative on web)
+  function getRemoteBaseUrl() {
+    if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+      return CONFIG.remoteAppUrl || 'https://sid954.github.io/RoutineAPP';
+    }
+    return '.';
+  }
+
   // Manual Check for Updates — Detailed Inspection
   const checkUpdateBtn = document.getElementById('checkUpdateBtn');
   const updateDetailsPanel = document.getElementById('updateCheckDetails');
@@ -175,16 +183,19 @@ export function initEditorEvents() {
     checkUpdateBtn.addEventListener('click', async () => {
       if (!updateDetailsPanel) return;
 
+      const remoteBase = getRemoteBaseUrl();
+      const isNative = window.Capacitor && window.Capacitor.isNativePlatform();
+
       updateDetailsPanel.style.display = 'block';
       updateDetailsPanel.innerHTML = `
         <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--accent2);">
           <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent);"></span>
-          <span>Checking server for updates...</span>
+          <span>Checking ${isNative ? 'GitHub server' : 'server'} for updates...</span>
         </div>
         <div style="margin-top: 6px; font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 3px;">
-          <div>• Inspecting active cache version...</div>
-          <div>• Fetching remote sw.js manifest...</div>
-          <div>• Validating schedule & config assets...</div>
+          <div>• Inspecting active build version...</div>
+          <div>• Connecting to ${escapeHtml(remoteBase)}...</div>
+          <div>• Validating remote sw.js & schedule assets...</div>
         </div>
       `;
 
@@ -221,7 +232,7 @@ export function initEditorEvents() {
           }
         }
 
-        const swRes = await fetch(`./sw.js?t=${Date.now()}`, { cache: 'no-store' });
+        const swRes = await fetch(`${remoteBase}/sw.js?t=${Date.now()}`, { cache: 'no-store' });
         let remoteVersion = currentVersion;
         if (swRes.ok) {
           const swText = await swRes.text();
@@ -231,7 +242,7 @@ export function initEditorEvents() {
           }
         }
 
-        const schedRes = await fetch(`./schedule.json?t=${Date.now()}`, { cache: 'no-store' });
+        const schedRes = await fetch(`${remoteBase}/schedule.json?t=${Date.now()}`, { cache: 'no-store' });
         const isSchedOk = schedRes.ok;
 
         const isUpdateAvailable = (remoteVersion !== currentVersion) || !!swWaitingWorker;
@@ -243,14 +254,14 @@ export function initEditorEvents() {
                 <span>🎉 New Update Available!</span>
               </div>
               <button id="applyUpdateNowBtn" style="background: linear-gradient(135deg, var(--accent), var(--lime)); color: #000; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 900; font-size: 11.5px; cursor: pointer; font-family: var(--f); box-shadow: 0 0 12px var(--ag);">
-                ⚡ Install & Reload
+                ⚡ Install Update & Sync
               </button>
             </div>
             <div style="font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 4px;">
               <div>• Current Build: <span style="color: var(--text);">${currentVersion}</span></div>
-              <div>• New Server Build: <span style="color: var(--lime); font-weight: 700;">${remoteVersion}</span></div>
-              <div>• Schedule Asset: <span style="color: ${isSchedOk ? 'var(--lime)' : 'var(--pink)'}">${isSchedOk ? 'Validated ✓' : 'Failed'}</span></div>
-              <div>• Action Required: Tap Install & Reload to apply</div>
+              <div>• New Remote Build: <span style="color: var(--lime); font-weight: 700;">${remoteVersion}</span></div>
+              <div>• Remote Schedule: <span style="color: ${isSchedOk ? 'var(--lime)' : 'var(--pink)'}">${isSchedOk ? 'Validated ✓' : 'Failed'}</span></div>
+              <div>• Target Host: <span style="color: var(--text);">${escapeHtml(remoteBase)}</span></div>
             </div>
           `;
 
@@ -258,13 +269,49 @@ export function initEditorEvents() {
 
           const applyBtn = document.getElementById('applyUpdateNowBtn');
           if (applyBtn) {
-            applyBtn.addEventListener('click', () => {
-              if (swWaitingWorker) {
-                swWaitingWorker.postMessage({ action: 'skipWaiting' });
+            applyBtn.addEventListener('click', async () => {
+              try {
+                showToast('Syncing latest schedule & assets...', 'info');
+
+                // 1. Sync remote schedule if available
+                if (isSchedOk) {
+                  try {
+                    const freshSched = await schedRes.json();
+                    State.schedule = normalizeSchedule(freshSched);
+                    Storage.saveSchedule();
+                  } catch (e) {}
+                }
+
+                // 2. Save new version ID locally
+                localStorage.setItem('active_app_cache_version', remoteVersion);
+
+                // 3. Clear old caches
+                if ('caches' in window) {
+                  try {
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map(k => caches.delete(k)));
+                  } catch (e) {}
+                }
+
+                // 4. Force UI update
+                forceUpdate();
+                renderEditColumns();
+                updateEditModalCacheInfo();
+                Notifications.scheduleForToday();
+
+                // 5. Activate ServiceWorker if available
+                if (swWaitingWorker) {
+                  swWaitingWorker.postMessage({ action: 'skipWaiting' });
+                }
+
+                showToast(`Successfully updated to ${remoteVersion}!`, 'success');
+
+                setTimeout(() => {
+                  window.location.reload();
+                }, 400);
+              } catch (err) {
+                showToast('Failed to apply update: ' + err.message, 'error');
               }
-              caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
-                window.location.reload();
-              });
             });
           }
         } else {
@@ -276,7 +323,7 @@ export function initEditorEvents() {
             <div style="font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 4px;">
               <div>• Active Version: <span style="color: var(--text); font-weight: 700;">${currentVersion}</span></div>
               <div>• Remote Server: <span style="color: var(--lime);">${remoteVersion} (Matches)</span></div>
-              <div>• Schedule Asset: <span style="color: var(--lime);">Validated ✓</span></div>
+              <div>• Target Host: <span style="color: var(--text);">${escapeHtml(remoteBase)}</span></div>
               <div>• Last Checked: <span style="color: var(--text);">${nowStr}</span></div>
             </div>
           `;
@@ -289,7 +336,7 @@ export function initEditorEvents() {
             <span>❌ Update Check Failed</span>
           </div>
           <div style="font-family: var(--m); font-size: 11px; color: var(--dim);">
-            ${err.message || 'Error communicating with update server.'}
+            ${escapeHtml(err.message || 'Error communicating with update server.')}
           </div>
         `;
         showToast('Update check failed.', 'error');
@@ -299,6 +346,9 @@ export function initEditorEvents() {
 }
 
 export async function getActiveCacheVersion() {
+  const syncedVersion = localStorage.getItem('active_app_cache_version');
+  if (syncedVersion) return syncedVersion;
+
   try {
     if ('caches' in window) {
       const keys = await caches.keys();
