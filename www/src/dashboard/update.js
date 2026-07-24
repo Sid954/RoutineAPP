@@ -4,6 +4,8 @@ import { DOM } from '../core/dom.js';
 import { getCurrentMinutes, toMinutes } from '../core/utils.js';
 import { renderCurrentClass } from './current-class.js';
 import { renderNextClass } from './next-class.js';
+import { updateGreeting } from './greeting.js';
+import { updateStats } from './stats.js';
 import { renderTimeline } from '../timeline/timeline.js';
 import { renderWeeklyMatrix } from '../weekly-matrix/matrix.js';
 import { updateNativeWidget } from '../widget/widget.js';
@@ -25,10 +27,12 @@ export function updateDashboard() {
   if (State.lastRenderedMinute === currentMins) return;
   State.lastRenderedMinute = currentMins;
   checkAutoSwitchTomorrow();
+  updateGreeting();
+  updateStats();
   renderCurrentClass();
   renderNextClass();
   renderTimeline();
-  if (DOM.viewModal.classList.contains('open')) renderWeeklyMatrix();
+  if (DOM.viewModal && DOM.viewModal.classList.contains('open')) renderWeeklyMatrix();
   updateNativeWidget();
 }
 

@@ -141,14 +141,18 @@ export function initEditorEvents() {
 
   // Reset to default
   document.getElementById('rstB').addEventListener('click', () => {
-    const backup = JSON.parse(JSON.stringify(State.schedule));
-    State.schedule = JSON.parse(JSON.stringify(normalizeSchedule(CONFIG.defaultRoutine)));
-    Storage.saveSchedule(); renderEditColumns(); forceUpdate();
-
-    showToast('Reset to default schedule', 'info', () => {
-      State.schedule = backup;
-      Storage.saveSchedule(); renderEditColumns(); forceUpdate();
-      showToast('Undo successful', 'success');
+    import('../modals/modal.js').then(({ showConfirm }) => {
+      showConfirm(
+        'Reset to Default Schedule',
+        'Are you sure you want to reset your schedule to the default routine? Click "Save & Apply Changes" to save.',
+        () => {
+          State.schedule = JSON.parse(JSON.stringify(normalizeSchedule(CONFIG.defaultRoutine)));
+          Storage.saveSchedule();
+          renderEditColumns();
+          forceUpdate();
+          showToast('Reset to default schedule. Click "Save & Apply" to save.', 'info');
+        }
+      );
     });
   });
 

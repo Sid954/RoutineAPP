@@ -64,6 +64,9 @@ export const DOM = {
   notifPermStatus: $id('notifPermStatus'),
   routineSemesterSelect: $id('routineSemesterSelect'),
   routineSectionSelect: $id('routineSectionSelect'),
+  loadRoutineBtn: $id('loadRoutineBtn'),
+  saveAllSettingsBtn: $id('saveAllSettingsBtn'),
+  saveNotifSettingsBtn: $id('saveNotifSettingsBtn'),
 
   // Banners
   notifBanner: $id('notifBanner'),

@@ -43,6 +43,18 @@
     <button class="install-dismiss" id="installDismiss">✕</button>
   </div>
 
+  <!-- Global Glassmorphism Loading Screen Overlay -->
+  <div id="globalLoadingOverlay" class="global-loading-overlay">
+    <div class="global-loading-card">
+      <div class="global-loading-spinner-container">
+        <div class="global-loading-spinner-ring"></div>
+        <div class="global-loading-spinner-core">⚡</div>
+      </div>
+      <div id="globalLoadingTitle" class="global-loading-title">Loading Routine...</div>
+      <div id="globalLoadingSub" class="global-loading-sub">Fetching timetable schedule & section announcements</div>
+    </div>
+  </div>
+
   <!-- Main Dashboard -->
   <div class="ww">
     <div class="w" id="app">
@@ -207,6 +219,11 @@
         </div>
       </div>
 
+      <!-- Save & Apply Bar at bottom under Add Class -->
+      <div style="padding: 16px 24px; border-top: 1px solid var(--border); background: rgba(15, 23, 42, 0.5);">
+        <button id="saveAllSettingsBtn" style="width: 100%; height: 44px; border-radius: var(--rx); background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; font-family: var(--f); font-weight: 800; font-size: 13.5px; border: none; cursor: pointer; box-shadow: 0 4px 16px rgba(56,189,248,0.35); transition: transform 0.15s active;">💾 Save & Apply Changes</button>
+      </div>
+
       <!-- Footer: Cache Version & Network Status -->
       <div class="edit-modal-footer" style="padding: 12px 24px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--dim); font-family: var(--m); background: rgba(0,0,0,0.15); border-radius: 0 0 var(--r) var(--r);">
         <div>Cache Version: <span id="editCacheVersion" style="color: var(--accent2); font-weight: 700;">Loading...</span></div>
@@ -296,6 +313,10 @@
               <span class="notif-setting-desc" id="notifPermStatus">Checking...</span>
             </div>
           </div>
+        </div>
+
+        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);">
+          <button id="saveNotifSettingsBtn" style="width: 100%; height: 42px; border-radius: var(--rx); background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; font-family: var(--f); font-weight: 800; font-size: 13px; border: none; cursor: pointer; box-shadow: 0 4px 16px rgba(56,189,248,0.35); transition: transform 0.15s active;">💾 Save & Apply Settings</button>
         </div>
 
       </div>

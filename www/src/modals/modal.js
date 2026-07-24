@@ -24,6 +24,20 @@ export function closeModal(modalEl, onClose) {
   if (onClose) onClose();
 }
 
+export function showLoadingScreen(title = 'Loading Routine...', sub = 'Updating timetable schedule & section announcements') {
+  const overlay = document.getElementById('globalLoadingOverlay');
+  const titleEl = document.getElementById('globalLoadingTitle');
+  const subEl = document.getElementById('globalLoadingSub');
+  if (titleEl) titleEl.textContent = title;
+  if (subEl) subEl.textContent = sub;
+  if (overlay) overlay.classList.add('active');
+}
+
+export function hideLoadingScreen() {
+  const overlay = document.getElementById('globalLoadingOverlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
 export function showConfirm(title, message, onOk, showPasswordInput = false) {
   const modal = DOM.confirmModal;
   const titleEl = document.getElementById('confirmTitle');

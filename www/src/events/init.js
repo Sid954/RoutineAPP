@@ -64,9 +64,6 @@ export function initializeApp() {
   }
 
   // ── STEP 4: Asynchronously fetch latest config, schedule & announcements (non-blocking)
-  // This executes in the background and will not slow down the app startup or require an internet connection to display the routine.
-  
-  // A. Config fetch — MUST complete before announcements fetch (sets CONFIG.apiBase)
   fetch('config.json?t=' + Date.now())
     .then(res => { if (!res.ok) throw new Error(); return res.json(); })
     .then(configData => {
@@ -95,19 +92,16 @@ export function initializeApp() {
         forceUpdate();
       }
 
-      // Now that apiBase is set, fetch announcements
       if (FEATURES.announcements) {
         fetchAnnouncementsAndNotify();
       }
     })
     .catch(() => {
-      // Config failed but still try announcements with whatever apiBase we have
       if (FEATURES.announcements) {
         fetchAnnouncementsAndNotify();
       }
     });
 
-  // B. Schedule fetch (independent of config)
   const currentSem = Storage.getSemester();
   const currentSec = Storage.getSection();
   fetch(`./src/data/sem-${currentSem}/${currentSec}/routine.json?t=${Date.now()}`)
@@ -125,12 +119,11 @@ export function initializeApp() {
     })
     .catch(() => { /* Silent fallback: offline or schedule unchanged */ });
 
-  // C. Poll for new announcements every 30 seconds while app is open
   if (FEATURES.announcements) {
     setInterval(() => fetchAnnouncementsAndNotify(), 30 * 1000);
   }
 
-  // ── STEP 5: Initialize Routine Selection Dropdowns
+  // ── STEP 5: Initialize Routine Selection Dropdowns & Unified Save
   initRoutineSelector();
 
   // ── STEP 6: Check for App & Schedule updates in background (non-blocking)
@@ -150,6 +143,95 @@ const ROUTINE_STRUCTURE = {
   '8': ['a', 'b', 'c', 'd', 'e']
 };
 
+export async function saveAllSettings() {
+  const semSelect = DOM.routineSemesterSelect || document.getElementById('routineSemesterSelect');
+  const secSelect = DOM.routineSectionSelect || document.getElementById('routineSectionSelect');
+  const sem = semSelect ? semSelect.value : Storage.getSemester();
+  const sec = secSelect ? secSelect.value : Storage.getSection();
+
+  import('../modals/modal.js').then(async ({ showLoadingScreen, hideLoadingScreen }) => {
+    showLoadingScreen(
+      `Saving Settings (Semester ${sem} - Section ${sec.toUpperCase()})...`,
+      'Step 1/2: Saving preferences & downloading schedule...'
+    );
+
+    let isFinished = false;
+    let saveTimeout = setTimeout(() => {
+      if (!isFinished) {
+        isFinished = true;
+        hideLoadingScreen();
+        import('../toast/toast.js').then(({ showToast }) => {
+          showToast('Saving taking longer than expected. Using cached settings.', 'warning');
+        });
+      }
+    }, 7000);
+
+    try {
+      Storage.saveSemester(sem);
+      Storage.saveSection(sec);
+
+      // Save notification settings if elements exist
+      if (DOM.notifToggle) {
+        const notifSettings = Storage.getNotifSettings();
+        notifSettings.enabled = DOM.notifToggle.checked;
+        if (DOM.notifLeadTime) notifSettings.leadTime = parseInt(DOM.notifLeadTime.value, 10) || 15;
+        if (DOM.notifBriefingToggle) notifSettings.briefingEnabled = DOM.notifBriefingToggle.checked;
+        if (DOM.notifBriefingTime) notifSettings.briefingTime = parseInt(DOM.notifBriefingTime.value, 10) || 450;
+        if (DOM.notifClassEndToggle) notifSettings.classEndEnabled = DOM.notifClassEndToggle.checked;
+        if (DOM.notifDayDoneToggle) notifSettings.dayDoneEnabled = DOM.notifDayDoneToggle.checked;
+        Storage.saveNotifSettings(notifSettings);
+      }
+
+      // Fetch routine JSON for targeted semester & section
+      const path = `./src/data/sem-${sem}/${sec}/routine.json`;
+      const res = await fetch(`${path}?t=${Date.now()}`).catch(() => null);
+      if (res && res.ok) {
+        const data = await res.json();
+        State.schedule = normalizeSchedule(data);
+        Storage.saveSchedule();
+      }
+
+      // Step 2: Fetch section-specific announcements
+      showLoadingScreen(
+        `Semester ${sem} - Section ${sec.toUpperCase()} Saved!`,
+        'Step 2/2: Syncing section announcements & schedule overrides...'
+      );
+
+      if (FEATURES.announcements) {
+        await fetchAnnouncementsAndNotify().catch(() => {});
+      }
+
+      if (isFinished) return;
+      clearTimeout(saveTimeout);
+      isFinished = true;
+
+      showLoadingScreen(
+        'Settings Applied!',
+        'Finalizing dashboard reload...'
+      );
+
+      import('../toast/toast.js').then(({ showToast }) => {
+        showToast('Settings saved & applied successfully!', 'success');
+      });
+
+      // Smooth auto reload
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+
+    } catch (err) {
+      if (isFinished) return;
+      clearTimeout(saveTimeout);
+      isFinished = true;
+      hideLoadingScreen();
+      console.error('Error saving settings:', err);
+      import('../toast/toast.js').then(({ showToast }) => {
+        showToast('Error saving settings: ' + err.message, 'error');
+      });
+    }
+  });
+}
+
 function initRoutineSelector() {
   const semSelect = DOM.routineSemesterSelect;
   const secSelect = DOM.routineSectionSelect;
@@ -158,12 +240,10 @@ function initRoutineSelector() {
   const currentSem = Storage.getSemester();
   const currentSec = Storage.getSection();
 
-  // 1. Populate Semester dropdown options
   semSelect.innerHTML = Object.keys(ROUTINE_STRUCTURE)
     .map(sem => `<option value="${sem}"${sem === currentSem ? ' selected' : ''}>Semester ${sem}</option>`)
     .join('');
 
-  // 2. Populate Section options depending on selected semester
   function populateSections(sem, selectedSec) {
     const sections = ROUTINE_STRUCTURE[sem] || [];
     secSelect.innerHTML = sections
@@ -173,40 +253,6 @@ function initRoutineSelector() {
 
   populateSections(currentSem, currentSec);
 
-  // 3. Helper to fetch and load new routine
-  function loadRoutine(sem, sec) {
-    const path = `./src/data/sem-${sem}/${sec}/routine.json`;
-    import('../toast/toast.js').then(({ showToast }) => {
-      fetch(`${path}?t=${Date.now()}`)
-        .then(res => { if (!res.ok) throw new Error(); return res.json(); })
-        .then(data => {
-          State.schedule = normalizeSchedule(data);
-          Storage.saveSchedule();
-          Storage.saveSemester(sem);
-          Storage.saveSection(sec);
-          forceUpdate();
-          if (FEATURES.announcements) {
-            fetchAnnouncementsAndNotify();
-          }
-          import('../edit-schedule/editor.js').then(({ renderEditColumns }) => {
-            renderEditColumns();
-          });
-          if (FEATURES.notifications) {
-            Notifications.scheduleForToday();
-          }
-          showToast(`Loaded Semester ${sem} - Section ${sec.toUpperCase()}`, 'success');
-        })
-        .catch(err => {
-          console.error('Failed to load routine:', err);
-          showToast('Failed to load selected routine', 'error');
-          // Revert selection in dropdowns
-          semSelect.value = Storage.getSemester();
-          populateSections(semSelect.value, Storage.getSection());
-        });
-    });
-  }
-
-  // 4. Bind change listeners
   semSelect.addEventListener('change', () => {
     const sem = semSelect.value;
     const availableSections = ROUTINE_STRUCTURE[sem] || [];
@@ -215,10 +261,15 @@ function initRoutineSelector() {
       sec = availableSections[0] || 'a';
     }
     populateSections(sem, sec);
-    loadRoutine(sem, sec);
   });
 
-  secSelect.addEventListener('change', () => {
-    loadRoutine(semSelect.value, secSelect.value);
-  });
+  const saveAllBtn = DOM.saveAllSettingsBtn || document.getElementById('saveAllSettingsBtn');
+  if (saveAllBtn) {
+    saveAllBtn.addEventListener('click', saveAllSettings);
+  }
+
+  const saveNotifBtn = DOM.saveNotifSettingsBtn || document.getElementById('saveNotifSettingsBtn');
+  if (saveNotifBtn) {
+    saveNotifBtn.addEventListener('click', saveAllSettings);
+  }
 }
