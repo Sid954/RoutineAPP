@@ -185,6 +185,9 @@ function initRoutineSelector() {
           Storage.saveSemester(sem);
           Storage.saveSection(sec);
           forceUpdate();
+          if (FEATURES.announcements) {
+            fetchAnnouncementsAndNotify();
+          }
           import('../edit-schedule/editor.js').then(({ renderEditColumns }) => {
             renderEditColumns();
           });
