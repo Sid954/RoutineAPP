@@ -13,6 +13,7 @@ import { updateStats } from '../dashboard/stats.js';
 import { updateDashboard, forceUpdate } from '../dashboard/update.js';
 import { DOM } from '../core/dom.js';
 import { performUnifiedUpdateCheck } from '../updater/apk-updater.js';
+import { initThemeEngine, applyTheme } from '../core/theme.js';
 
 export function fetchAnnouncementsAndNotify() {
   return Announcements.fetchAll().then(fetched => {
@@ -27,6 +28,7 @@ export function fetchAnnouncementsAndNotify() {
 }
 
 export function initializeApp() {
+  initThemeEngine();
   if (FEATURES.streak) Streak.update();
 
   // ── STEP 1: Load cached schedule instantly (offline-first)
@@ -169,6 +171,12 @@ export async function saveAllSettings() {
     try {
       Storage.saveSemester(sem);
       Storage.saveSection(sec);
+
+      // Save Theme preferences if dropdowns exist
+      const styleSel = document.getElementById('themeStyleSelect');
+      const colorSel = document.getElementById('themeColorSelect');
+      if (styleSel) Storage.saveThemeStyle(styleSel.value);
+      if (colorSel) Storage.saveThemeColor(colorSel.value);
 
       // Save notification settings if elements exist
       if (DOM.notifToggle) {

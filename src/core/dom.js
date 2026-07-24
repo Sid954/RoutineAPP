@@ -61,6 +61,11 @@ export const DOM = {
   // Notification settings
   notifToggle: $id('notifToggle'),
   notifLeadTime: $id('notifLeadTime'),
+  notifBriefingToggle: $id('notifBriefingToggle'),
+  notifBriefingTime: $id('notifBriefingTime'),
+  notifClassEndToggle: $id('notifClassEndToggle'),
+  notifDayDoneToggle: $id('notifDayDoneToggle'),
+  testBriefingBtn: $id('testBriefingBtn'),
   notifPermStatus: $id('notifPermStatus'),
   routineSemesterSelect: $id('routineSemesterSelect'),
   routineSectionSelect: $id('routineSectionSelect'),

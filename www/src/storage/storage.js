@@ -8,6 +8,16 @@ export const Storage = {
   INSTALL_DISMISS_KEY: 'routine_install_dismissed',
   SEMESTER_KEY: 'genz_routine_semester',
   SECTION_KEY: 'genz_routine_section',
+  THEME_STYLE_KEY: 'routine_theme_style',
+  THEME_COLOR_KEY: 'routine_theme_color',
+  ONBOARDING_KEY: 'routine_onboarding_completed',
+
+  isOnboardingCompleted() {
+    try { return localStorage.getItem(this.ONBOARDING_KEY) === 'true'; } catch { return false; }
+  },
+  completeOnboarding() {
+    try { localStorage.setItem(this.ONBOARDING_KEY, 'true'); } catch {}
+  },
 
   getSemester() {
     try { return localStorage.getItem(this.SEMESTER_KEY) || '2'; } catch { return '2'; }
@@ -20,6 +30,19 @@ export const Storage = {
   },
   saveSection(sec) {
     try { localStorage.setItem(this.SECTION_KEY, sec); } catch {}
+  },
+
+  getThemeStyle() {
+    try { return localStorage.getItem(this.THEME_STYLE_KEY) || 'glassmorphism'; } catch { return 'glassmorphism'; }
+  },
+  saveThemeStyle(style) {
+    try { localStorage.setItem(this.THEME_STYLE_KEY, style); } catch {}
+  },
+  getThemeColor() {
+    try { return localStorage.getItem(this.THEME_COLOR_KEY) || 'pitch_black'; } catch { return 'pitch_black'; }
+  },
+  saveThemeColor(color) {
+    try { localStorage.setItem(this.THEME_COLOR_KEY, color); } catch {}
   },
 
   saveSchedule() {

@@ -37,6 +37,382 @@
   --sar: env(safe-area-inset-right, 0px);
 }
 
+/* Color Palette Themes */
+:root[data-color="dark"] {
+  --bg: #06080d; --bg2: #0f121a; --card: #141824; --card2: #1b2030;
+  --text: #f3f5f9; --dim: #848c9e; --border: #232a3d; --border2: #343e59;
+  --accent: #38bdf8; --accent2: #818cf8; --pink: #f43f5e;
+  --ag: rgba(56, 189, 248, 0.35);
+  --btn-grad: linear-gradient(135deg, #38bdf8, #818cf8);
+  --btn-text: #06080d;
+}
+
+:root[data-color="pitch_black"] {
+  --bg: #000000; --bg2: #09090b; --card: #0d0d0d; --card2: #171717;
+  --text: #ffffff; --dim: #a3a3a3; --border: #262626; --border2: #404040;
+  --accent: #38bdf8; --accent2: #a5f3fc; --pink: #f43f5e;
+  --ag: rgba(56, 189, 248, 0.4);
+  --btn-grad: linear-gradient(135deg, #38bdf8, #0284c7);
+  --btn-text: #000000;
+}
+
+:root[data-color="light"] {
+  --bg: #e2e8f0; --bg2: #f1f5f9; --card: #ffffff; --card2: #f8fafc;
+  --text: #0f172a; --dim: #64748b; --border: #cbd5e1; --border2: #94a3b8;
+  --accent: #0284c7; --accent2: #2563eb; --pink: #db2777;
+  --ag: rgba(2, 132, 199, 0.2);
+  --btn-grad: linear-gradient(135deg, #0284c7, #2563eb);
+  --btn-text: #ffffff;
+}
+:root[data-color="light"] body {
+  background: #e2e8f0;
+  background-image: radial-gradient(at 0% 0%, rgba(224, 242, 254, 0.8) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(254, 226, 226, 0.6) 0px, transparent 50%);
+}
+:root[data-color="light"] .w {
+  background: rgba(255, 255, 255, 0.94) !important;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12), 0 0 30px rgba(2, 132, 199, 0.08) !important;
+  border: 1px solid rgba(203, 213, 225, 0.8) !important;
+}
+:root[data-color="light"] .c-cc,
+:root[data-color="light"] .n-cc {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+}
+:root[data-color="light"] .hd-btn,
+:root[data-color="light"] .day-nav-btn {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06) !important;
+}
+:root[data-color="light"] select,
+:root[data-color="light"] input {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+:root[data-color="light"] .cc {
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%) !important;
+  border: 1.5px solid #38bdf8 !important;
+  color: #0f172a !important;
+  box-shadow: 0 10px 30px rgba(2, 132, 199, 0.12) !important;
+}
+:root[data-color="light"] .cc .tt {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+:root[data-color="light"] .cc .lb {
+  color: #0284c7 !important;
+}
+:root[data-color="light"] .cc .lb-right {
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+:root[data-color="light"] .cc .rp {
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
+}
+:root[data-color="light"] .cc .pi,
+:root[data-color="light"] .cc .rm {
+  color: #0f172a !important;
+}
+:root[data-color="light"] .nc {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05) !important;
+}
+:root[data-color="light"] .nc .rw .tt,
+:root[data-color="light"] .nc .sb .rm {
+  color: #0f172a !important;
+}
+
+:root[data-color="matcha"] {
+  --bg: #08120e; --bg2: #0e1c17; --card: #12241d; --card2: #183027;
+  --text: #f0fdf4; --dim: #86efac; --border: #164e3b; --border2: #10b981;
+  --accent: #10b981; --accent2: #4ade80; --pink: #facc15;
+  --ag: rgba(16, 185, 129, 0.4);
+  --btn-grad: linear-gradient(135deg, #10b981, #059669);
+  --btn-text: #04140c;
+}
+
+:root[data-color="sunset"] {
+  --bg: #140812; --bg2: #1e0e1b; --card: #261223; --card2: #33182f;
+  --text: #fff7ed; --dim: #fdba74; --border: #521d42; --border2: #9a3412;
+  --accent: #fb923c; --accent2: #fbbf24; --pink: #f43f5e;
+  --ag: rgba(251, 146, 60, 0.4);
+  --btn-grad: linear-gradient(135deg, #f97316, #e11d48);
+  --btn-text: #ffffff;
+}
+
+/* Custom Dropdown Option Background & Text Contrast per Theme */
+select option {
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 10px;
+}
+
+:root[data-color="pitch_black"] select option {
+  background: #121212 !important;
+  color: #ffffff !important;
+}
+
+:root[data-color="light"] select option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+:root[data-color="matcha"] select option {
+  background: #102019 !important;
+  color: #f0fdf4 !important;
+}
+
+:root[data-color="sunset"] select option {
+  background: #21101e !important;
+  color: #fff7ed !important;
+}
+
+:root[data-color="dark"] select option {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+/* Dynamic Theme Primary Action Buttons */
+#saveAllSettingsBtn,
+#saveNotifSettingsBtn,
+.bp,
+.vrb,
+.install-btn {
+  background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink))) !important;
+  color: var(--btn-text, #ffffff) !important;
+  box-shadow: 0 4px 18px var(--ag, rgba(56,189,248,0.35)) !important;
+  font-weight: 800 !important;
+  border: none !important;
+  transition: transform 0.15s active, box-shadow var(--t) !important;
+}
+
+/* Announcement Category Filter Pills */
+.announce-filter-pill {
+  padding: 5px 12px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--dim);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  font-family: var(--f);
+}
+.announce-filter-pill:hover,
+.announce-filter-pill.active {
+  background: var(--accent) !important;
+  color: #000000 !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 2px 10px var(--ag) !important;
+}
+
+/* Clean Dropdown Select Inputs */
+select.clean-select,
+.mf select,
+.fg select {
+  width: 100%;
+  height: 40px;
+  background: var(--card2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--rx) !important;
+  color: var(--text) !important;
+  padding: 0 12px !important;
+  font-family: var(--f) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  outline: none !important;
+  transition: border-color var(--t), box-shadow var(--t) !important;
+  cursor: pointer !important;
+}
+
+select.clean-select:focus,
+.mf select:focus,
+.fg select:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 12px var(--ag) !important;
+}
+
+select.clean-select option,
+.mf select option,
+.fg select option {
+  background: var(--card2) !important;
+  color: var(--text) !important;
+  padding: 10px !important;
+}
+
+/* Facebook-style Pull Spinner Animation */
+@keyframes ptrSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.ptr-spin {
+  animation: ptrSpin 0.7s linear infinite !important;
+}
+
+/* Unseen Announcements Red Blob Badge */
+.announce-badge-blob {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 99px;
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  color: #ffffff !important;
+  font-family: var(--m);
+  font-size: 9.5px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--card);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.7), 0 0 10px rgba(239, 68, 68, 0.9);
+  animation: blobPulse 1.8s ease-in-out infinite;
+  z-index: 10;
+  white-space: nowrap;
+}
+@keyframes blobPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.7), 0 0 10px rgba(239, 68, 68, 0.9); }
+  50% { transform: scale(1.15); box-shadow: 0 6px 16px rgba(239, 68, 68, 0.9), 0 0 16px rgba(239, 68, 68, 1); }
+}
+
+/* ==========================================================================
+   STYLE 1: GLASSMORPHISM CYBER (Default Translucent Glow)
+   ========================================================================== */
+:root[data-style="glassmorphism"] .w,
+:root[data-style="glassmorphism"] .card,
+:root[data-style="glassmorphism"] .md,
+:root[data-style="glassmorphism"] .chg-item {
+  border-radius: 24px;
+  background: var(--card);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 20px var(--ag);
+}
+:root[data-style="glassmorphism"] .chg-item:hover {
+  border-color: var(--accent);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7), 0 0 24px var(--ag);
+  transform: translateY(-3px);
+}
+
+/* ==========================================================================
+   STYLE 2: NEUMORPHIC 3D SOFT (Tactile Embossed Depth)
+   ========================================================================== */
+:root[data-style="neumorphic"] {
+  --r: 28px; --rs: 20px; --rx: 14px;
+}
+:root[data-style="neumorphic"] .w,
+:root[data-style="neumorphic"] .card,
+:root[data-style="neumorphic"] .md,
+:root[data-style="neumorphic"] .chg-item {
+  border-radius: 28px !important;
+  background: var(--card) !important;
+  border: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 9px 9px 24px rgba(0,0,0,0.8), -9px -9px 24px rgba(255,255,255,0.03) !important;
+}
+:root[data-style="neumorphic"] .chg-item {
+  box-shadow: inset 4px 4px 10px rgba(0,0,0,0.7), inset -4px -4px 10px rgba(255,255,255,0.02) !important;
+}
+:root[data-style="neumorphic"] .chg-item:hover {
+  box-shadow: 6px 6px 18px rgba(0,0,0,0.8), -6px -6px 18px rgba(255,255,255,0.04) !important;
+  transform: translateY(-2px);
+}
+:root[data-style="neumorphic"] button {
+  border-radius: 20px !important;
+  background: var(--card) !important;
+  border: none !important;
+  box-shadow: 5px 5px 14px rgba(0,0,0,0.8), -5px -5px 14px rgba(255,255,255,0.03) !important;
+  transition: all 0.2s ease !important;
+}
+:root[data-style="neumorphic"] button:active {
+  box-shadow: inset 4px 4px 10px rgba(0,0,0,0.9), inset -4px -4px 10px rgba(255,255,255,0.03) !important;
+}
+
+/* ==========================================================================
+   STYLE 3: CYBERPUNK HUD (Sharp Tactical Wireframe & Scanlines)
+   ========================================================================== */
+:root[data-style="cyberpunk"] {
+  --r: 0px; --rs: 0px; --rx: 0px;
+  --f: 'Chakra Petch', 'Plus Jakarta Sans', monospace, sans-serif;
+  --m: 'Space Mono', monospace;
+}
+:root[data-style="cyberpunk"] body {
+  background-image: repeating-linear-gradient(0deg, rgba(0, 240, 255, 0.03) 0px, rgba(0, 240, 255, 0.03) 1px, transparent 1px, transparent 4px);
+}
+:root[data-style="cyberpunk"] .w,
+:root[data-style="cyberpunk"] .card,
+:root[data-style="cyberpunk"] .md,
+:root[data-style="cyberpunk"] .chg-item {
+  border-radius: 0px !important;
+  background: var(--card) !important;
+  border: 2px solid var(--accent) !important;
+  box-shadow: 0 0 18px var(--ag), inset 0 0 12px var(--ag) !important;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px)) !important;
+}
+:root[data-style="cyberpunk"] .chg-item {
+  border-color: var(--pink) !important;
+  box-shadow: 0 0 14px var(--pg) !important;
+}
+:root[data-style="cyberpunk"] .chg-item:hover {
+  box-shadow: 0 0 24px var(--pink) !important;
+  transform: translateY(-2px);
+}
+:root[data-style="cyberpunk"] button {
+  border-radius: 0px !important;
+  border: 2px solid var(--accent) !important;
+  background: var(--card) !important;
+  color: var(--accent) !important;
+  font-family: var(--m) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)) !important;
+}
+:root[data-style="cyberpunk"] button:hover {
+  background: var(--accent) !important;
+  color: #000000 !important;
+  box-shadow: 0 0 18px var(--accent) !important;
+}
+
+/* ==========================================================================
+   STYLE 4: BENTO MINIMALIST (Clean Apple/Notion Grid)
+   ========================================================================== */
+:root[data-style="bento"] {
+  --r: 14px; --rs: 10px; --rx: 8px;
+}
+:root[data-style="bento"] .w,
+:root[data-style="bento"] .card,
+:root[data-style="bento"] .md,
+:root[data-style="bento"] .chg-item {
+  border-radius: 14px !important;
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+:root[data-style="bento"] .chg-item:hover {
+  border-color: var(--accent) !important;
+  transform: translateY(-2px);
+}
+:root[data-style="bento"] button {
+  border-radius: 10px !important;
+  border: 1px solid var(--border) !important;
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {

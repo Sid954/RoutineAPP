@@ -269,5 +269,10 @@ initKeyboard();
 initVisibility();
 initServiceWorker();
 
+import { initPullToRefresh } from './events/pull-to-refresh.js';
+import { checkFirstTimeOnboarding } from './events/onboarding.js';
+
 /* ── Boot ─────────────────────────────────────────────────────── */
+initPullToRefresh();
 initializeApp();
+checkFirstTimeOnboarding();

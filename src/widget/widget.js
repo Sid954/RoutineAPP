@@ -155,7 +155,8 @@ export async function updateNativeWidget() {
       next_title: nextTitle,
       next_eta: nextEta,
       next_info: nextInfo,
-      show_next: showNext
+      show_next: showNext,
+      theme_color: document.documentElement.getAttribute('data-color') || 'dark'
     });
   } catch (err) {
     console.warn('Widget update skipped:', err);

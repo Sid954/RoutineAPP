@@ -104,11 +104,22 @@ export function initPostForm() {
       DOM.paClassTestShowAllSubjects.checked = false;
     }
 
-    // Auto-fill dates with today
+    // Auto-fill dates with today and enforce minimum date to prevent selecting past dates
     const todayStr = new Date().toISOString().split('T')[0];
     DOM.paCancelDate.value = todayStr;
+    DOM.paCancelDate.min = todayStr;
+
     DOM.paHolidayStartDate.value = todayStr;
+    DOM.paHolidayStartDate.min = todayStr;
+
     DOM.paHolidayEndDate.value = todayStr;
+    DOM.paHolidayEndDate.min = todayStr;
+
+    DOM.paOnlineDate.value = todayStr;
+    DOM.paOnlineDate.min = todayStr;
+
+    DOM.paClassTestDate.value = todayStr;
+    DOM.paClassTestDate.min = todayStr;
 
     // Populate Subject dropdowns for cancellation + online class
     const subjects = new Set();
@@ -121,13 +132,11 @@ export function initPostForm() {
       .join('');
 
     DOM.paOnlineSubjectSelect.innerHTML = subjectOptions;
-    DOM.paOnlineDate.value = todayStr;
-    DOM.paClassTestDate.value = todayStr;
-    updateClassTestSubjects();
     DOM.paOnlineLink.value = '';
 
     // Populate cancel dropdown for today's date dynamically
     updateCancelSubjects();
+    updateClassTestSubjects();
 
     // Auto-fill times for the initial subject & date
     autoFillOnlineTimes();
@@ -173,6 +182,7 @@ export function initPostForm() {
     const name = DOM.paName.value.trim();
     const type = DOM.paType.value;
     const password = DOM.paPassword.value;
+    const todayStr = new Date().toISOString().split('T')[0];
 
     if (!name || !password) {
       showToast('Please fill out Name and Password.', 'warning');
@@ -209,6 +219,13 @@ export function initPostForm() {
         return;
       }
 
+      if (date < todayStr) {
+        showToast('Cannot schedule class cancellations for past dates.', 'warning');
+        DOM.postAnnounceSubmit.disabled = false;
+        DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
+        return;
+      }
+
       const formattedDate = new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       const title = `Class Cancelled: ${subject}`;
       const content = `Reminding you that the ${subject} class scheduled for ${formattedDate} is cancelled.`;
@@ -227,6 +244,13 @@ export function initPostForm() {
 
       if (!startDate) {
         showToast('Please select a Start Date.', 'warning');
+        DOM.postAnnounceSubmit.disabled = false;
+        DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
+        return;
+      }
+
+      if (startDate < todayStr) {
+        showToast('Cannot schedule holidays for past dates.', 'warning');
         DOM.postAnnounceSubmit.disabled = false;
         DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
         return;
@@ -273,11 +297,18 @@ export function initPostForm() {
       const subject = DOM.paOnlineSubjectSelect.value;
       const date = DOM.paOnlineDate.value;
       const platform = DOM.paOnlineLink.value.trim();
-      const startTime = DOM.paOnlineStart.value; // e.g. "09:45"
-      const endTime = DOM.paOnlineEnd.value; // e.g. "11:00"
+      const startTime = DOM.paOnlineStart.value;
+      const endTime = DOM.paOnlineEnd.value;
 
       if (!subject || !date || !startTime || !endTime) {
         showToast('Please select Subject, Date, Start Time, and End Time.', 'warning');
+        DOM.postAnnounceSubmit.disabled = false;
+        DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
+        return;
+      }
+
+      if (date < todayStr) {
+        showToast('Cannot schedule online classes for past dates.', 'warning');
         DOM.postAnnounceSubmit.disabled = false;
         DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
         return;
@@ -287,7 +318,6 @@ export function initPostForm() {
       const formattedEnd = format12h(endTime);
 
       const title = `Online Class: ${subject}`;
-      // Serialize start time, end time, and platform into content field as JSON
       const content = JSON.stringify({
         platform,
         start_time: formattedStart,
@@ -307,6 +337,13 @@ export function initPostForm() {
 
       if (!subject || !date) {
         showToast('Please select a Subject and Date.', 'warning');
+        DOM.postAnnounceSubmit.disabled = false;
+        DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
+        return;
+      }
+
+      if (date < todayStr) {
+        showToast('Cannot schedule exams for past dates.', 'warning');
         DOM.postAnnounceSubmit.disabled = false;
         DOM.postAnnounceSubmit.textContent = 'Publish & Notify';
         return;

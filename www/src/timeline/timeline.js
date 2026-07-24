@@ -29,10 +29,11 @@ export function renderTimeline(force = false) {
     DOM.timelineSubtitle.textContent = State.currentViewDayIdx === nextDay ? 'Tomorrow' : 'Viewing Schedule';
   }
 
+  const isLightMode = document.documentElement.getAttribute('data-color') === 'light';
+
   // Check holiday override for the day
   const holidayOverride = getOverrideFor(State.currentViewDayIdx);
   if (holidayOverride && holidayOverride.type === 'holiday') {
-    // Check if any class has an online_class override on this day
     const hasOnlineClasses = classes.some(c => {
       const ov = getOverrideFor(State.currentViewDayIdx, c.title);
       return ov && ov.type === 'online_class';
@@ -49,7 +50,6 @@ export function renderTimeline(force = false) {
       `;
       return;
     }
-    // Fall through to render class list so online classes appear mixed in
   }
 
   if (!classes.length) {
@@ -60,6 +60,22 @@ export function renderTimeline(force = false) {
   let html = '';
   let lastEndMins = null;
 
+  const onlineTheme = isLightMode
+    ? { bg: 'linear-gradient(135deg, #d1fae5, #a7f3d0)', border: '#059669', text: '#064e3b', badge: '#10b981' }
+    : { bg: 'linear-gradient(135deg, #052b1a, #073d26)', border: '#10b981', text: '#6ee7b7', badge: 'rgba(16, 185, 129, 0.25)' };
+
+  const cancelTheme = isLightMode
+    ? { bg: 'linear-gradient(135deg, #ffe4e6, #fecdd3)', border: '#e11d48', text: '#4c0519', badge: '#f43f5e' }
+    : { bg: 'linear-gradient(135deg, #1c0a0c, #3f0f13)', border: '#f43f5e', text: '#fca5a5', badge: 'rgba(244, 63, 94, 0.2)' };
+
+  const examTheme = isLightMode
+    ? { bg: 'linear-gradient(135deg, #ffedd5, #fed7aa)', border: '#ea580c', text: '#431407', badge: '#fb923c' }
+    : { bg: 'linear-gradient(135deg, #2d1506, #3d1f0a)', border: '#f97316', text: '#fdba74', badge: 'rgba(249, 115, 22, 0.30)' };
+
+  const breakTheme = isLightMode
+    ? { bg: 'linear-gradient(135deg, #f1f5f9, #e2e8f0)', border: '#94a3b8', text: '#0f172a', badge: '#cbd5e1' }
+    : { bg: 'linear-gradient(135deg, #18181b, #27272a)', border: '#3f3f46', text: '#a1a1aa', badge: 'rgba(255,255,255,0.05)' };
+
   classes.forEach((item, index) => {
     const startMins = toMinutes(item.start);
     const endMins = toMinutes(item.end);
@@ -68,13 +84,12 @@ export function renderTimeline(force = false) {
     if (lastEndMins !== null && startMins > lastEndMins) {
       const isActiveBreak = (State.currentViewDayIdx === realTodayIdx) && (currentMins >= lastEndMins && currentMins < startMins);
       const isPastBreak = (State.currentViewDayIdx === realTodayIdx) && (startMins <= currentMins);
-      const bt = { bg: 'linear-gradient(135deg, #18181b, #27272a)', border: '#3f3f46', text: '#a1a1aa', badge: 'rgba(255,255,255,0.05)' };
 
       html += `
-        <div class="ch${isActiveBreak ? ' ca' : ''}${isPastBreak ? ' cp' : ''}" style="animation-delay:${index * 0.07 - 0.03}s; background:${bt.bg}; border-color:${bt.border}; color:#fff">
-          <div class="cht" style="color:${bt.text}">${format12h(toTimeString(lastEndMins))}<br>${format12h(toTimeString(startMins))}</div>
-          <div class="chi"><span class="chn" style="color:#d4d4d8; font-style:italic;">Break Time</span><span class="chr" style="color:${bt.text}">Take a breather ☕</span></div>
-          <span class="ctb" style="background:${bt.badge}; color:#d4d4d8">BREAK</span>
+        <div class="ch${isActiveBreak ? ' ca' : ''}${isPastBreak ? ' cp' : ''}" style="animation-delay:${index * 0.07 - 0.03}s; background:${breakTheme.bg}; border-color:${breakTheme.border}; color:${breakTheme.text}">
+          <div class="cht" style="color:${breakTheme.text}">${format12h(toTimeString(lastEndMins))}<br>${format12h(toTimeString(startMins))}</div>
+          <div class="chi"><span class="chn" style="color:${breakTheme.text}; font-style:italic;">Break Time</span><span class="chr" style="color:${breakTheme.text}">Take a breather ☕</span></div>
+          <span class="ctb" style="background:${breakTheme.badge}; color:${breakTheme.text}">BREAK</span>
         </div>`;
     }
     lastEndMins = endMins;
@@ -84,15 +99,11 @@ export function renderTimeline(force = false) {
     const isCancelled = cancelOverride && cancelOverride.type === 'cancellation';
     const isOnline = cancelOverride && cancelOverride.type === 'online_class';
     const isClassTest = item.isExam || (cancelOverride && cancelOverride.type === 'class_test');
-    // If holiday day and NO override for this subject → it's cancelled by holiday
     const isHolidayCancelled = !isOnline && !isCancelled && holidayOverride && holidayOverride.type === 'holiday';
 
     const isActive = (State.currentViewDayIdx === realTodayIdx) && (currentMins >= startMins && currentMins < endMins);
     const isPast = (State.currentViewDayIdx === realTodayIdx) && (endMins <= currentMins);
 
-    const onlineTheme = { bg: 'linear-gradient(135deg, #052b1a, #073d26)', border: '#10b981', text: '#6ee7b7', badge: 'rgba(16, 185, 129, 0.25)' };
-    const cancelTheme = { bg: 'linear-gradient(135deg, #1c0a0c, #3f0f13)', border: '#f43f5e', text: '#fca5a5', badge: 'rgba(244, 63, 94, 0.2)' };
-    const examTheme = { bg: 'linear-gradient(135deg, #2d1506, #3d1f0a)', border: '#f97316', text: '#fdba74', badge: 'rgba(249, 115, 22, 0.30)' };
     const theme = isClassTest ? examTheme : isOnline ? onlineTheme : (isCancelled || isHolidayCancelled) ? cancelTheme : getSubjectTheme(item.title, item.type);
 
     const effectiveCancelled = isCancelled || isHolidayCancelled;
@@ -135,22 +146,22 @@ export function renderTimeline(force = false) {
     };
 
     html += `
-      <div class="ch${isActive && isOnline ? ' ca' : ''}${isActive && !isOnline && !effectiveCancelled ? ' ca' : ''}${isPast || effectiveCancelled ? ' cp' : ''}" style="animation-delay:${index * 0.07}s; background:${theme.bg}; border-color:${theme.border}; color:#fff" data-detail="${escapeHtml(JSON.stringify(detailsData))}">
+      <div class="ch${isActive && isOnline ? ' ca' : ''}${isActive && !isOnline && !effectiveCancelled ? ' ca' : ''}${isPast || effectiveCancelled ? ' cp' : ''}" style="animation-delay:${index * 0.07}s; background:${theme.bg}; border-color:${theme.border}; color:${theme.text}" data-detail="${escapeHtml(JSON.stringify(detailsData))}">
         <div class="cht" style="color:${theme.text}; text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">${format12h(item.start)}<br>${format12h(item.end)}</div>
         <div class="chi">
-          <span class="chn course-click-title" data-title="${item.title}" title="Click to view details" style="text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">${escapeHtml(truncateText(item.title, 10))}</span>
-          <span class="chr" style="color:${theme.text}">
+          <span class="chn course-click-title" data-title="${item.title}" title="Click to view details" style="color:${theme.text}; text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">${escapeHtml(truncateText(item.title, 10))}</span>
+          <span class="chr" style="color:${theme.text}; opacity: 0.9;">
             ${isClassTest
-              ? `<span style="color:#fdba74; font-weight:800; display:block;">Click to view topics</span>
+              ? `<span style="color:${theme.text}; font-weight:800; display:block;">Click to view topics</span>
                  <span style="font-size: 11px; opacity: 0.85;">${formatRoom(item.room) ? `Room ${formatRoom(item.room)}` : 'No room'} ${item.instructor ? `· ${item.instructor}` : ''}</span>`
               : isOnline
-              ? (platform ? `<span style="color:#6ee7b7; font-weight:800; display:block;">${escapeHtml(truncateText(platform, 10))}</span>` : '')
+              ? (platform ? `<span style="color:${theme.text}; font-weight:800; display:block;">${escapeHtml(truncateText(platform, 10))}</span>` : '')
               : effectiveCancelled
-                ? `<span style="color:var(--pink); font-weight:800;">${isHolidayCancelled ? 'HOLIDAY — NO CLASS' : 'CANCELLED'}</span>`
+                ? `<span style="color:${theme.text}; font-weight:800;">${isHolidayCancelled ? 'HOLIDAY — NO CLASS' : 'CANCELLED'}</span>`
                 : `${formatRoom(item.room)} ${item.instructor ? `· ${item.instructor}` : ''}`}
           </span>
         </div>
-        <span class="ctb" style="background:${theme.badge}; color:#fff">${isClassTest ? `📝 ${truncateText(examName, 10)}` : isOnline ? '📡 ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : item.type)}</span>
+        <span class="ctb" style="background:${theme.badge}; color:${theme.text}">${isClassTest ? `📝 ${truncateText(examName, 10)}` : isOnline ? '📡 ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : item.type)}</span>
       </div>`;
   });
 
