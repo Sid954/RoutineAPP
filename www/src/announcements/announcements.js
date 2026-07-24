@@ -1,6 +1,7 @@
 import { CONFIG } from '../core/config.js';
 import { State } from '../core/state.js';
 import { DOM } from '../core/dom.js';
+import { Storage } from '../storage/storage.js';
 import { showToast } from '../toast/toast.js';
 import { escapeHtml } from '../core/utils.js';
 import { NotificationLog } from '../notifications/notification-log.js';
@@ -43,10 +44,20 @@ export const Announcements = {
 
       const res = await fetch(`${CONFIG.apiBase || ''}/api/announcements`);
       if (!res.ok) throw new Error('Failed to fetch');
-      this.list = await res.json();
+      const rawList = await res.json();
+
+      const currentSem = (Storage.getSemester() || '').toString().toLowerCase();
+      const currentSec = (Storage.getSection() || '').toString().toLowerCase();
+
+      // Filter announcements to only show items matching user's active semester & section (or unscoped/global)
+      this.list = rawList.filter(item => {
+        const semMatch = !item.semester || item.semester.toString().toLowerCase() === currentSem;
+        const secMatch = !item.section || item.section.toString().toLowerCase() === currentSec;
+        return semMatch && secMatch;
+      });
       State.announcementsList = this.list;
 
-      // Persist to localStorage so next startup is instant
+      // Persist filtered list to localStorage so next startup is instant
       try { localStorage.setItem(this.CACHE_KEY, JSON.stringify(this.list)); } catch (e) {}
 
       // Trigger notifications for new announcements (only if cache had items before, to prevent startup spam)
@@ -197,7 +208,9 @@ export const Announcements = {
           subject: extras.subject || '',
           type: extras.type || 'general',
           date_override: extras.date_override || '',
-          subject_override: extras.subject_override || ''
+          subject_override: extras.subject_override || '',
+          semester: Storage.getSemester(),
+          section: Storage.getSection()
         })
       });
 

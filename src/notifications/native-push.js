@@ -11,13 +11,27 @@ export const NativePush = {
     return window.Capacitor && window.Capacitor.isNativePlatform();
   },
 
+  async registerToken(token) {
+    if (!token) return;
+    try {
+      await fetch(`${CONFIG.apiBase || ''}/api/register-token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token,
+          platform: 'android',
+          semester: Storage.getSemester(),
+          section: Storage.getSection()
+        })
+      });
+    } catch (e) {
+      console.warn('Register token error:', e);
+    }
+  },
+
   async init() {
     if (!this.isSupported()) return;
-    // PushNotifications.register() requires Firebase google-services.json on Android.
-    // Since Firebase is not configured in this build, we skip PushNotifications.register()
-    // to prevent native IllegalStateException / app process crash.
-    // LocalNotifications will handle all class reminders & announcement alerts locally.
-    console.log('NativePush initialized in LocalNotifications mode (PushNotifications skipped to prevent Firebase crash).');
+    console.log('NativePush initialized in LocalNotifications mode for Semester ' + Storage.getSemester() + ' Section ' + Storage.getSection() + '.');
   }
 };
 

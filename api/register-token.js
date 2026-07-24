@@ -29,17 +29,22 @@ module.exports = async (req, res) => {
   }
 
   if (req.method === 'POST') {
-    const { token, platform } = req.body || {};
+    const { token, platform, semester, section } = req.body || {};
 
     if (!token || !platform) {
       return res.status(400).json({ error: 'Missing token or platform details.' });
     }
 
     try {
-      // Upsert: Save or update the device token
+      // Upsert: Save or update the device token with semester and section
       const { data, error } = await supabase
         .from('device_tokens')
-        .upsert([{ token, platform }], { onConflict: 'token' })
+        .upsert([{ 
+          token, 
+          platform,
+          semester: semester || null,
+          section: section || null
+        }], { onConflict: 'token' })
         .select();
 
       if (error) throw error;

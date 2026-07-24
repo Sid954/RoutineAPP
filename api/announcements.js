@@ -69,7 +69,7 @@ module.exports = async (req, res) => {
 
   // POST: Publish a new announcement OR check password
   if (req.method === 'POST') {
-    const { name, title, announcement, password, subject, type, date_override, subject_override, checkPasswordOnly } = req.body || {};
+    const { name, title, announcement, password, subject, type, date_override, subject_override, semester, section, checkPasswordOnly } = req.body || {};
 
     const expectedPassword = process.env.ANNOUNCEMENT_PASSWORD || 'test123';
     if (password !== expectedPassword) {
@@ -85,7 +85,7 @@ module.exports = async (req, res) => {
     }
 
     try {
-      // 1. Insert into Supabase database
+      // 1. Insert into Supabase database with semester and section scoping
       const { data, error } = await supabase
         .from('announcements')
         .insert([{ 
@@ -95,56 +95,70 @@ module.exports = async (req, res) => {
           subject: subject || null, 
           type: type || 'general', 
           date_override: date_override || null, 
-          subject_override: subject_override || null 
+          subject_override: subject_override || null,
+          semester: semester || null,
+          section: section || null
         }])
         .select();
 
       if (error) throw error;
       const newAnnouncement = data[0];
 
-      // 2. Fetch device tokens to send push notifications
+      // 2. Fetch device tokens to send targeted FCM push notifications
       const { data: tokensData, error: tokensError } = await supabase
         .from('device_tokens')
-        .select('token');
+        .select('token, semester, section');
 
       if (!tokensError && tokensData && tokensData.length > 0 && firebaseApp) {
-        const tokens = tokensData.map(t => t.token);
-        
-        // FCM limit for multicast is 500 tokens per batch
-        const batchSize = 500;
-        const messagePayloads = [];
+        const targetSem = (semester || '').toString().toLowerCase();
+        const targetSec = (section || '').toString().toLowerCase();
 
-        for (let i = 0; i < tokens.length; i += batchSize) {
-          const batch = tokens.slice(i, i + batchSize);
-          const message = {
-            notification: {
-              title: `${name}: ${title}`,
-              body: announcement.length > 100 ? announcement.substring(0, 97) + '...' : announcement
-            },
-            data: {
-              type: 'announcement',
-              announcement_type: type || 'general',
-              id: String(newAnnouncement.id)
-            },
-            tokens: batch
-          };
-          messagePayloads.push(admin.messaging().sendEachForMulticast(message));
-        }
+        // Filter tokens so only students in target semester & section receive notification
+        const tokens = tokensData.filter(t => {
+          const semMatch = !targetSem || !t.semester || t.semester.toString().toLowerCase() === targetSem;
+          const secMatch = !targetSec || !t.section || t.section.toString().toLowerCase() === targetSec;
+          return semMatch && secMatch;
+        }).map(t => t.token);
 
-        // Run sending in parallel without blocking the response
-        Promise.all(messagePayloads)
-          .then(responses => {
-            let successCount = 0;
-            let failureCount = 0;
-            responses.forEach(resp => {
-              successCount += resp.successCount;
-              failureCount += resp.failureCount;
+        if (tokens.length > 0) {
+          // FCM limit for multicast is 500 tokens per batch
+          const batchSize = 500;
+          const messagePayloads = [];
+
+          for (let i = 0; i < tokens.length; i += batchSize) {
+            const batch = tokens.slice(i, i + batchSize);
+            const message = {
+              notification: {
+                title: `${name}: ${title}`,
+                body: announcement.length > 100 ? announcement.substring(0, 97) + '...' : announcement
+              },
+              data: {
+                type: 'announcement',
+                announcement_type: type || 'general',
+                id: String(newAnnouncement.id),
+                semester: String(semester || ''),
+                section: String(section || '')
+              },
+              tokens: batch
+            };
+            messagePayloads.push(admin.messaging().sendEachForMulticast(message));
+          }
+
+          // Run sending in parallel without blocking the response
+          Promise.all(messagePayloads)
+            .then(responses => {
+              let successCount = 0;
+              let failureCount = 0;
+              responses.forEach(resp => {
+                successCount += resp.successCount;
+                failureCount += resp.failureCount;
+              });
+              console.log(`Section FCM Notifications sent (${tokens.length} target devices). Successes: ${successCount}, Failures: ${failureCount}`);
+            })
+            .catch(err => {
+              console.error('Error sending multicast FCM notification:', err);
             });
-            console.log(`FCM Notifications sent. Successes: ${successCount}, Failures: ${failureCount}`);
-          })
-          .catch(err => {
-            console.error('Error sending multicast FCM notification:', err);
-          });
+        }
       }
 
       return res.status(201).json(newAnnouncement);
