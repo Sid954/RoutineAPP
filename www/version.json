@@ -1,6 +1,6 @@
 {
-  "versionCode": 8,
-  "versionName": "1.2.0",
+  "versionCode": 9,
+  "versionName": "1.2.1",
   "apkUrl": "https://github.com/sid954/RoutineAPP/releases/latest/download/app-release.apk",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
   "releaseNotes": "Official v1.2.0 Release — Major Design System Overhaul, High-Contrast Pearl Light Mode, Unread Announcements Red Blob Badge, Facebook-Style Pull-to-Refresh, Android Widget Theme Sync & Rich Push Notifications",
