@@ -37,6 +37,30 @@
   --sar: env(safe-area-inset-right, 0px);
 }
 
+/* GPU Acceleration & Mobile WebView Performance Optimizations */
+.ww, .w, .ch, .cc, .nc, .md, .mo, .announce-filter-pill, .ptr-indicator {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+@media (max-width: 600px) {
+  .ww {
+    animation: none !important;
+    background: linear-gradient(90deg, var(--accent), var(--pink)) !important;
+  }
+  .cc .pf {
+    animation: none !important;
+  }
+  .mo {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+  .md {
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+}
+
 /* Color Palette Themes */
 :root[data-color="dark"] {
   --bg: #06080d; --bg2: #0f121a; --card: #141824; --card2: #1b2030;
@@ -333,13 +357,30 @@ select.clean-select option,
 }
 :root[data-style="neumorphic"] button {
   border-radius: 20px !important;
-  background: var(--card) !important;
+  background: var(--card2) !important;
+  color: var(--text) !important;
   border: none !important;
-  box-shadow: 5px 5px 14px rgba(0,0,0,0.8), -5px -5px 14px rgba(255,255,255,0.03) !important;
+  box-shadow: 5px 5px 14px rgba(0,0,0,0.7), -5px -5px 14px rgba(255,255,255,0.03) !important;
   transition: all 0.2s ease !important;
 }
 :root[data-style="neumorphic"] button:active {
-  box-shadow: inset 4px 4px 10px rgba(0,0,0,0.9), inset -4px -4px 10px rgba(255,255,255,0.03) !important;
+  box-shadow: inset 3px 3px 8px rgba(0,0,0,0.8), inset -3px -3px 8px rgba(255,255,255,0.03) !important;
+}
+
+/* Primary Action Buttons in Neumorphic Mode MUST keep Theme Gradient & Text */
+:root[data-style="neumorphic"] #saveAllSettingsBtn,
+:root[data-style="neumorphic"] #saveNotifSettingsBtn,
+:root[data-style="neumorphic"] #welcomeGetStartedBtn,
+:root[data-style="neumorphic"] #postAnnounceSubmit,
+:root[data-style="neumorphic"] #checkUpdateBtn,
+:root[data-style="neumorphic"] .bp,
+:root[data-style="neumorphic"] .vrb,
+:root[data-style="neumorphic"] .install-btn,
+:root[data-style="neumorphic"] #confirmOkBtn {
+  background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink))) !important;
+  color: var(--btn-text, #ffffff) !important;
+  box-shadow: 6px 6px 16px rgba(0,0,0,0.6), -4px -4px 12px rgba(255,255,255,0.05) !important;
+  border: none !important;
 }
 
 /* ==========================================================================
@@ -374,17 +415,26 @@ select.clean-select option,
 :root[data-style="cyberpunk"] button {
   border-radius: 0px !important;
   border: 2px solid var(--accent) !important;
-  background: var(--card) !important;
-  color: var(--accent) !important;
+  background: var(--card2) !important;
+  color: var(--text) !important;
   font-family: var(--m) !important;
   text-transform: uppercase !important;
   letter-spacing: 1px !important;
   clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)) !important;
 }
-:root[data-style="cyberpunk"] button:hover {
-  background: var(--accent) !important;
-  color: #000000 !important;
-  box-shadow: 0 0 18px var(--accent) !important;
+:root[data-style="cyberpunk"] #saveAllSettingsBtn,
+:root[data-style="cyberpunk"] #saveNotifSettingsBtn,
+:root[data-style="cyberpunk"] #welcomeGetStartedBtn,
+:root[data-style="cyberpunk"] #postAnnounceSubmit,
+:root[data-style="cyberpunk"] #checkUpdateBtn,
+:root[data-style="cyberpunk"] .bp,
+:root[data-style="cyberpunk"] .vrb,
+:root[data-style="cyberpunk"] .install-btn,
+:root[data-style="cyberpunk"] #confirmOkBtn {
+  background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink))) !important;
+  color: var(--btn-text, #ffffff) !important;
+  border: 2px solid var(--accent) !important;
+  box-shadow: 0 0 16px var(--ag) !important;
 }
 
 /* ==========================================================================

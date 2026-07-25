@@ -9,6 +9,11 @@ import { format12h, formatRoom, toMinutes } from '../core/utils.js';
 export let _nativePush = null;
 export function setNativePush(np) { _nativePush = np; }
 
+function isCancelledClass(todayIdx, subjectTitle) {
+  const ov = getOverrideFor(todayIdx, subjectTitle);
+  return ov && ov.type === 'cancellation';
+}
+
 function buildReminderPayload(cls, settings, todayIdx) {
   const cancelOverride = getOverrideFor(todayIdx, cls.title);
   const isOnline = cancelOverride && cancelOverride.type === 'online_class';
@@ -31,7 +36,7 @@ function buildReminderPayload(cls, settings, todayIdx) {
 
   if (isExam) {
     let topics = cls.examTopics || '';
-    if (!topics && cancelOverride && cancelOverride.announcement.announcement) {
+    if (!topics && cancelOverride && cancelOverride.announcement && cancelOverride.announcement.announcement) {
       try {
         const parsed = JSON.parse(cancelOverride.announcement.announcement);
         topics = parsed.topics || 'Not Specified';
@@ -40,7 +45,7 @@ function buildReminderPayload(cls, settings, todayIdx) {
     if (topics) bodyText += `\n📚 Syllabus: ${topics}`;
   } else if (isOnline) {
     let link = '';
-    if (cancelOverride && cancelOverride.announcement.announcement) {
+    if (cancelOverride && cancelOverride.announcement && cancelOverride.announcement.announcement) {
       try {
         const parsed = JSON.parse(cancelOverride.announcement.announcement);
         link = parsed.platform || '';
@@ -89,7 +94,7 @@ function buildBriefingPayload(classes, isHoliday, holidayOverride, todayIdx) {
     };
   }
 
-  const activeClasses = classes.filter(c => !getOverrideFor(todayIdx, c.title));
+  const activeClasses = classes.filter(c => !isCancelledClass(todayIdx, c.title));
 
   if (!activeClasses.length) {
     return {
@@ -100,7 +105,7 @@ function buildBriefingPayload(classes, isHoliday, holidayOverride, todayIdx) {
   }
 
   let bodyText = `📊 ${activeClasses.length} Class${activeClasses.length !== 1 ? 'es' : ''} Scheduled Today:\n`;
-  activeClasses.slice(0, 5).forEach(c => {
+  activeClasses.forEach(c => {
     const cancelOverride = getOverrideFor(todayIdx, c.title);
     const isOnline = cancelOverride && cancelOverride.type === 'online_class';
     const isExam = c.isExam || (cancelOverride && cancelOverride.type === 'class_test');
@@ -109,10 +114,6 @@ function buildBriefingPayload(classes, isHoliday, holidayOverride, todayIdx) {
     const instStr = c.instructor ? ` · ${c.instructor}` : '';
     bodyText += `\n• ${format12h(c.start)} – ${format12h(c.end)}: ${c.title} (${typeTag}${instStr})`;
   });
-
-  if (activeClasses.length > 5) {
-    bodyText += `\n...and ${activeClasses.length - 5} more class(es)`;
-  }
 
   return { title: titleText, body: bodyText, iconColor };
 }
@@ -217,6 +218,8 @@ export const Notifications = {
             nativeNotifs.push({
               title: brief.title,
               body: brief.body,
+              largeBody: brief.body,
+              summaryText: `Section ${Storage.getSection().toUpperCase()} Timetable`,
               id: notifId++,
               schedule: { at: briefDate, allowWhileIdle: true },
               iconColor: brief.iconColor
@@ -228,8 +231,7 @@ export const Notifications = {
           classes.forEach((cls) => {
             const startMins = toMinutes(cls.start);
             const endMins = toMinutes(cls.end);
-            const cancelOverride = getOverrideFor(todayIdx, cls.title);
-            if (cancelOverride && cancelOverride.type === 'cancellation') return;
+            if (isCancelledClass(todayIdx, cls.title)) return;
 
             // Pre-class / Pre-exam Reminder
             const alertMins = startMins - settings.leadTime;
@@ -241,6 +243,7 @@ export const Notifications = {
               nativeNotifs.push({
                 title: payload.title,
                 body: payload.body,
+                largeBody: payload.body,
                 id: notifId++,
                 schedule: { at: alertDate, allowWhileIdle: true },
                 iconColor: payload.iconColor
@@ -256,6 +259,7 @@ export const Notifications = {
               nativeNotifs.push({
                 title: payload.title,
                 body: payload.body,
+                largeBody: payload.body,
                 id: notifId++,
                 schedule: { at: startDate, allowWhileIdle: true },
                 iconColor: payload.iconColor
@@ -270,7 +274,7 @@ export const Notifications = {
                 endAlertDate.setHours(Math.floor(endAlertMins / 60), endAlertMins % 60, 0, 0);
 
                 let nextClassInfo = 'Free time after this!';
-                const remaining = classes.filter(c => toMinutes(c.start) >= endMins && !getOverrideFor(todayIdx, c.title));
+                const remaining = classes.filter(c => toMinutes(c.start) >= endMins && !isCancelledClass(todayIdx, c.title));
                 if (remaining.length) {
                   nextClassInfo = `Next up: ${remaining[0].title} at ${format12h(remaining[0].start)} in Room ${formatRoom(remaining[0].room)}`;
                 }
@@ -279,6 +283,7 @@ export const Notifications = {
                 nativeNotifs.push({
                   title: titleText,
                   body: nextClassInfo,
+                  largeBody: nextClassInfo,
                   id: notifId++,
                   schedule: { at: endAlertDate, allowWhileIdle: true },
                   iconColor: '#a78bfa'
@@ -289,7 +294,7 @@ export const Notifications = {
 
           // Day Complete
           if (settings.dayDoneEnabled !== false && classes.length > 0) {
-            const activeClasses = classes.filter(c => !getOverrideFor(todayIdx, c.title));
+            const activeClasses = classes.filter(c => !isCancelledClass(todayIdx, c.title));
             if (activeClasses.length > 0) {
               const lastClass = activeClasses[activeClasses.length - 1];
               const lastEndMins = toMinutes(lastClass.end);
@@ -301,6 +306,7 @@ export const Notifications = {
                 nativeNotifs.push({
                   title: titleText,
                   body: bodyText,
+                  largeBody: bodyText,
                   id: notifId++,
                   schedule: { at: doneDate, allowWhileIdle: true },
                   iconColor: '#34d399'
@@ -317,6 +323,7 @@ export const Notifications = {
             const safeNotifs = nativeNotifs.map(n => ({
               title: n.title,
               body: n.body,
+              largeBody: n.largeBody,
               id: n.id,
               schedule: { at: n.schedule.at },
               iconColor: n.iconColor
@@ -346,8 +353,7 @@ export const Notifications = {
           classes.forEach((cls) => {
             const startMins = toMinutes(cls.start);
             const endMins = toMinutes(cls.end);
-            const cancelOverride = getOverrideFor(todayIdx, cls.title);
-            if (cancelOverride && cancelOverride.type === 'cancellation') return;
+            if (isCancelledClass(todayIdx, cls.title)) return;
 
             // Pre-class / Pre-exam Reminder
             const alertMins = startMins - settings.leadTime;
@@ -377,7 +383,7 @@ export const Notifications = {
                 const delay = (endAlertMins - now) * 60000;
                 this.timeouts.push(setTimeout(() => {
                   let nextInfo = 'Free time after this!';
-                  const remaining = classes.filter(c => toMinutes(c.start) >= endMins && !getOverrideFor(todayIdx, c.title));
+                  const remaining = classes.filter(c => toMinutes(c.start) >= endMins && !isCancelledClass(todayIdx, c.title));
                   if (remaining.length) nextInfo = `Next up: ${remaining[0].title} at ${format12h(remaining[0].start)} in Room ${formatRoom(remaining[0].room)}`;
                   const title = `⌛ 5 MIN REMAINING: ${cls.title}`;
                   this.show(title, nextInfo);
@@ -389,7 +395,7 @@ export const Notifications = {
 
           // Day Complete
           if (settings.dayDoneEnabled !== false && classes.length > 0) {
-            const activeClasses = classes.filter(c => !getOverrideFor(todayIdx, c.title));
+            const activeClasses = classes.filter(c => !isCancelledClass(todayIdx, c.title));
             if (activeClasses.length > 0) {
               const lastClass = activeClasses[activeClasses.length - 1];
               const lastEndMins = toMinutes(lastClass.end);
@@ -458,6 +464,8 @@ export const Notifications = {
             notifications: [{
               title,
               body,
+              largeBody: body,
+              summaryText: type === 'morning_briefing' ? `Section ${Storage.getSection().toUpperCase()} Timetable` : '',
               id: Math.floor(Math.random() * 1000000),
               iconColor: type === 'class_test' ? '#f97316' : (type === 'online_class' ? '#10b981' : (type === 'cancellation' ? '#f43f5e' : '#38bdf8'))
             }]

@@ -10,21 +10,25 @@ export const Particles = {
   _lastFrameTime: 0,
   _touchPaused: false,
   _touchResumeTimer: null,
+  _isMobile: false,
 
   init() {
     DOM.canvas.width = window.innerWidth;
     DOM.canvas.height = window.innerHeight;
+    this._isMobile = window.innerWidth < 600 || (window.Capacitor && window.Capacitor.isNativePlatform());
     this.items = [];
-    const count = window.innerWidth < 500 ? CONFIG.particles.countMobile : CONFIG.particles.countDesktop;
+
+    // On mobile devices, drastically reduce particle count to preserve GPU/CPU performance
+    const count = this._isMobile ? 10 : CONFIG.particles.countDesktop;
     for (let i = 0; i < count; i++) {
       this.items.push({
         x: Math.random() * DOM.canvas.width,
         y: Math.random() * DOM.canvas.height,
-        vx: (Math.random() - 0.5) * 0.25,
-        vy: (Math.random() - 0.5) * 0.25,
-        r: Math.random() * 1.5 + 0.5,
+        vx: (Math.random() - 0.5) * 0.2,
+        vy: (Math.random() - 0.5) * 0.2,
+        r: Math.random() * 1.2 + 0.5,
         c: CONFIG.particles.colors[Math.floor(Math.random() * CONFIG.particles.colors.length)],
-        a: Math.random() * 0.35 + 0.08
+        a: Math.random() * 0.3 + 0.08
       });
     }
     this._bindTouchPause();
@@ -52,21 +56,24 @@ export const Particles = {
   },
 
   render(timestamp) {
-    // Stop rendering loop when modal is open, tab is hidden, or touch-paused
     if (State.isModalOpen || document.hidden || this._touchPaused) {
       this.stop();
       return;
     }
 
+    // Throttle rendering: 30 FPS target on mobile, 60 FPS on desktop
+    const minInterval = this._isMobile ? 33 : 16;
+    const elapsed = timestamp - this._lastFrameTime;
+    if (elapsed < minInterval) {
+      this.rafId = requestAnimationFrame((t) => this.render(t));
+      return;
+    }
+    this._lastFrameTime = timestamp;
+
     const { ctx, items } = this;
     const w = DOM.canvas.width;
     const h = DOM.canvas.height;
     const maxDistSq = CONFIG.particles.maxDistance * CONFIG.particles.maxDistance;
-
-    // Frame-skip: measure delta time, skip line drawing if FPS < 50
-    const dt = timestamp - this._lastFrameTime;
-    this._lastFrameTime = timestamp;
-    const skipLines = dt > 20; // frame took >20ms = below 50fps
 
     ctx.clearRect(0, 0, w, h);
 
@@ -83,7 +90,7 @@ export const Particles = {
       colorGroups[key].push(p);
     }
 
-    // Draw all dots batched by color (single beginPath per color)
+    // Draw all dots batched by color
     for (const key in colorGroups) {
       ctx.beginPath();
       const group = colorGroups[key];
@@ -96,8 +103,8 @@ export const Particles = {
       ctx.fill();
     }
 
-    // Draw connection lines in single batched stroke (skip if FPS is low)
-    if (!skipLines) {
+    // Connection lines only on desktop to eliminate O(N^2) canvas calculations on mobile
+    if (!this._isMobile) {
       ctx.beginPath();
       ctx.strokeStyle = 'rgba(56,189,248,0.04)';
       ctx.lineWidth = 0.5;
@@ -123,5 +130,4 @@ export const Particles = {
   stop() { cancelAnimationFrame(this.rafId); this.rafId = null; }
 };
 
-// Register Particles with the modal module so openModal/closeModal can stop/start it
 setParticlesRef(Particles);
