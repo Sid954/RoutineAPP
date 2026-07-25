@@ -218,6 +218,27 @@ select option {
   transition: transform 0.15s active, box-shadow var(--t) !important;
 }
 
+/* PC Download Android APK Button */
+.download-apk-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink)));
+  color: var(--btn-text, #ffffff) !important;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  border: none;
+  box-shadow: 0 4px 14px var(--ag);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.download-apk-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px var(--ag);
+}
+
 /* Announcement Category Filter Pills */
 .announce-filter-pill {
   padding: 5px 12px;

@@ -271,8 +271,12 @@ initServiceWorker();
 
 import { initPullToRefresh } from './events/pull-to-refresh.js';
 import { checkFirstTimeOnboarding } from './events/onboarding.js';
+import { initAndroidPrompt } from './banners/android-prompt.js';
+import { initWidgetPinningUI } from './widget/widget.js';
 
 /* ── Boot ─────────────────────────────────────────────────────── */
 initPullToRefresh();
 initializeApp();
 checkFirstTimeOnboarding();
+initAndroidPrompt();
+initWidgetPinningUI();

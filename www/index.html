@@ -87,6 +87,9 @@
             <div class="dr"><span id="dayD">Wednesday</span><span class="db" id="dateD">Jul 11</span></div>
           </div>
           <div class="hd-actions">
+            <a class="download-apk-btn" id="pcDownloadApkBtn" href="https://github.com/sid954/RoutineAPP/releases/latest/download/app-release.apk" target="_blank" title="Download Android App" style="display: none;">
+              <span>📱 Download App</span>
+            </a>
             <button class="hd-btn" id="announcementsBtn" title="Announcements" style="position: relative;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h2"/><path d="M6 9h9l5-5v16l-5-5H6V9z"/><path d="M3 11h3v4H3v-4z"/></svg>
               <span class="announce-badge-blob" id="announceBadge" style="display:none;"></span>
@@ -382,6 +385,20 @@
             </div>
           </div>
 
+          <!-- Card 4: Android Home Screen Widget Pinning -->
+          <div id="widgetPinSection" style="background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: var(--rx); padding: 14px; margin-top: 12px; display: none;">
+            <div style="font-size: 11px; font-weight: 800; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+              <span>📲 Home Screen Timetable Widget</span>
+            </div>
+            <p style="font-size: 12px; color: var(--dim); margin-bottom: 12px; line-height: 1.45;">
+              Pin the live timetable widget directly to your Android home screen for instant class tracking.
+            </p>
+            <button id="pinWidgetBtn" style="width: 100%; height: 40px; font-size: 13px; padding: 0 12px; border-radius: var(--rx); background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink))); color: var(--btn-text, #fff); font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px var(--ag);">
+              <span>📲 Add Widget to Home Screen</span>
+            </button>
+            <div id="widgetFeedbackBox" style="display: none; margin-top: 12px; padding: 12px; border-radius: var(--rx); font-size: 12px; line-height: 1.5; text-align: left;"></div>
+          </div>
+
         </div>
 
         <div style="margin-top: 18px;">
@@ -669,6 +686,34 @@
       <!-- Action Button -->
       <button id="welcomeGetStartedBtn" style="width: 100%; height: 44px; border-radius: var(--rx); background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink))); color: var(--btn-text, #fff); font-family: var(--f); font-weight: 800; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 4px 18px var(--ag); transition: transform 0.15s active;">🚀 Save & Get Started</button>
 
+    </div>
+  </div>
+
+  <!-- Android Native App Promotion Modal -->
+  <div class="mo" id="androidAppModal" style="display: none;">
+    <div class="md" style="max-width: 420px; text-align: center; padding: 24px; position: relative;">
+      <button class="cls" id="androidAppModalClose" style="position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 30px; height: 30px; line-height: 28px; cursor: pointer;">&times;</button>
+      <div style="font-size: 42px; margin-bottom: 8px;">📱</div>
+      <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 6px; color: var(--text);">Use the Android App!</h3>
+      <p style="font-size: 13px; color: var(--dim); margin-bottom: 18px;">
+        Get the best experience with full Android integration and background alerts.
+      </p>
+
+      <div style="text-align: left; background: var(--card2); padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 18px; font-size: 13px; line-height: 1.5;">
+        <div style="margin-bottom: 6px; color: var(--text);">🔔 <strong>Push Notifications</strong> — Briefings & class alerts</div>
+        <div style="margin-bottom: 6px; color: var(--text);">📲 <strong>Homescreen Widget</strong> — Live timetable widget</div>
+        <div style="margin-bottom: 6px; color: var(--text);">📴 <strong>Offline Support</strong> — Works 100% offline</div>
+        <div style="color: var(--text);">🚀 <strong>And More...</strong></div>
+      </div>
+
+      <div style="display: flex; gap: 10px; flex-direction: column;">
+        <a class="bp" id="androidAppModalDownloadBtn" href="https://github.com/sid954/RoutineAPP/releases/latest/download/app-release.apk" target="_blank" style="text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; width: 100%; height: 44px; font-weight: 800; border-radius: var(--rx);">
+          📥 Download Android APK
+        </a>
+        <button class="bd" id="androidAppModalSkipBtn" style="background: transparent; border: 1px solid var(--border); color: var(--dim); font-weight: 700; height: 38px; border-radius: var(--rx); cursor: pointer;">
+          Continue on Web
+        </button>
+      </div>
     </div>
   </div>
 

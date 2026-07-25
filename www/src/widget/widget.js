@@ -2,6 +2,7 @@ import { State } from '../core/state.js';
 import { getClassesForDay } from '../schedule/queries.js';
 import { getOverrideFor } from '../announcements/overrides.js';
 import { toMinutes, format12h, getCurrentMinutes, formatRoom, pad } from '../core/utils.js';
+import { showToast } from '../toast/toast.js';
 
 export async function updateNativeWidget() {
   if (!window.Capacitor || !window.Capacitor.isNativePlatform()) return;
@@ -160,5 +161,71 @@ export async function updateNativeWidget() {
     });
   } catch (err) {
     console.warn('Widget update skipped:', err);
+  }
+}
+
+export function initWidgetPinningUI() {
+  const pinSection = document.getElementById('widgetPinSection');
+  const pinBtn = document.getElementById('pinWidgetBtn');
+  const feedbackBox = document.getElementById('widgetFeedbackBox');
+
+  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+    if (pinSection) pinSection.style.display = 'block';
+  }
+
+  if (pinBtn) {
+    pinBtn.addEventListener('click', async () => {
+      if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+        try {
+          await updateNativeWidget();
+          const { WidgetPlugin } = window.Capacitor.Plugins;
+          if (WidgetPlugin && WidgetPlugin.pinWidget) {
+            const res = await WidgetPlugin.pinWidget();
+            if (res && res.requested) {
+              showToast('Widget prompt opened! Tap "Add automatically".', 'success');
+              if (feedbackBox) {
+                feedbackBox.style.display = 'block';
+                feedbackBox.style.background = 'rgba(251, 191, 36, 0.12)';
+                feedbackBox.style.border = '1px solid rgba(251, 191, 36, 0.35)';
+                feedbackBox.style.color = '#fbbf24';
+                feedbackBox.innerHTML = `
+                  <div style="font-weight: 800; font-size: 13px; margin-bottom: 6px;">💡 How to Add Widget Manually:</div>
+                  <div style="margin-bottom: 4px;">1. Go to your Android Home Screen</div>
+                  <div style="margin-bottom: 4px;">2. Touch & hold any empty space → Tap <strong>Widgets</strong></div>
+                  <div>3. Scroll to <strong>My Routine</strong> and drag it onto your screen!</div>
+                `;
+              }
+              //   feedbackBox.style.display = 'block';
+              //   feedbackBox.style.background = 'rgba(16, 185, 129, 0.12)';
+              //   feedbackBox.style.border = '1px solid rgba(16, 185, 129, 0.35)';
+              //   feedbackBox.style.color = '#34d399';
+              //   feedbackBox.innerHTML = `
+              //     <div style="font-weight: 800; font-size: 13px; margin-bottom: 4px;">🎉 Widget Pin Prompt Displayed!</div>
+              //     <div>Tap <strong>"Add to home screen"</strong> or <strong>Touch and Hold the widget to add</strong> </div>
+              //   `;
+              // }
+            } else {
+              showToast('Dynamic pinning blocked by launcher. See manual steps below.', 'info');
+              if (feedbackBox) {
+                feedbackBox.style.display = 'block';
+                feedbackBox.style.background = 'rgba(251, 191, 36, 0.12)';
+                feedbackBox.style.border = '1px solid rgba(251, 191, 36, 0.35)';
+                feedbackBox.style.color = '#fbbf24';
+                feedbackBox.innerHTML = `
+                  <div style="font-weight: 800; font-size: 13px; margin-bottom: 6px;">💡 How to Add Widget Manually:</div>
+                  <div style="margin-bottom: 4px;">1. Go to your Android Home Screen</div>
+                  <div style="margin-bottom: 4px;">2. Touch & hold any empty space → Tap <strong>Widgets</strong></div>
+                  <div>3. Scroll to <strong>My Routine</strong> and drag it onto your screen!</div>
+                `;
+              }
+            }
+          }
+        } catch (e) {
+          showToast('Could not pin widget: ' + e.message, 'error');
+        }
+      } else {
+        showToast('Home Screen Widget is available in the Android Native App!', 'info');
+      }
+    });
   }
 }
