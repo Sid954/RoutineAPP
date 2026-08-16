@@ -17,6 +17,7 @@ export const DOM = {
   statStreak: $id('statStreak'),
 
   // Current class card
+  currentCard: $id('cc'),
   currentTitle: $id('cT'),
   currentRoom: $id('cR'),
   currentTimeRange: $id('cTR'),
@@ -25,6 +26,7 @@ export const DOM = {
   currentRemaining: $id('cRm'),
 
   // Next class card
+  nextCard: $id('nc'),
   nextTitle: $id('nT'),
   nextEta: $id('nE'),
   nextRoom: $id('nR'),

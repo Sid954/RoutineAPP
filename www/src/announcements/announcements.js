@@ -161,22 +161,20 @@ export const Announcements = {
     categoryOrder.forEach(cat => {
       if (!groups[cat] || groups[cat].length === 0) return;
 
-      const isNewGroup = cat === '🆕 New Announcements';
-      const headerColor = isNewGroup ? 'var(--pink)' : 'var(--accent2)';
-
       html += `
-        <div class="announce-group-header" style="margin-top: 16px; margin-bottom: 8px; font-size: 11px; font-weight: 800; color: ${headerColor}; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+        <div class="announce-group-header">
           <span>${cat}</span>
-          <span style="font-size: 9.5px; background: rgba(255,255,255,0.06); padding: 2px 7px; border-radius: 99px; color: var(--dim);">${groups[cat].length}</span>
+          <span class="announce-group-badge">${groups[cat].length}</span>
         </div>
       `;
 
       groups[cat].forEach(({ item, isUnread }) => {
         const dateObj = new Date(item.created_at);
-        const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' · ' + dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         const meta = typeMeta[item.type] || typeMeta.general;
         
-        let cardBodyHtml = `<div class="announce-card-body" style="font-size: 12.5px; line-height: 1.5; color: var(--text); white-space: pre-wrap; margin-top: 6px;">${escapeHtml(item.announcement)}</div>`;
+        // Default: show raw announcement text. Special types override below.
+        let cardBodyHtml = `<div class="announce-card-body" style="font-size: 12.5px; line-height: 1.5; color: var(--text); white-space: pre-wrap; margin-top: 6px;">${escapeHtml(item.announcement || '')}</div>`;
 
         if (item.type === 'online_class') {
           try {
@@ -185,11 +183,11 @@ export const Announcements = {
             const isUrl = platformStr.startsWith('http://') || platformStr.startsWith('https://');
 
             cardBodyHtml = `
-              <div style="margin-top: 8px; background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.3); border-radius: var(--rx); padding: 10px 12px;">
-                <div style="font-size: 12px; font-weight: 700; color: #34d399; margin-bottom: 4px;">🕒 ${parsed.start_time || '—'} – ${parsed.end_time || '—'}</div>
+              <div style="margin-top: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-left: 4px solid #10b981; border-radius: 10px; padding: 10px 14px;">
+                <div style="font-size: 13px; font-weight: 800; color: #34d399; margin-bottom: 4px;">🕒 ${parsed.start_time || '—'} – ${parsed.end_time || '—'}</div>
                 ${platformStr ? `<div style="font-size: 11.5px; color: var(--dim); word-break: break-all;">📡 ${escapeHtml(platformStr)}</div>` : ''}
                 ${isUrl ? `
-                <a href="${platformStr}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; padding: 6px 14px; border-radius: var(--rx); background: #10b981; color: #000; font-weight: 800; font-size: 11.5px; text-decoration: none; box-shadow: 0 2px 10px rgba(16,185,129,0.3);">
+                <a href="${platformStr}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 6px 14px; border-radius: 8px; background: #10b981; color: #000; font-weight: 800; font-size: 11.5px; text-decoration: none; box-shadow: 0 2px 10px rgba(16,185,129,0.3);">
                   🚀 Join Online Class
                 </a>` : ''}
               </div>
@@ -199,30 +197,31 @@ export const Announcements = {
           try {
             const parsed = JSON.parse(item.announcement);
             cardBodyHtml = `
-              <div style="margin-top: 8px; background: rgba(249, 115, 22, 0.06); border: 1px dashed rgba(249, 115, 22, 0.35); border-radius: var(--rx); padding: 10px 12px;">
-                <div style="font-size: 12.5px; font-weight: 800; color: #fb923c; margin-bottom: 4px;">📝 ${escapeHtml(parsed.exam_name || 'Class Test')}</div>
-                <div style="font-size: 11.5px; color: var(--text); line-height: 1.4; white-space: pre-wrap;">📚 Syllabus: ${escapeHtml(parsed.topics || 'Not Specified')}</div>
+              <div style="margin-top: 8px; background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.25); border-left: 4px solid #f97316; border-radius: 10px; padding: 10px 14px;">
+                <div style="font-size: 13px; font-weight: 800; color: #fb923c; margin-bottom: 4px;">📝 ${escapeHtml(parsed.exam_name || 'Class Test')}</div>
+                <div style="font-size: 12px; color: var(--text); line-height: 1.5; white-space: pre-wrap;">📚 Syllabus: ${escapeHtml(parsed.topics || 'Not Specified')}</div>
               </div>
             `;
           } catch (e) {}
         }
 
         html += `
-          <div class="announce-card" style="border-left: 3.5px solid ${isUnread ? 'var(--pink)' : meta.color}; ${isUnread ? 'background: rgba(244, 63, 94, 0.06); box-shadow: 0 0 16px rgba(244,63,94,0.15);' : ''}">
-            <div class="announce-card-h" style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div style="flex:1; min-width:0;">
-                <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; flex-wrap:wrap;">
-                  ${isUnread ? `<span style="font-size:9.5px; font-weight:800; padding:2px 7px; border-radius:99px; background:var(--pink); color:#fff; white-space:nowrap;">NEW</span>` : ''}
-                  <span style="font-size:10px; font-weight:700; padding:2px 8px; border-radius:99px; background:${meta.bg}; color:${meta.color}; white-space:nowrap;">${meta.label}</span>
-                  ${item.date_override ? `<span style="font-size:10px; color:var(--dim); font-weight:600;">📅 ${item.date_override}</span>` : ''}
+          <div class="announce-card ${isUnread ? 'unread' : ''}">
+            <div class="announce-card-h">
+              <div style="flex: 1; min-width: 0;">
+                <div class="announce-badges-row">
+                  ${isUnread ? `<span class="announce-type-tag" style="background: rgba(244,63,94,0.15); color: var(--pink);">✨ NEW</span>` : ''}
+                  <span class="announce-type-tag" style="background: ${meta.bg}; color: ${meta.color};">${meta.label}</span>
+                  ${item.date_override ? `<span class="announce-date-pill">📅 ${item.date_override}</span>` : ''}
                 </div>
-                <div class="announce-card-title" style="font-size: 14.5px; font-weight: 800; color: var(--text); letter-spacing: -0.2px;">${escapeHtml(item.title)}</div>
-                <div style="display: flex; align-items: center; gap: 6px; margin-top: 3px;">
-                  <span style="font-size: 11px; font-weight: 700; color: var(--accent2);">👤 ${escapeHtml(item.name)}</span>
-                  <span style="font-size: 10px; color: var(--dim);">• ${dateStr}</span>
+                <div class="announce-card-title">${escapeHtml(item.title)}</div>
+                <div class="announce-author-row">
+                  <span class="announce-author-name">👤 ${escapeHtml(item.name)}</span>
+                  <span>·</span>
+                  <span>${dateStr}</span>
                 </div>
               </div>
-              <button class="delete-announce-btn" data-id="${item.id}" style="background: none; border: none; color: var(--pink); font-size: 14px; cursor: pointer; padding: 4px 8px; opacity: 0.6; transition: opacity 0.2s;" title="Delete Announcement">✕</button>
+              <button class="delete-announce-btn" data-id="${item.id}" title="Delete Announcement">✕</button>
             </div>
             ${cardBodyHtml}
           </div>

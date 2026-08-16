@@ -38,10 +38,16 @@ if (rotateFab) {
 }
 
 /* ── Notification Settings modal ──────────────────────────────── */
-document.getElementById('notifSettingsBtn').addEventListener('click', () => {
-  openModal(DOM.notifModal, () => Notifications.updatePermissionUI());
-});
-document.getElementById('notifModalClose').addEventListener('click', () => closeModal(DOM.notifModal));
+const notifSettingsBtn = document.getElementById('notifSettingsBtn');
+if (notifSettingsBtn) {
+  notifSettingsBtn.addEventListener('click', () => {
+    openModal(DOM.notifModal, () => Notifications.updatePermissionUI());
+  });
+}
+const notifModalClose = document.getElementById('notifModalClose');
+if (notifModalClose) {
+  notifModalClose.addEventListener('click', () => closeModal(DOM.notifModal));
+}
 
 
 /* ── Dynamic feature imports (parallel for faster boot) ───────── */

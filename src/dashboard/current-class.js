@@ -93,10 +93,18 @@ export function renderCurrentClass() {
         DOM.currentRemaining.textContent = 'Almost done!';
       }
     }
+    if (DOM.currentCard) {
+      DOM.currentCard.classList.remove('free-time');
+      DOM.currentCard.classList.add('in-class');
+    }
   } else {
     progressSection.style.display = 'none';
     roomPill.parentElement.style.display = 'none';
     timePill.style.display = 'none';
-    DOM.currentTitle.textContent = 'Free Time ';
+    DOM.currentTitle.textContent = 'Free Time 🌴';
+    if (DOM.currentCard) {
+      DOM.currentCard.classList.add('free-time');
+      DOM.currentCard.classList.remove('in-class');
+    }
   }
 }

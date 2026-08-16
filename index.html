@@ -28,6 +28,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="src/main.css">
+  <script>
+    (function() {
+      try {
+        var savedTheme = localStorage.getItem('puc_app_theme') || 'midnight';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      } catch(e) {}
+    })();
+  </script>
 </head>
 <body>
 
@@ -179,16 +187,22 @@
       </div>
 
       <!-- Section: App Theme & Appearance -->
-      <div style="padding: 0 24px; margin-top: 15px; margin-bottom: 12px;">
-        <div style="font-size: 11px; font-weight: 800; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">🎨 App Theme & Style</div>
-        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-          <div style="flex: 1; min-width: 130px;">
-            <label style="display: block; font-size: 10px; font-weight: 700; color: var(--dim); margin-bottom: 6px;">Design Style</label>
-            <select id="themeStyleSelect" class="clean-select"></select>
+      <div style="padding: 0 24px; margin-top: 15px; margin-bottom: 18px;">
+        <div style="font-size: 11px; font-weight: 800; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;">🎨 App Theme & Visual Style</div>
+        
+        <!-- Design Interface Style Segmented Tabs -->
+        <div style="margin-bottom: 14px;">
+          <label style="display: block; font-size: 10px; font-weight: 700; color: var(--dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Design Interface Style</label>
+          <div class="theme-style-segmented" id="themeStyleSegmented">
+            <!-- Rendered dynamically -->
           </div>
-          <div style="flex: 1; min-width: 130px;">
-            <label style="display: block; font-size: 10px; font-weight: 700; color: var(--dim); margin-bottom: 6px;">Color Palette</label>
-            <select id="themeColorSelect" class="clean-select"></select>
+        </div>
+
+        <!-- Color Palette & AMOLED Mode Grid -->
+        <div>
+          <label style="display: block; font-size: 10px; font-weight: 700; color: var(--dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Color Palette & AMOLED Mode</label>
+          <div class="theme-palette-grid" id="themePaletteGrid">
+            <!-- Rendered dynamically -->
           </div>
         </div>
       </div>
@@ -293,30 +307,35 @@
   </div>
 
   <!-- Modal: Notification Settings -->
+  <!-- Modal: Notifications -->
   <div class="mo" id="notifModal">
-    <div class="md" style="max-width: 440px; padding-bottom: 20px;">
+    <div class="md" style="max-width: 440px; padding-bottom: 22px;">
       <div class="md-h">
         <h2>Notifications</h2>
         <button class="cls" id="notifModalClose">✕</button>
       </div>
-      <div class="md-sb" style="display: flex; justify-content: space-between; align-items: center;">
-        <span>Configure class reminders & alerts</span>
-        <span id="notifPermStatus" style="font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 99px; background: rgba(255,255,255,0.06); color: var(--accent2); font-family: var(--m);">Checking...</span>
+      <div class="md-sb" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <span style="font-size: 12px; color: var(--dim);">Configure class reminders & alerts</span>
+        <span id="notifPermStatus" style="font-size: 10.5px; font-weight: 800; padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,0.06); color: var(--accent2); font-family: var(--m);">Checking...</span>
       </div>
 
-      <div class="mf" style="border-top:none; padding-top: 14px; padding-bottom: 0;">
-        <div class="notif-settings" style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="mf" style="border-top:none; padding: 0;">
+        <div class="notif-settings">
           
-          <!-- Card 1: Master Toggle & Lead Time -->
-          <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: var(--rx); padding: 14px;">
-            <div style="font-size: 11px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+          <!-- Group 1: Class Start Reminders -->
+          <div class="notif-group-card">
+            <div class="notif-group-header">
               <span>🔔 Class Start Reminders</span>
             </div>
 
-            <div class="notif-setting-row" style="margin-bottom: 12px;">
-              <div class="notif-setting-info">
-                <span class="notif-setting-title">Enable Reminders</span>
-                <span class="notif-setting-desc">Get notified before classes start</span>
+            <!-- Row: Enable Master Reminders -->
+            <div class="notif-setting-row">
+              <div class="notif-row-left">
+                <div class="notif-icon-box blue">⏰</div>
+                <div class="notif-setting-info">
+                  <span class="notif-setting-title">Enable Reminders</span>
+                  <span class="notif-setting-desc">Get notified before classes start</span>
+                </div>
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" id="notifToggle">
@@ -324,12 +343,16 @@
               </label>
             </div>
 
-            <div class="notif-setting-row" style="padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
-              <div class="notif-setting-info">
-                <span class="notif-setting-title">Alert Lead Time</span>
-                <span class="notif-setting-desc">How early to notify before class</span>
+            <!-- Row: Alert Lead Time -->
+            <div class="notif-setting-row">
+              <div class="notif-row-left">
+                <div class="notif-icon-box purple">⏳</div>
+                <div class="notif-setting-info">
+                  <span class="notif-setting-title">Alert Lead Time</span>
+                  <span class="notif-setting-desc">Advance reminder notice</span>
+                </div>
               </div>
-              <select id="notifLeadTime" class="clean-select notif-select" style="width: 120px; height: 34px;">
+              <select id="notifLeadTime" class="clean-select notif-select">
                 <option value="5">5 min early</option>
                 <option value="10">10 min early</option>
                 <option value="15" selected>15 min early</option>
@@ -338,16 +361,20 @@
             </div>
           </div>
 
-          <!-- Card 2: Morning Briefing -->
-          <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: var(--rx); padding: 14px;">
-            <div style="font-size: 11px; font-weight: 800; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+          <!-- Group 2: Morning Briefing -->
+          <div class="notif-group-card">
+            <div class="notif-group-header">
               <span>🌅 Morning Briefing</span>
             </div>
 
-            <div class="notif-setting-row" style="margin-bottom: 12px;">
-              <div class="notif-setting-info">
-                <span class="notif-setting-title">Daily Summary</span>
-                <span class="notif-setting-desc">Receive morning schedule overview</span>
+            <!-- Row: Daily Summary -->
+            <div class="notif-setting-row">
+              <div class="notif-row-left">
+                <div class="notif-icon-box amber">🌅</div>
+                <div class="notif-setting-info">
+                  <span class="notif-setting-title">Daily Summary</span>
+                  <span class="notif-setting-desc">Receive morning schedule briefing</span>
+                </div>
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" id="notifBriefingToggle" checked>
@@ -355,12 +382,16 @@
               </label>
             </div>
 
-            <div class="notif-setting-row" id="briefingTimeRow" style="padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
-              <div class="notif-setting-info">
-                <span class="notif-setting-title">Briefing Time</span>
-                <span class="notif-setting-desc">When to send morning summary</span>
+            <!-- Row: Briefing Time -->
+            <div class="notif-setting-row" id="briefingTimeRow">
+              <div class="notif-row-left">
+                <div class="notif-icon-box amber">🕒</div>
+                <div class="notif-setting-info">
+                  <span class="notif-setting-title">Briefing Time</span>
+                  <span class="notif-setting-desc">Scheduled delivery time</span>
+                </div>
               </div>
-              <select id="notifBriefingTime" class="clean-select notif-select" style="width: 120px; height: 34px;">
+              <select id="notifBriefingTime" class="clean-select notif-select">
                 <option value="420">7:00 AM</option>
                 <option value="450">7:30 AM</option>
                 <option value="480">8:00 AM</option>
@@ -369,20 +400,22 @@
                 <option value="540">9:00 AM</option>
               </select>
             </div>
-
-            <button id="testBriefingBtn" style="margin-top: 10px; width: 100%; font-size: 11.5px; padding: 8px; border-radius: var(--rx); background: rgba(251, 191, 36, 0.12); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); font-weight: 700; cursor: pointer; transition: background 0.2s;">🧪 Send Test Briefing Now</button>
           </div>
 
-          <!-- Card 3: Class End & Day Complete Alerts -->
-          <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: var(--rx); padding: 14px;">
-            <div style="font-size: 11px; font-weight: 800; color: var(--pink); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-              <span>🎉 End & Completion Alerts</span>
+          <!-- Group 3: Class End & Day Complete Alerts -->
+          <div class="notif-group-card">
+            <div class="notif-group-header">
+              <span>🎉 Completion Alerts</span>
             </div>
 
-            <div class="notif-setting-row" style="margin-bottom: 12px;">
-              <div class="notif-setting-info">
-                <span class="notif-setting-title">Class End Alerts</span>
-                <span class="notif-setting-desc">Notify 5 min before class ends</span>
+            <!-- Row: Class End Alerts -->
+            <div class="notif-setting-row">
+              <div class="notif-row-left">
+                <div class="notif-icon-box pink">🏁</div>
+                <div class="notif-setting-info">
+                  <span class="notif-setting-title">Class End Alerts</span>
+                  <span class="notif-setting-desc">Notify 5 min before class ends</span>
+                </div>
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" id="notifClassEndToggle">
@@ -390,10 +423,14 @@
               </label>
             </div>
 
-            <div class="notif-setting-row" style="padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
-              <div class="notif-setting-info">
-                <span class="notif-setting-title">Day Complete Alert</span>
-                <span class="notif-setting-desc">Celebrate when all classes are done</span>
+            <!-- Row: Day Complete Alert -->
+            <div class="notif-setting-row">
+              <div class="notif-row-left">
+                <div class="notif-icon-box emerald">🎉</div>
+                <div class="notif-setting-info">
+                  <span class="notif-setting-title">Day Complete Alert</span>
+                  <span class="notif-setting-desc">Celebrate when all classes are done</span>
+                </div>
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" id="notifDayDoneToggle" checked>
@@ -402,44 +439,37 @@
             </div>
           </div>
 
-          <!-- Card 4: Android Home Screen Widget Pinning -->
-          <div id="widgetPinSection" style="background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: var(--rx); padding: 14px; margin-top: 12px; display: none;">
-            <div style="font-size: 11px; font-weight: 800; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-              <span>📲 Home Screen Timetable Widget</span>
-            </div>
-            <p style="font-size: 12px; color: var(--dim); margin-bottom: 12px; line-height: 1.45;">
-              Pin the live timetable widget directly to your Android home screen for instant class tracking.
-            </p>
-            <button id="pinWidgetBtn" style="width: 100%; height: 40px; font-size: 13px; padding: 0 12px; border-radius: var(--rx); background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink))); color: var(--btn-text, #fff); font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px var(--ag);">
-              <span>📲 Add Widget to Home Screen</span>
+          <!-- Quick Test Action -->
+          <div style="margin-top: 4px;">
+            <button class="notif-test-btn" id="testBriefingBtn">
+              <span>🧪 Send Test Morning Briefing</span>
             </button>
-            <div id="widgetFeedbackBox" style="display: none; margin-top: 12px; padding: 12px; border-radius: var(--rx); font-size: 12px; line-height: 1.5; text-align: left;"></div>
+            <div style="text-align: center; font-size: 10px; color: var(--dim); margin-top: 8px;">
+              ⚡ Settings auto-save instantly on change
+            </div>
           </div>
 
         </div>
-
-        <div style="margin-top: 18px;">
-          <button id="saveNotifSettingsBtn" style="width: 100%; height: 44px; border-radius: var(--rx); font-family: var(--f); font-size: 13.5px; cursor: pointer;">💾 Save & Apply Settings</button>
-        </div>
-
       </div>
     </div>
   </div>
 
   <!-- Modal: Announcements -->
   <div class="mo" id="announceModal">
-    <div class="md" style="max-width: 520px; padding-bottom: 20px;">
-      <div class="md-h">
+    <div class="md" style="max-width: 520px; max-height: 88vh; max-height: 88dvh; display: flex; flex-direction: column; padding: 20px 0 0; overflow: hidden;">
+      <div class="md-h" style="padding: 0 24px; margin-bottom: 4px;">
         <h2>Announcements</h2>
         <button class="cls" id="announceModalClose">✕</button>
       </div>
-      <div class="md-sb" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-        <span>Class announcements & schedule updates</span>
-        <button class="day-nav-btn" id="newAnnounceBtn" style="background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink))); color: var(--btn-text, #fff); font-weight: 800; border: none; font-size: 11.5px; padding: 6px 14px; border-radius: var(--rx); cursor: pointer; box-shadow: 0 4px 14px var(--ag);">+ Post Announcement</button>
+      <div class="md-sb" style="display: flex; justify-content: space-between; align-items: center; padding: 0 24px; margin-bottom: 10px;">
+        <span style="font-size: 12px; color: var(--dim);">Class announcements & schedule updates</span>
+        <button class="day-nav-btn" id="newAnnounceBtn" style="background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink))); color: var(--btn-text, #fff); font-weight: 800; border: none; font-size: 11.5px; padding: 6px 14px; border-radius: 99px; cursor: pointer; box-shadow: 0 4px 12px var(--ag); display: inline-flex; align-items: center; gap: 4px;">
+          <span>＋ Post Announcement</span>
+        </button>
       </div>
       
       <!-- Category Filter Pills Bar -->
-      <div id="announceFilterBar" style="display: flex; gap: 6px; overflow-x: auto; padding: 12px 24px 4px; margin-top: 6px; scrollbar-width: none;">
+      <div id="announceFilterBar" style="display: flex; gap: 6px; overflow-x: auto; padding: 0 24px 12px; scrollbar-width: none; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;">
         <button class="announce-filter-pill active" data-filter="all">All</button>
         <button class="announce-filter-pill" data-filter="general">General</button>
         <button class="announce-filter-pill" data-filter="cancellation">Cancelled</button>
@@ -448,7 +478,7 @@
         <button class="announce-filter-pill" data-filter="class_test">Exams</button>
       </div>
 
-      <div class="announce-list" id="announceList" style="margin-top: 10px; max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 0 24px 10px;">
+      <div class="announce-list" id="announceList" style="flex: 1; min-height: 0; overflow-y: auto; padding: 12px 24px 30px; display: flex; flex-direction: column; gap: 12px;">
         <!-- Loaded dynamically -->
         <div class="skeleton-card" style="height: 80px;"></div>
         <div class="skeleton-card" style="height: 80px;"></div>
@@ -956,6 +986,8 @@
       </div>
     </div>
   </div>
+
+
 
   <!-- Toast Notification -->
   <div class="toast" id="toast">

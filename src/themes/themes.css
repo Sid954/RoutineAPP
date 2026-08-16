@@ -1,0 +1,353 @@
+/* ==========================================================================
+   🎨 Themes Engine CSS — AMOLED, Cyberpunk, Emerald, Sunset, Oceanic, Nordic
+   ========================================================================== */
+
+/* 1. Midnight Navy (Default) */
+html[data-theme="midnight"], :root[data-color="dark"] {
+  --bg: #06080d;
+  --bg2: #0f121a;
+  --card: #141824;
+  --card2: #1b2030;
+  --text: #f3f5f9;
+  --dim: #848c9e;
+  --border: #232a3d;
+  --border2: #343e59;
+  --accent: #38bdf8;
+  --accent2: #7dd3fc;
+  --pink: #f43f5e;
+  --pink2: #fb7185;
+  --lime: #10b981;
+  --amber: #f59e0b;
+  --ag: rgba(56, 189, 248, 0.25);
+  --pg: rgba(244, 63, 94, 0.22);
+  --sh: 0 12px 40px rgba(0, 0, 0, 0.6);
+  --btn-grad: linear-gradient(135deg, #38bdf8, #818cf8);
+  --btn-text: #06080d;
+}
+
+/* 2. AMOLED Pitch Black (Pure OLED 100% Black) */
+html[data-theme="amoled"], :root[data-color="pitch_black"] {
+  --bg: #000000;
+  --bg2: #08080a;
+  --card: #111114;
+  --card2: #19191f;
+  --text: #f4f4f5;
+  --dim: #9ca3af;
+  --border: #242429;
+  --border2: #383840;
+  --accent: #38bdf8;
+  --accent2: #7dd3fc;
+  --pink: #f43f5e;
+  --pink2: #fb7185;
+  --lime: #10b981;
+  --amber: #f59e0b;
+  --ag: rgba(56, 189, 248, 0.2);
+  --pg: rgba(244, 63, 94, 0.2);
+  --sh: 0 12px 40px rgba(0, 0, 0, 0.95);
+  --btn-grad: linear-gradient(135deg, #38bdf8, #0284c7);
+  --btn-text: #000000;
+}
+
+:root[data-color="pitch_black"] body,
+html[data-theme="amoled"] body {
+  background-color: #000000 !important;
+}
+
+:root[data-color="pitch_black"] .w,
+html[data-theme="amoled"] .w {
+  background-color: #000000 !important;
+}
+
+:root[data-color="pitch_black"] .md,
+html[data-theme="amoled"] .md {
+  background: #0d0d10 !important;
+  border-color: #242429 !important;
+}
+
+/* 3. Cyberpunk Neon (Electric Violet & Hot Pink) */
+html[data-theme="cyberpunk"], :root[data-color="cyberpunk"] {
+  --bg: #080312;
+  --bg2: #110824;
+  --card: #180c33;
+  --card2: #24134c;
+  --text: #fdf4ff;
+  --dim: #a89bc2;
+  --border: #3b1d75;
+  --border2: #582baf;
+  --accent: #c084fc;
+  --accent2: #e879f9;
+  --pink: #f43f5e;
+  --pink2: #fb7185;
+  --lime: #22d3ee;
+  --amber: #fbbf24;
+  --ag: rgba(192, 132, 252, 0.35);
+  --pg: rgba(244, 63, 94, 0.25);
+  --sh: 0 12px 40px rgba(15, 5, 25, 0.85);
+  --btn-grad: linear-gradient(135deg, #c084fc, #ec4899);
+  --btn-text: #080312;
+}
+
+:root[data-color="cyberpunk"] .md,
+html[data-theme="cyberpunk"] .md {
+  background: #14092b !important;
+  border-color: #3b1d75 !important;
+}
+
+/* 4. Emerald Matcha (Deep Forest & Mint Glow) */
+html[data-theme="emerald"], :root[data-color="matcha"] {
+  --bg: #020c07;
+  --bg2: #051a10;
+  --card: #0a2719;
+  --card2: #103824;
+  --text: #ecfdf5;
+  --dim: #82a894;
+  --border: #164e32;
+  --border2: #23744c;
+  --accent: #34d399;
+  --accent2: #6ee7b7;
+  --pink: #f43f5e;
+  --pink2: #fb7185;
+  --lime: #10b981;
+  --amber: #fbbf24;
+  --ag: rgba(52, 211, 153, 0.25);
+  --pg: rgba(244, 63, 94, 0.22);
+  --sh: 0 12px 40px rgba(2, 12, 7, 0.85);
+  --btn-grad: linear-gradient(135deg, #10b981, #059669);
+  --btn-text: #04140c;
+}
+
+:root[data-color="matcha"] .md,
+html[data-theme="emerald"] .md {
+  background: #061e13 !important;
+  border-color: #164e32 !important;
+}
+
+/* 5. Sunset Ruby (Ruby Rose & Amber Gold) */
+html[data-theme="sunset"], :root[data-color="sunset"] {
+  --bg: #0f0307;
+  --bg2: #1c080f;
+  --card: #290d17;
+  --card2: #3d1423;
+  --text: #fff1f2;
+  --dim: #b88d99;
+  --border: #56182c;
+  --border2: #7e2441;
+  --accent: #fb7185;
+  --accent2: #fda4af;
+  --pink: #f43f5e;
+  --pink2: #fb7185;
+  --lime: #10b981;
+  --amber: #f59e0b;
+  --ag: rgba(251, 113, 133, 0.28);
+  --pg: rgba(244, 63, 94, 0.25);
+  --sh: 0 12px 40px rgba(15, 3, 7, 0.85);
+  --btn-grad: linear-gradient(135deg, #f97316, #e11d48);
+  --btn-text: #ffffff;
+}
+
+:root[data-color="sunset"] .md,
+html[data-theme="sunset"] .md {
+  background: #1f0a12 !important;
+  border-color: #56182c !important;
+}
+
+/* 6. Oceanic Abyss (Abyss Deep Blue & Electric Cyan) */
+html[data-theme="oceanic"], :root[data-color="oceanic"] {
+  --bg: #020914;
+  --bg2: #05152a;
+  --card: #0a213f;
+  --card2: #10305a;
+  --text: #f0f9ff;
+  --dim: #84a2c0;
+  --border: #164172;
+  --border2: #215c9e;
+  --accent: #22d3ee;
+  --accent2: #67e8f9;
+  --pink: #f43f5e;
+  --pink2: #fb7185;
+  --lime: #10b981;
+  --amber: #f59e0b;
+  --ag: rgba(34, 211, 238, 0.28);
+  --pg: rgba(244, 63, 94, 0.22);
+  --sh: 0 12px 40px rgba(2, 9, 20, 0.85);
+  --btn-grad: linear-gradient(135deg, #22d3ee, #0284c7);
+  --btn-text: #020914;
+}
+
+:root[data-color="oceanic"] .md,
+html[data-theme="oceanic"] .md {
+  background: #061a33 !important;
+  border-color: #164172 !important;
+}
+
+/* 7. Nordic Slate (Minimalist Slate & Soft Ice Blue) */
+html[data-theme="nordic"], :root[data-color="nordic"] {
+  --bg: #0b0f17;
+  --bg2: #141b27;
+  --card: #1c2536;
+  --card2: #27344c;
+  --text: #f8fafc;
+  --dim: #94a3b8;
+  --border: #334155;
+  --border2: #475569;
+  --accent: #93c5fd;
+  --accent2: #bfdbfe;
+  --pink: #f43f5e;
+  --pink2: #fb7185;
+  --lime: #34d399;
+  --amber: #fbbf24;
+  --ag: rgba(147, 197, 253, 0.25);
+  --pg: rgba(244, 63, 94, 0.22);
+  --sh: 0 12px 40px rgba(11, 15, 23, 0.85);
+  --btn-grad: linear-gradient(135deg, #93c5fd, #60a5fa);
+  --btn-text: #0b0f17;
+}
+
+:root[data-color="nordic"] .md,
+html[data-theme="nordic"] .md {
+  background: #161e2e !important;
+  border-color: #334155 !important;
+}
+
+/* ==========================================================================
+   🎨 Redesigned Theme Picker UI Components (Clean, Modern, Responsive)
+   ========================================================================== */
+.theme-section-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--rx);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.theme-style-segmented {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.theme-style-pill {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  text-align: center;
+}
+
+.theme-style-pill:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.theme-style-pill.active {
+  border-color: var(--accent);
+  background: var(--card2);
+  color: #ffffff;
+  box-shadow: 0 0 12px var(--ag);
+}
+
+.theme-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .theme-palette-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.theme-palette-card {
+  position: relative;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.theme-palette-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.theme-palette-card:active {
+  transform: scale(0.97);
+}
+
+.theme-palette-card.active {
+  border-color: var(--accent);
+  background: var(--card2);
+  box-shadow: 0 0 0 1px var(--accent), 0 6px 20px var(--ag);
+}
+
+.theme-palette-preview {
+  height: 20px;
+  border-radius: 6px;
+  display: flex;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.theme-preview-body {
+  flex: 2;
+}
+
+.theme-preview-accent {
+  flex: 1;
+}
+
+.theme-palette-title {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.theme-palette-desc {
+  font-size: 9.5px;
+  color: var(--dim);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.theme-check-icon {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 8px;
+  font-weight: 900;
+  color: #000;
+  background: var(--accent);
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
