@@ -1,5 +1,39 @@
 export const pad = num => String(num).padStart(2, '0');
-export const toMinutes = time24h => { const [h, m] = time24h.split(':').map(Number); return h * 60 + m; };
+
+/**
+ * Converts any 12h (e.g. "09:45 AM", "1:30 PM", "11:50 AM") or 24h (e.g. "09:45", "13:30")
+ * time string into total minutes since midnight (0..1439). Returns -1 on invalid input.
+ */
+export function toMinutes(timeStr) {
+  if (timeStr === null || timeStr === undefined) return -1;
+  if (typeof timeStr === 'number') return timeStr;
+  const clean = String(timeStr).trim();
+  if (!clean) return -1;
+
+  // Match 12h format: "09:45 AM", "9:45am", "1:30 PM", "12:15 pm"
+  const match12 = clean.match(/^(\d{1,2}):(\d{2})(?:\s*([ap]m))?$/i);
+  if (match12) {
+    let hours = parseInt(match12[1], 10);
+    const mins = parseInt(match12[2], 10);
+    const period = match12[3] ? match12[3].toUpperCase() : null;
+
+    if (period === 'PM' && hours !== 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+
+    return hours * 60 + mins;
+  }
+
+  // Fallback 24h format: "09:45", "14:30"
+  const parts = clean.split(':');
+  if (parts.length >= 2) {
+    const h = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    if (!isNaN(h) && !isNaN(m)) return h * 60 + m;
+  }
+
+  return -1;
+}
+
 export const toTimeString = mins => `${pad(Math.floor(mins / 60))}:${pad(Math.floor(mins % 60))}`;
 
 export function getCurrentMinutes() {
@@ -9,17 +43,20 @@ export function getCurrentMinutes() {
 
 export function parseTo24h(timeStr) {
   if (typeof timeStr !== 'string') return timeStr || '';
-  const parts = timeStr.trim().split(' ');
-  if (parts.length !== 2) return timeStr;
-  let [hours, mins] = parts[0].split(':').map(Number);
-  const period = parts[1].toUpperCase();
-  if (period === 'PM' && hours !== 12) hours += 12;
-  if (period === 'AM' && hours === 12) hours = 0;
-  return `${pad(hours)}:${pad(mins)}`;
+  const m = toMinutes(timeStr);
+  if (m < 0) return timeStr;
+  return toTimeString(m);
 }
 
-export function format12h(time24h) {
-  let [hours, mins] = time24h.split(':').map(Number);
+export function format12h(timeStr) {
+  if (timeStr === null || timeStr === undefined) return '';
+  const clean = String(timeStr).trim();
+  if (!clean) return '';
+
+  const m = toMinutes(clean);
+  if (m < 0) return clean;
+  let hours = Math.floor(m / 60);
+  const mins = m % 60;
   const period = hours >= 12 ? 'PM' : 'AM';
   hours = hours % 12 || 12;
   return `${pad(hours)}:${pad(mins)} ${period}`;

@@ -215,43 +215,67 @@
       <!-- Detailed Update Check Panel -->
       <div id="updateCheckDetails" style="display: none; margin: 0 24px 12px; padding: 12px 14px; border-radius: var(--rx); background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border); font-size: 12px; line-height: 1.5; color: var(--text);"></div>
 
-      <div class="rc">
-        <div class="rci" id="rCols"></div>
+      <!-- Card 4: Android Home Screen Widget Pinning -->
+      <div id="widgetPinSection" style="background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: var(--rx); padding: 14px; margin: 0 24px 12px; display: none;">
+        <div style="font-size: 11px; font-weight: 800; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+          <span>📲 Home Screen Timetable Widget</span>
+        </div>
+        <p style="font-size: 12px; color: var(--dim); margin-bottom: 12px; line-height: 1.45;">
+          Pin the live timetable widget directly to your Android home screen for instant class tracking.
+        </p>
+        <button id="pinWidgetBtn" style="width: 100%; height: 40px; font-size: 13px; padding: 0 12px; border-radius: var(--rx); background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink))); color: var(--btn-text, #fff); font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px var(--ag);">
+          <span>📲 Add Widget to Home Screen</span>
+        </button>
+        <div id="widgetFeedbackBox" style="display: none; margin-top: 12px; padding: 12px; border-radius: var(--rx); font-size: 12px; line-height: 1.5; text-align: left;"></div>
       </div>
 
-      <!-- Toggle Button to Show/Hide Add Class Form -->
-      <button id="toggleAddClassBtn" style="width: calc(100% - 48px); margin: 15px 24px; padding: 12px; border-radius: var(--rx); border: 1.5px dashed var(--border); background: var(--card2); color: var(--text); font-family: var(--f); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: border-color var(--t), background var(--t); font-size: 13px;">+ Add Class</button>
+      <!-- Foldable Routine Editor & Add Class Section -->
+      <div style="margin: 0 24px 12px;">
+        <button id="toggleEditRoutineCollapseBtn" style="width: 100%; padding: 12px 16px; border-radius: var(--rx); background: var(--card2); border: 1px solid var(--border); color: var(--text); font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease;">
+          <span style="display: flex; align-items: center; gap: 6px;">✏️ Edit & Add Classes Routine</span>
+          <span id="editRoutineChevron" style="transition: transform 0.2s ease;">▼</span>
+        </button>
+      </div>
 
-      <div class="mf" id="addClassForm" style="display: none; border-top: 1px solid var(--border); margin-top: 0; padding-top: 20px;">
-        <div class="fr">
-          <div class="fg"><label>Start Time</label><input type="time" id="eS" value="09:45"/></div>
-          <div class="fg"><label>End Time</label><input type="time" id="eE" value="11:00"/></div>
+      <div id="collapsibleRoutineSection" style="display: none;">
+        <div class="rc">
+          <div class="rci" id="rCols"></div>
         </div>
-        <div class="fr">
-          <div class="fg"><label>Subject Title</label><input type="text" id="eT" placeholder="e.g. DSL"/></div>
-          <div class="fg"><label>Room / Hall</label><input type="text" id="eR" placeholder="e.g. 905"/></div>
-        </div>
-        <div class="fr">
-          <div class="fg"><label>Instructor (Optional)</label><input type="text" id="eI" placeholder="e.g. MHE"/></div>
-          <div class="fg">
-            <label>Class Type</label>
-            <select id="eTy" class="clean-select">
-              <option value="Theory">Theory</option>
-              <option value="Lab">Lab</option>
-              <option value="Break">Break</option>
-              <option value="Other">Other</option>
-            </select>
+
+        <!-- Toggle Button to Show/Hide Add Class Form -->
+        <button id="toggleAddClassBtn" style="width: calc(100% - 48px); margin: 15px 24px; padding: 12px; border-radius: var(--rx); border: 1.5px dashed var(--border); background: var(--card2); color: var(--text); font-family: var(--f); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: border-color var(--t), background var(--t); font-size: 13px;">+ Add Class Entry</button>
+
+        <div class="mf" id="addClassForm" style="display: none; border-top: 1px solid var(--border); margin-top: 0; padding-top: 20px;">
+          <div class="fr">
+            <div class="fg"><label>Start Time</label><input type="time" id="eS" value="09:45"/></div>
+            <div class="fg"><label>End Time</label><input type="time" id="eE" value="11:00"/></div>
           </div>
-        </div>
-        <div class="fr">
-          <div class="fg" style="grid-column:span 2">
-            <label>Target Day</label>
-            <select id="eDay" class="clean-select"></select>
+          <div class="fr">
+            <div class="fg"><label>Subject Title</label><input type="text" id="eT" placeholder="e.g. DSL"/></div>
+            <div class="fg"><label>Room / Hall</label><input type="text" id="eR" placeholder="e.g. 905"/></div>
           </div>
-        </div>
-        <div class="ma">
-          <button class="bd" id="clrB">Clear Selected Day</button>
-          <button class="bp" id="addB">+ Add Entry</button>
+          <div class="fr">
+            <div class="fg"><label>Instructor (Optional)</label><input type="text" id="eI" placeholder="e.g. MHE"/></div>
+            <div class="fg">
+              <label>Class Type</label>
+              <select id="eTy" class="clean-select">
+                <option value="Theory">Theory</option>
+                <option value="Lab">Lab</option>
+                <option value="Break">Break</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="fr">
+            <div class="fg" style="grid-column:span 2">
+              <label>Target Day</label>
+              <select id="eDay" class="clean-select"></select>
+            </div>
+          </div>
+          <div class="ma">
+            <button class="bd" id="clrB">Clear Selected Day</button>
+            <button class="bp" id="addB">+ Add Entry</button>
+          </div>
         </div>
       </div>
 
@@ -337,16 +361,9 @@
                 <span class="notif-setting-desc">When to send morning summary</span>
               </div>
               <select id="notifBriefingTime" class="clean-select notif-select" style="width: 120px; height: 34px;">
-                <option value="360">6:00 AM</option>
-                <option value="375">6:15 AM</option>
-                <option value="390">6:30 AM</option>
-                <option value="405">6:45 AM</option>
                 <option value="420">7:00 AM</option>
-                <option value="435">7:15 AM</option>
                 <option value="450">7:30 AM</option>
-                <option value="465">7:45 AM</option>
                 <option value="480">8:00 AM</option>
-                <option value="495">8:15 AM</option>
                 <option value="510">8:30 AM</option>
                 <option value="525">8:45 AM</option>
                 <option value="540">9:00 AM</option>
@@ -424,11 +441,11 @@
       <!-- Category Filter Pills Bar -->
       <div id="announceFilterBar" style="display: flex; gap: 6px; overflow-x: auto; padding: 12px 24px 4px; margin-top: 6px; scrollbar-width: none;">
         <button class="announce-filter-pill active" data-filter="all">All</button>
-        <button class="announce-filter-pill" data-filter="general">📢 General</button>
-        <button class="announce-filter-pill" data-filter="cancellation">🚫 Cancelled</button>
-        <button class="announce-filter-pill" data-filter="holiday">🎉 Holiday</button>
-        <button class="announce-filter-pill" data-filter="online_class">📡 Online</button>
-        <button class="announce-filter-pill" data-filter="class_test">📝 Exams</button>
+        <button class="announce-filter-pill" data-filter="general">General</button>
+        <button class="announce-filter-pill" data-filter="cancellation">Cancelled</button>
+        <button class="announce-filter-pill" data-filter="holiday">Holiday</button>
+        <button class="announce-filter-pill" data-filter="online_class">Online</button>
+        <button class="announce-filter-pill" data-filter="class_test">Exams</button>
       </div>
 
       <div class="announce-list" id="announceList" style="margin-top: 10px; max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 0 24px 10px;">
@@ -456,11 +473,11 @@
           <div class="fg">
             <label>Announcement Type</label>
             <select id="paType" class="clean-select">
-              <option value="general">📢 General</option>
-              <option value="cancellation">🚫 Class Cancellation</option>
-              <option value="holiday">🎉 Holiday</option>
-              <option value="online_class">📡 Online Class</option>
-              <option value="class_test">📝 Class Test / Exam</option>
+              <option value="general">General</option>
+              <option value="cancellation">Class Cancellation</option>
+              <option value="holiday">Holiday</option>
+              <option value="online_class">Online Class</option>
+              <option value="class_test">Class Test / Exam</option>
             </select>
           </div>
         </div>
@@ -713,6 +730,245 @@
         <button class="bd" id="androidAppModalSkipBtn" style="background: transparent; border: 1px solid var(--border); color: var(--dim); font-weight: 700; height: 38px; border-radius: var(--rx); cursor: pointer;">
           Continue on Web
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Button Group: Free Rooms & Teacher Finder -->
+  <div class="app-fab-container">
+    <button id="findTeacherFab" class="find-teacher-fab" title="Find where teachers are now">
+      <span class="ft-fab-badge-text">Faculty</span>
+      <span class="ft-fab-icon">👨‍🏫</span>
+      <span id="teacherFinderBadge" class="ft-fab-count-badge" style="display:none;">0</span>
+    </button>
+    
+    <button id="freeRoomsFab" class="free-rooms-fab" title="Find available free rooms">
+      <span class="fr-fab-badge-text">Free</span>
+      <span class="fr-fab-icon">🚪</span>
+      <span id="freeRoomsBadge" class="fr-fab-count-badge" style="display:none;">0</span>
+    </button>
+  </div>
+
+  <!-- Modal: Free Rooms Finder -->
+  <div class="mo" id="freeRoomsModal">
+    <div class="md md-wide" style="max-width: 640px; padding: 22px; position: relative;">
+      <button class="cls" id="freeRoomsCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
+      
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
+        <span style="font-size: 24px;">🚪</span>
+        <h2 style="font-size: 19px; font-weight: 800; color: var(--text); margin: 0;">Room Availability</h2>
+      </div>
+      
+      <div id="freeRoomsSummary" style="font-size: 12px; color: var(--dim); margin-bottom: 14px;">
+        Searching across all semesters and sections...
+      </div>
+
+      <!-- 2-Column Body Container -->
+      <div class="fr-modal-body">
+
+        <!-- Left Sidebar: Floor Selection -->
+        <div class="fr-floor-sidebar">
+          <div class="fr-sidebar-title">FLOORS</div>
+          <div id="freeRoomsFloorList" class="fr-floor-btn-list">
+            <button class="fr-floor-btn active" data-floor="ALL">All Floors</button>
+            <button class="fr-floor-btn" data-floor="4th">4th Floor</button>
+            <button class="fr-floor-btn" data-floor="5th">5th Floor</button>
+            <button class="fr-floor-btn" data-floor="6th">6th Floor</button>
+            <button class="fr-floor-btn" data-floor="9th">9th Floor</button>
+            <button class="fr-floor-btn" data-floor="10th">10th Floor</button>
+          </div>
+        </div>
+
+        <!-- Right Main Content: Search, Status Filters, Cards Grid -->
+        <div class="fr-main-content">
+          <!-- Search & Sort Row -->
+          <div style="margin-bottom: 10px;">
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+              <input type="text" id="freeRoomsSearchInput" placeholder="🔍 Search room..." style="flex: 1; height: 36px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 12.5px; outline: none;" />
+              <select id="freeRoomsSortSelect" class="fr-sort-select" title="Sort rooms">
+                <option value="availability">⚡ Free First</option>
+                <option value="room_asc">🔢 Room (Low-High)</option>
+                <option value="room_desc">🔢 Room (High-Low)</option>
+                <option value="floor">🏢 By Floor</option>
+              </select>
+            </div>
+            
+            <div id="freeRoomsStatusTabs" style="display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;">
+              <button class="fr-filter-pill" data-filter="ALL">All</button>
+              <button class="fr-filter-pill active" data-filter="FREE_NOW">Free Right Now</button>
+              <button class="fr-filter-pill" data-filter="FREE_SOON">Free in 30m</button>
+              <button class="fr-filter-pill" data-filter="OCCUPIED">Occupied</button>
+            </div>
+          </div>
+
+          <!-- Free Rooms Cards Grid -->
+          <div id="freeRoomsGrid" class="fr-grid" style="max-height: 340px; overflow-y: auto; padding-right: 2px;">
+            <!-- Populated dynamically by room-modal.js -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Room Daily Schedule Detail View -->
+  <div class="mo" id="roomDetailModal" style="z-index: 100010;">
+    <div class="md" style="max-width: 460px; padding: 22px; position: relative;">
+      <button class="cls" id="roomDetailCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
+      
+      <!-- Room Header -->
+      <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
+        <h2 id="roomDetailTitle" style="font-size: 22px; font-weight: 900; color: #fff; margin: 0;">Room 404</h2>
+        <span id="roomDetailFloor" style="font-size: 12px; font-weight: 700; color: var(--dim);">4th Floor</span>
+      </div>
+
+      <div id="roomDetailLiveBanner" style="margin-bottom: 16px;">
+        <!-- Dynamic Live Status Banner -->
+      </div>
+
+      <!-- Schedule Timeline Container -->
+      <div style="font-size: 11px; font-weight: 800; color: var(--dim); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;">
+        Today's Class Schedule
+      </div>
+
+      <div id="roomTimelineList" style="display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow-y: auto; padding-right: 2px;">
+        <!-- Populated dynamically: Finished (greyed out) -> Current (highlighted) -> Future (colored) -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Faculty Directory (Faculty Tracker & Profiles) -->
+  <div class="mo" id="teacherFinderModal">
+    <div class="md md-wide" style="max-width: 580px; padding: 22px; position: relative;">
+      <button class="cls" id="teacherFinderCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; flex-wrap: wrap; gap: 6px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 24px;">👨‍🏫</span>
+          <h2 style="font-size: 19px; font-weight: 800; color: var(--text); margin: 0;">Faculty</h2>
+        </div>
+        <div style="display: flex; gap: 6px; margin-right: 36px;">
+          <button id="suggestTeacherNameBtn" class="fr-filter-pill" style="font-size: 11px; padding: 4px 10px;" title="Suggest or edit faculty info">➕ Add / Edit Info</button>
+          <button id="teacherAdminBtn" class="fr-filter-pill" style="font-size: 11px; padding: 4px 10px; border-color: rgba(168, 85, 247, 0.4);" title="Verify & approve suggested updates">🛡️ Pending</button>
+        </div>
+      </div>
+      
+      <div id="teacherFinderSummary" style="font-size: 12px; color: var(--dim); margin-bottom: 14px;">
+        Department of Computer Science and Engineering
+      </div>
+
+      <!-- Search Bar -->
+      <div style="margin-bottom: 12px;">
+        <input type="text" id="teacherFinderSearchInput" placeholder="🔍 Search faculty name, code, designation, subject..." style="width: 100%; height: 38px; padding: 0 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; outline: none;" />
+      </div>
+
+      <!-- Faculty List Container -->
+      <div id="teacherFinderGrid" class="ft-list" style="max-height: 400px; overflow-y: auto; padding-right: 2px;">
+        <!-- Populated dynamically by teacher-modal.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Suggest / Edit Faculty Info -->
+  <div class="mo" id="suggestTeacherNameModal" style="z-index: 100015;">
+    <div class="md" style="max-width: 440px; padding: 22px; position: relative;">
+      <button class="cls" id="suggestTeacherCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
+      
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+        <span style="font-size: 22px;">✏️</span>
+        <h2 style="font-size: 18px; font-weight: 800; color: var(--text); margin: 0;">Add / Edit Faculty Info</h2>
+      </div>
+      <div style="font-size: 12px; color: var(--dim); margin-bottom: 16px;">
+        Help keep faculty info updated. Submissions are verified by an admin.
+      </div>
+
+      <form id="suggestTeacherForm" style="display: flex; flex-direction: column; gap: 10px;">
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Teacher Code *</label>
+          <select id="suggestTeacherCodeSelect" class="fr-sort-select" style="width: 100%; height: 38px; font-size: 13px;" required>
+            <option value="">Select teacher code...</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Full Name *</label>
+          <input type="text" id="suggestTeacherNameInput" placeholder="e.g. Azmain Yakin Srizon" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" required />
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Email Address (Optional)</label>
+          <input type="email" id="suggestTeacherEmailInput" placeholder="e.g. teacher@puc.ac.bd" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Phone / Mobile (Optional)</label>
+          <input type="tel" id="suggestTeacherPhoneInput" placeholder="e.g. +8801700000000" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Designation (Optional)</label>
+          <input type="text" id="suggestTeacherDesigInput" placeholder="e.g. Assistant Professor" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
+        </div>
+
+        <button type="submit" id="suggestTeacherSubmitBtn" class="btn btn-primary" style="margin-top: 6px; width: 100%; height: 40px; font-size: 13px; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7c3aed); border: none; border-radius: 10px; color: #fff; cursor: pointer;">
+          Submit for Review
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Admin Faculty Name Approvals -->
+  <div class="mo" id="teacherApprovalModal" style="z-index: 100015;">
+    <div class="md md-wide" style="max-width: 540px; padding: 22px; position: relative;">
+      <button class="cls" id="teacherApprovalCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
+      
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+        <span style="font-size: 22px;">🛡️</span>
+        <h2 style="font-size: 18px; font-weight: 800; color: var(--text); margin: 0;">Pending Info Updates</h2>
+      </div>
+      <div id="teacherApprovalSummary" style="font-size: 12px; color: var(--dim); margin-bottom: 16px;">
+        Enter admin password to review and approve faculty info.
+      </div>
+
+      <!-- Password Screen -->
+      <div id="teacherApprovalAuthBox" style="display: flex; flex-direction: column; gap: 10px;">
+        <input type="password" id="teacherApprovalPassInput" placeholder="Enter admin password..." style="width: 100%; height: 40px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; outline: none;" />
+        <button id="teacherApprovalLoginBtn" class="btn" style="height: 40px; background: #a855f7; border: none; border-radius: 10px; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer;">
+          Unlock Approvals
+        </button>
+      </div>
+
+      <!-- Pending Submissions List -->
+      <div id="teacherApprovalListBox" style="display: none; flex-direction: column; gap: 10px; max-height: 380px; overflow-y: auto; padding-right: 2px;">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Full Faculty Profile & Live Routine Tracker -->
+  <div class="mo" id="teacherDetailModal" style="z-index: 100010;">
+    <div class="md md-wide" style="max-width: 500px; padding: 22px; position: relative;">
+      <button class="cls" id="teacherDetailCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
+      
+      <!-- Interactive Hero Container -->
+      <div id="facultyProfileHero">
+        <!-- Rendered dynamically: Photo, Name, Code, Designation, Status, Contact Action Buttons -->
+      </div>
+
+      <!-- Live Location & Today's Schedule Section -->
+      <div style="margin-top: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 11.5px; font-weight: 800; color: var(--dim); text-transform: uppercase; letter-spacing: 0.8px;">Today's Classes & Routine</span>
+          <span id="facultyProfileClassCount" style="font-size: 11px; font-weight: 700; color: var(--dim);"></span>
+        </div>
+
+        <div id="teacherDetailLiveBanner" style="margin-bottom: 10px;">
+          <!-- Dynamic Live Status Banner -->
+        </div>
+
+        <div id="teacherTimelineList" style="display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; padding-right: 2px;">
+          <!-- Populated dynamically: Finished (greyed out) -> Current (highlighted) -> Future (vibrant) -->
+        </div>
       </div>
     </div>
   </div>

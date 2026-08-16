@@ -1,0 +1,407 @@
+/* ==========================================================================
+   Free Rooms Finder — Floating Action Button & Modal Styling
+   ========================================================================== */
+
+.free-rooms-fab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px 10px 14px;
+  background: var(--card2, #111827);
+  border: 1.5px solid var(--border, #1f2937);
+  border-radius: 30px;
+  color: var(--text, #ffffff);
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 16px rgba(56, 189, 248, 0.25);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease, border-color 0.2s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.free-rooms-fab:hover {
+  transform: translateY(-3px) scale(1.03);
+  border-color: #38bdf8;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7), 0 0 24px rgba(56, 189, 248, 0.45);
+}
+
+.free-rooms-fab:active {
+  transform: scale(0.96);
+}
+
+.fr-fab-badge-text {
+  font-size: 12px;
+  font-weight: 800;
+  color: #38bdf8;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.fr-fab-icon {
+  font-size: 18px;
+}
+
+.fr-fab-count-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+}
+
+/* 2-Column Fixed-Height Modal Layout */
+.fr-modal-body {
+  display: flex;
+  gap: 14px;
+  min-height: 380px;
+  height: 380px;
+}
+
+/* Left Sidebar: Floor Selection */
+.fr-floor-sidebar {
+  width: 110px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.fr-sidebar-title {
+  font-size: 10px;
+  font-weight: 900;
+  color: #38bdf8;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+  padding-left: 2px;
+}
+
+.fr-floor-btn-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fr-floor-btn {
+  background: var(--card, #0f172a);
+  border: 1px solid var(--border, #1e293b);
+  color: var(--dim, #94a3b8);
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.fr-floor-btn:hover {
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+.fr-floor-btn.active {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  font-weight: 800;
+}
+
+/* Right Main Content */
+.fr-main-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sort Selector */
+.fr-sort-select {
+  height: 36px;
+  padding: 0 10px;
+  background: var(--card, #0f172a);
+  border: 1px solid var(--border, #1e293b);
+  border-radius: 10px;
+  color: var(--text, #ffffff);
+  font-size: 11.5px;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.fr-sort-select:hover,
+.fr-sort-select:focus {
+  border-color: #38bdf8;
+}
+
+/* Filter Pills */
+.fr-filter-pill {
+  background: var(--card, #0f172a);
+  border: 1px solid var(--border, #1e293b);
+  color: var(--dim, #94a3b8);
+  padding: 5px 12px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.fr-filter-pill:hover {
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+.fr-filter-pill.active {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  font-weight: 800;
+}
+
+/* 3 to 4 Rooms Side-By-Side Grid */
+.fr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  flex: 1;
+  height: 310px;
+  min-height: 310px;
+  max-height: 310px;
+  overflow-y: auto;
+  align-content: start;
+}
+
+.fr-card-compact {
+  background: var(--card2, #111827);
+  border: 1px solid var(--border, #1f2937);
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  min-height: 52px;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.fr-card-compact:hover {
+  transform: translateY(-2px);
+  border-color: #38bdf8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.fr-card-compact:active {
+  transform: scale(0.97);
+}
+
+.fr-card-compact-now {
+  border-left: 3.5px solid #10b981;
+}
+
+.fr-card-compact-soon {
+  border-left: 3.5px solid #f59e0b;
+}
+
+.fr-card-compact-occupied {
+  border-left: 3.5px solid #f43f5e;
+  background: rgba(244, 63, 94, 0.05);
+}
+
+.fr-card-compact-occupied .fr-compact-room {
+  color: #fb7185;
+}
+
+.fr-compact-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  line-height: 1.2;
+}
+
+.fr-compact-room {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text, #ffffff);
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+}
+
+.fr-compact-until {
+  font-size: 11px;
+  font-weight: 700;
+  color: #38bdf8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.fr-compact-occupied-text {
+  font-size: 10px;
+  font-weight: 700;
+  color: #fb7185;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   Room Detail Modal & Class Timeline Items
+   ========================================================================== */
+
+.fr-tl-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+/* 1. Finished / Past Classes (Greyed Out) */
+.fr-tl-item-past {
+  opacity: 0.45;
+  filter: grayscale(70%);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.fr-tl-past-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: var(--dim, #94a3b8);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* 2. Current Ongoing Class (Highlighted & Energetic) */
+.fr-tl-item-current {
+  background: rgba(56, 189, 248, 0.12);
+  border: 1.5px solid #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.fr-tl-live-badge {
+  font-size: 9.5px;
+  font-weight: 900;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.2);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* 3. Future Upcoming Classes (Vibrant & Clean) */
+.fr-tl-item-future {
+  background: var(--card2, #111827);
+  border: 1px solid var(--border, #1f2937);
+  border-radius: 12px;
+  padding: 11px 14px;
+}
+
+.fr-tl-future-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.fr-tl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fr-tl-subject {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text, #ffffff);
+}
+
+.fr-tl-time {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.fr-tl-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--dim, #94a3b8);
+}
+
+.fr-tl-type-pill {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.fr-tl-type-theory {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+}
+
+.fr-tl-type-lab {
+  background: rgba(236, 72, 153, 0.15);
+  color: #f472b6;
+}
+
+/* Mobile Viewport adjustments */
+@media (max-width: 520px) {
+  .free-rooms-fab {
+    bottom: 20px;
+    right: 16px;
+    padding: 9px 14px 9px 12px;
+  }
+  .fr-modal-body {
+    flex-direction: column;
+    gap: 10px;
+    min-height: 400px;
+    height: 400px;
+  }
+  .fr-floor-sidebar {
+    width: 100%;
+  }
+  .fr-floor-btn-list {
+    flex-direction: row;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .fr-floor-btn {
+    width: auto;
+    white-space: nowrap;
+    padding: 5px 12px;
+    border-radius: 12px;
+  }
+  .fr-grid {
+    grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+    height: 290px;
+    min-height: 290px;
+    max-height: 290px;
+  }
+}

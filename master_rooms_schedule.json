@@ -1,0 +1,5679 @@
+{
+  "rooms": [
+    "403",
+    "404",
+    "405",
+    "406",
+    "408",
+    "409",
+    "410",
+    "411",
+    "503",
+    "505",
+    "506",
+    "508",
+    "510",
+    "601",
+    "604",
+    "606",
+    "608",
+    "610",
+    "611",
+    "612",
+    "613",
+    "901",
+    "902",
+    "903",
+    "904",
+    "905",
+    "909",
+    "910",
+    "1001",
+    "1002",
+    "1003",
+    "1004",
+    "1008"
+  ],
+  "schedule": {
+    "Saturday": {
+      "403": [
+        {
+          "start": "10:10 AM",
+          "end": "11:50 AM",
+          "startM": 610,
+          "endM": 710,
+          "subject": "BS",
+          "instructor": "AZMAIN",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "start": "11:50 AM",
+          "end": "01:30 PM",
+          "startM": 710,
+          "endM": 810,
+          "subject": "BS",
+          "instructor": "AZMAIN",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        }
+      ],
+      "404": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ICMP",
+          "instructor": "DAB",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "DS",
+          "instructor": "MHE",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "03:10 PM",
+          "startM": 810,
+          "endM": 910,
+          "subject": "BS",
+          "instructor": "AZMAIN",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "ALGO",
+          "instructor": "TH",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "FMA",
+          "instructor": "FIROZA",
+          "type": "Theory",
+          "semSec": "Sem 8-D"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "FMA",
+          "instructor": "FIROZA",
+          "type": "Theory",
+          "semSec": "Sem 8-E"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "DS",
+          "instructor": "MHE",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "405": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "COA",
+          "instructor": "MAHBUBUL",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "COA",
+          "instructor": "MAHBUBUL",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "COA",
+          "instructor": "MAHBUBUL",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "DC",
+          "instructor": "FK",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DC",
+          "instructor": "FK",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DC",
+          "instructor": "FK",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        }
+      ],
+      "406": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ICMP",
+          "instructor": "NME",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "ICMP",
+          "instructor": "NME",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ICMP",
+          "instructor": "NP",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ICMP",
+          "instructor": "NP",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "ICMP",
+          "instructor": "NME",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "408": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "EE",
+          "instructor": "TMH",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EE",
+          "instructor": "TMH",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "EE",
+          "instructor": "TMH",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DBMS",
+          "instructor": "AD",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        }
+      ],
+      "409": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DMNT",
+          "instructor": "ST",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DC",
+          "instructor": "HKR",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DC",
+          "instructor": "HKR",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DC",
+          "instructor": "HKR",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "410": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PME",
+          "instructor": "TASNIA",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "PME",
+          "instructor": "ZIA",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PME",
+          "instructor": "ZIA",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "HCI",
+          "instructor": "RA",
+          "type": "Theory",
+          "semSec": "Sem 8-D"
+        }
+      ],
+      "411": [
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "ISD",
+          "instructor": "ATIQUR",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ISD",
+          "instructor": "ATIQUR",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CCS",
+          "instructor": "ATIQUR",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CCS",
+          "instructor": "AYESHA BANU",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "CCS",
+          "instructor": "AYESHA BANU",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CCS",
+          "instructor": "AYESHA BANU",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        }
+      ],
+      "503": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "MML",
+          "instructor": "KMAY",
+          "type": "Lab",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "506": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "IEEL",
+          "instructor": "CFK",
+          "type": "Lab",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "IEEL",
+          "instructor": "MTS",
+          "type": "Lab",
+          "semSec": "Sem 1-E"
+        }
+      ],
+      "510": [
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "CGVA",
+          "instructor": "WALI",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CGVA",
+          "instructor": "WALI",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CCS",
+          "instructor": "KAMAL",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DM",
+          "instructor": "KAMAL",
+          "type": "Theory",
+          "semSec": "Sem 8-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DM",
+          "instructor": "KAMAL",
+          "type": "Theory",
+          "semSec": "Sem 8-B"
+        }
+      ],
+      "601": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "ALGOL",
+          "instructor": "NR",
+          "type": "Lab",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CNL",
+          "instructor": "NBH",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "604": [
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "PFL",
+          "instructor": "AJT",
+          "type": "Lab",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "AIL",
+          "instructor": "TH",
+          "type": "Lab",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "NSL",
+          "instructor": "FSC",
+          "type": "Theory",
+          "semSec": "Sem 8-E"
+        }
+      ],
+      "606": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "ALGOL",
+          "instructor": "TDM",
+          "type": "Lab",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OSL",
+          "instructor": "AJT",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "608": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MED",
+          "instructor": "MA",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "MED",
+          "instructor": "MA",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "MED",
+          "instructor": "MA",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "SDP",
+          "instructor": "THA",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        }
+      ],
+      "610": [
+        {
+          "start": "11:00 AM",
+          "end": "12:40 PM",
+          "startM": 660,
+          "endM": 760,
+          "subject": "FBL",
+          "instructor": "TASLIMA",
+          "type": "Lab",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "03:10 PM",
+          "startM": 810,
+          "endM": 910,
+          "subject": "FBL",
+          "instructor": "TASLIMA",
+          "type": "Lab",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "start": "08:55 AM",
+          "end": "10:35 AM",
+          "startM": 535,
+          "endM": 635,
+          "subject": "FBL",
+          "instructor": "TASLIMA",
+          "type": "Lab",
+          "semSec": "Sem 1-C"
+        }
+      ],
+      "611": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "GE",
+          "instructor": "Ataur",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "GE",
+          "instructor": "Ataur",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "GE",
+          "instructor": "Ataur",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "MLADE",
+          "instructor": "AU",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "MLADE",
+          "instructor": "AU",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "612": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ICMP",
+          "instructor": "MIHIR",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OOP",
+          "instructor": "SMAI",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "BFE",
+          "instructor": "AYESHA",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "BFE",
+          "instructor": "AYESHA",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CN",
+          "instructor": "SMAI",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        }
+      ],
+      "613": [
+        {
+          "start": "12:15 PM",
+          "end": "01:55 PM",
+          "startM": 735,
+          "endM": 835,
+          "subject": "BS",
+          "instructor": "SN",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "10:10 AM",
+          "startM": 510,
+          "endM": 610,
+          "subject": "BS",
+          "instructor": "SN",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        },
+        {
+          "start": "10:10 AM",
+          "end": "11:50 AM",
+          "startM": 610,
+          "endM": 710,
+          "subject": "BS",
+          "instructor": "SN",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "901": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "TWP",
+          "instructor": "SAIFUL",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "TWP",
+          "instructor": "SAIFUL",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "902": [
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "GE",
+          "instructor": "RMA",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "GE",
+          "instructor": "RMA",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "GE",
+          "instructor": "RMA",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DEPT",
+          "instructor": "NM",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DEPT",
+          "instructor": "NM",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "DEPT",
+          "instructor": "NM",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        }
+      ],
+      "903": [
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "DIC",
+          "instructor": "ABSAR",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "BFE",
+          "instructor": "JA",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "BFE",
+          "instructor": "JA",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "BFE",
+          "instructor": "JA",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "BFE",
+          "instructor": "ZAHID",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "BFE",
+          "instructor": "ZAHID",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "904": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "ALGOL",
+          "instructor": "MHN",
+          "type": "Lab",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OSL",
+          "instructor": "RM",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        }
+      ],
+      "905": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DSL",
+          "instructor": "MHE",
+          "type": "Lab",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "MAD",
+          "instructor": "TMC",
+          "type": "Lab",
+          "semSec": "Sem 5-C"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DSL",
+          "instructor": "MHE",
+          "type": "Lab",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "909": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MED",
+          "instructor": "MR",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MED",
+          "instructor": "MR",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "MED",
+          "instructor": "MR",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CPL",
+          "instructor": "FJD",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "CPL",
+          "instructor": "FJD",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        }
+      ],
+      "910": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "PME",
+          "instructor": "TMF",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PME",
+          "instructor": "TMF",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PME",
+          "instructor": "TMF",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CC",
+          "instructor": "KMN",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "1001": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "CENG",
+          "instructor": "ALAMGIR",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "CENG",
+          "instructor": "ALAMGIR",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CENG",
+          "instructor": "ALAMGIR",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        }
+      ],
+      "1002": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "EDC",
+          "instructor": "AIR",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "EDC",
+          "instructor": "AIR",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EDC",
+          "instructor": "AIR",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "CENG",
+          "instructor": "INZAMAM",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EDC",
+          "instructor": "AIR",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "1003": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ML",
+          "instructor": "SHUHENA",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "ML",
+          "instructor": "SHUHENA",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "BDA",
+          "instructor": "ROKON",
+          "type": "Theory",
+          "semSec": "Sem 8-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "BDA",
+          "instructor": "ROKON",
+          "type": "Theory",
+          "semSec": "Sem 8-B"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "BDA",
+          "instructor": "ROKON",
+          "type": "Theory",
+          "semSec": "Sem 8-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DM",
+          "instructor": "SHUHENA",
+          "type": "Theory",
+          "semSec": "Sem 8-C"
+        }
+      ],
+      "1004": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CENG",
+          "instructor": "INZAMAM",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "CENG",
+          "instructor": "INZAMAM",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        }
+      ],
+      "1008": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DBMSL",
+          "instructor": "MRI",
+          "type": "Lab",
+          "semSec": "Sem 4-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "MAD",
+          "instructor": "RM",
+          "type": "Lab",
+          "semSec": "Sem 5-C"
+        }
+      ]
+    },
+    "Sunday": {
+      "403": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DIC",
+          "instructor": "KLD",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        }
+      ],
+      "404": [
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DIC",
+          "instructor": "KLD",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ICMP",
+          "instructor": "DAB",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DS",
+          "instructor": "MHE",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "AI",
+          "instructor": "TH",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        }
+      ],
+      "405": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "PME",
+          "instructor": "TASNIA",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SE",
+          "instructor": "EAS",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PME",
+          "instructor": "ZIA",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PME",
+          "instructor": "ZIA",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "406": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "instructor": "AD",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "FMA",
+          "instructor": "SAGAR",
+          "type": "Theory",
+          "semSec": "Sem 8-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "FMA",
+          "instructor": "SAGAR",
+          "type": "Theory",
+          "semSec": "Sem 8-B"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "FMA",
+          "instructor": "SAGAR",
+          "type": "Theory",
+          "semSec": "Sem 8-C"
+        }
+      ],
+      "408": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "EE",
+          "instructor": "TMH",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "EE",
+          "instructor": "TMH",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EE",
+          "instructor": "TMH",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        }
+      ],
+      "409": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DIC",
+          "instructor": "KLD",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "IEE",
+          "instructor": "CFK",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "IEE",
+          "instructor": "CFK",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        }
+      ],
+      "410": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "IEE",
+          "instructor": "MRRC",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "OOPL",
+          "instructor": "EAS",
+          "type": "Lab",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ALGO",
+          "instructor": "NR",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        }
+      ],
+      "411": [
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "ALGO",
+          "instructor": "TH",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MM",
+          "instructor": "KMAY",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "MM",
+          "instructor": "KMAY",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OS",
+          "instructor": "AJT",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        }
+      ],
+      "503": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "MML",
+          "instructor": "MRRC",
+          "type": "Lab",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "505": [
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "PHYL",
+          "instructor": "NJS",
+          "type": "Lab",
+          "semSec": "Sem 2-A"
+        }
+      ],
+      "506": [
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "IEEL",
+          "instructor": "MTS",
+          "type": "Lab",
+          "semSec": "Sem 1-F"
+        }
+      ],
+      "508": [
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "IEEL",
+          "instructor": "KMAY",
+          "type": "Lab",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "EDCL",
+          "instructor": "RSN",
+          "type": "Lab",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DEPTL",
+          "instructor": "ASIF",
+          "type": "Lab",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "EDCL",
+          "instructor": "RSN",
+          "type": "Lab",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "510": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ALGO",
+          "instructor": "NR",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DBMS",
+          "instructor": "NAK",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ALGO",
+          "instructor": "MHE",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        }
+      ],
+      "601": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "CNL",
+          "instructor": "SMAI",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CCL",
+          "instructor": "KD",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "CCL",
+          "instructor": "KD",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "MLL",
+          "instructor": "YR",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "604": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "PFL",
+          "instructor": "MHN",
+          "type": "Lab",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "PFL",
+          "instructor": "MHN",
+          "type": "Lab",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "SDP",
+          "instructor": "RM",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "SDP",
+          "instructor": "RM",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "606": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "IP",
+          "instructor": "AVISHEK CHOW",
+          "type": "Lab",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "ALGOL",
+          "instructor": "NR",
+          "type": "Lab",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "ALGOL",
+          "instructor": "FJD",
+          "type": "Lab",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "608": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "PFL",
+          "instructor": "NBH",
+          "type": "Lab",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DSL",
+          "instructor": "FSC",
+          "type": "Lab",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "ALGOL",
+          "instructor": "TDM",
+          "type": "Lab",
+          "semSec": "Sem 4-B"
+        }
+      ],
+      "610": [
+        {
+          "start": "09:45 AM",
+          "end": "11:25 AM",
+          "startM": 585,
+          "endM": 685,
+          "subject": "FBL",
+          "instructor": "MAWLA",
+          "type": "Lab",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "start": "11:25 AM",
+          "end": "01:05 PM",
+          "startM": 685,
+          "endM": 785,
+          "subject": "FBL",
+          "instructor": "MAWLA",
+          "type": "Lab",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "SAP",
+          "instructor": "FORKAN",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "611": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DS",
+          "instructor": "FSC",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "ICMP",
+          "instructor": "MIHIR",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "OS",
+          "instructor": "AJT",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CC",
+          "instructor": "KD",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "03:10 PM",
+          "startM": 810,
+          "endM": 910,
+          "subject": "TC",
+          "instructor": "AD",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "612": [
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DMNT",
+          "instructor": "ST",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DMNT",
+          "instructor": "ST",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MM",
+          "instructor": "FORHAD",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CN",
+          "instructor": "SMAI",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DMNT",
+          "instructor": "ST",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "613": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CGVA",
+          "instructor": "JU",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "CGVA",
+          "instructor": "JU",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "OOP",
+          "instructor": "RA",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DBMS",
+          "instructor": "NAK",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "BFE",
+          "instructor": "ZAHID",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "BFE",
+          "instructor": "ZAHID",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "901": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PF",
+          "instructor": "NBH",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DBMS",
+          "instructor": "MRI",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:20 PM",
+          "startM": 810,
+          "endM": 860,
+          "subject": "SDP",
+          "instructor": "THA",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "start": "02:20 PM",
+          "end": "03:10 PM",
+          "startM": 860,
+          "endM": 910,
+          "subject": "SDP",
+          "instructor": "THA",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "start": "09:20 AM",
+          "end": "11:00 AM",
+          "startM": 560,
+          "endM": 660,
+          "subject": "TC",
+          "instructor": "AD",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        }
+      ],
+      "902": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "CFE",
+          "instructor": "AMS",
+          "type": "Lab",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "EE",
+          "instructor": "AWAL",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DEPT",
+          "instructor": "MI",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "903": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "IEE",
+          "instructor": "MTS",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DS",
+          "instructor": "FJD",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ALGO",
+          "instructor": "TH",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "CCS",
+          "instructor": "AYESHA BANU",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        }
+      ],
+      "904": [
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "OOPL",
+          "instructor": "RA",
+          "type": "Lab",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "MAD",
+          "instructor": "TMC",
+          "type": "Lab",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "GDDL",
+          "instructor": "MRI",
+          "type": "Theory",
+          "semSec": "Sem 8-D"
+        }
+      ],
+      "905": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "MAD",
+          "instructor": "TMC",
+          "type": "Lab",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "BDAL",
+          "instructor": "MTH",
+          "type": "Theory",
+          "semSec": "Sem 8-B"
+        }
+      ],
+      "909": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "OOPL",
+          "instructor": "KMN",
+          "type": "Lab",
+          "semSec": "Sem 3-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "OOPL",
+          "instructor": "KMN",
+          "type": "Lab",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "910": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MM",
+          "instructor": "FORHAD",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "MM",
+          "instructor": "FORHAD",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CCS",
+          "instructor": "AYESHA BANU",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SEE",
+          "instructor": "TASNIM",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "1001": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DMNT",
+          "instructor": "MFF",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DBMS",
+          "instructor": "EAS",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "GDD",
+          "instructor": "MRI",
+          "type": "Theory",
+          "semSec": "Sem 8-D"
+        }
+      ],
+      "1002": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OOP",
+          "instructor": "RA",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "instructor": "YR",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "SE",
+          "instructor": "YR",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "1003": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DMNT",
+          "instructor": "MFF",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DMNT",
+          "instructor": "MFF",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "OS",
+          "instructor": "RM",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        }
+      ],
+      "1004": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CCS",
+          "instructor": "AYESHA BANU",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        }
+      ],
+      "1008": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "NM",
+          "instructor": "THA",
+          "type": "Lab",
+          "semSec": "Sem 3-E"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "IP",
+          "instructor": "AVISHEK CHOW",
+          "type": "Lab",
+          "semSec": "Sem 3-F"
+        }
+      ]
+    },
+    "Monday": {
+      "404": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ICMP",
+          "instructor": "NME",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ICMP",
+          "instructor": "NME",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "SE",
+          "instructor": "EAS",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SEE",
+          "instructor": "TASNIM",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ICMP",
+          "instructor": "NME",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "405": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "IEE",
+          "instructor": "CFK",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "10:10 AM",
+          "startM": 510,
+          "endM": 610,
+          "subject": "FBL",
+          "instructor": "MAWLA",
+          "type": "Lab",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SEE",
+          "instructor": "ASIF",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "NS",
+          "instructor": "FSC",
+          "type": "Theory",
+          "semSec": "Sem 8-E"
+        }
+      ],
+      "406": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "BFE",
+          "instructor": "JA",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "AI",
+          "instructor": "TH",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "AI",
+          "instructor": "TASMIN",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "408": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PF",
+          "instructor": "MHN",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "instructor": "AD",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CCS",
+          "instructor": "TASMIN",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        }
+      ],
+      "409": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DS",
+          "instructor": "FSC",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "OOP",
+          "instructor": "RA",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CC",
+          "instructor": "KD",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        }
+      ],
+      "410": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DBMS",
+          "instructor": "AD",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OS",
+          "instructor": "AJT",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "instructor": "EAS",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        }
+      ],
+      "411": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "IEE",
+          "instructor": "CFK",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "EDC",
+          "instructor": "MTS",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MLADE",
+          "instructor": "AU",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "MLADE",
+          "instructor": "AU",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CN",
+          "instructor": "NAK",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        }
+      ],
+      "503": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "MML",
+          "instructor": "MHE",
+          "type": "Lab",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "MML",
+          "instructor": "MHE",
+          "type": "Lab",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "MML",
+          "instructor": "KMAY",
+          "type": "Lab",
+          "semSec": "Sem 4-F"
+        }
+      ],
+      "505": [
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "PHYL",
+          "instructor": "NJS",
+          "type": "Lab",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "PHYL",
+          "instructor": "NJS",
+          "type": "Lab",
+          "semSec": "Sem 2-D"
+        }
+      ],
+      "506": [
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "IEEL",
+          "instructor": "MRRC",
+          "type": "Lab",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "EDCL",
+          "instructor": "MTS",
+          "type": "Lab",
+          "semSec": "Sem 2-F"
+        }
+      ],
+      "508": [
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "EDCL",
+          "instructor": "MI",
+          "type": "Lab",
+          "semSec": "Sem 2-E"
+        }
+      ],
+      "510": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MLADE",
+          "instructor": "AKK",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MLADE",
+          "instructor": "AKK",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "MLADE",
+          "instructor": "AKK",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DBMS",
+          "instructor": "NAK",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        }
+      ],
+      "601": [
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "CNL",
+          "instructor": "NAK",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "CNL",
+          "instructor": "KD",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "SDP",
+          "instructor": "RM",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        }
+      ],
+      "604": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "NM",
+          "instructor": "TDM",
+          "type": "Lab",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "AIL",
+          "instructor": "ST",
+          "type": "Lab",
+          "semSec": "Sem 5-C"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "SDP",
+          "instructor": "THA",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        }
+      ],
+      "606": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "PFL",
+          "instructor": "MH",
+          "type": "Lab",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CPL",
+          "instructor": "MHN",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "OOPL",
+          "instructor": "RA",
+          "type": "Lab",
+          "semSec": "Sem 3-D"
+        }
+      ],
+      "608": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DSL",
+          "instructor": "FSC",
+          "type": "Lab",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "DBMSL",
+          "instructor": "MRI",
+          "type": "Lab",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DBMSL",
+          "instructor": "MRI",
+          "type": "Lab",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "610": [
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "CGVA",
+          "instructor": "JU",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CGVA",
+          "instructor": "JU",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DC",
+          "instructor": "HKR",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DC",
+          "instructor": "HKR",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DC",
+          "instructor": "HKR",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "611": [
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SAP",
+          "instructor": "AZAD",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "SAP",
+          "instructor": "AZAD",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "STQA",
+          "instructor": "THA",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "BDA",
+          "instructor": "ROKON",
+          "type": "Theory",
+          "semSec": "Sem 8-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "BDA",
+          "instructor": "ROKON",
+          "type": "Theory",
+          "semSec": "Sem 8-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "BDA",
+          "instructor": "ROKON",
+          "type": "Theory",
+          "semSec": "Sem 8-C"
+        }
+      ],
+      "612": [
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "GE",
+          "instructor": "Ataur",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ICMP",
+          "instructor": "NP",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ICMP",
+          "instructor": "NP",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "OS",
+          "instructor": "AJT",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        }
+      ],
+      "613": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DIC",
+          "instructor": "KLD",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "EDC",
+          "instructor": "JUA",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EDC",
+          "instructor": "JUA",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DEPT",
+          "instructor": "JUA",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "MLADE",
+          "instructor": "KLD",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "901": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PF",
+          "instructor": "MH",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CFE",
+          "instructor": "AMS",
+          "type": "Lab",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "BFE",
+          "instructor": "JA",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "BFE",
+          "instructor": "JA",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CN",
+          "instructor": "MH",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        }
+      ],
+      "902": [
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "DIC",
+          "instructor": "KLD",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MM",
+          "instructor": "FORHAD",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "MM",
+          "instructor": "FORHAD",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MM",
+          "instructor": "FORHAD",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ISD",
+          "instructor": "TMC",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "903": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "IEE",
+          "instructor": "MTS",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "CFE",
+          "instructor": "AMS",
+          "type": "Lab",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DIC",
+          "instructor": "ABSAR",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        }
+      ],
+      "904": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "PFL",
+          "instructor": "NBH",
+          "type": "Lab",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CPL",
+          "instructor": "MHN",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "STQAL",
+          "instructor": "TMC",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "905": [
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "IP",
+          "instructor": "MTH",
+          "type": "Lab",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "NM",
+          "instructor": "YR",
+          "type": "Lab",
+          "semSec": "Sem 3-F"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "SEL",
+          "instructor": "YR",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "SEL",
+          "instructor": "YR",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "909": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CCL",
+          "instructor": "KMN",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "910": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "MM",
+          "instructor": "MRRC",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ALGO",
+          "instructor": "FJD",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "GC",
+          "instructor": "NR",
+          "type": "Theory",
+          "semSec": "Sem 8-E"
+        }
+      ],
+      "1001": [
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "EE",
+          "instructor": "IFTEKAR MIA",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EE",
+          "instructor": "IFTEKAR MIA",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "OOP",
+          "instructor": "EAS",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CC",
+          "instructor": "KMN",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EE",
+          "instructor": "IFTEKAR MIA",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "1002": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CGVA",
+          "instructor": "ABSAR",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MM",
+          "instructor": "MRRC",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "OS",
+          "instructor": "RM",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        }
+      ],
+      "1003": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OOP",
+          "instructor": "RA",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ALGO",
+          "instructor": "FJD",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "AI",
+          "instructor": "TH",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        }
+      ],
+      "1004": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "IEE",
+          "instructor": "KMAY",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CGVA",
+          "instructor": "ABSAR",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        }
+      ],
+      "1008": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "IP",
+          "instructor": "MFF",
+          "type": "Lab",
+          "semSec": "Sem 3-E"
+        }
+      ]
+    },
+    "Tuesday": {
+      "403": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ALGO",
+          "instructor": "FJD",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "404": [
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DS",
+          "instructor": "MHE",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "instructor": "EAS",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "NS",
+          "instructor": "FSC",
+          "type": "Theory",
+          "semSec": "Sem 8-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "GC",
+          "instructor": "NR",
+          "type": "Theory",
+          "semSec": "Sem 8-E"
+        }
+      ],
+      "405": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "IEE",
+          "instructor": "KMAY",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "OOP",
+          "instructor": "RA",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "ISD",
+          "instructor": "ATIQUR",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ISD",
+          "instructor": "ATIQUR",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CCS",
+          "instructor": "ATIQUR",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        }
+      ],
+      "406": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PF",
+          "instructor": "MHN",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "FMA",
+          "instructor": "SAGAR",
+          "type": "Theory",
+          "semSec": "Sem 8-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "FMA",
+          "instructor": "SAGAR",
+          "type": "Theory",
+          "semSec": "Sem 8-B"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "FMA",
+          "instructor": "SAGAR",
+          "type": "Theory",
+          "semSec": "Sem 8-C"
+        }
+      ],
+      "408": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DMNT",
+          "instructor": "ST",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "ALGO",
+          "instructor": "TH",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DBMS",
+          "instructor": "AD",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DMNT",
+          "instructor": "ST",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "409": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ALGO",
+          "instructor": "NR",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "instructor": "NR",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CN",
+          "instructor": "NBH",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SEE",
+          "instructor": "ASIF",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        }
+      ],
+      "410": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "IEE",
+          "instructor": "MTS",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DIC",
+          "instructor": "ABSAR",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DS",
+          "instructor": "FSC",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CN",
+          "instructor": "NAK",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        }
+      ],
+      "411": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "PF",
+          "instructor": "AJT",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PF",
+          "instructor": "AJT",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DMNT",
+          "instructor": "MFF",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        }
+      ],
+      "505": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "PHYL",
+          "instructor": "NJS",
+          "type": "Lab",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "PHYL",
+          "instructor": "NJS",
+          "type": "Lab",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "506": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "IEEL",
+          "instructor": "CFK",
+          "type": "Lab",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "EDCL",
+          "instructor": "MRRC",
+          "type": "Lab",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DEPTL",
+          "instructor": "KMAY",
+          "type": "Lab",
+          "semSec": "Sem 3-D"
+        }
+      ],
+      "508": [
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "EDCL",
+          "instructor": "JBA",
+          "type": "Lab",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DEPTL",
+          "instructor": "CFK",
+          "type": "Lab",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "510": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CGVA",
+          "instructor": "WALI",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "CGVA",
+          "instructor": "WALI",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MM",
+          "instructor": "KMAY",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "COA",
+          "instructor": "MAHBUBUL",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "COA",
+          "instructor": "MAHBUBUL",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CN",
+          "instructor": "NBH",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "601": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "OOPL",
+          "instructor": "SMAI",
+          "type": "Lab",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "MLL",
+          "instructor": "YR",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "604": [
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DBMSL",
+          "instructor": "EAS",
+          "type": "Lab",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "DBMSL",
+          "instructor": "EAS",
+          "type": "Lab",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "BDAL",
+          "instructor": "MTH",
+          "type": "Theory",
+          "semSec": "Sem 8-C"
+        }
+      ],
+      "606": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "AIL",
+          "instructor": "TH",
+          "type": "Lab",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "CCL",
+          "instructor": "KD",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "608": [
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CPL",
+          "instructor": "MHN",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "CPL",
+          "instructor": "MHN",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "NM",
+          "instructor": "TDM",
+          "type": "Lab",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CPL",
+          "instructor": "MHN",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "610": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DMNT",
+          "instructor": "FSC",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MLADE",
+          "instructor": "AKK",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "SAP",
+          "instructor": "FORKAN",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "GDD",
+          "instructor": "MRI",
+          "type": "Theory",
+          "semSec": "Sem 8-D"
+        }
+      ],
+      "611": [
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "GE",
+          "instructor": "Ataur",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "GE",
+          "instructor": "Ataur",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "MLADE",
+          "instructor": "KLD",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CN",
+          "instructor": "KD",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "FMA",
+          "instructor": "FIROZA",
+          "type": "Theory",
+          "semSec": "Sem 8-D"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "FMA",
+          "instructor": "FIROZA",
+          "type": "Theory",
+          "semSec": "Sem 8-E"
+        }
+      ],
+      "612": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DBMS",
+          "instructor": "AD",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "BFE",
+          "instructor": "AYESHA",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "BFE",
+          "instructor": "AYESHA",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DC",
+          "instructor": "FK",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DC",
+          "instructor": "FK",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "DC",
+          "instructor": "FK",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        }
+      ],
+      "613": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OOP",
+          "instructor": "SMAI",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MLADE",
+          "instructor": "KLD",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SAP",
+          "instructor": "AZAD",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "COA",
+          "instructor": "MAHBUBUL",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "SAP",
+          "instructor": "AZAD",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        }
+      ],
+      "901": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "IEE",
+          "instructor": "MTS",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CGVA",
+          "instructor": "ABSAR",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DEPT",
+          "instructor": "MTS",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        }
+      ],
+      "902": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CFE",
+          "instructor": "AMS",
+          "type": "Lab",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DS",
+          "instructor": "KMN",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "OOP",
+          "instructor": "KMN",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DEPT",
+          "instructor": "MI",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "903": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DIC",
+          "instructor": "KLD",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "DMNT",
+          "instructor": "MFF",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DS",
+          "instructor": "FJD",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:20 PM",
+          "startM": 810,
+          "endM": 860,
+          "subject": "SDP",
+          "instructor": "THA",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "STQA",
+          "instructor": "TMC",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "904": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "STQAL",
+          "instructor": "THA",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "STQAL",
+          "instructor": "TMC",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "BDAL",
+          "instructor": "MTH",
+          "type": "Theory",
+          "semSec": "Sem 8-A"
+        }
+      ],
+      "905": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DSL",
+          "instructor": "MHE",
+          "type": "Lab",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "IP",
+          "instructor": "AVISHEK CHOW",
+          "type": "Lab",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "SDP",
+          "instructor": "RM",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        }
+      ],
+      "910": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OOP",
+          "instructor": "EAS",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DBMS",
+          "instructor": "MRI",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ALGO",
+          "instructor": "FJD",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "1001": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MM",
+          "instructor": "MRRC",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "STQA",
+          "instructor": "THA",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        }
+      ],
+      "1002": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DBMS",
+          "instructor": "MRI",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "SE",
+          "instructor": "YR",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "1003": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DIC",
+          "instructor": "ABSAR",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        }
+      ],
+      "1004": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DMNT",
+          "instructor": "MFF",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        }
+      ],
+      "1008": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "AIL",
+          "instructor": "RA",
+          "type": "Lab",
+          "semSec": "Sem 5-C"
+        }
+      ]
+    },
+    "Wednesday": {
+      "404": [
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "GE",
+          "instructor": "RMA",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "GE",
+          "instructor": "RMA",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "GE",
+          "instructor": "RMA",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PF",
+          "instructor": "MHN",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DIC",
+          "instructor": "ABSAR",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        }
+      ],
+      "405": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "PME",
+          "instructor": "TMF",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PME",
+          "instructor": "TMF",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PME",
+          "instructor": "TMF",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        }
+      ],
+      "406": [
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "DEPT",
+          "instructor": "NM",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DEPT",
+          "instructor": "NM",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DEPT",
+          "instructor": "NM",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ML",
+          "instructor": "SHUHENA",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ML",
+          "instructor": "SHUHENA",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "DM",
+          "instructor": "SHUHENA",
+          "type": "Theory",
+          "semSec": "Sem 8-C"
+        }
+      ],
+      "408": [
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "EDC",
+          "instructor": "MTS",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DBMS",
+          "instructor": "NAK",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ALGO",
+          "instructor": "NR",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "instructor": "NR",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        }
+      ],
+      "409": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PF",
+          "instructor": "AJT",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CN",
+          "instructor": "KD",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "HCI",
+          "instructor": "RA",
+          "type": "Theory",
+          "semSec": "Sem 8-D"
+        }
+      ],
+      "410": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "PF",
+          "instructor": "AJT",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PF",
+          "instructor": "NBH",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DMNT",
+          "instructor": "FSC",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        }
+      ],
+      "411": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PF",
+          "instructor": "MH",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "AI",
+          "instructor": "TH",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CN",
+          "instructor": "MH",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        }
+      ],
+      "503": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "MML",
+          "instructor": "CFK",
+          "type": "Lab",
+          "semSec": "Sem 4-A"
+        }
+      ],
+      "505": [
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "PHYL",
+          "instructor": "NJS",
+          "type": "Lab",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "PHYL",
+          "instructor": "NJS",
+          "type": "Lab",
+          "semSec": "Sem 2-F"
+        }
+      ],
+      "506": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "EDCL",
+          "instructor": "ASIF",
+          "type": "Lab",
+          "semSec": "Sem 2-D"
+        }
+      ],
+      "508": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DEPTL",
+          "instructor": "ASIF",
+          "type": "Lab",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DEPTL",
+          "instructor": "TASNIM",
+          "type": "Lab",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "DEPTL",
+          "instructor": "TASNIM",
+          "type": "Lab",
+          "semSec": "Sem 3-E"
+        }
+      ],
+      "510": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DS",
+          "instructor": "MHE",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ALGO",
+          "instructor": "MHE",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MM",
+          "instructor": "KMAY",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DS",
+          "instructor": "MHE",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "601": [
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "SEL",
+          "instructor": "NR",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SEL",
+          "instructor": "NR",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "CNL",
+          "instructor": "KD",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CNL",
+          "instructor": "MH",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        }
+      ],
+      "604": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DBMSL",
+          "instructor": "AD",
+          "type": "Lab",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "DBMSL",
+          "instructor": "NAK",
+          "type": "Lab",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "SDP",
+          "instructor": "THA",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        }
+      ],
+      "606": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DSL",
+          "instructor": "FJD",
+          "type": "Lab",
+          "semSec": "Sem 2-F"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "OSL",
+          "instructor": "RM",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "OSL",
+          "instructor": "AJT",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "608": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "NM",
+          "instructor": "TDM",
+          "type": "Lab",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DBMSL",
+          "instructor": "AD",
+          "type": "Lab",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "SEL",
+          "instructor": "EAS",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SEL",
+          "instructor": "EAS",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        }
+      ],
+      "610": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PF",
+          "instructor": "MHN",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DS",
+          "instructor": "FSC",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "MM",
+          "instructor": "MRRC",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "611": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DEPT",
+          "instructor": "MTS",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MLADE",
+          "instructor": "AKK",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MLADE",
+          "instructor": "AKK",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        }
+      ],
+      "612": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CCS",
+          "instructor": "KAMAL",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DM",
+          "instructor": "KAMAL",
+          "type": "Theory",
+          "semSec": "Sem 8-A"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DM",
+          "instructor": "KAMAL",
+          "type": "Theory",
+          "semSec": "Sem 8-B"
+        }
+      ],
+      "613": [
+        {
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "EDC",
+          "instructor": "JUA",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "EDC",
+          "instructor": "JUA",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DEPT",
+          "instructor": "JUA",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CN",
+          "instructor": "NBH",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "901": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EDC",
+          "instructor": "AIR",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "EDC",
+          "instructor": "AIR",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "EDC",
+          "instructor": "AIR",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "start": "03:10 PM",
+          "end": "04:00 PM",
+          "startM": 910,
+          "endM": 960,
+          "subject": "SDP",
+          "instructor": "RM",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "start": "02:20 PM",
+          "end": "03:10 PM",
+          "startM": 860,
+          "endM": 910,
+          "subject": "SDP",
+          "instructor": "RM",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:20 PM",
+          "startM": 810,
+          "endM": 860,
+          "subject": "SDP",
+          "instructor": "RM",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "EDC",
+          "instructor": "AIR",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "902": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CFE",
+          "instructor": "AMS",
+          "type": "Lab",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "EE",
+          "instructor": "AWAL",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DS",
+          "instructor": "KMN",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        }
+      ],
+      "903": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "IEE",
+          "instructor": "MRRC",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CN",
+          "instructor": "NBH",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "STQA",
+          "instructor": "TMC",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "904": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "ALGOL",
+          "instructor": "FJD",
+          "type": "Lab",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "905": [
+        {
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "IP",
+          "instructor": "MTH",
+          "type": "Lab",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "NM",
+          "instructor": "TASMIN",
+          "type": "Lab",
+          "semSec": "Sem 3-D"
+        }
+      ],
+      "909": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DSL",
+          "instructor": "KMN",
+          "type": "Lab",
+          "semSec": "Sem 2-E"
+        }
+      ],
+      "910": [
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "EE",
+          "instructor": "IFTEKAR MIA",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "EE",
+          "instructor": "IFTEKAR MIA",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OOP",
+          "instructor": "RA",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ISD",
+          "instructor": "TMC",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        },
+        {
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "EE",
+          "instructor": "IFTEKAR MIA",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "1001": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DIC",
+          "instructor": "ABSAR",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "AI",
+          "instructor": "TASMIN",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CCS",
+          "instructor": "TASMIN",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        }
+      ],
+      "1002": [
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DBMS",
+          "instructor": "EAS",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DBMS",
+          "instructor": "MRI",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "instructor": "YR",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        }
+      ],
+      "1003": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CFE",
+          "instructor": "MFF",
+          "type": "Lab",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "OOP",
+          "instructor": "KMN",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        },
+        {
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CGVA",
+          "instructor": "ABSAR",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "1004": [
+        {
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MLADE",
+          "instructor": "KLD",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        }
+      ],
+      "1008": [
+        {
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "MLL",
+          "instructor": "YR",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        }
+      ]
+    },
+    "Thursday": {},
+    "Friday": {}
+  }
+}

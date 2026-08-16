@@ -31,7 +31,6 @@ export const NativePush = {
 
   async init() {
     if (!this.isSupported()) return;
-    console.log('NativePush initialized in LocalNotifications mode for Semester ' + Storage.getSemester() + ' Section ' + Storage.getSection() + '.');
   }
 };
 

@@ -364,11 +364,19 @@ export function initAnnouncementEvents() {
     openModal(DOM.announceModal, async () => {
       await Announcements.fetchAll();
     });
-    Announcements.markAsRead();
   });
-  DOM.announceModalClose.addEventListener('click', () => {
+
+  const handleCloseAnnouncements = () => {
     closeModal(DOM.announceModal);
     Announcements.markAsRead();
+  };
+
+  DOM.announceModalClose.addEventListener('click', handleCloseAnnouncements);
+
+  DOM.announceModal.addEventListener('click', e => {
+    if (e.target === DOM.announceModal) {
+      handleCloseAnnouncements();
+    }
   });
 
   // Filter Bar Pills Binding

@@ -156,6 +156,21 @@ export function initEditorEvents() {
     });
   });
 
+  // Toggle Foldable Edit Routine Section
+  const toggleEditRoutineCollapseBtn = document.getElementById('toggleEditRoutineCollapseBtn');
+  const collapsibleRoutineSection = document.getElementById('collapsibleRoutineSection');
+  const editRoutineChevron = document.getElementById('editRoutineChevron');
+
+  if (toggleEditRoutineCollapseBtn && collapsibleRoutineSection) {
+    toggleEditRoutineCollapseBtn.addEventListener('click', () => {
+      const isHidden = collapsibleRoutineSection.style.display === 'none';
+      collapsibleRoutineSection.style.display = isHidden ? 'block' : 'none';
+      if (editRoutineChevron) {
+        editRoutineChevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+    });
+  }
+
   // Toggle Add Class form
   const toggleAddClassBtn = document.getElementById('toggleAddClassBtn');
   const addClassForm = document.getElementById('addClassForm');
@@ -163,14 +178,11 @@ export function initEditorEvents() {
     toggleAddClassBtn.addEventListener('click', () => {
       const isHidden = addClassForm.style.display === 'none';
       addClassForm.style.display = isHidden ? 'block' : 'none';
-      toggleAddClassBtn.textContent = isHidden ? '✕ Hide Form' : '+ Add Class';
+      toggleAddClassBtn.textContent = isHidden ? '✕ Hide Form' : '+ Add Class Entry';
       toggleAddClassBtn.style.borderColor = isHidden ? 'var(--pink)' : '';
       toggleAddClassBtn.style.color = isHidden ? 'var(--pink)' : '';
     });
   }
-
-  // Initial cache version populate
-  updateEditModalCacheInfo();
 
   // Initial cache version populate
   updateEditModalCacheInfo();

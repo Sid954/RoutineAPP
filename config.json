@@ -23,11 +23,17 @@
   },
   "subjectPalettes": [
     { "bg": "linear-gradient(135deg, #1e1b4b, #312e81)", "border": "#818cf8", "text": "#e0e7ff", "badge": "rgba(129,140,248,0.35)" },
-    { "bg": "linear-gradient(135deg, #022c22, #0d9488)", "border": "#2dd4bf", "text": "#ccfbf1", "badge": "rgba(45,212,191,0.35)" },
-    { "bg": "linear-gradient(135deg, #451a03, #d97706)", "border": "#fbbf24", "text": "#fef3c7", "badge": "rgba(251,191,36,0.35)" },
-    { "bg": "linear-gradient(135deg, #2e1065, #7c3aed)", "border": "#a78bfa", "text": "#f5f3ff", "badge": "rgba(167,139,250,0.35)" },
-    { "bg": "linear-gradient(135deg, #0f172a, #475569)", "border": "#94a3b8", "text": "#f8fafc", "badge": "rgba(148,163,184,0.35)" },
-    { "bg": "linear-gradient(135deg, #4a044e, #c026d3)", "border": "#e879f9", "text": "#fdf4ff", "badge": "rgba(232,121,249,0.35)" }
+    { "bg": "linear-gradient(135deg, #042f2e, #0e7490)", "border": "#22d3ee", "text": "#ecfeff", "badge": "rgba(34,211,238,0.35)" },
+    { "bg": "linear-gradient(135deg, #0f4c5c, #0d9488)", "border": "#2dd4bf", "text": "#ccfbf1", "badge": "rgba(45,212,191,0.35)" },
+    { "bg": "linear-gradient(135deg, #2e1065, #6d28d9)", "border": "#c084fc", "text": "#f5f3ff", "badge": "rgba(192,132,252,0.35)" },
+    { "bg": "linear-gradient(135deg, #4c0519, #be123c)", "border": "#fb7185", "text": "#fff1f2", "badge": "rgba(251,113,133,0.35)" },
+    { "bg": "linear-gradient(135deg, #4a044e, #a21caf)", "border": "#f0abfc", "text": "#fdf4ff", "badge": "rgba(240,171,252,0.35)" },
+    { "bg": "linear-gradient(135deg, #022c22, #15803d)", "border": "#4ade80", "text": "#f0fdf4", "badge": "rgba(74,222,128,0.35)" },
+    { "bg": "linear-gradient(135deg, #0c4a6e, #1d4ed8)", "border": "#60a5fa", "text": "#eff6ff", "badge": "rgba(96,165,250,0.35)" },
+    { "bg": "linear-gradient(135deg, #581c87, #7e22ce)", "border": "#c084fc", "text": "#f5f3ff", "badge": "rgba(192,132,252,0.35)" },
+    { "bg": "linear-gradient(135deg, #3b0764, #7e22ce)", "border": "#e879f9", "text": "#fdf4ff", "badge": "rgba(232,121,249,0.35)" },
+    { "bg": "linear-gradient(135deg, #0f172a, #334155)", "border": "#94a3b8", "text": "#f8fafc", "badge": "rgba(148,163,184,0.35)" },
+    { "bg": "linear-gradient(135deg, #14532d, #16a34a)", "border": "#86efac", "text": "#f0fdf4", "badge": "rgba(134,239,172,0.35)" }
   ],
   "labTheme": { "bg": "linear-gradient(135deg, #4c0519, #881337, #9f1239)", "border": "#f43f5e", "text": "#ffffff", "badge": "rgba(244,63,94,0.5)", "isLab": true }
 }

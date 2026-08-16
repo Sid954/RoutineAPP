@@ -71,7 +71,10 @@ module.exports = async (req, res) => {
   if (req.method === 'POST') {
     const { name, title, announcement, password, subject, type, date_override, subject_override, semester, section, checkPasswordOnly } = req.body || {};
 
-    const expectedPassword = process.env.ANNOUNCEMENT_PASSWORD || 'test123';
+    if (!process.env.ANNOUNCEMENT_PASSWORD) {
+      return res.status(503).json({ error: 'Announcement password is not configured on the server.' });
+    }
+    const expectedPassword = process.env.ANNOUNCEMENT_PASSWORD;
     if (password !== expectedPassword) {
       return res.status(401).json({ error: 'Unauthorized: Invalid password.' });
     }
@@ -176,7 +179,10 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Missing announcement ID.' });
     }
 
-    const expectedPassword = process.env.ANNOUNCEMENT_PASSWORD || 'test123';
+    if (!process.env.ANNOUNCEMENT_PASSWORD) {
+      return res.status(503).json({ error: 'Announcement password is not configured on the server.' });
+    }
+    const expectedPassword = process.env.ANNOUNCEMENT_PASSWORD;
     if (password !== expectedPassword) {
       return res.status(401).json({ error: 'Unauthorized: Invalid password.' });
     }

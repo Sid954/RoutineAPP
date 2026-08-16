@@ -7,6 +7,125 @@ import { getSubjectTheme } from '../schedule/themes.js';
 import { toMinutes, format12h, getCurrentMinutes, escapeHtml, formatRoom, truncateText } from '../core/utils.js';
 import { bindCourseTitleClicks } from '../timeline/course-title.js';
 
+let matrixTouchStartX = 0;
+let matrixTouchStartY = 0;
+let isMatrixDragging = false;
+let targetMatrixDayIdx = -1;
+let isMatrixSwipeBound = false;
+
+export function switchMatrixDay(direction) {
+  const cardsEl = DOM.matrixGrid ? DOM.matrixGrid.querySelector('.m-matrix-cards') : null;
+  if (!cardsEl) return;
+
+  const activeDays = CONFIG.activeDays;
+  const currentIdx = activeDays.indexOf(State.matrixSelectedDayIdx);
+  if (currentIdx === -1) return;
+
+  const nextIdx = direction === 'next'
+    ? activeDays[(currentIdx + 1) % activeDays.length]
+    : activeDays[(currentIdx - 1 + activeDays.length) % activeDays.length];
+
+  const isNext = direction === 'next';
+  const exitX = isNext ? -350 : 350;
+  const entryX = isNext ? 350 : -350;
+
+  cardsEl.classList.add('swipe-transition');
+  cardsEl.style.transform = `translateX(${exitX}px)`;
+  cardsEl.style.opacity = '0';
+
+  setTimeout(() => {
+    State.matrixSelectedDayIdx = nextIdx;
+    renderWeeklyMatrix();
+
+    const newCardsEl = DOM.matrixGrid ? DOM.matrixGrid.querySelector('.m-matrix-cards') : null;
+    if (newCardsEl) {
+      newCardsEl.style.transform = `translateX(${entryX}px)`;
+      newCardsEl.style.opacity = '0';
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          newCardsEl.classList.add('swipe-transition');
+          newCardsEl.style.transform = 'translateX(0)';
+          newCardsEl.style.opacity = '1';
+          setTimeout(() => {
+            newCardsEl.classList.remove('swipe-transition');
+          }, 240);
+        });
+      });
+    }
+  }, 160);
+}
+
+function bindMatrixTouchSwipe() {
+  if (isMatrixSwipeBound) return;
+  const modalEl = DOM.viewModal ? DOM.viewModal.querySelector('.view-md') : null;
+  if (!modalEl) return;
+  isMatrixSwipeBound = true;
+
+  modalEl.addEventListener('touchstart', e => {
+    if (window.innerWidth > 640) return;
+    if (e.touches.length !== 1) return;
+    matrixTouchStartX = e.touches[0].clientX;
+    matrixTouchStartY = e.touches[0].clientY;
+    isMatrixDragging = false;
+    targetMatrixDayIdx = -1;
+  }, { passive: true });
+
+  modalEl.addEventListener('touchmove', e => {
+    if (window.innerWidth > 640) return;
+    if (e.touches.length !== 1) return;
+    const cardsEl = DOM.matrixGrid ? DOM.matrixGrid.querySelector('.m-matrix-cards') : null;
+    const deltaX = e.touches[0].clientX - matrixTouchStartX;
+    const deltaY = e.touches[0].clientY - matrixTouchStartY;
+
+    if (!isMatrixDragging) {
+      if (Math.abs(deltaX) > 12 && Math.abs(deltaX) > Math.abs(deltaY)) {
+        isMatrixDragging = true;
+        if (cardsEl) cardsEl.classList.add('swiping');
+      }
+    }
+
+    if (isMatrixDragging && cardsEl) {
+      const resistance = 0.75;
+      const draggedX = deltaX * resistance;
+      const opacity = Math.max(0.3, 1 - Math.abs(draggedX) / 320);
+
+      cardsEl.style.transform = `translateX(${draggedX}px)`;
+      cardsEl.style.opacity = opacity.toFixed(2);
+
+      const activeDays = CONFIG.activeDays;
+      const currentIdx = activeDays.indexOf(State.matrixSelectedDayIdx);
+
+      if (deltaX < 0) {
+        targetMatrixDayIdx = activeDays[(currentIdx + 1) % activeDays.length];
+      } else if (deltaX > 0) {
+        targetMatrixDayIdx = activeDays[(currentIdx - 1 + activeDays.length) % activeDays.length];
+      }
+    }
+  }, { passive: true });
+
+  modalEl.addEventListener('touchend', e => {
+    if (window.innerWidth > 640) return;
+    const cardsEl = DOM.matrixGrid ? DOM.matrixGrid.querySelector('.m-matrix-cards') : null;
+    if (!isMatrixDragging) return;
+    isMatrixDragging = false;
+
+    const deltaX = e.changedTouches[0].clientX - matrixTouchStartX;
+    if (cardsEl) cardsEl.classList.remove('swiping');
+
+    if (Math.abs(deltaX) > 60 && targetMatrixDayIdx !== -1) {
+      switchMatrixDay(deltaX < 0 ? 'next' : 'prev');
+    } else if (cardsEl) {
+      cardsEl.classList.add('swipe-transition');
+      cardsEl.style.transform = 'translateX(0)';
+      cardsEl.style.opacity = '1';
+      setTimeout(() => {
+        cardsEl.classList.remove('swipe-transition');
+      }, 220);
+    }
+  });
+}
+
 export function renderWeeklyMatrix() {
   const todayIdx = new Date().getDay();
   const currentMins = getCurrentMinutes();
@@ -148,6 +267,9 @@ export function renderWeeklyMatrix() {
         renderWeeklyMatrix();
       });
     });
+
+    // Bind touch swipe to entire modal container
+    bindMatrixTouchSwipe();
   } else {
     // Desktop Grid View
     let html = `<div class="t-header th-day">DAY / TIME</div>`;

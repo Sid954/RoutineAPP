@@ -4,6 +4,16 @@ import { getOverrideFor } from '../announcements/overrides.js';
 import { toMinutes, format12h, getCurrentMinutes, formatRoom, pad } from '../core/utils.js';
 import { showToast } from '../toast/toast.js';
 
+function formatDuration(mins) {
+  if (mins < 0) return '0m';
+  if (mins >= 60) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  }
+  return `${mins}m`;
+}
+
 export async function updateNativeWidget() {
   if (!window.Capacitor || !window.Capacitor.isNativePlatform()) return;
 
@@ -28,6 +38,10 @@ export async function updateNativeWidget() {
     let nextEta = "in 0m";
     let nextInfo = "Room: -- · --:--";
     let showNext = true;
+
+    let startMinsVal = -1;
+    let endMinsVal = -1;
+    let nextStartMinsVal = -1;
 
     // 1. Check Holiday Override
     const holidayOverride = getOverrideFor(todayIdx);
@@ -71,11 +85,11 @@ export async function updateNativeWidget() {
       }
 
       if (activeClass) {
-        const startMins = toMinutes(activeClass.start);
-        const endMins = toMinutes(activeClass.end);
-        const elapsedMins = Math.max(0, now - startMins);
-        const durationMins = Math.max(1, endMins - startMins);
-        const remMins = Math.max(0, endMins - now);
+        startMinsVal = toMinutes(activeClass.start);
+        endMinsVal = toMinutes(activeClass.end);
+        const elapsedMins = Math.max(0, now - startMinsVal);
+        const durationMins = Math.max(1, endMinsVal - startMinsVal);
+        const remMins = Math.max(0, endMinsVal - now);
         const pct = Math.min(100, Math.max(0, Math.round((elapsedMins / durationMins) * 100)));
 
         const elH = Math.floor(elapsedMins / 60);
@@ -91,14 +105,14 @@ export async function updateNativeWidget() {
         currentRoom = isOnline ? "ONLINE" : (formatRoom(activeClass.room) || "TBA");
         currentElapsed = `${pad(elH)}:${pad(elM)} elapsed`;
         currentProgress = pct;
-        currentRemaining = `Remaining: ${remMins}m`;
+        currentRemaining = `Remaining: ${formatDuration(remMins)}`;
 
         if (nextClass) {
-          const nextStart = toMinutes(nextClass.start);
-          const diffMins = Math.max(0, nextStart - now);
+          nextStartMinsVal = toMinutes(nextClass.start);
+          const diffMins = Math.max(0, nextStartMinsVal - now);
           nextLabel = "NEXT";
           nextTitle = `${nextClass.title}${nextClass.instructor ? ` (${nextClass.instructor})` : ''}`;
-          nextEta = `in ${diffMins}m`;
+          nextEta = `in ${formatDuration(diffMins)}`;
           nextInfo = `Room: ${formatRoom(nextClass.room) || 'TBA'} · ${format12h(nextClass.start)} – ${format12h(nextClass.end)}`;
           showNext = true;
         } else {
@@ -106,23 +120,24 @@ export async function updateNativeWidget() {
         }
       } else if (nextClass) {
         // Break or before first class of the day
-        const nextStart = toMinutes(nextClass.start);
-        const diffMins = Math.max(0, nextStart - now);
+        startMinsVal = toMinutes(nextClass.start);
+        endMinsVal = toMinutes(nextClass.end);
+        const diffMins = Math.max(0, startMinsVal - now);
 
         currentLabel = diffMins <= 30 ? "● STARTING SOON ⏰" : "● UP NEXT 📚";
         currentTime = `${format12h(nextClass.start)} – ${format12h(nextClass.end)}`;
         currentTitle = `${nextClass.title}${nextClass.instructor ? ` (${nextClass.instructor})` : ''}`;
         currentRoom = formatRoom(nextClass.room) || "TBA";
-        currentElapsed = `Starts in ${diffMins}m`;
+        currentElapsed = `Starts in ${formatDuration(diffMins)}`;
         currentProgress = 0;
         currentRemaining = `First Class at ${format12h(nextClass.start)}`;
 
         if (afterNextClass) {
-          const afterStart = toMinutes(afterNextClass.start);
-          const afterDiff = Math.max(0, afterStart - now);
+          nextStartMinsVal = toMinutes(afterNextClass.start);
+          const afterDiff = Math.max(0, nextStartMinsVal - now);
           nextLabel = "FOLLOWING";
           nextTitle = `${afterNextClass.title}${afterNextClass.instructor ? ` (${afterNextClass.instructor})` : ''}`;
-          nextEta = `in ${afterDiff}m`;
+          nextEta = `in ${formatDuration(afterDiff)}`;
           nextInfo = `Room: ${formatRoom(afterNextClass.room) || 'TBA'} · ${format12h(afterNextClass.start)} – ${format12h(afterNextClass.end)}`;
           showNext = true;
         } else {
@@ -144,6 +159,8 @@ export async function updateNativeWidget() {
       }
     }
 
+    const fullJsonStr = State.schedule ? JSON.stringify(State.schedule) : '';
+
     await WidgetPlugin.updateWidgetData({
       current_label: currentLabel,
       current_time: currentTime,
@@ -157,7 +174,11 @@ export async function updateNativeWidget() {
       next_eta: nextEta,
       next_info: nextInfo,
       show_next: showNext,
-      theme_color: document.documentElement.getAttribute('data-color') || 'dark'
+      theme_color: document.documentElement.getAttribute('data-color') || 'dark',
+      start_mins: startMinsVal,
+      end_mins: endMinsVal,
+      next_start_mins: nextStartMinsVal,
+      full_schedule_json: fullJsonStr
     });
   } catch (err) {
     console.warn('Widget update skipped:', err);
@@ -179,33 +200,38 @@ export function initWidgetPinningUI() {
         try {
           await updateNativeWidget();
           const { WidgetPlugin } = window.Capacitor.Plugins;
-          if (WidgetPlugin && WidgetPlugin.pinWidget) {
-            const res = await WidgetPlugin.pinWidget();
-            if (res && res.requested) {
-              showToast('Widget prompt opened! Tap "Add to home screen".', 'success');
-              if (feedbackBox) {
-                feedbackBox.style.display = 'block';
-                feedbackBox.style.background = 'rgba(16, 185, 129, 0.12)';
-                feedbackBox.style.border = '1px solid rgba(16, 185, 129, 0.35)';
-                feedbackBox.style.color = '#34d399';
-                feedbackBox.innerHTML = `
-                  <div style="font-weight: 800; font-size: 13px; margin-bottom: 4px;">🎉 Widget Pin Prompt Displayed!</div>
-                  <div>Tap <strong>"Add to home screen"</strong> or <strong>Touch and Hold the widget to add</strong> </div>
-                `;
-              }
-            } else {
-              showToast('Dynamic pinning blocked by launcher. See manual steps below.', 'info');
-              if (feedbackBox) {
-                feedbackBox.style.display = 'block';
-                feedbackBox.style.background = 'rgba(251, 191, 36, 0.12)';
-                feedbackBox.style.border = '1px solid rgba(251, 191, 36, 0.35)';
-                feedbackBox.style.color = '#fbbf24';
-                feedbackBox.innerHTML = `
-                  <div style="font-weight: 800; font-size: 13px; margin-bottom: 6px;">💡 How to Add Widget Manually:</div>
-                  <div style="margin-bottom: 4px;">1. Go to your Android Home Screen</div>
-                  <div style="margin-bottom: 4px;">2. Touch & hold any empty space → Tap <strong>Widgets</strong></div>
-                  <div>3. Scroll to <strong>My Routine</strong> and drag it onto your screen!</div>
-                `;
+          if (WidgetPlugin) {
+            if (WidgetPlugin.requestIgnoreBatteryOptimizations) {
+              await WidgetPlugin.requestIgnoreBatteryOptimizations();
+            }
+            if (WidgetPlugin.pinWidget) {
+              const res = await WidgetPlugin.pinWidget();
+              if (res && res.requested) {
+                showToast('Widget prompt opened! Tap "Add automatically".', 'success');
+                if (feedbackBox) {
+                  feedbackBox.style.display = 'block';
+                  feedbackBox.style.background = 'rgba(16, 185, 129, 0.12)';
+                  feedbackBox.style.border = '1px solid rgba(16, 185, 129, 0.35)';
+                  feedbackBox.style.color = '#34d399';
+                  feedbackBox.innerHTML = `
+                    <div style="font-weight: 800; font-size: 13px; margin-bottom: 4px;">🎉 Widget Pin Prompt Displayed!</div>
+                    <div>Tap <strong>"Add automatically"</strong> in the Android system popup to place the widget on your Home Screen.</div>
+                  `;
+                }
+              } else {
+                showToast('Dynamic pinning blocked by launcher. See manual steps below.', 'info');
+                if (feedbackBox) {
+                  feedbackBox.style.display = 'block';
+                  feedbackBox.style.background = 'rgba(251, 191, 36, 0.12)';
+                  feedbackBox.style.border = '1px solid rgba(251, 191, 36, 0.35)';
+                  feedbackBox.style.color = '#fbbf24';
+                  feedbackBox.innerHTML = `
+                    <div style="font-weight: 800; font-size: 13px; margin-bottom: 6px;">💡 How to Add Widget Manually:</div>
+                    <div style="margin-bottom: 4px;">1. Go to your Android Home Screen</div>
+                    <div style="margin-bottom: 4px;">2. Touch & hold any empty space → Tap <strong>Widgets</strong></div>
+                    <div>3. Scroll to <strong>My Routine</strong> and drag it onto your screen!</div>
+                  `;
+                }
               }
             }
           }

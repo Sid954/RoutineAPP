@@ -13,13 +13,11 @@ import { escapeHtml, toMinutes, parseTo24h, formatRoom } from './core/utils.js';
 import { openModal, closeModal, setParticlesRef } from './modals/modal.js';
 import { Particles } from './particles/particles.js';
 import { Notifications } from './notifications/notifications.js';
-import { NotificationLog } from './notifications/notification-log.js';
 import { renderWeeklyMatrix } from './weekly-matrix/matrix.js';
 import { initKeyboard } from './events/keyboard.js';
 import { initVisibility } from './events/visibility.js';
 import { initServiceWorker } from './events/service-worker.js';
 import { initializeApp } from './events/init.js';
-import { showToast } from './toast/toast.js';
 
 // Self-registering modules (run on import)
 import './toast/toast.js';           // registers undo button listener
@@ -273,6 +271,8 @@ import { initPullToRefresh } from './events/pull-to-refresh.js';
 import { checkFirstTimeOnboarding } from './events/onboarding.js';
 import { initAndroidPrompt } from './banners/android-prompt.js';
 import { initWidgetPinningUI } from './widget/widget.js';
+import { initRoomFinderUI } from './rooms/room-modal.js';
+import { initTeacherFinderUI } from './teachers/teacher-modal.js';
 
 /* ── Boot ─────────────────────────────────────────────────────── */
 initPullToRefresh();
@@ -280,3 +280,5 @@ initializeApp();
 checkFirstTimeOnboarding();
 initAndroidPrompt();
 initWidgetPinningUI();
+initRoomFinderUI();
+initTeacherFinderUI();

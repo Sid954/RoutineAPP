@@ -1,27 +1,44 @@
 /* ==========================================================================
    Timeline — Day Timeline Section & Class Cards
    ========================================================================== */
-.cs { animation: sectionIn 0.5s 0.42s both; margin-bottom: 20px; }
+.cs { animation: sectionIn 0.5s 0.42s both; margin-bottom: 20px; position: relative; }
 @keyframes sectionIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
-.cs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.csh-wrapper { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.cs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative; }
+.csh-wrapper { display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative; }
 .csh { font-size: 14px; font-weight: 800; color: var(--text); letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
 .csh-sub { font-size: 10px; font-weight: 800; color: var(--accent2); text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.6; }
 
 .day-nav-btn {
   background: var(--card2); border: 1px solid var(--border); color: var(--accent2);
   padding: 6px 14px; border-radius: 18px; font-size: 12px; font-weight: 700;
-  cursor: pointer; transition: transform var(--t), background var(--t), border-color var(--t);
+  cursor: pointer; transition: transform var(--t), background var(--t), border-color var(--t), box-shadow var(--t);
 }
 .day-nav-btn:hover { border-color: var(--accent); background: rgba(56, 189, 248, 0.15); transform: translateY(-1px); }
 .day-nav-btn:active { transform: scale(0.96); }
+
+/* Highlighted button state when dragging towards it */
+.day-nav-btn.swipe-active {
+  border-color: var(--accent) !important;
+  background: rgba(56, 189, 248, 0.25) !important;
+  color: #38bdf8 !important;
+  transform: scale(1.08) !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.45) !important;
+}
 
 .chg {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 12px;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  will-change: transform, opacity;
+}
+
+.chg.swiping {
+  transition: none !important;
+}
+
+.chg.swipe-transition {
+  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s cubic-bezier(0.25, 1, 0.5, 1) !important;
 }
 
 /* Timeline Class Cards */

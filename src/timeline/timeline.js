@@ -1,6 +1,6 @@
 import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
-import { DAY_NAMES } from '../core/config.js';
+import { CONFIG, DAY_NAMES, DAY_SHORT } from '../core/config.js';
 import { getClassesForDay } from '../schedule/queries.js';
 import { getOverrideFor } from '../announcements/overrides.js';
 import { getSubjectTheme } from '../schedule/themes.js';
@@ -27,6 +27,18 @@ export function renderTimeline(force = false) {
     DOM.timelineTitle.textContent = `${DAY_NAMES[State.currentViewDayIdx]}'s Classes`;
     const nextDay = (realTodayIdx + 1) % 7;
     DOM.timelineSubtitle.textContent = State.currentViewDayIdx === nextDay ? 'Tomorrow' : 'Viewing Schedule';
+  }
+
+  // Update nav buttons text dynamically
+  const activeDays = CONFIG.activeDays || [6, 0, 1, 2, 3];
+  const activeIdx = activeDays.indexOf(State.currentViewDayIdx);
+  if (activeIdx !== -1) {
+    const prevDayIdx = activeDays[(activeIdx - 1 + activeDays.length) % activeDays.length];
+    const nextDayIdx = activeDays[(activeIdx + 1) % activeDays.length];
+    const prevBtn = document.getElementById('prevDayBtn');
+    const nextBtn = document.getElementById('nextDayBtn');
+    if (prevBtn) prevBtn.textContent = `← ${DAY_SHORT[prevDayIdx] || DAY_NAMES[prevDayIdx]}`;
+    if (nextBtn) nextBtn.textContent = `${DAY_SHORT[nextDayIdx] || DAY_NAMES[nextDayIdx]} →`;
   }
 
   const isLightMode = document.documentElement.getAttribute('data-color') === 'light';

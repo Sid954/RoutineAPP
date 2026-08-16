@@ -1,0 +1,5916 @@
+{
+  "teachers": [
+    "ABSAR",
+    "AD",
+    "AIR",
+    "AJT",
+    "AKK",
+    "ALAMGIR",
+    "AMS",
+    "ASIF",
+    "Ataur",
+    "ATIQUR",
+    "AU",
+    "AVISHEK CHOW",
+    "AWAL",
+    "AYESHA",
+    "AYESHA BANU",
+    "AZAD",
+    "AZMAIN",
+    "CFK",
+    "DAB",
+    "EAS",
+    "FIROZA",
+    "FJD",
+    "FK",
+    "FORHAD",
+    "FORKAN",
+    "FSC",
+    "HKR",
+    "IFTEKAR MIA",
+    "INZAMAM",
+    "JA",
+    "JBA",
+    "JU",
+    "JUA",
+    "KAMAL",
+    "KD",
+    "KLD",
+    "KMAY",
+    "KMN",
+    "MA",
+    "MAHBUBUL",
+    "MAWLA",
+    "MFF",
+    "MH",
+    "MHE",
+    "MHN",
+    "MI",
+    "MIHIR",
+    "MR",
+    "MRI",
+    "MRRC",
+    "MTH",
+    "MTS",
+    "NAK",
+    "NBH",
+    "NJS",
+    "NM",
+    "NME",
+    "NP",
+    "NR",
+    "RA",
+    "RM",
+    "RMA",
+    "ROKON",
+    "RSN",
+    "SAGAR",
+    "SAIFUL",
+    "SHUHENA",
+    "SMAI",
+    "SN",
+    "ST",
+    "TASLIMA",
+    "TASMIN",
+    "TASNIA",
+    "TASNIM",
+    "TDM",
+    "TH",
+    "THA",
+    "TMC",
+    "TMF",
+    "TMH",
+    "WALI",
+    "YR",
+    "ZAHID",
+    "ZIA"
+  ],
+  "schedule": {
+    "Saturday": {
+      "RMA": [
+        {
+          "room": "902",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "GE",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "room": "902",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "GE",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "room": "902",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "GE",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        }
+      ],
+      "MR": [
+        {
+          "room": "909",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MED",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "room": "909",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MED",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "room": "909",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "MED",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        }
+      ],
+      "TASLIMA": [
+        {
+          "room": "610",
+          "start": "11:00 AM",
+          "end": "12:40 PM",
+          "startM": 660,
+          "endM": 760,
+          "subject": "FBL",
+          "type": "Lab",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "room": "610",
+          "start": "01:30 PM",
+          "end": "03:10 PM",
+          "startM": 810,
+          "endM": 910,
+          "subject": "FBL",
+          "type": "Lab",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "room": "610",
+          "start": "08:55 AM",
+          "end": "10:35 AM",
+          "startM": 535,
+          "endM": 635,
+          "subject": "FBL",
+          "type": "Lab",
+          "semSec": "Sem 1-C"
+        }
+      ],
+      "AJT": [
+        {
+          "room": "604",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "PFL",
+          "type": "Lab",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "room": "606",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OSL",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "CFK": [
+        {
+          "room": "506",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "IEEL",
+          "type": "Lab",
+          "semSec": "Sem 1-D"
+        }
+      ],
+      "MA": [
+        {
+          "room": "608",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MED",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "room": "608",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "MED",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "room": "608",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "MED",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        }
+      ],
+      "Ataur": [
+        {
+          "room": "611",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "GE",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "room": "611",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "GE",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "room": "611",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "GE",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        }
+      ],
+      "MTS": [
+        {
+          "room": "506",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "IEEL",
+          "type": "Lab",
+          "semSec": "Sem 1-E"
+        }
+      ],
+      "ABSAR": [
+        {
+          "room": "903",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "DIC",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        }
+      ],
+      "DAB": [
+        {
+          "room": "404",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ICMP",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        }
+      ],
+      "AIR": [
+        {
+          "room": "1002",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "EDC",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "room": "1002",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "EDC",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "room": "1002",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EDC",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "room": "1002",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EDC",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "ST": [
+        {
+          "room": "409",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DMNT",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        }
+      ],
+      "NME": [
+        {
+          "room": "406",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ICMP",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "room": "406",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "ICMP",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "room": "406",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "ICMP",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "MHE": [
+        {
+          "room": "905",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DSL",
+          "type": "Lab",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "room": "404",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "DS",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "room": "905",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DSL",
+          "type": "Lab",
+          "semSec": "Personal Schedule"
+        },
+        {
+          "room": "404",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "DS",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "NP": [
+        {
+          "room": "406",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ICMP",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "room": "406",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ICMP",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        }
+      ],
+      "TMH": [
+        {
+          "room": "408",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "EE",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "room": "408",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EE",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "room": "408",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "EE",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        }
+      ],
+      "FJD": [
+        {
+          "room": "909",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CPL",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "room": "909",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "CPL",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        }
+      ],
+      "MIHIR": [
+        {
+          "room": "612",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ICMP",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        }
+      ],
+      "SMAI": [
+        {
+          "room": "612",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OOP",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "room": "612",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CN",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        }
+      ],
+      "ALAMGIR": [
+        {
+          "room": "1001",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "CENG",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "room": "1001",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "CENG",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "room": "1001",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CENG",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        }
+      ],
+      "AZMAIN": [
+        {
+          "room": "404",
+          "start": "01:30 PM",
+          "end": "03:10 PM",
+          "startM": 810,
+          "endM": 910,
+          "subject": "BS",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "room": "403",
+          "start": "10:10 AM",
+          "end": "11:50 AM",
+          "startM": 610,
+          "endM": 710,
+          "subject": "BS",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "room": "403",
+          "start": "11:50 AM",
+          "end": "01:30 PM",
+          "startM": 710,
+          "endM": 810,
+          "subject": "BS",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        }
+      ],
+      "NM": [
+        {
+          "room": "902",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DEPT",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "room": "902",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DEPT",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "room": "902",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "DEPT",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        }
+      ],
+      "WALI": [
+        {
+          "room": "510",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "CGVA",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "room": "510",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CGVA",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        }
+      ],
+      "INZAMAM": [
+        {
+          "room": "1004",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CENG",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "room": "1004",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "CENG",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        },
+        {
+          "room": "1002",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "CENG",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "SN": [
+        {
+          "room": "613",
+          "start": "12:15 PM",
+          "end": "01:55 PM",
+          "startM": 735,
+          "endM": 835,
+          "subject": "BS",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "room": "613",
+          "start": "08:30 AM",
+          "end": "10:10 AM",
+          "startM": 510,
+          "endM": 610,
+          "subject": "BS",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        },
+        {
+          "room": "613",
+          "start": "10:10 AM",
+          "end": "11:50 AM",
+          "startM": 610,
+          "endM": 710,
+          "subject": "BS",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "JA": [
+        {
+          "room": "903",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "BFE",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "room": "903",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "BFE",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "room": "903",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "BFE",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        }
+      ],
+      "TDM": [
+        {
+          "room": "606",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "ALGOL",
+          "type": "Lab",
+          "semSec": "Sem 4-A"
+        }
+      ],
+      "TH": [
+        {
+          "room": "404",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "ALGO",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "room": "604",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "AIL",
+          "type": "Lab",
+          "semSec": "Sem 5-B"
+        }
+      ],
+      "AD": [
+        {
+          "room": "408",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DBMS",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        }
+      ],
+      "MRRC": [
+        {
+          "room": "",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "MML",
+          "type": "Lab",
+          "semSec": "Sem 4-C"
+        }
+      ],
+      "NR": [
+        {
+          "room": "601",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "ALGOL",
+          "type": "Lab",
+          "semSec": "Sem 4-D"
+        }
+      ],
+      "ZAHID": [
+        {
+          "room": "903",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "BFE",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "room": "903",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "BFE",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "AU": [
+        {
+          "room": "611",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "MLADE",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "room": "611",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "MLADE",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "MRI": [
+        {
+          "room": "1008",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DBMSL",
+          "type": "Lab",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "MHN": [
+        {
+          "room": "904",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "ALGOL",
+          "type": "Lab",
+          "semSec": "Sem 4-F"
+        }
+      ],
+      "AYESHA": [
+        {
+          "room": "612",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "BFE",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "room": "612",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "BFE",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "KMAY": [
+        {
+          "room": "503",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "MML",
+          "type": "Lab",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "ATIQUR": [
+        {
+          "room": "411",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "ISD",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "room": "411",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ISD",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "room": "411",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CCS",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        }
+      ],
+      "RM": [
+        {
+          "room": "904",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OSL",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "room": "1008",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "MAD",
+          "type": "Lab",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "MAHBUBUL": [
+        {
+          "room": "405",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "COA",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "room": "405",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "COA",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "room": "405",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "COA",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "TMC": [
+        {
+          "room": "905",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "MAD",
+          "type": "Lab",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "FK": [
+        {
+          "room": "405",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "DC",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "room": "405",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DC",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "room": "405",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DC",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        }
+      ],
+      "TMF": [
+        {
+          "room": "910",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "PME",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "room": "910",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PME",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "room": "910",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PME",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        }
+      ],
+      "AYESHA BANU": [
+        {
+          "room": "411",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CCS",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "room": "411",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "CCS",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "room": "411",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CCS",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        }
+      ],
+      "THA": [
+        {
+          "room": "608",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "SDP",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        }
+      ],
+      "HKR": [
+        {
+          "room": "409",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DC",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "room": "409",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DC",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "room": "409",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DC",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "TASNIA": [
+        {
+          "room": "410",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PME",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        }
+      ],
+      "ZIA": [
+        {
+          "room": "410",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "PME",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "room": "410",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PME",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "NBH": [
+        {
+          "room": "601",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CNL",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "KAMAL": [
+        {
+          "room": "510",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CCS",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        },
+        {
+          "room": "510",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DM",
+          "type": "Theory",
+          "semSec": "Sem 8-A"
+        },
+        {
+          "room": "510",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DM",
+          "type": "Theory",
+          "semSec": "Sem 8-B"
+        }
+      ],
+      "SAIFUL": [
+        {
+          "room": "901",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "TWP",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "room": "901",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "TWP",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "SHUHENA": [
+        {
+          "room": "1003",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ML",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "room": "1003",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "ML",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        },
+        {
+          "room": "1003",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DM",
+          "type": "Theory",
+          "semSec": "Sem 8-C"
+        }
+      ],
+      "KMN": [
+        {
+          "room": "910",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CC",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "ROKON": [
+        {
+          "room": "1003",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "BDA",
+          "type": "Theory",
+          "semSec": "Sem 8-A"
+        },
+        {
+          "room": "1003",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "BDA",
+          "type": "Theory",
+          "semSec": "Sem 8-B"
+        },
+        {
+          "room": "1003",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "BDA",
+          "type": "Theory",
+          "semSec": "Sem 8-C"
+        }
+      ],
+      "FIROZA": [
+        {
+          "room": "404",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "FMA",
+          "type": "Theory",
+          "semSec": "Sem 8-D"
+        },
+        {
+          "room": "404",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "FMA",
+          "type": "Theory",
+          "semSec": "Sem 8-E"
+        }
+      ],
+      "RA": [
+        {
+          "room": "410",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "HCI",
+          "type": "Theory",
+          "semSec": "Sem 8-D"
+        }
+      ],
+      "FSC": [
+        {
+          "room": "604",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "NSL",
+          "type": "Theory",
+          "semSec": "Sem 8-E"
+        }
+      ]
+    },
+    "Sunday": {
+      "KLD": [
+        {
+          "room": "403",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DIC",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "room": "409",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DIC",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "room": "404",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DIC",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        }
+      ],
+      "AMS": [
+        {
+          "room": "902",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "CFE",
+          "type": "Lab",
+          "semSec": "Sem 1-A"
+        }
+      ],
+      "KMAY": [
+        {
+          "room": "508",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "IEEL",
+          "type": "Lab",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "room": "411",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MM",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "room": "411",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "MM",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "MRRC": [
+        {
+          "room": "410",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "IEE",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "room": "503",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "MML",
+          "type": "Lab",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "CFK": [
+        {
+          "room": "409",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "IEE",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "room": "409",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "IEE",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        }
+      ],
+      "MHN": [
+        {
+          "room": "604",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "PFL",
+          "type": "Lab",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "room": "604",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "PFL",
+          "type": "Lab",
+          "semSec": "Sem 1-D"
+        }
+      ],
+      "MAWLA": [
+        {
+          "room": "610",
+          "start": "09:45 AM",
+          "end": "11:25 AM",
+          "startM": 585,
+          "endM": 685,
+          "subject": "FBL",
+          "type": "Lab",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "room": "610",
+          "start": "11:25 AM",
+          "end": "01:05 PM",
+          "startM": 685,
+          "endM": 785,
+          "subject": "FBL",
+          "type": "Lab",
+          "semSec": "Sem 1-E"
+        }
+      ],
+      "NBH": [
+        {
+          "room": "608",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "PFL",
+          "type": "Lab",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "room": "901",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PF",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        }
+      ],
+      "MTS": [
+        {
+          "room": "903",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "IEE",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "room": "506",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "IEEL",
+          "type": "Lab",
+          "semSec": "Sem 1-F"
+        }
+      ],
+      "AWAL": [
+        {
+          "room": "902",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "EE",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        }
+      ],
+      "DAB": [
+        {
+          "room": "404",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ICMP",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        }
+      ],
+      "NJS": [
+        {
+          "room": "505",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "PHYL",
+          "type": "Lab",
+          "semSec": "Sem 2-A"
+        }
+      ],
+      "FSC": [
+        {
+          "room": "611",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DS",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "room": "608",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DSL",
+          "type": "Lab",
+          "semSec": "Sem 2-B"
+        }
+      ],
+      "ST": [
+        {
+          "room": "612",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DMNT",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "room": "612",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DMNT",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "room": "612",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DMNT",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "RSN": [
+        {
+          "room": "508",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "EDCL",
+          "type": "Lab",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "room": "508",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "EDCL",
+          "type": "Lab",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "MFF": [
+        {
+          "room": "1003",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DMNT",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "room": "1003",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DMNT",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "room": "1001",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DMNT",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        }
+      ],
+      "MHE": [
+        {
+          "room": "404",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DS",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "room": "510",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ALGO",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        }
+      ],
+      "TMH": [
+        {
+          "room": "408",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "EE",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "room": "408",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "EE",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "room": "408",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EE",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        }
+      ],
+      "MIHIR": [
+        {
+          "room": "611",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "ICMP",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        }
+      ],
+      "FJD": [
+        {
+          "room": "903",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DS",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        },
+        {
+          "room": "606",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "ALGOL",
+          "type": "Lab",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "JU": [
+        {
+          "room": "613",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CGVA",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "room": "613",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "CGVA",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        }
+      ],
+      "ASIF": [
+        {
+          "room": "508",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DEPTL",
+          "type": "Lab",
+          "semSec": "Sem 3-A"
+        }
+      ],
+      "EAS": [
+        {
+          "room": "410",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "OOPL",
+          "type": "Lab",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "room": "1001",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DBMS",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "room": "405",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SE",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        }
+      ],
+      "RA": [
+        {
+          "room": "613",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "OOP",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "room": "904",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "OOPL",
+          "type": "Lab",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "room": "1002",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OOP",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        }
+      ],
+      "AVISHEK CHOW": [
+        {
+          "room": "606",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "IP",
+          "type": "Lab",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "room": "1008",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "IP",
+          "type": "Lab",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "KMN": [
+        {
+          "room": "909",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "OOPL",
+          "type": "Lab",
+          "semSec": "Sem 3-E"
+        },
+        {
+          "room": "909",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "OOPL",
+          "type": "Lab",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "THA": [
+        {
+          "room": "1008",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "NM",
+          "type": "Lab",
+          "semSec": "Sem 3-E"
+        },
+        {
+          "room": "901",
+          "start": "01:30 PM",
+          "end": "02:20 PM",
+          "startM": 810,
+          "endM": 860,
+          "subject": "SDP",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "room": "901",
+          "start": "02:20 PM",
+          "end": "03:10 PM",
+          "startM": 860,
+          "endM": 910,
+          "subject": "SDP",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        }
+      ],
+      "MI": [
+        {
+          "room": "902",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DEPT",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "TH": [
+        {
+          "room": "411",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "ALGO",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "room": "903",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ALGO",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "room": "404",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "AI",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        }
+      ],
+      "FORHAD": [
+        {
+          "room": "910",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MM",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "room": "612",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MM",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "room": "910",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "MM",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        }
+      ],
+      "NAK": [
+        {
+          "room": "613",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DBMS",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "room": "510",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DBMS",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        }
+      ],
+      "TDM": [
+        {
+          "room": "608",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "ALGOL",
+          "type": "Lab",
+          "semSec": "Sem 4-B"
+        }
+      ],
+      "NR": [
+        {
+          "room": "410",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ALGO",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "room": "606",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "ALGOL",
+          "type": "Lab",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "room": "510",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ALGO",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        }
+      ],
+      "ZAHID": [
+        {
+          "room": "613",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "BFE",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "room": "613",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "BFE",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "MRI": [
+        {
+          "room": "901",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DBMS",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        },
+        {
+          "room": "904",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "GDDL",
+          "type": "Theory",
+          "semSec": "Sem 8-D"
+        },
+        {
+          "room": "1001",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "GDD",
+          "type": "Theory",
+          "semSec": "Sem 8-D"
+        }
+      ],
+      "TMC": [
+        {
+          "room": "905",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "MAD",
+          "type": "Lab",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "room": "904",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "MAD",
+          "type": "Lab",
+          "semSec": "Sem 5-B"
+        }
+      ],
+      "RM": [
+        {
+          "room": "1003",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "OS",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "room": "604",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "SDP",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        },
+        {
+          "room": "604",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "SDP",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "AJT": [
+        {
+          "room": "411",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OS",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "room": "611",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "OS",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "FORKAN": [
+        {
+          "room": "610",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "SAP",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "SMAI": [
+        {
+          "room": "612",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CN",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "room": "601",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "CNL",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        }
+      ],
+      "AYESHA BANU": [
+        {
+          "room": "1004",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CCS",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "room": "910",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CCS",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "room": "903",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "CCS",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        }
+      ],
+      "AD": [
+        {
+          "room": "406",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "room": "901",
+          "start": "09:20 AM",
+          "end": "11:00 AM",
+          "startM": 560,
+          "endM": 660,
+          "subject": "TC",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "room": "611",
+          "start": "01:30 PM",
+          "end": "03:10 PM",
+          "startM": 810,
+          "endM": 910,
+          "subject": "TC",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "TASNIA": [
+        {
+          "room": "405",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "PME",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        }
+      ],
+      "ZIA": [
+        {
+          "room": "405",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PME",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "room": "405",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PME",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "YR": [
+        {
+          "room": "1002",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "room": "1002",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "SE",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        },
+        {
+          "room": "601",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "MLL",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "KD": [
+        {
+          "room": "611",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CC",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "room": "601",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CCL",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "room": "601",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "CCL",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        }
+      ],
+      "TASNIM": [
+        {
+          "room": "910",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SEE",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "SAGAR": [
+        {
+          "room": "406",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "FMA",
+          "type": "Theory",
+          "semSec": "Sem 8-A"
+        },
+        {
+          "room": "406",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "FMA",
+          "type": "Theory",
+          "semSec": "Sem 8-B"
+        },
+        {
+          "room": "406",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "FMA",
+          "type": "Theory",
+          "semSec": "Sem 8-C"
+        }
+      ],
+      "MTH": [
+        {
+          "room": "905",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "BDAL",
+          "type": "Theory",
+          "semSec": "Sem 8-B"
+        }
+      ]
+    },
+    "Monday": {
+      "KMAY": [
+        {
+          "room": "1004",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "IEE",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "room": "503",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "MML",
+          "type": "Lab",
+          "semSec": "Sem 4-F"
+        }
+      ],
+      "KLD": [
+        {
+          "room": "613",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DIC",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "room": "902",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "DIC",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "room": "613",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "MLADE",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "MH": [
+        {
+          "room": "606",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "PFL",
+          "type": "Lab",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "room": "901",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PF",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "room": "901",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CN",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        }
+      ],
+      "MRRC": [
+        {
+          "room": "506",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "IEEL",
+          "type": "Lab",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "room": "910",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "MM",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "room": "1002",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MM",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "MHN": [
+        {
+          "room": "408",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PF",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "room": "904",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CPL",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "room": "606",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CPL",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        }
+      ],
+      "CFK": [
+        {
+          "room": "411",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "IEE",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "room": "405",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "IEE",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        }
+      ],
+      "AMS": [
+        {
+          "room": "901",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CFE",
+          "type": "Lab",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "room": "903",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "CFE",
+          "type": "Lab",
+          "semSec": "Sem 1-E"
+        }
+      ],
+      "Ataur": [
+        {
+          "room": "612",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "GE",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        }
+      ],
+      "MTS": [
+        {
+          "room": "903",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "IEE",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "room": "506",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "EDCL",
+          "type": "Lab",
+          "semSec": "Sem 2-F"
+        },
+        {
+          "room": "411",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "EDC",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        }
+      ],
+      "MAWLA": [
+        {
+          "room": "405",
+          "start": "08:30 AM",
+          "end": "10:10 AM",
+          "startM": 510,
+          "endM": 610,
+          "subject": "FBL",
+          "type": "Lab",
+          "semSec": "Sem 1-F"
+        }
+      ],
+      "NBH": [
+        {
+          "room": "904",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "PFL",
+          "type": "Lab",
+          "semSec": "Sem 1-F"
+        }
+      ],
+      "ABSAR": [
+        {
+          "room": "903",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DIC",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "room": "1004",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CGVA",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "room": "1002",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CGVA",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "FSC": [
+        {
+          "room": "608",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DSL",
+          "type": "Lab",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "room": "409",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DS",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "room": "405",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "NS",
+          "type": "Theory",
+          "semSec": "Sem 8-E"
+        }
+      ],
+      "IFTEKAR MIA": [
+        {
+          "room": "1001",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "EE",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "room": "1001",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EE",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "room": "1001",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EE",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "NME": [
+        {
+          "room": "404",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ICMP",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "room": "404",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ICMP",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "room": "404",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ICMP",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "NJS": [
+        {
+          "room": "505",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "PHYL",
+          "type": "Lab",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "room": "505",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "PHYL",
+          "type": "Lab",
+          "semSec": "Sem 2-D"
+        }
+      ],
+      "JUA": [
+        {
+          "room": "613",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "EDC",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "room": "613",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EDC",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "room": "613",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DEPT",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        }
+      ],
+      "NP": [
+        {
+          "room": "612",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ICMP",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "room": "612",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ICMP",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        }
+      ],
+      "MI": [
+        {
+          "room": "508",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "EDCL",
+          "type": "Lab",
+          "semSec": "Sem 2-E"
+        }
+      ],
+      "JU": [
+        {
+          "room": "610",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "CGVA",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "room": "610",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CGVA",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        }
+      ],
+      "MTH": [
+        {
+          "room": "905",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "IP",
+          "type": "Lab",
+          "semSec": "Sem 3-A"
+        }
+      ],
+      "EAS": [
+        {
+          "room": "1001",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "OOP",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "room": "404",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "SE",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        },
+        {
+          "room": "410",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        }
+      ],
+      "RA": [
+        {
+          "room": "1003",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OOP",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "room": "606",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "OOPL",
+          "type": "Lab",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "room": "409",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "OOP",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        }
+      ],
+      "TDM": [
+        {
+          "room": "604",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "NM",
+          "type": "Lab",
+          "semSec": "Sem 3-C"
+        }
+      ],
+      "MFF": [
+        {
+          "room": "1008",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "IP",
+          "type": "Lab",
+          "semSec": "Sem 3-E"
+        }
+      ],
+      "YR": [
+        {
+          "room": "905",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "NM",
+          "type": "Lab",
+          "semSec": "Sem 3-F"
+        },
+        {
+          "room": "905",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "SEL",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "room": "905",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "SEL",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "FORHAD": [
+        {
+          "room": "902",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MM",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "room": "902",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "MM",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "room": "902",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MM",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        }
+      ],
+      "AKK": [
+        {
+          "room": "510",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MLADE",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "room": "510",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MLADE",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "room": "510",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "MLADE",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        }
+      ],
+      "JA": [
+        {
+          "room": "406",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "BFE",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "room": "901",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "BFE",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "room": "901",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "BFE",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        }
+      ],
+      "MRI": [
+        {
+          "room": "608",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "DBMSL",
+          "type": "Lab",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "room": "608",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DBMSL",
+          "type": "Lab",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "MHE": [
+        {
+          "room": "503",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "MML",
+          "type": "Lab",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "room": "503",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "MML",
+          "type": "Lab",
+          "semSec": "Sem 4-D"
+        }
+      ],
+      "AD": [
+        {
+          "room": "410",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DBMS",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "room": "408",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        }
+      ],
+      "AU": [
+        {
+          "room": "411",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MLADE",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "room": "411",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "MLADE",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "FJD": [
+        {
+          "room": "1003",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ALGO",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        },
+        {
+          "room": "910",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ALGO",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "NAK": [
+        {
+          "room": "510",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DBMS",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "room": "411",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CN",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "room": "601",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "CNL",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        }
+      ],
+      "TH": [
+        {
+          "room": "406",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "AI",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "room": "1003",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "AI",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        }
+      ],
+      "RM": [
+        {
+          "room": "1002",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "OS",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "room": "601",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "SDP",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        }
+      ],
+      "AZAD": [
+        {
+          "room": "611",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SAP",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "room": "611",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "SAP",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        }
+      ],
+      "AJT": [
+        {
+          "room": "612",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "OS",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "room": "410",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OS",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "TASMIN": [
+        {
+          "room": "406",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "AI",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        },
+        {
+          "room": "408",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CCS",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        }
+      ],
+      "TMC": [
+        {
+          "room": "902",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ISD",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        },
+        {
+          "room": "904",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "STQAL",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "ST": [
+        {
+          "room": "604",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "AIL",
+          "type": "Lab",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "THA": [
+        {
+          "room": "604",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "SDP",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "room": "611",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "STQA",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        }
+      ],
+      "KD": [
+        {
+          "room": "601",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "CNL",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        },
+        {
+          "room": "409",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CC",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        }
+      ],
+      "HKR": [
+        {
+          "room": "610",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DC",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "room": "610",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DC",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "room": "610",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DC",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "ASIF": [
+        {
+          "room": "405",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SEE",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        }
+      ],
+      "KMN": [
+        {
+          "room": "909",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CCL",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        },
+        {
+          "room": "1001",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CC",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "TASNIM": [
+        {
+          "room": "404",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SEE",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "ROKON": [
+        {
+          "room": "611",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "BDA",
+          "type": "Theory",
+          "semSec": "Sem 8-A"
+        },
+        {
+          "room": "611",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "BDA",
+          "type": "Theory",
+          "semSec": "Sem 8-B"
+        },
+        {
+          "room": "611",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "BDA",
+          "type": "Theory",
+          "semSec": "Sem 8-C"
+        }
+      ],
+      "NR": [
+        {
+          "room": "910",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "GC",
+          "type": "Theory",
+          "semSec": "Sem 8-E"
+        }
+      ]
+    },
+    "Tuesday": {
+      "AJT": [
+        {
+          "room": "411",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "PF",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "room": "411",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PF",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        }
+      ],
+      "KMAY": [
+        {
+          "room": "405",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "IEE",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "room": "506",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DEPTL",
+          "type": "Lab",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "room": "510",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MM",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        }
+      ],
+      "AMS": [
+        {
+          "room": "902",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CFE",
+          "type": "Lab",
+          "semSec": "Sem 1-B"
+        }
+      ],
+      "KLD": [
+        {
+          "room": "903",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DIC",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "room": "611",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "MLADE",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "room": "613",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MLADE",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "CFK": [
+        {
+          "room": "506",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "IEEL",
+          "type": "Lab",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "room": "508",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DEPTL",
+          "type": "Lab",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "Ataur": [
+        {
+          "room": "611",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "GE",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "room": "611",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "GE",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        }
+      ],
+      "ABSAR": [
+        {
+          "room": "1003",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DIC",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "room": "410",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DIC",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "room": "901",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CGVA",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        }
+      ],
+      "MHN": [
+        {
+          "room": "406",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PF",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "room": "608",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CPL",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "room": "608",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "CPL",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "room": "608",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "CPL",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "MTS": [
+        {
+          "room": "410",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "IEE",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "room": "901",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "IEE",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "room": "901",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DEPT",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        }
+      ],
+      "FSC": [
+        {
+          "room": "410",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DS",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "room": "610",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DMNT",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "room": "404",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "NS",
+          "type": "Theory",
+          "semSec": "Sem 8-E"
+        }
+      ],
+      "JBA": [
+        {
+          "room": "508",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "EDCL",
+          "type": "Lab",
+          "semSec": "Sem 2-A"
+        }
+      ],
+      "MRRC": [
+        {
+          "room": "506",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "EDCL",
+          "type": "Lab",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "room": "1001",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MM",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        }
+      ],
+      "ST": [
+        {
+          "room": "408",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DMNT",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "room": "408",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DMNT",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "NJS": [
+        {
+          "room": "505",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "PHYL",
+          "type": "Lab",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "room": "505",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "PHYL",
+          "type": "Lab",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "MFF": [
+        {
+          "room": "903",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "DMNT",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "room": "1004",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DMNT",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "room": "411",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DMNT",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        }
+      ],
+      "MHE": [
+        {
+          "room": "905",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DSL",
+          "type": "Lab",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "room": "404",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DS",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        }
+      ],
+      "KMN": [
+        {
+          "room": "902",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DS",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "room": "902",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "OOP",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "FJD": [
+        {
+          "room": "903",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DS",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        },
+        {
+          "room": "403",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ALGO",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        },
+        {
+          "room": "910",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ALGO",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "SMAI": [
+        {
+          "room": "613",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OOP",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        },
+        {
+          "room": "601",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "OOPL",
+          "type": "Lab",
+          "semSec": "Sem 3-A"
+        }
+      ],
+      "EAS": [
+        {
+          "room": "910",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OOP",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "room": "604",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DBMSL",
+          "type": "Lab",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "room": "604",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "DBMSL",
+          "type": "Lab",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "room": "404",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        }
+      ],
+      "TDM": [
+        {
+          "room": "608",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "NM",
+          "type": "Lab",
+          "semSec": "Sem 3-B"
+        }
+      ],
+      "WALI": [
+        {
+          "room": "510",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CGVA",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "room": "510",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "CGVA",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        }
+      ],
+      "AVISHEK CHOW": [
+        {
+          "room": "905",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "IP",
+          "type": "Lab",
+          "semSec": "Sem 3-C"
+        }
+      ],
+      "RA": [
+        {
+          "room": "405",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "OOP",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "room": "1008",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "AIL",
+          "type": "Lab",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "MI": [
+        {
+          "room": "902",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DEPT",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "TH": [
+        {
+          "room": "408",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "ALGO",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "room": "606",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "AIL",
+          "type": "Lab",
+          "semSec": "Sem 5-A"
+        }
+      ],
+      "AKK": [
+        {
+          "room": "610",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MLADE",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        }
+      ],
+      "AD": [
+        {
+          "room": "408",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DBMS",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "room": "612",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DBMS",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        }
+      ],
+      "NR": [
+        {
+          "room": "409",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ALGO",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        },
+        {
+          "room": "409",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "room": "404",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "GC",
+          "type": "Theory",
+          "semSec": "Sem 8-E"
+        }
+      ],
+      "MRI": [
+        {
+          "room": "910",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DBMS",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        },
+        {
+          "room": "1002",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DBMS",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        },
+        {
+          "room": "610",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "GDD",
+          "type": "Theory",
+          "semSec": "Sem 8-D"
+        }
+      ],
+      "AYESHA": [
+        {
+          "room": "612",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "BFE",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "room": "612",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "BFE",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "ATIQUR": [
+        {
+          "room": "405",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "ISD",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "room": "405",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ISD",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "room": "405",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CCS",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        }
+      ],
+      "AZAD": [
+        {
+          "room": "613",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SAP",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "room": "613",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "SAP",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        }
+      ],
+      "MAHBUBUL": [
+        {
+          "room": "510",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "COA",
+          "type": "Theory",
+          "semSec": "Sem 5-A"
+        },
+        {
+          "room": "613",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "COA",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "room": "510",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "COA",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "FORKAN": [
+        {
+          "room": "610",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "SAP",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "FK": [
+        {
+          "room": "612",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DC",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "room": "612",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DC",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "room": "612",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "DC",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        }
+      ],
+      "NAK": [
+        {
+          "room": "410",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CN",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        }
+      ],
+      "KD": [
+        {
+          "room": "611",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CN",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        },
+        {
+          "room": "606",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "CCL",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "THA": [
+        {
+          "room": "903",
+          "start": "01:30 PM",
+          "end": "02:20 PM",
+          "startM": 810,
+          "endM": 860,
+          "subject": "SDP",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        },
+        {
+          "room": "1001",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "STQA",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "room": "904",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "STQAL",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        }
+      ],
+      "NBH": [
+        {
+          "room": "409",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CN",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "room": "510",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CN",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "RM": [
+        {
+          "room": "905",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "SDP",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        }
+      ],
+      "YR": [
+        {
+          "room": "1002",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "SE",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        },
+        {
+          "room": "601",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "MLL",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "ASIF": [
+        {
+          "room": "409",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SEE",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        }
+      ],
+      "TMC": [
+        {
+          "room": "904",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "STQAL",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        },
+        {
+          "room": "903",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "STQA",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "SAGAR": [
+        {
+          "room": "406",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "FMA",
+          "type": "Theory",
+          "semSec": "Sem 8-A"
+        },
+        {
+          "room": "406",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "FMA",
+          "type": "Theory",
+          "semSec": "Sem 8-B"
+        },
+        {
+          "room": "406",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "FMA",
+          "type": "Theory",
+          "semSec": "Sem 8-C"
+        }
+      ],
+      "MTH": [
+        {
+          "room": "904",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "BDAL",
+          "type": "Theory",
+          "semSec": "Sem 8-A"
+        },
+        {
+          "room": "604",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "BDAL",
+          "type": "Theory",
+          "semSec": "Sem 8-C"
+        }
+      ],
+      "FIROZA": [
+        {
+          "room": "611",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "FMA",
+          "type": "Theory",
+          "semSec": "Sem 8-D"
+        },
+        {
+          "room": "611",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "FMA",
+          "type": "Theory",
+          "semSec": "Sem 8-E"
+        }
+      ]
+    },
+    "Wednesday": {
+      "RMA": [
+        {
+          "room": "404",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "GE",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "room": "404",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "GE",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "room": "404",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "GE",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        }
+      ],
+      "AJT": [
+        {
+          "room": "410",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "PF",
+          "type": "Theory",
+          "semSec": "Sem 1-A"
+        },
+        {
+          "room": "409",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PF",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "room": "606",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "OSL",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        }
+      ],
+      "MRRC": [
+        {
+          "room": "903",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "IEE",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "room": "610",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "MM",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "MH": [
+        {
+          "room": "411",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PF",
+          "type": "Theory",
+          "semSec": "Sem 1-B"
+        },
+        {
+          "room": "601",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CNL",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "room": "411",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CN",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        }
+      ],
+      "AMS": [
+        {
+          "room": "902",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CFE",
+          "type": "Lab",
+          "semSec": "Sem 1-C"
+        }
+      ],
+      "MHN": [
+        {
+          "room": "404",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PF",
+          "type": "Theory",
+          "semSec": "Sem 1-C"
+        },
+        {
+          "room": "610",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PF",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        }
+      ],
+      "ABSAR": [
+        {
+          "room": "404",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DIC",
+          "type": "Theory",
+          "semSec": "Sem 1-D"
+        },
+        {
+          "room": "1001",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DIC",
+          "type": "Theory",
+          "semSec": "Sem 1-E"
+        },
+        {
+          "room": "1003",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CGVA",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "MFF": [
+        {
+          "room": "1003",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "CFE",
+          "type": "Lab",
+          "semSec": "Sem 1-F"
+        }
+      ],
+      "NBH": [
+        {
+          "room": "410",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PF",
+          "type": "Theory",
+          "semSec": "Sem 1-F"
+        },
+        {
+          "room": "903",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CN",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "room": "613",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "CN",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "AIR": [
+        {
+          "room": "901",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "EDC",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "room": "901",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "EDC",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "room": "901",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "EDC",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "room": "901",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "EDC",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "AWAL": [
+        {
+          "room": "902",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "EE",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        }
+      ],
+      "FSC": [
+        {
+          "room": "410",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DMNT",
+          "type": "Theory",
+          "semSec": "Sem 2-A"
+        },
+        {
+          "room": "610",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DS",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        }
+      ],
+      "IFTEKAR MIA": [
+        {
+          "room": "910",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "EE",
+          "type": "Theory",
+          "semSec": "Sem 2-B"
+        },
+        {
+          "room": "910",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "EE",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "room": "910",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "EE",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "MHE": [
+        {
+          "room": "510",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DS",
+          "type": "Theory",
+          "semSec": "Sem 2-C"
+        },
+        {
+          "room": "510",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "ALGO",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        },
+        {
+          "room": "510",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DS",
+          "type": "Theory",
+          "semSec": "Personal Schedule"
+        }
+      ],
+      "JUA": [
+        {
+          "room": "613",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "EDC",
+          "type": "Theory",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "room": "613",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "EDC",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "room": "613",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DEPT",
+          "type": "Theory",
+          "semSec": "Sem 3-A"
+        }
+      ],
+      "ASIF": [
+        {
+          "room": "506",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "EDCL",
+          "type": "Lab",
+          "semSec": "Sem 2-D"
+        },
+        {
+          "room": "508",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DEPTL",
+          "type": "Lab",
+          "semSec": "Sem 3-B"
+        }
+      ],
+      "KMN": [
+        {
+          "room": "909",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DSL",
+          "type": "Lab",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "room": "902",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DS",
+          "type": "Theory",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "room": "1003",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "OOP",
+          "type": "Theory",
+          "semSec": "Sem 3-F"
+        }
+      ],
+      "NJS": [
+        {
+          "room": "505",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "PHYL",
+          "type": "Lab",
+          "semSec": "Sem 2-E"
+        },
+        {
+          "room": "505",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "PHYL",
+          "type": "Lab",
+          "semSec": "Sem 2-F"
+        }
+      ],
+      "FJD": [
+        {
+          "room": "606",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DSL",
+          "type": "Lab",
+          "semSec": "Sem 2-F"
+        },
+        {
+          "room": "904",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "ALGOL",
+          "type": "Lab",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "MTS": [
+        {
+          "room": "408",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "EDC",
+          "type": "Theory",
+          "semSec": "Sem 2-F"
+        },
+        {
+          "room": "611",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DEPT",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        }
+      ],
+      "TDM": [
+        {
+          "room": "608",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "NM",
+          "type": "Lab",
+          "semSec": "Sem 3-A"
+        }
+      ],
+      "MTH": [
+        {
+          "room": "905",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "IP",
+          "type": "Lab",
+          "semSec": "Sem 3-B"
+        }
+      ],
+      "NM": [
+        {
+          "room": "406",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "DEPT",
+          "type": "Theory",
+          "semSec": "Sem 3-B"
+        },
+        {
+          "room": "406",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "DEPT",
+          "type": "Theory",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "room": "406",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DEPT",
+          "type": "Theory",
+          "semSec": "Sem 3-D"
+        }
+      ],
+      "TASNIM": [
+        {
+          "room": "508",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DEPTL",
+          "type": "Lab",
+          "semSec": "Sem 3-C"
+        },
+        {
+          "room": "508",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "DEPTL",
+          "type": "Lab",
+          "semSec": "Sem 3-E"
+        }
+      ],
+      "TASMIN": [
+        {
+          "room": "905",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "NM",
+          "type": "Lab",
+          "semSec": "Sem 3-D"
+        },
+        {
+          "room": "1001",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "AI",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        },
+        {
+          "room": "1001",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "CCS",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        }
+      ],
+      "RA": [
+        {
+          "room": "910",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "OOP",
+          "type": "Theory",
+          "semSec": "Sem 3-E"
+        },
+        {
+          "room": "409",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "HCI",
+          "type": "Theory",
+          "semSec": "Sem 8-D"
+        }
+      ],
+      "CFK": [
+        {
+          "room": "503",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "MML",
+          "type": "Lab",
+          "semSec": "Sem 4-A"
+        }
+      ],
+      "NAK": [
+        {
+          "room": "408",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DBMS",
+          "type": "Theory",
+          "semSec": "Sem 4-A"
+        },
+        {
+          "room": "604",
+          "start": "01:30 PM",
+          "end": "04:00 PM",
+          "startM": 810,
+          "endM": 960,
+          "subject": "DBMSL",
+          "type": "Lab",
+          "semSec": "Sem 4-F"
+        }
+      ],
+      "AKK": [
+        {
+          "room": "611",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MLADE",
+          "type": "Theory",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "room": "611",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "MLADE",
+          "type": "Theory",
+          "semSec": "Sem 4-C"
+        }
+      ],
+      "AD": [
+        {
+          "room": "604",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "DBMSL",
+          "type": "Lab",
+          "semSec": "Sem 4-B"
+        },
+        {
+          "room": "608",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "DBMSL",
+          "type": "Lab",
+          "semSec": "Sem 4-C"
+        }
+      ],
+      "NR": [
+        {
+          "room": "408",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ALGO",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "room": "408",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "room": "601",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "SEL",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "room": "601",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SEL",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        }
+      ],
+      "EAS": [
+        {
+          "room": "1002",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DBMS",
+          "type": "Theory",
+          "semSec": "Sem 4-D"
+        },
+        {
+          "room": "608",
+          "start": "02:45 PM",
+          "end": "04:00 PM",
+          "startM": 885,
+          "endM": 960,
+          "subject": "SEL",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        },
+        {
+          "room": "608",
+          "start": "01:30 PM",
+          "end": "02:45 PM",
+          "startM": 810,
+          "endM": 885,
+          "subject": "SEL",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        }
+      ],
+      "MRI": [
+        {
+          "room": "1002",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "DBMS",
+          "type": "Theory",
+          "semSec": "Sem 4-E"
+        }
+      ],
+      "KLD": [
+        {
+          "room": "1004",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MLADE",
+          "type": "Theory",
+          "semSec": "Sem 4-F"
+        }
+      ],
+      "KMAY": [
+        {
+          "room": "510",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "MM",
+          "type": "Theory",
+          "semSec": "Sem 4-G"
+        }
+      ],
+      "TH": [
+        {
+          "room": "411",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "AI",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        }
+      ],
+      "RM": [
+        {
+          "room": "606",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "OSL",
+          "type": "Theory",
+          "semSec": "Sem 5-B"
+        },
+        {
+          "room": "901",
+          "start": "03:10 PM",
+          "end": "04:00 PM",
+          "startM": 910,
+          "endM": 960,
+          "subject": "SDP",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        },
+        {
+          "room": "901",
+          "start": "02:20 PM",
+          "end": "03:10 PM",
+          "startM": 860,
+          "endM": 910,
+          "subject": "SDP",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "room": "901",
+          "start": "01:30 PM",
+          "end": "02:20 PM",
+          "startM": 810,
+          "endM": 860,
+          "subject": "SDP",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        }
+      ],
+      "TMC": [
+        {
+          "room": "910",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ISD",
+          "type": "Theory",
+          "semSec": "Sem 5-C"
+        },
+        {
+          "room": "903",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "STQA",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        }
+      ],
+      "TMF": [
+        {
+          "room": "405",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "PME",
+          "type": "Theory",
+          "semSec": "Sem 6-A"
+        },
+        {
+          "room": "405",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "PME",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        },
+        {
+          "room": "405",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "PME",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        }
+      ],
+      "THA": [
+        {
+          "room": "604",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "SDP",
+          "type": "Theory",
+          "semSec": "Sem 6-B"
+        }
+      ],
+      "KD": [
+        {
+          "room": "409",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CN",
+          "type": "Theory",
+          "semSec": "Sem 6-C"
+        },
+        {
+          "room": "601",
+          "start": "11:00 AM",
+          "end": "01:30 PM",
+          "startM": 660,
+          "endM": 810,
+          "subject": "CNL",
+          "type": "Theory",
+          "semSec": "Sem 6-D"
+        }
+      ],
+      "YR": [
+        {
+          "room": "1002",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "SE",
+          "type": "Theory",
+          "semSec": "Sem 6-E"
+        },
+        {
+          "room": "1008",
+          "start": "08:30 AM",
+          "end": "11:00 AM",
+          "startM": 510,
+          "endM": 660,
+          "subject": "MLL",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        }
+      ],
+      "KAMAL": [
+        {
+          "room": "612",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "CCS",
+          "type": "Theory",
+          "semSec": "Sem 6-F"
+        },
+        {
+          "room": "612",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "DM",
+          "type": "Theory",
+          "semSec": "Sem 8-A"
+        },
+        {
+          "room": "612",
+          "start": "12:15 PM",
+          "end": "01:30 PM",
+          "startM": 735,
+          "endM": 810,
+          "subject": "DM",
+          "type": "Theory",
+          "semSec": "Sem 8-B"
+        }
+      ],
+      "SHUHENA": [
+        {
+          "room": "406",
+          "start": "11:00 AM",
+          "end": "12:15 PM",
+          "startM": 660,
+          "endM": 735,
+          "subject": "ML",
+          "type": "Theory",
+          "semSec": "Sem 7-A"
+        },
+        {
+          "room": "406",
+          "start": "09:45 AM",
+          "end": "11:00 AM",
+          "startM": 585,
+          "endM": 660,
+          "subject": "ML",
+          "type": "Theory",
+          "semSec": "Sem 7-B"
+        },
+        {
+          "room": "406",
+          "start": "08:30 AM",
+          "end": "09:45 AM",
+          "startM": 510,
+          "endM": 585,
+          "subject": "DM",
+          "type": "Theory",
+          "semSec": "Sem 8-C"
+        }
+      ]
+    },
+    "Thursday": {},
+    "Friday": {}
+  }
+}

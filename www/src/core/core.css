@@ -376,14 +376,7 @@ select.clean-select option,
   box-shadow: 6px 6px 18px rgba(0,0,0,0.8), -6px -6px 18px rgba(255,255,255,0.04) !important;
   transform: translateY(-2px);
 }
-:root[data-style="neumorphic"] button {
-  border-radius: 20px !important;
-  background: var(--card2) !important;
-  color: var(--text) !important;
-  border: none !important;
-  box-shadow: 5px 5px 14px rgba(0,0,0,0.7), -5px -5px 14px rgba(255,255,255,0.03) !important;
-  transition: all 0.2s ease !important;
-}
+
 :root[data-style="neumorphic"] button:active {
   box-shadow: inset 3px 3px 8px rgba(0,0,0,0.8), inset -3px -3px 8px rgba(255,255,255,0.03) !important;
 }
@@ -403,7 +396,10 @@ select.clean-select option,
   box-shadow: 6px 6px 16px rgba(0,0,0,0.6), -4px -4px 12px rgba(255,255,255,0.05) !important;
   border: none !important;
 }
-
+:root[data-style="neumorphic"] button {
+  border-radius: 10px !important;
+  border: 1px solid var(--border) !important;
+}
 /* ==========================================================================
    STYLE 3: CYBERPUNK HUD (Sharp Tactical Wireframe & Scanlines)
    ========================================================================== */
@@ -436,13 +432,18 @@ select.clean-select option,
 :root[data-style="cyberpunk"] button {
   border-radius: 0px !important;
   border: 2px solid var(--accent) !important;
-  background: var(--card2) !important;
   color: var(--text) !important;
   font-family: var(--m) !important;
   text-transform: uppercase !important;
   letter-spacing: 1px !important;
   clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)) !important;
 }
+:root[data-style="cyberpunk"] .t-card.live,
+:root[data-style="cyberpunk"] .cc,
+:root[data-style="cyberpunk"] .ch.ca {
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px)) !important;
+}
+
 :root[data-style="cyberpunk"] #saveAllSettingsBtn,
 :root[data-style="cyberpunk"] #saveNotifSettingsBtn,
 :root[data-style="cyberpunk"] #welcomeGetStartedBtn,

@@ -121,6 +121,13 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    will-change: transform, opacity;
+  }
+  .m-matrix-cards.swiping {
+    transition: none !important;
+  }
+  .m-matrix-cards.swipe-transition {
+    transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s cubic-bezier(0.25, 1, 0.5, 1) !important;
   }
   .m-matrix-card {
     display: grid;

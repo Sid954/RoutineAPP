@@ -15,3 +15,5 @@
 @import './notifications/notifications.css';
 @import './toast/toast.css';
 @import './announcements/announcements.css';
+@import './rooms/rooms.css';
+@import './teachers/teachers.css';
