@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
     const { pending, password } = req.query || {};
 
     if (pending === 'true') {
-      const adminPassword = process.env.ADMIN_PASSWORD || 'secret123';
+      const adminPassword = process.env.ADMIN_PASSWORD || process.env.ANNOUNCEMENT_PASSWORD || 'secret123';
       if (!password || password !== adminPassword) {
         return res.status(401).json({ error: 'Unauthorized: Invalid admin password.' });
       }
@@ -80,7 +80,7 @@ module.exports = async (req, res) => {
 
     // 1. Admin Moderation Action
     if (action === 'approve' || action === 'reject') {
-      const adminPassword = process.env.ADMIN_PASSWORD || 'secret123';
+      const adminPassword = process.env.ADMIN_PASSWORD || process.env.ANNOUNCEMENT_PASSWORD || 'secret123';
       if (!password || password !== adminPassword) {
         return res.status(401).json({ error: 'Unauthorized: Invalid admin password.' });
       }
