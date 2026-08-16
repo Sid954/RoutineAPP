@@ -137,8 +137,8 @@ function getMergedTeacherData(baseData) {
         const startM = toMinutes(startStr);
         const endM = toMinutes(endStr);
         if (startM >= 0 && endM > startM) {
-          const existing = merged.schedule[dayName][teacher].find(c => c.startM === startM && c.endM === endM && c.subject === (cls.subject || cls.title));
-          if (!existing) {
+          const alreadyExists = merged.schedule[dayName][teacher].some(c => c.startM === startM && c.endM === endM);
+          if (!alreadyExists) {
             merged.schedule[dayName][teacher].push({
               room: (room && room !== '—' && room !== '03' && room !== '3') ? room : '',
               start: startStr,
@@ -147,7 +147,7 @@ function getMergedTeacherData(baseData) {
               endM,
               subject: cls.subject || cls.title || 'Class',
               type: cls.type || 'Theory',
-              semSec: 'Active Routine'
+              semSec: cls.semSec || 'Class'
             });
           }
         }
@@ -242,4 +242,50 @@ export function searchTeachers(dayIdx, currentMins = getCurrentMinutes(), data =
   });
 
   return { isOffDay: false, isAfter5pm: false, teachers: results };
+}
+
+/**
+ * Returns all unique subjects and rooms a teacher teaches across all days of the week
+ */
+export function getTeacherWeeklySubjects(teacherKey, data = _masterTeacherData) {
+  const mergedData = getMergedTeacherData(data);
+  const info = getTeacherInfo(teacherKey);
+  const primaryKey = info.code || teacherKey;
+
+  const subjects = new Set();
+  const rooms = new Set();
+
+  Object.keys(mergedData.schedule || {}).forEach(dayName => {
+    const list = mergedData.schedule[dayName][primaryKey] || mergedData.schedule[dayName][teacherKey] || [];
+    list.forEach(c => {
+      if (c.subject) subjects.add(c.subject.toUpperCase().trim());
+      if (c.room) rooms.add(c.room.trim());
+    });
+  });
+
+  return { subjects: Array.from(subjects), rooms: Array.from(rooms) };
+}
+
+/**
+ * Returns all scheduled classes for a teacher on a specific day index
+ */
+export function getTeacherClassesForDay(teacherKey, dayIdx, data = _masterTeacherData) {
+  const mergedData = getMergedTeacherData(data);
+  const dayName = DAY_NAMES[dayIdx] || 'Sunday';
+  const daySchedule = mergedData.schedule[dayName] || {};
+
+  const info = getTeacherInfo(teacherKey);
+  const primaryKey = info.code || teacherKey;
+  const rawClasses = daySchedule[primaryKey] || daySchedule[teacherKey] || [];
+
+  return rawClasses.map(c => {
+    const startM = (typeof c.startM === 'number' && c.startM >= 0) ? c.startM : toMinutes(c.start);
+    const endM = (typeof c.endM === 'number' && c.endM > 0) ? c.endM : toMinutes(c.end);
+    return {
+      ...c,
+      startM,
+      endM
+    };
+  }).filter(c => c.startM >= 0 && c.endM > c.startM)
+    .sort((a, b) => a.startM - b.startM);
 }

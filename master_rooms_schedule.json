@@ -118,16 +118,6 @@
           "instructor": "FIROZA",
           "type": "Theory",
           "semSec": "Sem 8-E"
-        },
-        {
-          "start": "02:45 PM",
-          "end": "04:00 PM",
-          "startM": 885,
-          "endM": 960,
-          "subject": "DS",
-          "instructor": "MHE",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "405": [
@@ -232,16 +222,6 @@
           "instructor": "NP",
           "type": "Theory",
           "semSec": "Sem 2-E"
-        },
-        {
-          "start": "01:30 PM",
-          "end": "02:45 PM",
-          "startM": 810,
-          "endM": 885,
-          "subject": "ICMP",
-          "instructor": "NME",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "408": [
@@ -992,16 +972,6 @@
           "instructor": "TMC",
           "type": "Lab",
           "semSec": "Sem 5-C"
-        },
-        {
-          "start": "11:00 AM",
-          "end": "01:30 PM",
-          "startM": 660,
-          "endM": 810,
-          "subject": "DSL",
-          "instructor": "MHE",
-          "type": "Lab",
-          "semSec": "Personal Schedule"
         }
       ],
       "909": [
@@ -1170,16 +1140,6 @@
           "instructor": "INZAMAM",
           "type": "Theory",
           "semSec": "Sem 3-F"
-        },
-        {
-          "start": "09:45 AM",
-          "end": "11:00 AM",
-          "startM": 585,
-          "endM": 660,
-          "subject": "EDC",
-          "instructor": "AIR",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "1003": [
@@ -1632,16 +1592,6 @@
           "instructor": "ASIF",
           "type": "Lab",
           "semSec": "Sem 3-A"
-        },
-        {
-          "start": "08:30 AM",
-          "end": "11:00 AM",
-          "startM": 510,
-          "endM": 660,
-          "subject": "EDCL",
-          "instructor": "RSN",
-          "type": "Lab",
-          "semSec": "Personal Schedule"
         }
       ],
       "510": [
@@ -1948,16 +1898,6 @@
           "instructor": "SMAI",
           "type": "Theory",
           "semSec": "Sem 6-A"
-        },
-        {
-          "start": "12:15 PM",
-          "end": "01:30 PM",
-          "startM": 735,
-          "endM": 810,
-          "subject": "DMNT",
-          "instructor": "ST",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "613": [
@@ -2438,16 +2378,6 @@
           "instructor": "TASNIM",
           "type": "Theory",
           "semSec": "Sem 7-B"
-        },
-        {
-          "start": "11:00 AM",
-          "end": "12:15 PM",
-          "startM": 660,
-          "endM": 735,
-          "subject": "ICMP",
-          "instructor": "NME",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "405": [
@@ -3432,16 +3362,6 @@
           "instructor": "KMN",
           "type": "Theory",
           "semSec": "Sem 7-B"
-        },
-        {
-          "start": "09:45 AM",
-          "end": "11:00 AM",
-          "startM": 585,
-          "endM": 660,
-          "subject": "EE",
-          "instructor": "IFTEKAR MIA",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "1002": [
@@ -3722,16 +3642,6 @@
           "instructor": "AD",
           "type": "Theory",
           "semSec": "Sem 4-B"
-        },
-        {
-          "start": "09:45 AM",
-          "end": "11:00 AM",
-          "startM": 585,
-          "endM": 660,
-          "subject": "DMNT",
-          "instructor": "ST",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "409": [
@@ -3860,16 +3770,6 @@
           "instructor": "NJS",
           "type": "Lab",
           "semSec": "Sem 2-C"
-        },
-        {
-          "start": "11:00 AM",
-          "end": "01:30 PM",
-          "startM": 660,
-          "endM": 810,
-          "subject": "PHYL",
-          "instructor": "NJS",
-          "type": "Lab",
-          "semSec": "Personal Schedule"
         }
       ],
       "506": [
@@ -4094,16 +3994,6 @@
           "instructor": "TDM",
           "type": "Lab",
           "semSec": "Sem 3-B"
-        },
-        {
-          "start": "01:30 PM",
-          "end": "02:45 PM",
-          "startM": 810,
-          "endM": 885,
-          "subject": "CPL",
-          "instructor": "MHN",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "610": [
@@ -5020,16 +4910,6 @@
           "instructor": "KMAY",
           "type": "Theory",
           "semSec": "Sem 4-G"
-        },
-        {
-          "start": "11:00 AM",
-          "end": "12:15 PM",
-          "startM": 660,
-          "endM": 735,
-          "subject": "DS",
-          "instructor": "MHE",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "601": [
@@ -5378,16 +5258,6 @@
           "instructor": "RM",
           "type": "Theory",
           "semSec": "Sem 6-F"
-        },
-        {
-          "start": "12:15 PM",
-          "end": "01:30 PM",
-          "startM": 735,
-          "endM": 810,
-          "subject": "EDC",
-          "instructor": "AIR",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "902": [
@@ -5540,16 +5410,6 @@
           "instructor": "TMC",
           "type": "Theory",
           "semSec": "Sem 5-C"
-        },
-        {
-          "start": "01:30 PM",
-          "end": "02:45 PM",
-          "startM": 810,
-          "endM": 885,
-          "subject": "EE",
-          "instructor": "IFTEKAR MIA",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "1001": [

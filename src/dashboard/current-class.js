@@ -1,7 +1,7 @@
 import { DOM } from '../core/dom.js';
 import { getClassesForDay, getActiveClass } from '../schedule/queries.js';
 import { getOverrideFor } from '../announcements/overrides.js';
-import { toMinutes, format12h, formatRoom, getCurrentMinutes, toTimeString } from '../core/utils.js';
+import { toMinutes, format12h, formatRoom, getCurrentMinutes, toTimeString, escapeHtml } from '../core/utils.js';
 
 export function renderCurrentClass() {
   const todayIdx = new Date().getDay();
@@ -75,7 +75,10 @@ export function renderCurrentClass() {
       const total = endMins - startMins;
       const pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
 
-      DOM.currentTitle.textContent = activeItem.title + (activeItem.instructor ? ` (${activeItem.instructor})` : '');
+      const teacherHtml = activeItem.instructor
+        ? ` (<span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(activeItem.instructor)}" title="Click to view ${escapeHtml(activeItem.instructor)}'s profile">${escapeHtml(activeItem.instructor)}</span>)`
+        : '';
+      DOM.currentTitle.innerHTML = `${escapeHtml(activeItem.title)}${teacherHtml}`;
       roomPill.textContent = formatRoom(activeItem.room) || '—';
       timePill.textContent = `${format12h(activeItem.start)} – ${format12h(activeItem.end)}`;
       DOM.currentElapsed.textContent = `${toTimeString(elapsed)} elapsed`;

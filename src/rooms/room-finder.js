@@ -106,8 +106,11 @@ export function searchFreeRooms(dayIdx, currentMins = getCurrentMinutes(), data 
     return { isOffDay: true, isAfter5pm: false, rooms: [] };
   }
 
+  const schoolStartMins = 8 * 60 + 30; // 8:30 AM (510 mins)
   const schoolEndMins = 17 * 60; // 5:00 PM cutoff (1020 mins)
+  const isBefore830am = currentMins < schoolStartMins;
   const isAfter5pm = currentMins >= schoolEndMins;
+  const isCampusClosed = isBefore830am || isAfter5pm;
 
   const dayName = DAY_NAMES[dayIdx] || 'Sunday';
   const daySchedule = data.schedule[dayName] || {};
@@ -186,7 +189,7 @@ export function searchFreeRooms(dayIdx, currentMins = getCurrentMinutes(), data 
   // Apply sorting
   sortRoomResults(results, sortBy);
 
-  return { isOffDay: false, isAfter5pm, rooms: results };
+  return { isOffDay: false, isCampusClosed, isBefore830am, isAfter5pm, rooms: results };
 }
 
 function sortRoomResults(results, sortBy) {

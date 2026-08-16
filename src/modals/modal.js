@@ -11,16 +11,22 @@ export function openModal(modalEl, onOpen) {
   State.isModalOpen = true;
   if (_particles) _particles.stop();
   document.body.style.overflow = 'hidden';
+  document.body.classList.add('modal-open');
   modalEl.classList.add('open');
   if (onOpen) onOpen();
 }
 
 export function closeModal(modalEl, onClose) {
-  State.isModalOpen = false;
-  if (_particles) _particles.start();
-  document.body.style.overflow = '';
   modalEl.classList.remove('open');
   if (modalEl === DOM.viewModal) modalEl.classList.remove('rotated-mode');
+  
+  const remainingOpenModals = document.querySelectorAll('.mo.open');
+  if (remainingOpenModals.length === 0) {
+    State.isModalOpen = false;
+    if (_particles) _particles.start();
+    document.body.style.overflow = '';
+    document.body.classList.remove('modal-open');
+  }
   if (onClose) onClose();
 }
 

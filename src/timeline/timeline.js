@@ -165,12 +165,12 @@ export function renderTimeline(force = false) {
           <span class="chr" style="color:${theme.text}; opacity: 0.9;">
             ${isClassTest
               ? `<span style="color:${theme.text}; font-weight:800; display:block;">Click to view topics</span>
-                 <span style="font-size: 11px; opacity: 0.85;">${formatRoom(item.room) ? `Room ${formatRoom(item.room)}` : 'No room'} ${item.instructor ? `· ${item.instructor}` : ''}</span>`
+                 <span style="font-size: 11px; opacity: 0.85;">${formatRoom(item.room) ? `Room ${formatRoom(item.room)}` : 'No room'} ${item.instructor ? `· <span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(item.instructor)}" title="Click to view ${escapeHtml(item.instructor)}'s profile">${escapeHtml(item.instructor)}</span>` : ''}</span>`
               : isOnline
               ? (platform ? `<span style="color:${theme.text}; font-weight:800; display:block;">${escapeHtml(truncateText(platform, 10))}</span>` : '')
               : effectiveCancelled
                 ? `<span style="color:${theme.text}; font-weight:800;">${isHolidayCancelled ? 'HOLIDAY — NO CLASS' : 'CANCELLED'}</span>`
-                : `${formatRoom(item.room)} ${item.instructor ? `· ${item.instructor}` : ''}`}
+                : `${formatRoom(item.room)} ${item.instructor ? `· <span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(item.instructor)}" title="Click to view ${escapeHtml(item.instructor)}'s profile">${escapeHtml(item.instructor)}</span>` : ''}`}
           </span>
         </div>
         <span class="ctb" style="background:${theme.badge}; color:${theme.text}">${isClassTest ? `📝 ${truncateText(examName, 10)}` : isOnline ? '📡 ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : item.type)}</span>

@@ -135,7 +135,7 @@ export function updateFabBadge() {
   const currentMins = getCurrentMinutes();
   const res = searchFreeRooms(currentDay, currentMins);
 
-  if (res.isAfter5pm || res.isOffDay) {
+  if (res.isCampusClosed || res.isAfter5pm || res.isBefore830am || res.isOffDay) {
     badge.style.display = 'none';
     return;
   }
@@ -161,6 +161,18 @@ export function renderFreeRoomsModal() {
         <div style="font-size: 36px; margin-bottom: 8px;">🎉</div>
         <div style="font-weight: 800; font-size: 16px; color: var(--text); margin-bottom: 4px;">No Classes Today</div>
         <div style="font-size: 13px;">It is a weekend or off-day. No routine classes scheduled.</div>
+      </div>
+    `;
+    return;
+  }
+
+  if (res.isBefore830am) {
+    if (summaryEl) summaryEl.innerHTML = `<span style="color:var(--dim);">Classes start at 8:30 AM</span>`;
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: var(--dim);">
+        <div style="font-size: 36px; margin-bottom: 8px;">🌅</div>
+        <div style="font-weight: 800; font-size: 16px; color: var(--text); margin-bottom: 4px;">Campus Closed · Classes Start at 8:30 AM</div>
+        <div style="font-size: 13px;">Live room availability will begin tracking once classes start at 8:30 AM.</div>
       </div>
     `;
     return;
@@ -343,7 +355,7 @@ export function openRoomDetailModal(roomData) {
           <div class="fr-tl-meta">
             <span>${format12h(c.start)} – ${format12h(c.end)}</span>
             <span>·</span>
-            <span>${escapeHtml(c.instructor || 'TBA')}</span>
+            <span>${c.instructor && c.instructor !== '—' && c.instructor.toLowerCase() !== 'tba' ? `<span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(c.instructor)}" title="Click to view ${escapeHtml(c.instructor)}'s profile">${escapeHtml(c.instructor)}</span>` : 'TBA'}</span>
             <span>·</span>
             <span>${escapeHtml(c.semSec || '')}</span>
           </div>
@@ -360,7 +372,7 @@ export function openRoomDetailModal(roomData) {
           <div class="fr-tl-meta" style="color:var(--text);">
             <span style="color:#38bdf8; font-weight:800;">${format12h(c.start)} – ${format12h(c.end)}</span>
             <span>·</span>
-            <span>${escapeHtml(c.instructor || 'TBA')}</span>
+            <span>${c.instructor && c.instructor !== '—' && c.instructor.toLowerCase() !== 'tba' ? `<span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(c.instructor)}" title="Click to view ${escapeHtml(c.instructor)}'s profile">${escapeHtml(c.instructor)}</span>` : 'TBA'}</span>
             <span>·</span>
             <span style="font-weight:700;">${escapeHtml(c.semSec || '')}</span>
           </div>
@@ -377,7 +389,7 @@ export function openRoomDetailModal(roomData) {
           <div class="fr-tl-meta">
             <span class="fr-tl-time">${format12h(c.start)} – ${format12h(c.end)}</span>
             <span>·</span>
-            <span>${escapeHtml(c.instructor || 'TBA')}</span>
+            <span>${c.instructor && c.instructor !== '—' && c.instructor.toLowerCase() !== 'tba' ? `<span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(c.instructor)}" title="Click to view ${escapeHtml(c.instructor)}'s profile">${escapeHtml(c.instructor)}</span>` : 'TBA'}</span>
             <span>·</span>
             <span>${escapeHtml(c.semSec || '')}</span>
           </div>

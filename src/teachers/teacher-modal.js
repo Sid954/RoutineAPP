@@ -1,12 +1,15 @@
+import { DAY_NAMES, DAY_SHORT, CONFIG, FULL_COURSE_NAMES } from '../core/config.js';
 import { format12h, toTimeString, getCurrentMinutes } from '../core/utils.js';
 import { openModal, closeModal } from '../modals/modal.js';
 import { showToast } from '../toast/toast.js';
-import { loadMasterTeacherData, searchTeachers } from './teacher-finder.js';
+import { loadMasterTeacherData, searchTeachers, getTeacherClassesForDay, getTeacherWeeklySubjects } from './teacher-finder.js';
 import { initTeacherNames, getTeacherInfo, getFullName, submitNameSuggestion, fetchPendingSubmissions, reviewSubmission } from './teacher-names.js';
 
 let _searchQuery = '';
 let _lastTeacherResults = [];
 let _adminSessionPass = '';
+let _currentOpenTeacherData = null;
+let _selectedTeacherDetailDay = new Date().getDay();
 
 export function initTeacherFinderUI() {
   const fab = document.getElementById('findTeacherFab');
@@ -37,6 +40,7 @@ export function initTeacherFinderUI() {
   // Teacher detail modal
   const detailModal = document.getElementById('teacherDetailModal');
   const detailCloseBtn = document.getElementById('teacherDetailCloseBtn');
+  const dayNav = document.getElementById('teacherDetailDayNav');
 
   if (!fab || !modal) return;
 
@@ -67,6 +71,22 @@ export function initTeacherFinderUI() {
 
   if (closeBtn) closeBtn.addEventListener('click', () => closeModal(modal));
   if (detailCloseBtn && detailModal) detailCloseBtn.addEventListener('click', () => closeModal(detailModal));
+
+  // Day navigation click handler inside detail modal
+  if (dayNav) {
+    dayNav.addEventListener('click', (e) => {
+      const btn = e.target.closest('.ft-day-btn');
+      if (!btn || !_currentOpenTeacherData) return;
+      const dayIdx = parseInt(btn.dataset.day, 10);
+      _selectedTeacherDetailDay = dayIdx;
+
+      // Update active button state
+      dayNav.querySelectorAll('.ft-day-btn').forEach(b => b.classList.toggle('active', b === btn));
+
+      // Render timeline for chosen day
+      renderTeacherTimelineForDay(_currentOpenTeacherData.teacher, _selectedTeacherDetailDay);
+    });
+  }
 
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
@@ -260,6 +280,17 @@ export function initTeacherFinderUI() {
     });
   }
 
+  // 5. Global click delegation for ANY clickable teacher badge across the app
+  document.body.addEventListener('click', (e) => {
+    const badge = e.target.closest('[data-teacher-code], .teacher-clickable-badge');
+    if (badge) {
+      e.preventDefault();
+      e.stopPropagation();
+      const code = badge.dataset.teacherCode || badge.textContent;
+      openTeacherDetailByCode(code);
+    }
+  });
+
   // Pre-fetch fresh data on startup
   Promise.all([loadMasterTeacherData(true), initTeacherNames()]).then(() => {
     updateTeacherFabBadge();
@@ -419,15 +450,45 @@ export function renderTeacherFinderModal() {
   container.innerHTML = html;
 }
 
-/** Opens Full Faculty Profile & Live Routine Modal */
+/**
+ * Programmatically open teacher profile modal by short code (e.g. 'AIR', 'MHE', 'MHN')
+ */
+export async function openTeacherDetailByCode(teacherCode) {
+  if (!teacherCode) return;
+  const cleanCode = String(teacherCode).trim().replace(/^[\s·\(\)]+|[\s·\(\)]+$/g, '');
+  if (!cleanCode || cleanCode === '—' || cleanCode.toLowerCase() === 'tba') return;
+
+  const detailModal = document.getElementById('teacherDetailModal');
+  const heroContainer = document.getElementById('facultyProfileHero');
+
+  // Immediately open modal and show instantaneous loading spinner
+  if (detailModal) {
+    if (heroContainer) {
+      heroContainer.innerHTML = `
+        <div style="text-align: center; padding: 30px 10px 20px; color: var(--dim);">
+          <div style="font-size: 32px; margin-bottom: 8px; display: inline-block;" class="spin">⚡</div>
+          <div style="font-size: 15px; font-weight: 800; color: #fff;">Loading ${escapeHtml(cleanCode)}'s Profile...</div>
+          <div style="font-size: 11.5px; color: var(--dim); margin-top: 3px;">Fetching faculty details</div>
+        </div>
+      `;
+    }
+    openModal(detailModal);
+  }
+
+  await initTeacherNames();
+  openTeacherDetailModal({ teacher: cleanCode });
+}
+
+window.__openTeacherProfileByCode = openTeacherDetailByCode;
+
+/** Opens Full Faculty Profile Modal */
 export function openTeacherDetailModal(teacherData) {
   const detailModal = document.getElementById('teacherDetailModal');
   const heroContainer = document.getElementById('facultyProfileHero');
-  const classCountEl = document.getElementById('facultyProfileClassCount');
-  const bannerEl = document.getElementById('teacherDetailLiveBanner');
-  const listEl = document.getElementById('teacherTimelineList');
 
-  if (!detailModal || !listEl) return;
+  if (!detailModal) return;
+
+  _currentOpenTeacherData = teacherData;
 
   const info = getTeacherInfo(teacherData.teacher);
   const fullName = info.name || teacherData.teacher;
@@ -442,27 +503,32 @@ export function openTeacherDetailModal(teacherData) {
     ? `<span style="font-size: 10px; font-weight: 800; color: #fbbf24; background: rgba(251,191,36,0.15); padding: 2px 7px; border-radius: 6px;">Study Leave</span>`
     : `<span style="font-size: 10px; font-weight: 800; color: #34d399; background: rgba(52,211,153,0.15); padding: 2px 7px; border-radius: 6px;">Active Faculty</span>`;
 
-  // Build Action Buttons: Email, Call, Profile, Edit Info
+  // Build Action Buttons: Only render Email, Call, or PUC Profile if available
   const primaryEmail = (info.emails && info.emails.length > 0) ? info.emails[0] : '';
   const emailBtn = primaryEmail
-    ? `<a href="mailto:${escapeHtml(primaryEmail)}" class="ft-action-btn ft-action-btn-primary" title="Send Email">✉️ Email</a>`
-    : `<button class="ft-action-btn" onclick="window.__openFacultyEditModal('${escapeHtml(teacherData.teacher)}')">✉️ Add Email</button>`;
+    ? `<a href="mailto:${escapeHtml(primaryEmail)}" class="ft-action-btn ft-action-btn-primary" title="Send Email: ${escapeHtml(primaryEmail)}">✉️ Email</a>`
+    : '';
 
-  const phoneBtn = info.phone && info.phone.includes('+')
-    ? `<a href="tel:${escapeHtml(info.phone.split(' ')[0])}" class="ft-action-btn" title="Call Faculty">📞 Call</a>`
-    : `<button class="ft-action-btn" onclick="window.__openFacultyEditModal('${escapeHtml(teacherData.teacher)}')">📞 Add Phone</button>`;
+  const phoneBtn = (info.phone && info.phone.trim())
+    ? `<a href="tel:${escapeHtml(info.phone.split(' ')[0])}" class="ft-action-btn" title="Call Faculty: ${escapeHtml(info.phone)}">📞 Call</a>`
+    : '';
 
   const profileBtn = info.profileUrl
     ? `<a href="${escapeHtml(info.profileUrl)}" target="_blank" rel="noopener" class="ft-action-btn" title="View Official PUC Website Profile">🌐 PUC Profile</a>`
     : '';
 
-  const editBtn = `<button class="ft-action-btn" onclick="window.__openFacultyEditModal('${escapeHtml(teacherData.teacher)}')">✏️ Edit Info</button>`;
+  const actionsHtml = (emailBtn || phoneBtn || profileBtn)
+    ? `<div class="ft-profile-actions">${emailBtn}${phoneBtn}${profileBtn}</div>`
+    : '';
 
   if (heroContainer) {
     heroContainer.innerHTML = `
       <div class="ft-profile-hero-card">
         <div class="ft-profile-top">
-          ${photoHtml}
+          <div class="ft-avatar-wrapper">
+            ${photoHtml}
+            <button class="ft-avatar-edit-icon-btn" onclick="window.__openFacultyEditModal('${escapeHtml(teacherData.teacher)}')" title="Suggest / Edit faculty info">✏️</button>
+          </div>
           <div class="ft-profile-meta">
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
               <span class="ft-profile-name">${escapeHtml(fullName)}</span>
@@ -475,161 +541,88 @@ export function openTeacherDetailModal(teacherData) {
           </div>
         </div>
 
-        <div class="ft-profile-actions">
-          ${emailBtn}
-          ${phoneBtn}
-          ${profileBtn}
-          ${editBtn}
-        </div>
+        ${actionsHtml}
       </div>
     `;
   }
 
-  if (classCountEl) {
-    classCountEl.textContent = `${teacherData.allClassesToday.length} classes scheduled today`;
-  }
-
-  const currentMins = getCurrentMinutes();
-
-  // Live status banner in modal
-  if (bannerEl) {
-    if (teacherData.status === 'IN_CLASS') {
-      const cur = teacherData.currentClass;
-      bannerEl.innerHTML = `
-        <div style="background: rgba(16, 185, 129, 0.15); border: 1.5px solid rgba(52, 211, 153, 0.4); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 20px;">🟢</span>
-          <div>
-            <div style="font-size: 13.5px; font-weight: 900; color: #34d399;">Currently in Room ${escapeHtml(cur.room || 'Class')}</div>
-            <div style="font-size: 12px; color: var(--text);">${escapeHtml(cur.subject)} (${format12h(cur.start)} – ${format12h(cur.end)}) · ${escapeHtml(cur.semSec || '')}</div>
-          </div>
-        </div>
-      `;
-    } else {
-      bannerEl.innerHTML = `
-        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 16px;">☕</span>
-          <div>
-            <div style="font-size: 13px; font-weight: 800; color: var(--dim);">Not in Class Right Now</div>
-            <div style="font-size: 11px; color: var(--dim);">Check full routine below</div>
-          </div>
-        </div>
-      `;
-    }
-  }
-
-  // Render Classes Timeline
-  const classes = teacherData.allClassesToday || [];
-
-  if (classes.length === 0) {
-    listEl.innerHTML = `
-      <div style="text-align: center; padding: 30px 14px; color: var(--dim);">
-        <div style="font-size: 28px; margin-bottom: 6px;">☕</div>
-        <div style="font-weight: 700; font-size: 14px; color: var(--text);">No Classes Today</div>
-        <div style="font-size: 12px;">This faculty member has no scheduled classes on campus today.</div>
-      </div>
-    `;
-    openModal(detailModal);
-    return;
-  }
-
-  let timelineHtml = '';
-
-  classes.forEach(c => {
-    const isFinished = c.endM <= currentMins;
-    const isCurrent = currentMins >= c.startM && currentMins < endM(c);
-    const roomLabel = c.room ? `Room ${escapeHtml(c.room)}` : 'Class';
-
-    if (isFinished) {
-      // 1. Finished Class (Greyed out)
-      timelineHtml += `
-        <div class="ft-tl-item ft-tl-item-past">
-          <div class="ft-tl-header">
-            <span class="ft-tl-subject">${escapeHtml(c.subject)}</span>
-            <span class="ft-tl-past-badge">✓ Completed</span>
-          </div>
-          <div class="ft-tl-meta">
-            <span class="ft-tl-room-badge" style="opacity:0.7;">${roomLabel}</span>
-            <span>·</span>
-            <span>${format12h(c.start)} – ${format12h(c.end)}</span>
-            <span>·</span>
-            <span>${escapeHtml(c.semSec || '')}</span>
-          </div>
-        </div>
-      `;
-    } else if (isCurrent) {
-      // 2. Current Ongoing Class (Highlighted Glowing Green)
-      timelineHtml += `
-        <div class="ft-tl-item ft-tl-item-current">
-          <div class="ft-tl-header">
-            <span class="ft-tl-subject" style="color:#34d399; font-size:16px;">${escapeHtml(c.subject)}</span>
-            <span class="ft-tl-live-badge">● IN CLASS NOW</span>
-          </div>
-          <div class="ft-tl-meta" style="color:var(--text);">
-            <span class="ft-tl-room-badge" style="background:#10b981; color:#fff; font-weight:900;">${roomLabel}</span>
-            <span>·</span>
-            <span style="color:#34d399; font-weight:800;">${format12h(c.start)} – ${format12h(c.end)}</span>
-            <span>·</span>
-            <span style="font-weight:700;">${escapeHtml(c.semSec || '')}</span>
-          </div>
-        </div>
-      `;
-    } else {
-      // 3. Future Upcoming Class
-      timelineHtml += `
-        <div class="ft-tl-item ft-tl-item-future">
-          <div class="ft-tl-header">
-            <span class="ft-tl-subject">${escapeHtml(c.subject)}</span>
-            <span class="ft-tl-future-badge">${format12h(c.start)}</span>
-          </div>
-          <div class="ft-tl-meta">
-            <span class="ft-tl-room-badge">${roomLabel}</span>
-            <span>·</span>
-            <span>${format12h(c.start)} – ${format12h(c.end)}</span>
-            <span>·</span>
-            <span>${escapeHtml(c.semSec || '')}</span>
-          </div>
-        </div>
-      `;
-    }
-  });
-
-  listEl.innerHTML = timelineHtml;
   openModal(detailModal);
 }
 
-function endM(c) {
-  return typeof c.endM === 'number' ? c.endM : 0;
+const STOP_WORDS = new Set(['and', 'to', 'of', 'the', 'in', 'for', 'on', 'with', '&', 'lab', 'laboratory']);
+
+function normalizeSearchTerm(str) {
+  return (str || '').toLowerCase()
+    .replace(/electronics/g, 'electronic')
+    .replace(/laboratories|laboratory/g, 'lab')
+    .replace(/structures/g, 'structure')
+    .replace(/devices/g, 'device')
+    .replace(/networks/g, 'network')
+    .replace(/systems/g, 'system')
+    .replace(/algorithms/g, 'algorithm')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function matchesTeacherQuery(teacherObj, query) {
   if (!query) return true;
-  const q = query.toLowerCase().trim();
+  const qRaw = query.toLowerCase().trim();
+  const qNorm = normalizeSearchTerm(query);
+
+  const queryWords = qRaw.split(/[\s.\-_&]+/).filter(w => w.length > 0 && !STOP_WORDS.has(w));
+  const isMultiWordQuery = queryWords.length >= 2;
+  const qAcronym = isMultiWordQuery ? queryWords.map(w => w[0]).join('') : '';
+
   const code = (teacherObj.teacher || '').toLowerCase();
   const info = getTeacherInfo(teacherObj.teacher);
   const fullName = (info.name || '').toLowerCase();
+  const fullNameNorm = normalizeSearchTerm(fullName);
   const designation = (info.designation || '').toLowerCase();
 
-  // 1. Direct match in teacher code, full name, or designation
-  if (code.includes(q) || fullName.includes(q) || designation.includes(q)) return true;
+  // 1. Direct match in teacher code
+  if (code === qRaw || (qRaw.length >= 2 && code.includes(qRaw))) return true;
 
-  // 2. Direct match in subjects or rooms taught today
-  if (teacherObj.allClassesToday && teacherObj.allClassesToday.some(c => 
-    (c.subject && c.subject.toLowerCase().includes(q)) || 
-    (c.room && c.room.toLowerCase().includes(q))
-  )) {
+  // 2. Full Name & Designation match
+  if (fullName.includes(qRaw) || fullNameNorm.includes(qNorm) || designation.includes(qRaw)) return true;
+
+  // 3. Name Acronym match (e.g. query "Md. Ariful Islam" -> "mai" / "aib")
+  if (isMultiWordQuery && qAcronym && (code === qAcronym || code.includes(qAcronym))) return true;
+
+  // 4. Match across ALL subjects and rooms taught across the entire weekly timetable
+  const weekly = getTeacherWeeklySubjects(teacherObj.teacher);
+
+  // Check rooms
+  if (weekly.rooms.some(r => r.toLowerCase() === qRaw || `room ${r}`.toLowerCase() === qRaw || `room ${r}`.toLowerCase().includes(qRaw))) {
     return true;
   }
 
-  // 3. Multi-word search: extract initials from words (e.g. "mohammad hasan" -> "mh", matching "MH", "MHE", "MHN", "TMH")
-  const words = q.split(/[\s.\-_]+/).filter(w => w.length > 0);
-  if (words.length >= 2) {
-    const initials = words.map(w => w[0]).join('');
-    if (initials && code.includes(initials)) return true;
+  // Check subjects
+  for (const sub of weekly.subjects) {
+    const subLower = sub.toLowerCase();
 
-    // Check first 2 initials if 3+ words (e.g. "Md Abu Jafor" -> "ma")
-    if (words.length >= 3) {
-      const firstTwo = words.slice(0, 2).map(w => w[0]).join('');
-      if (firstTwo.length >= 2 && code === firstTwo) return true;
+    // Direct code match (e.g. 'EDC', 'DS', 'ALGO')
+    if (subLower === qRaw || subLower.startsWith(qRaw)) return true;
+
+    // Multi-word query acronym match (e.g. query 'Electronic Devices and Circuits' -> acronym 'edc' == 'edc')
+    if (isMultiWordQuery && qAcronym.length >= 2 && (subLower === qAcronym || subLower === qAcronym + 'l')) return true;
+
+    // Full course title match
+    const fullTitle = FULL_COURSE_NAMES[sub] || '';
+    if (fullTitle) {
+      const fullTitleNorm = normalizeSearchTerm(fullTitle);
+      const titleWords = fullTitle.toLowerCase().split(/[\s.\-_&]+/).filter(w => w.length > 0 && !STOP_WORDS.has(w));
+      const titleAcronym = titleWords.length >= 2 ? titleWords.map(w => w[0]).join('') : '';
+
+      // Direct full title text containment
+      if (fullTitleNorm.includes(qNorm)) return true;
+      if (qRaw.length >= 2 && titleAcronym && titleAcronym === qRaw) return true;
+      if (isMultiWordQuery && titleAcronym && titleAcronym === qAcronym) return true;
+
+      // Word-overlap check: all significant words in query match in full title
+      if (queryWords.length >= 2 && queryWords.every(w => fullTitleNorm.includes(w))) {
+        return true;
+      }
     }
   }
 

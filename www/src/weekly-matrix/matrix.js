@@ -239,13 +239,13 @@ export function renderWeeklyMatrix() {
               <div class="m-card-sub" style="color:${theme.text}">
                 ${isClassTest
                   ? `<span style="color:#fdba74; font-weight:800; display:block; margin-bottom: 2px;">Click to view topics</span>
-                     <span style="font-size: 11px; opacity: 0.85;">${formatRoom(item.room) ? `Room ${formatRoom(item.room)}` : 'No room'} ${item.instructor ? `· ${item.instructor}` : ''}</span>`
+                     <span style="font-size: 11px; opacity: 0.85;">${formatRoom(item.room) ? `Room ${formatRoom(item.room)}` : 'No room'} ${item.instructor ? `· <span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(item.instructor)}" title="Click to view ${escapeHtml(item.instructor)}'s profile">${escapeHtml(item.instructor)}</span>` : ''}</span>`
                   : isOnline
                   ? (platform ? `<span style="color:#6ee7b7; font-weight:800; display:block;">${escapeHtml(truncateText(platform, 10))}</span>` : '')
                   : effectiveCancelled
                     ? `<span style="color:var(--pink); font-weight:800;">${isHolidayCancelled ? 'HOLIDAY — NO CLASS' : 'CANCELLED'}</span>`
                     : (formatRoom(item.room) ? `Room ${formatRoom(item.room)}` : 'No room')}
-                ${item.instructor && !effectiveCancelled && !isClassTest ? `· ${item.instructor}` : ''}
+                ${item.instructor && !effectiveCancelled && !isClassTest ? `· <span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(item.instructor)}" title="Click to view ${escapeHtml(item.instructor)}'s profile">${escapeHtml(item.instructor)}</span>` : ''}
               </div>
             </div>
             <span class="m-card-badge" style="background:${theme.badge}; color:#fff">${isClassTest ? `📝 ${truncateText(examName, 10)}` : isOnline ? '📡 ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : item.type)}</span>
@@ -374,9 +374,9 @@ export function renderWeeklyMatrix() {
               <div class="t-subj course-click-title" data-title="${match.title}" style="text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">${escapeHtml(truncateText(match.title, 10))}</div>
               ${isClassTest
                 ? `<div class="t-inst" style="color:#fdba74; font-weight:800;">Click to view topics</div>
-                   ${match.instructor && !effectiveCancelled ? `<div class="t-inst" style="color:${theme.text}">${escapeHtml(truncateText(match.instructor, 10))}</div>` : ''}`
+                   ${match.instructor && !effectiveCancelled ? `<div class="t-inst" style="color:${theme.text}"><span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(match.instructor)}" title="Click to view ${escapeHtml(match.instructor)}'s profile">${escapeHtml(truncateText(match.instructor, 10))}</span></div>` : ''}`
                 : match.instructor && !effectiveCancelled
-                  ? `<div class="t-inst" style="color:${theme.text}">${escapeHtml(truncateText(match.instructor, 10))}</div>`
+                  ? `<div class="t-inst" style="color:${theme.text}"><span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(match.instructor)}" title="Click to view ${escapeHtml(match.instructor)}'s profile">${escapeHtml(truncateText(match.instructor, 10))}</span></div>`
                   : ''}
               <div class="t-meta">
                 <span style="color:${theme.text}">

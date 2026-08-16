@@ -1,7 +1,7 @@
 import { DOM } from '../core/dom.js';
 import { getClassesForDay, getActiveClass, getNextClass } from '../schedule/queries.js';
 import { getOverrideFor } from '../announcements/overrides.js';
-import { toMinutes, format12h, formatRoom, getCurrentMinutes } from '../core/utils.js';
+import { toMinutes, format12h, formatRoom, getCurrentMinutes, escapeHtml } from '../core/utils.js';
 
 export function renderNextClass() {
   const todayIdx = new Date().getDay();
@@ -45,7 +45,10 @@ export function renderNextClass() {
     const effectiveCancelled = isCancelled || isHolidayCancelled;
     const diff = toMinutes(nextItem.start) - currentMins;
 
-    DOM.nextTitle.textContent = nextItem.title + (nextItem.instructor ? ` (${nextItem.instructor})` : '');
+    const teacherHtml = nextItem.instructor
+      ? ` (<span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(nextItem.instructor)}" title="Click to view ${escapeHtml(nextItem.instructor)}'s profile">${escapeHtml(nextItem.instructor)}</span>)`
+      : '';
+    DOM.nextTitle.innerHTML = `${escapeHtml(nextItem.title)}${teacherHtml}`;
     DOM.nextTimeRange.textContent = `${format12h(nextItem.start)} – ${format12h(nextItem.end)}`;
     DOM.nextEta.style.display = 'inline-block';
     subRow.style.display = 'block';

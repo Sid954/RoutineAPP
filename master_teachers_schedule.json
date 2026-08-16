@@ -347,16 +347,6 @@
           "subject": "EDC",
           "type": "Theory",
           "semSec": "Sem 2-C"
-        },
-        {
-          "room": "1002",
-          "start": "09:45 AM",
-          "end": "11:00 AM",
-          "startM": 585,
-          "endM": 660,
-          "subject": "EDC",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "ST": [
@@ -391,16 +381,6 @@
           "subject": "ICMP",
           "type": "Theory",
           "semSec": "Sem 2-C"
-        },
-        {
-          "room": "406",
-          "start": "01:30 PM",
-          "end": "02:45 PM",
-          "startM": 810,
-          "endM": 885,
-          "subject": "ICMP",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "MHE": [
@@ -423,26 +403,6 @@
           "subject": "DS",
           "type": "Theory",
           "semSec": "Sem 2-C"
-        },
-        {
-          "room": "905",
-          "start": "11:00 AM",
-          "end": "01:30 PM",
-          "startM": 660,
-          "endM": 810,
-          "subject": "DSL",
-          "type": "Lab",
-          "semSec": "Personal Schedule"
-        },
-        {
-          "room": "404",
-          "start": "02:45 PM",
-          "end": "04:00 PM",
-          "startM": 885,
-          "endM": 960,
-          "subject": "DS",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "NP": [
@@ -1689,16 +1649,6 @@
           "subject": "DMNT",
           "type": "Theory",
           "semSec": "Sem 2-C"
-        },
-        {
-          "room": "612",
-          "start": "12:15 PM",
-          "end": "01:30 PM",
-          "startM": 735,
-          "endM": 810,
-          "subject": "DMNT",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "RSN": [
@@ -1711,16 +1661,6 @@
           "subject": "EDCL",
           "type": "Lab",
           "semSec": "Sem 2-C"
-        },
-        {
-          "room": "508",
-          "start": "08:30 AM",
-          "end": "11:00 AM",
-          "startM": 510,
-          "endM": 660,
-          "subject": "EDCL",
-          "type": "Lab",
-          "semSec": "Personal Schedule"
         }
       ],
       "MFF": [
@@ -2889,16 +2829,6 @@
           "subject": "EE",
           "type": "Theory",
           "semSec": "Sem 2-C"
-        },
-        {
-          "room": "1001",
-          "start": "09:45 AM",
-          "end": "11:00 AM",
-          "startM": 585,
-          "endM": 660,
-          "subject": "EE",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "NME": [
@@ -2921,16 +2851,6 @@
           "subject": "ICMP",
           "type": "Theory",
           "semSec": "Sem 2-C"
-        },
-        {
-          "room": "404",
-          "start": "11:00 AM",
-          "end": "12:15 PM",
-          "startM": 660,
-          "endM": 735,
-          "subject": "ICMP",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "NJS": [
@@ -3929,16 +3849,6 @@
           "subject": "CPL",
           "type": "Theory",
           "semSec": "Sem 2-D"
-        },
-        {
-          "room": "608",
-          "start": "01:30 PM",
-          "end": "02:45 PM",
-          "startM": 810,
-          "endM": 885,
-          "subject": "CPL",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "MTS": [
@@ -4049,16 +3959,6 @@
           "subject": "DMNT",
           "type": "Theory",
           "semSec": "Sem 2-C"
-        },
-        {
-          "room": "408",
-          "start": "09:45 AM",
-          "end": "11:00 AM",
-          "startM": 585,
-          "endM": 660,
-          "subject": "DMNT",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "NJS": [
@@ -4071,16 +3971,6 @@
           "subject": "PHYL",
           "type": "Lab",
           "semSec": "Sem 2-C"
-        },
-        {
-          "room": "505",
-          "start": "11:00 AM",
-          "end": "01:30 PM",
-          "startM": 660,
-          "endM": 810,
-          "subject": "PHYL",
-          "type": "Lab",
-          "semSec": "Personal Schedule"
         }
       ],
       "MFF": [
@@ -5099,16 +4989,6 @@
           "subject": "EDC",
           "type": "Theory",
           "semSec": "Sem 2-C"
-        },
-        {
-          "room": "901",
-          "start": "12:15 PM",
-          "end": "01:30 PM",
-          "startM": 735,
-          "endM": 810,
-          "subject": "EDC",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "AWAL": [
@@ -5165,16 +5045,6 @@
           "subject": "EE",
           "type": "Theory",
           "semSec": "Sem 2-C"
-        },
-        {
-          "room": "910",
-          "start": "01:30 PM",
-          "end": "02:45 PM",
-          "startM": 810,
-          "endM": 885,
-          "subject": "EE",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "MHE": [
@@ -5197,16 +5067,6 @@
           "subject": "ALGO",
           "type": "Theory",
           "semSec": "Sem 4-F"
-        },
-        {
-          "room": "510",
-          "start": "11:00 AM",
-          "end": "12:15 PM",
-          "startM": 660,
-          "endM": 735,
-          "subject": "DS",
-          "type": "Theory",
-          "semSec": "Personal Schedule"
         }
       ],
       "JUA": [

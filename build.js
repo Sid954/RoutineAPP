@@ -121,13 +121,6 @@ function compileMasterRoomSchedule() {
 
   scanDir(dataDir);
 
-  const rootSchedulePath = path.join(__dirname, 'schedule.json');
-  if (fs.existsSync(rootSchedulePath)) {
-    try {
-      parseRoutine(JSON.parse(fs.readFileSync(rootSchedulePath, 'utf8')), 'Personal Schedule');
-    } catch (e) {}
-  }
-
   master.rooms = Array.from(roomSet).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
   const outPath = path.join(__dirname, 'master_rooms_schedule.json');
@@ -178,16 +171,19 @@ function compileMasterTeacherSchedule() {
           const startM = parseTimeToMins(startStr);
           const endM = parseTimeToMins(endStr);
           if (startM >= 0 && endM > startM) {
-            master.schedule[day][teacher].push({
-              room: (room && room !== '—' && room !== '03' && room !== '3') ? room : '',
-              start: startStr,
-              end: endStr,
-              startM,
-              endM,
-              subject: cls.subject || cls.title || 'Class',
-              type: cls.type || 'Theory',
-              semSec: semSec
-            });
+            const alreadyExists = master.schedule[day][teacher].some(c => c.startM === startM && c.endM === endM);
+            if (!alreadyExists) {
+              master.schedule[day][teacher].push({
+                room: (room && room !== '—' && room !== '03' && room !== '3') ? room : '',
+                start: startStr,
+                end: endStr,
+                startM,
+                endM,
+                subject: cls.subject || cls.title || 'Class',
+                type: cls.type || 'Theory',
+                semSec: semSec
+              });
+            }
           }
         });
       }
@@ -219,13 +215,6 @@ function compileMasterTeacherSchedule() {
   }
 
   scanDir(dataDir);
-
-  const rootSchedulePath = path.join(__dirname, 'schedule.json');
-  if (fs.existsSync(rootSchedulePath)) {
-    try {
-      parseRoutine(JSON.parse(fs.readFileSync(rootSchedulePath, 'utf8')), 'Personal Schedule');
-    } catch (e) {}
-  }
 
   master.teachers = Array.from(teacherSet).sort((a, b) => a.localeCompare(b));
 
@@ -293,6 +282,11 @@ async function updateFacultyDirectoryFromWeb() {
       }
     }
 
+    const GENERIC_PHONES = [
+      '01313044515', '01313044516', '01313044517', '01313044518', '01313044519',
+      '09610828282', '01335084717', '8809610828282', '8801313044515'
+    ];
+
     // Fast parallel profile detail fetching
     const batchSize = 10;
     for (let i = 0; i < scrapedList.length; i += batchSize) {
@@ -301,15 +295,27 @@ async function updateFacultyDirectoryFromWeb() {
         if (!f.profileUrl) return;
         try {
           const pHtml = await fetchUrl(f.profileUrl, 6000);
+          
+          // Authentic Teacher Emails
           const emailMatches = pHtml.match(/fa-envelope[^<]*<\/i>\s*([\s\S]*?)<\/span>/i);
           if (emailMatches) {
-            f.emails = cleanText(emailMatches[1]).split(/[,;\s]+/).map(e => e.trim()).filter(e => e.includes('@'));
+            f.emails = cleanText(emailMatches[1])
+              .split(/[,;\s]+/)
+              .map(e => e.trim())
+              .filter(e => e.includes('@') && !e.toLowerCase().includes('info@puc.ac.bd') && !e.toLowerCase().includes('controller@puc.ac.bd'));
           }
+
+          // Filter out generic university hotline phone numbers
           const phoneMatches = pHtml.match(/fa-phone[^<]*<\/i>\s*([\s\S]*?)<\/span>/i);
           if (phoneMatches) {
             const rawPhone = cleanText(phoneMatches[1]);
-            const phoneMatch = rawPhone.match(/(\+?\d[\d\s-]{7,})/);
-            if (phoneMatch) f.phone = phoneMatch[1].trim();
+            const isGeneric = GENERIC_PHONES.some(p => rawPhone.replace(/\D/g, '').includes(p)) || rawPhone.toLowerCase().includes('puc.ac.bd') || rawPhone.toLowerCase().includes('student login');
+            if (!isGeneric) {
+              const phoneMatch = rawPhone.match(/(\+?\d[\d\s-]{7,})/);
+              if (phoneMatch) f.phone = phoneMatch[1].trim();
+            } else {
+              f.phone = '';
+            }
           }
         } catch (e) {}
       }));

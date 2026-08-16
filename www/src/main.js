@@ -188,7 +188,7 @@ function showClassDetails(data) {
           ${data.isOnline ? 'ONLINE' : (data.room ? `Room ${formatRoom(data.room)}` : 'TBA')}
         </span>
       </div>
-      <div style="background: rgba(255,255,255,0.015); border: 1px solid var(--border); border-radius: var(--rx); padding: 12px; display: flex; flex-direction: column; gap: 4px;">
+      <div style="background: rgba(255,255,255,0.015); border: 1px solid var(--border); border-radius: var(--rx); padding: 12px; display: flex; flex-direction: column; gap: 4px; ${data.instructor && data.instructor !== 'Not Assigned' ? 'cursor: pointer;' : ''}" ${data.instructor && data.instructor !== 'Not Assigned' ? `class="teacher-clickable-badge" data-teacher-code="${escapeHtml(data.instructor)}" title="Click to view ${escapeHtml(data.instructor)}'s profile and routine"` : ''}>
         <span style="font-size: 10px; font-weight: 800; color: var(--dim); letter-spacing: 0.5px; text-transform: uppercase;">👤 Instructor</span>
         <span style="font-size: 14px; font-weight: 800; color: #fff; margin-top: 2px;">
           ${escapeHtml(data.instructor || 'Not Assigned')}
