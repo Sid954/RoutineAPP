@@ -214,10 +214,15 @@
 }
 
 .cc.free-time {
-  padding: 14px 18px;
+  padding: 16px 18px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border);
   box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .cc.free-time .tt {
@@ -225,10 +230,13 @@
   font-weight: 800;
   color: var(--text);
   margin: 0;
+  text-align: center;
 }
 
 .cc.free-time .lb {
   margin-bottom: 4px;
+  justify-content: center;
+  width: 100%;
 }
 
 .cc.free-time .lb-left {
@@ -386,6 +394,31 @@
   overflow: hidden;
   transition: all var(--t) ease;
   text-align: left;
+}
+
+.nc.no-classes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 16px 18px;
+}
+
+.nc.no-classes .lb {
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.nc.no-classes .rw {
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+}
+
+.nc.no-classes .rw .tt {
+  text-align: center;
+  font-size: 16px;
 }
 
 .nc:hover {

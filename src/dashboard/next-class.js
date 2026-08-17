@@ -52,6 +52,7 @@ export function renderNextClass() {
     DOM.nextTimeRange.textContent = `${format12h(nextItem.start)} – ${format12h(nextItem.end)}`;
     DOM.nextEta.style.display = 'inline-block';
     subRow.style.display = 'block';
+    if (DOM.nextCard) DOM.nextCard.classList.remove('no-classes');
 
     if (effectiveCancelled) {
       DOM.nextRoom.textContent = isHolidayCancelled ? 'HOLIDAY' : 'CANCELLED';
@@ -70,5 +71,6 @@ export function renderNextClass() {
     DOM.nextTitle.textContent = 'No upcoming classes 🎉';
     DOM.nextEta.style.display = 'none';
     subRow.style.display = 'none';
+    if (DOM.nextCard) DOM.nextCard.classList.add('no-classes');
   }
 }
