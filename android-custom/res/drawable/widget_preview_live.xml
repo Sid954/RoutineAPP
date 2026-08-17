@@ -1,0 +1,81 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="180dp"
+    android:viewportWidth="300"
+    android:viewportHeight="180">
+
+    <!-- Card 1 Background (Top) -->
+    <path
+        android:fillColor="#0B1320"
+        android:strokeColor="#1B2A40"
+        android:strokeWidth="1.5"
+        android:pathData="M 12,8 H 288 A 12,12 0 0 1 300,20 V 104 A 12,12 0 0 1 288,116 H 12 A 12,12 0 0 1 0,104 V 20 A 12,12 0 0 1 12,8 Z" />
+
+    <!-- Status Dot & Label -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M 16,22 A 3,3 0 1 1 16,28 A 3,3 0 1 1 16,22 Z" />
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M 26,24 H 90 V 27 H 26 Z" />
+
+    <!-- Time Chip -->
+    <path
+        android:fillColor="#08101C"
+        android:strokeColor="#1D304A"
+        android:strokeWidth="1"
+        android:pathData="M 210,18 H 275 A 6,6 0 0 1 281,24 V 26 A 6,6 0 0 1 275,32 H 210 A 6,6 0 0 1 204,26 V 24 A 6,6 0 0 1 210,18 Z" />
+
+    <!-- Course Title Bar -->
+    <path
+        android:fillColor="#F8FAFC"
+        android:pathData="M 80,46 H 220 V 55 H 80 Z" />
+
+    <!-- Room Chip -->
+    <path
+        android:fillColor="#08101C"
+        android:strokeColor="#1D304A"
+        android:strokeWidth="1"
+        android:pathData="M 125,62 H 175 A 5,5 0 0 1 180,67 V 69 A 5,5 0 0 1 175,74 H 125 A 5,5 0 0 1 120,69 V 67 A 5,5 0 0 1 125,62 Z" />
+
+    <!-- Progress Track & Fill -->
+    <path
+        android:fillColor="#142133"
+        android:pathData="M 16,88 H 284 V 92 H 16 Z" />
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M 16,88 H 140 V 92 H 16 Z" />
+
+    <!-- Bottom Message -->
+    <path
+        android:fillColor="#64748B"
+        android:pathData="M 95,100 H 205 V 106 H 95 Z" />
+
+    <!-- Card 2 Background (Bottom - Following) -->
+    <path
+        android:fillColor="#0B1320"
+        android:strokeColor="#1B2A40"
+        android:strokeWidth="1.5"
+        android:pathData="M 12,126 H 288 A 12,12 0 0 1 300,138 V 166 A 12,12 0 0 1 288,178 H 12 A 12,12 0 0 1 0,166 V 138 A 12,12 0 0 1 12,126 Z" />
+
+    <!-- Following Tag -->
+    <path
+        android:fillColor="#64748B"
+        android:pathData="M 115,134 H 185 V 139 H 115 Z" />
+
+    <!-- Following Course Title & ETA Pill -->
+    <path
+        android:fillColor="#F8FAFC"
+        android:pathData="M 80,147 H 170 V 155 H 80 Z" />
+    <path
+        android:fillColor="#0F2844"
+        android:strokeColor="#1E4D7A"
+        android:strokeWidth="1"
+        android:pathData="M 180,145 H 220 A 5,5 0 0 1 225,150 V 152 A 5,5 0 0 1 220,157 H 180 A 5,5 0 0 1 175,152 V 150 A 5,5 0 0 1 180,145 Z" />
+
+    <!-- Following Sub Info -->
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M 90,163 H 210 V 168 H 90 Z" />
+
+</vector>

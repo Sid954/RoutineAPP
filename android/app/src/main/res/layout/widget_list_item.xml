@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Card item XML matching the mobile app's Weekly Routine view:
+  - Top row: 09:45 AM → 11:00 AM
+  - Middle row: Subject Title (EDC)
+  - Bottom left: Room 1002 · AIR
+  - Bottom right: Pill badge (THEORY / ★ LAB)
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/widget_list_card_bg"
+    android:layout_marginBottom="10dp"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="14dp">
+
+    <!-- Top line: Time range (09:45 AM → 11:00 AM) -->
+    <TextView
+        android:id="@+id/card_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:text="09:45 AM → 11:00 AM"
+        android:textColor="#cbd5e1"
+        android:textSize="11.5sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.04" />
+
+    <!-- Middle line: Subject Title (EDC) -->
+    <TextView
+        android:id="@+id/card_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/card_time"
+        android:layout_alignParentStart="true"
+        android:text="EDC"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginTop="6dp"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+    <!-- Bottom left: Room & Instructor (Room 1002 · AIR) -->
+    <TextView
+        android:id="@+id/card_sub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/card_title"
+        android:layout_alignParentStart="true"
+        android:text="Room 1002 · AIR"
+        android:textColor="#e2e8f0"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_marginTop="4dp"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+    <!-- Bottom right: Type badge (THEORY / ★ LAB) -->
+    <TextView
+        android:id="@+id/card_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/card_title"
+        android:layout_alignParentEnd="true"
+        android:text="THEORY"
+        android:textColor="#ffffff"
+        android:background="@drawable/widget_list_badge_bg"
+        android:textSize="9.5sp"
+        android:textStyle="bold"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="4dp"
+        android:letterSpacing="0.05"
+        android:layout_marginTop="2dp" />
+
+</RelativeLayout>

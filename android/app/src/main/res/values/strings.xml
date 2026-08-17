@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">My Routine</string>
+    <string name="title_activity_main">My Routine</string>
+    <string name="package_name">com.routine.app</string>
+    <string name="custom_url_scheme">com.routine.app</string>
+
+    <!-- 1. Live Class Widget -->
+    <string name="widget_live_name">Live Class Tracker</string>
+    <string name="widget_live_desc">Real-time live class countdown, room number, and next upcoming lecture</string>
+
+    <!-- 2. Landscape Routine (Matrix Grid) -->
+    <string name="widget_landscape_name">Landscape Routine</string>
+    <string name="widget_landscape_desc">Full weekly matrix timetable with days in rows and subjects sideways</string>
+
+    <!-- 3. Portrait Routine (Daily Timeline) -->
+    <string name="widget_portrait_name">Portrait Routine</string>
+    <string name="widget_portrait_desc">Vertical daily schedule with day-selector tabs and class details</string>
+</resources>

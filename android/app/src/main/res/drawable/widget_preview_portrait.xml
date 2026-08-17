@@ -1,0 +1,90 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="200dp"
+    android:viewportWidth="240"
+    android:viewportHeight="200">
+
+    <!-- Outer Container -->
+    <path
+        android:fillColor="#0B1320"
+        android:strokeColor="#1B2A40"
+        android:strokeWidth="1.5"
+        android:pathData="M 12,4 H 228 A 12,12 0 0 1 240,16 V 184 A 12,12 0 0 1 228,196 H 12 A 12,12 0 0 1 0,184 V 16 A 12,12 0 0 1 12,4 Z" />
+
+    <!-- Header Title -->
+    <path
+        android:fillColor="#F8FAFC"
+        android:pathData="M 14,14 H 110 V 22 H 14 Z" />
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M 215,14 A 4,4 0 1 1 215,22 A 4,4 0 1 1 215,14 Z" />
+
+    <!-- Tabs Bar -->
+    <!-- Prev Arrow -->
+    <path
+        android:fillColor="#08101C"
+        android:pathData="M 12,32 H 28 A 3,3 0 0 1 31,35 V 45 A 3,3 0 0 1 28,48 H 12 A 3,3 0 0 1 9,45 V 35 A 3,3 0 0 1 12,32 Z" />
+    <!-- Sat Tab Active -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M 36,32 H 68 A 3,3 0 0 1 71,35 V 45 A 3,3 0 0 1 68,48 H 36 A 3,3 0 0 1 33,45 V 35 A 3,3 0 0 1 36,32 Z" />
+    <!-- Sun Tab -->
+    <path
+        android:fillColor="#08101C"
+        android:pathData="M 76,32 H 108 A 3,3 0 0 1 111,35 V 45 A 3,3 0 0 1 108,48 H 76 A 3,3 0 0 1 73,45 V 35 A 3,3 0 0 1 76,32 Z" />
+    <!-- Mon Tab -->
+    <path
+        android:fillColor="#08101C"
+        android:pathData="M 116,32 H 148 A 3,3 0 0 1 151,35 V 45 A 3,3 0 0 1 148,48 H 116 A 3,3 0 0 1 113,45 V 35 A 3,3 0 0 1 116,32 Z" />
+    <!-- Tue Tab -->
+    <path
+        android:fillColor="#08101C"
+        android:pathData="M 156,32 H 188 A 3,3 0 0 1 191,35 V 45 A 3,3 0 0 1 188,48 H 156 A 3,3 0 0 1 153,45 V 35 A 3,3 0 0 1 156,32 Z" />
+    <!-- Wed Tab -->
+    <path
+        android:fillColor="#08101C"
+        android:pathData="M 196,32 H 228 A 3,3 0 0 1 231,35 V 45 A 3,3 0 0 1 228,48 H 196 A 3,3 0 0 1 193,45 V 35 A 3,3 0 0 1 196,32 Z" />
+
+    <!-- Class Card 1 -->
+    <path
+        android:fillColor="#252859"
+        android:pathData="M 12,56 H 228 A 6,6 0 0 1 234,62 V 88 A 6,6 0 0 1 228,94 H 12 A 6,6 0 0 1 6,88 V 62 A 6,6 0 0 1 12,56 Z" />
+    <path
+        android:fillColor="#F8FAFC"
+        android:pathData="M 18,65 H 100 V 72 H 18 Z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M 18,78 H 120 V 83 H 18 Z" />
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M 160,65 H 220 V 71 H 160 Z" />
+
+    <!-- Class Card 2 -->
+    <path
+        android:fillColor="#701235"
+        android:pathData="M 12,102 H 228 A 6,6 0 0 1 234,108 V 134 A 6,6 0 0 1 228,140 H 12 A 6,6 0 0 1 6,134 V 108 A 6,6 0 0 1 12,102 Z" />
+    <path
+        android:fillColor="#F8FAFC"
+        android:pathData="M 18,111 H 100 V 118 H 18 Z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M 18,124 H 120 V 129 H 18 Z" />
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M 160,111 H 220 V 117 H 160 Z" />
+
+    <!-- Class Card 3 -->
+    <path
+        android:fillColor="#09524A"
+        android:pathData="M 12,148 H 228 A 6,6 0 0 1 234,154 V 180 A 6,6 0 0 1 228,186 H 12 A 6,6 0 0 1 6,180 V 154 A 6,6 0 0 1 12,148 Z" />
+    <path
+        android:fillColor="#F8FAFC"
+        android:pathData="M 18,157 H 100 V 164 H 18 Z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M 18,170 H 120 V 175 H 18 Z" />
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M 160,157 H 220 V 163 H 160 Z" />
+
+</vector>

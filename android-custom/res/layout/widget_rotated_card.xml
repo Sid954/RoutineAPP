@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Compact horizontal subject card layout for rotated widget view -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rotated_card_root"
+    android:layout_width="96dp"
+    android:layout_height="56dp"
+    android:background="@drawable/widget_list_card_bg"
+    android:layout_marginEnd="5dp"
+    android:paddingHorizontal="4dp"
+    android:paddingVertical="4dp">
+
+    <!-- Top line: Compact Time Range (09:45→11:00) -->
+    <TextView
+        android:id="@+id/rotated_card_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="09:45→11:00"
+        android:textColor="#cbd5e1"
+        android:textSize="9sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+    <!-- Center: Subject Title (centered) -->
+    <TextView
+        android:id="@+id/rotated_card_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="EDC"
+        android:textColor="#ffffff"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+    <!-- Bottom line: Room number without "Room " + instructor (1002 · AIR) -->
+    <TextView
+        android:id="@+id/rotated_card_sub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="1002 · AIR"
+        android:textColor="#e2e8f0"
+        android:textSize="8.5sp"
+        android:gravity="center"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+</RelativeLayout>

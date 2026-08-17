@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_list_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_background"
+    android:padding="10dp">
+
+    <!-- Header bar: "Weekly Routine" title + Refresh button -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp">
+
+        <TextView
+            android:id="@+id/widget_list_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="Daily Routine"
+            android:textColor="#ffffff"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/widget_list_reload"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_refresh"
+            android:padding="3dp"
+            android:contentDescription="Refresh" />
+    </RelativeLayout>
+
+    <!-- Day Switcher Tab Bar: [ ‹ ] [ Sat ] [ Sun ] [ Mon ] [ Tue ] [ Wed ] [ › ] -->
+    <LinearLayout
+        android:id="@+id/widget_tab_bar"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp"
+        android:gravity="center">
+
+        <!-- Prev Day Arrow [ ‹ ] -->
+        <TextView
+            android:id="@+id/tab_prev"
+            android:layout_width="32dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="4dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/widget_tab_btn_bg"
+            android:gravity="center"
+            android:text="‹"
+            android:textColor="#38bdf8"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Tab 0: Sat (Day index 6) -->
+        <TextView
+            android:id="@+id/tab_sat"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginRight="3dp"
+            android:layout_marginEnd="3dp"
+            android:background="@drawable/widget_tab_btn_bg"
+            android:gravity="center"
+            android:text="Sat"
+            android:textColor="#94a3b8"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <!-- Tab 1: Sun (Day index 0) -->
+        <TextView
+            android:id="@+id/tab_sun"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginRight="3dp"
+            android:layout_marginEnd="3dp"
+            android:background="@drawable/widget_tab_btn_bg"
+            android:gravity="center"
+            android:text="Sun"
+            android:textColor="#94a3b8"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <!-- Tab 2: Mon (Day index 1) -->
+        <TextView
+            android:id="@+id/tab_mon"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginRight="3dp"
+            android:layout_marginEnd="3dp"
+            android:background="@drawable/widget_tab_btn_bg"
+            android:gravity="center"
+            android:text="Mon"
+            android:textColor="#94a3b8"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <!-- Tab 3: Tue (Day index 2) -->
+        <TextView
+            android:id="@+id/tab_tue"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginRight="3dp"
+            android:layout_marginEnd="3dp"
+            android:background="@drawable/widget_tab_btn_bg"
+            android:gravity="center"
+            android:text="Tue"
+            android:textColor="#94a3b8"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <!-- Tab 4: Wed (Day index 3) -->
+        <TextView
+            android:id="@+id/tab_wed"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginRight="4dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/widget_tab_btn_bg"
+            android:gravity="center"
+            android:text="Wed"
+            android:textColor="#94a3b8"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <!-- Next Day Arrow [ › ] -->
+        <TextView
+            android:id="@+id/tab_next"
+            android:layout_width="32dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/widget_tab_btn_bg"
+            android:gravity="center"
+            android:text="›"
+            android:textColor="#38bdf8"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Up/Down Touch Scrollable ListView for Class Cards -->
+    <ListView
+        android:id="@+id/widget_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        android:scrollbars="none"
+        android:clipToPadding="false" />
+
+</LinearLayout>

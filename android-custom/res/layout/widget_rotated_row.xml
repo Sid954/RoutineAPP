@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Compact row layout for each day in the rotated widget view -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rotated_row_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginBottom="5dp"
+    android:gravity="center_vertical"
+    android:minHeight="56dp">
+
+    <!-- Left Column Box: Day Name + Today Badge -->
+    <LinearLayout
+        android:id="@+id/rotated_day_box"
+        android:layout_width="42dp"
+        android:layout_height="match_parent"
+        android:minHeight="56dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@drawable/widget_tab_btn_bg"
+        android:paddingVertical="3dp"
+        android:paddingHorizontal="1dp">
+
+        <TextView
+            android:id="@+id/rotated_day_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SAT"
+            android:textColor="#ffffff"
+            android:textSize="11.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/rotated_day_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TODAY"
+            android:textColor="#000000"
+            android:background="@drawable/widget_eta_pill_bg"
+            android:textSize="6sp"
+            android:textStyle="bold"
+            android:paddingHorizontal="2.5dp"
+            android:paddingVertical="1dp"
+            android:layout_marginTop="2dp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- Right Content: Horizontal ScrollView containing sideways subject cards -->
+    <HorizontalScrollView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:scrollbars="none"
+        android:layout_marginStart="4dp">
+
+        <LinearLayout
+            android:id="@+id/rotated_cards_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Horizontal subject cards inserted dynamically per day -->
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+</LinearLayout>

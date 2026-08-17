@@ -1,0 +1,307 @@
+/* ==========================================================================
+   Widget Settings & Live Previews for all 3 Widget Types
+   ========================================================================== */
+
+.widget-pin-card {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--rx);
+  padding: 16px;
+  margin: 0 24px 14px;
+}
+
+.widget-header-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent2);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 3 Widget Type Selector Tabs */
+.widget-size-segmented {
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 4px;
+  border-radius: 10px;
+  margin: 10px 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.widget-size-pill {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dim);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.widget-size-pill:hover {
+  color: var(--text);
+}
+
+.widget-size-pill.active {
+  background: var(--accent);
+  color: #000000;
+  font-weight: 800;
+  box-shadow: 0 2px 8px var(--ag);
+}
+
+/* Live Android Wallpaper & Widget Mockup Canvas */
+.widget-mockup-frame {
+  background: radial-gradient(circle at 50% 20%, rgba(56, 189, 248, 0.08), transparent 70%), #070c14;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: auto;
+}
+
+/* 1. Live Class 2-Card Widget Preview */
+.widget-adaptive-preview {
+  width: 100%;
+  max-width: 330px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.w-card-top {
+  background: #0B1320;
+  border: 1.2px solid #1B2A40;
+  border-radius: 18px;
+  padding: 14px 16px;
+  color: #F8FAFC;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  text-align: left;
+}
+
+.w-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.w-status-badge {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #38BDF8;
+  letter-spacing: 0.3px;
+}
+
+.w-time-chip {
+  background: #08101C;
+  border: 1px solid #1D304A;
+  color: #94A3B8;
+  padding: 2.5px 9px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.w-title-text {
+  font-size: 17px;
+  font-weight: 800;
+  color: #F8FAFC;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.w-room-pill {
+  display: inline-block;
+  background: #08101C;
+  border: 1px solid #1D304A;
+  color: #94A3B8;
+  padding: 2px 12px;
+  border-radius: 99px;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.w-elapsed-label {
+  font-size: 10px;
+  color: #64748B;
+  text-align: right;
+  margin-top: 10px;
+}
+
+.w-track-bar {
+  height: 4px;
+  background: #142133;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 3px;
+}
+
+.w-fill-bar {
+  height: 100%;
+  background: #38BDF8;
+  width: 40%;
+  border-radius: 99px;
+}
+
+.w-remaining-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #E2E8F0;
+  text-align: center;
+  margin-top: 6px;
+}
+
+.w-card-bottom {
+  background: #0B1320;
+  border: 1.2px solid #1B2A40;
+  border-radius: 18px;
+  padding: 12px 14px;
+  color: #F8FAFC;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.w-following-label {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #64748B;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.w-following-course-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+}
+
+.w-following-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #F8FAFC;
+}
+
+.w-eta-pill {
+  background: #0F2844;
+  border: 1px solid #1E4D7A;
+  color: #38BDF8;
+  padding: 1.5px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.w-following-room {
+  font-size: 11px;
+  color: #94A3B8;
+  margin-top: 3px;
+}
+
+/* 2. Landscape Matrix Widget Preview */
+.widget-landscape-preview {
+  width: 100%;
+  max-width: 350px;
+  background: #060b13;
+  border: 1px solid #1B2A40;
+  border-radius: 16px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.w-matrix-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.w-matrix-day {
+  width: 38px;
+  background: #0B1320;
+  border: 1px solid #1D304A;
+  border-radius: 6px;
+  padding: 4px 2px;
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #94A3B8;
+  text-align: center;
+}
+
+.w-matrix-day.today {
+  color: #38BDF8;
+}
+
+.w-matrix-cards {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.w-matrix-cell {
+  flex: 1;
+  background: #1e293b;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 9px;
+  text-align: left;
+}
+
+/* 3. Portrait Routine Timeline Preview */
+.widget-portrait-preview {
+  width: 100%;
+  max-width: 310px;
+  background: #0B1320;
+  border: 1.2px solid #1B2A40;
+  border-radius: 18px;
+  padding: 12px;
+}
+
+.w-portrait-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.w-portrait-tab {
+  flex: 1;
+  background: #08101C;
+  border: 1px solid #1D304A;
+  border-radius: 6px;
+  padding: 3px 0;
+  font-size: 9px;
+  font-weight: 800;
+  color: #94A3B8;
+  text-align: center;
+}
+
+.w-portrait-tab.active {
+  background: #38BDF8;
+  color: #000;
+}
+
+.w-portrait-item {
+  background: #08101C;
+  border: 1px solid #1D304A;
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
