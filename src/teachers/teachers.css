@@ -2,72 +2,93 @@
    Teacher Finder (Faculty Tracker) — Floating Button & Modal Styling
    ========================================================================== */
 
-/* Floating Action Button Container (stacks buttons side-by-side cleanly) */
+/* Centered Floating Quick Utility Dock */
 .app-fab-container {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 100;
-  display: flex;
+  bottom: calc(var(--sab) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  gap: 8px;
+  padding: 5px 8px;
+  background: rgba(13, 17, 26, 0.88);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 20px rgba(56, 189, 248, 0.15);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s ease;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
 }
 
 body.modal-open .app-fab-container {
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
-  transform: translateY(16px) scale(0.92) !important;
+  transform: translateX(-50%) translateY(20px) scale(0.92) !important;
 }
 
 .find-teacher-fab {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 18px 10px 14px;
-  background: var(--card2, #111827);
-  border: 1.5px solid var(--border, #1f2937);
-  border-radius: 30px;
+  gap: 7px;
+  padding: 8px 15px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
   color: var(--text, #ffffff);
   cursor: pointer;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 16px rgba(168, 85, 247, 0.25);
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease, border-color 0.2s ease;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  box-shadow: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
 }
 
 .find-teacher-fab:hover {
-  transform: translateY(-3px) scale(1.03);
-  border-color: #a855f7;
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7), 0 0 24px rgba(168, 85, 247, 0.45);
+  background: rgba(168, 85, 247, 0.15);
+  border-color: rgba(168, 85, 247, 0.5);
+  transform: translateY(-2px);
 }
 
 .find-teacher-fab:active {
-  transform: scale(0.96);
+  transform: scale(0.95);
 }
 
 .ft-fab-badge-text {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 800;
   color: #c084fc;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
 }
 
 .ft-fab-icon {
-  font-size: 18px;
+  font-size: 16px;
+  display: inline-block;
+  line-height: 1;
 }
 
 .ft-fab-count-badge {
   position: absolute;
   top: -4px;
   right: -4px;
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: #ffffff;
-  font-size: 10px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 99px;
+  font-size: 9.5px;
   font-weight: 900;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  border: 1.5px solid var(--bg, #06080d);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -363,109 +384,236 @@ body.modal-open .app-fab-container {
 }
 
 /* ==========================================================================
-   Teacher Detail Modal Timeline
+   Teacher Detail Modal Timeline & Profile Routine
    ========================================================================== */
 
-.ft-tl-item {
+.ft-detail-section {
+  margin-top: 14px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  transition: all 0.15s ease;
+  gap: 10px;
 }
 
-/* 1. Finished Class (Greyed out) */
+.ft-section-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent2, #a855f7);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Day Switcher Tabs */
+.ft-day-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.ft-day-tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.ft-day-tab {
+  flex: 1;
+  min-width: 50px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border, #1f2937);
+  border-radius: 10px;
+  color: var(--dim, #94a3b8);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.ft-day-tab:hover {
+  color: #fff;
+  border-color: rgba(168, 85, 247, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ft-day-tab.active {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(56, 189, 248, 0.25));
+  border-color: #a855f7;
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.3);
+}
+
+/* Routine Schedule List */
+.ft-routine-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.ft-routine-empty {
+  text-align: center;
+  padding: 24px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--border, #1f2937);
+  border-radius: 12px;
+  color: var(--dim, #94a3b8);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+/* Courses Taught List */
+.ft-courses-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ft-course-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card2, #141824);
+  border: 1px solid var(--border, #232a3d);
+  border-radius: 10px;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.ft-course-code {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.ft-course-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text, #ffffff);
+  line-height: 1.3;
+}
+
+/* Clean 3-Column Class Card for Teacher Profile */
+.ft-tl-item {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  background: var(--card2, #141824);
+  border: 1px solid var(--border, #232a3d);
+  border-radius: 12px;
+  padding: 11px 13px;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.ft-tl-item:hover {
+  border-color: var(--border2, #343e59);
+  transform: translateY(-1px);
+}
+
+.ft-tl-item-current {
+  background: rgba(16, 185, 129, 0.1) !important;
+  border: 1.5px solid #10b981 !important;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.2) !important;
+}
+
 .ft-tl-item-past {
   opacity: 0.45;
-  filter: grayscale(70%);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 12px;
-  padding: 10px 14px;
+  filter: grayscale(60%);
 }
 
-.ft-tl-past-badge {
+.ft-tl-time {
+  font-family: var(--m, monospace);
+  font-size: 11px;
+  color: var(--dim, #94a3b8);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.ft-tl-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ft-tl-subject {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text, #ffffff);
+  line-height: 1.2;
+}
+
+.ft-tl-subinfo {
+  font-size: 11.5px;
+  color: var(--dim, #94a3b8);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ft-tl-badge-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.ft-tl-type-badge {
   font-size: 9.5px;
   font-weight: 800;
-  color: var(--dim, #94a3b8);
-  background: rgba(255, 255, 255, 0.06);
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  text-transform: uppercase;
 }
 
-/* 2. Current Ongoing Class (Highlighted & Glowing Green) */
-.ft-tl-item-current {
-  background: rgba(16, 185, 129, 0.12);
-  border: 1.5px solid #10b981;
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
-  border-radius: 12px;
-  padding: 12px 14px;
+.ft-tl-type-lab {
+  background: rgba(236, 72, 153, 0.15);
+  color: #f472b6;
+  border: 1px solid rgba(236, 72, 153, 0.3);
 }
 
-.ft-tl-live-badge {
-  font-size: 9.5px;
+.ft-tl-type-theory {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.ft-tl-live-pill {
+  font-size: 9px;
   font-weight: 900;
   color: #34d399;
   background: rgba(16, 185, 129, 0.2);
   border: 1px solid rgba(52, 211, 153, 0.4);
-  padding: 2px 7px;
+  padding: 1px 6px;
   border-radius: 4px;
-  letter-spacing: 0.5px;
-}
-
-/* 3. Future Upcoming Class */
-.ft-tl-item-future {
-  background: var(--card2, #111827);
-  border: 1px solid var(--border, #1f2937);
-  border-radius: 12px;
-  padding: 11px 14px;
-}
-
-.ft-tl-future-badge {
-  font-size: 9.5px;
-  font-weight: 800;
-  color: #34d399;
-  background: rgba(16, 185, 129, 0.15);
-  padding: 2px 7px;
-  border-radius: 4px;
-}
-
-.ft-tl-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.ft-tl-subject {
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--text, #ffffff);
-}
-
-.ft-tl-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11.5px;
-  color: var(--dim, #94a3b8);
-}
-
-.ft-tl-room-badge {
-  font-weight: 800;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.15);
-  padding: 1px 7px;
-  border-radius: 6px;
 }
 
 /* Mobile Viewport adjustments */
 @media (max-width: 520px) {
   .app-fab-container {
-    bottom: 20px;
-    right: 16px;
-    gap: 8px;
+    bottom: calc(var(--sab) + 14px);
+    gap: 6px;
+    padding: 4px 6px;
   }
   .find-teacher-fab,
   .free-rooms-fab {
-    padding: 9px 14px 9px 12px;
+    padding: 7px 12px;
   }
 }

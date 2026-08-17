@@ -519,10 +519,11 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: calc(var(--sat) + clamp(20px, 8vh, 60px)) calc(var(--sal) + 16px) calc(var(--sab) + 40px) calc(var(--sar) + 16px);
+  padding: calc(var(--sat) + 20px) calc(var(--sal) + 16px) calc(var(--sab) + 80px) calc(var(--sar) + 16px);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -533,7 +534,7 @@ body {
    Skeleton Loader
    ========================================================================== */
 .skeleton-card {
-  height: 64px; border-radius: var(--rx);
+  height: 72px; border-radius: var(--rx);
   background: linear-gradient(90deg, var(--card2) 25%, var(--border) 50%, var(--card2) 75%);
   background-size: 200% 100%;
   animation: skeletonShimmer 1.5s ease infinite;
@@ -544,21 +545,25 @@ body {
    Responsive Breakpoints
    ========================================================================== */
 @media (max-width: 640px) {
-  body { padding: calc(var(--sat) + clamp(20px, 6vh, 40px)) calc(var(--sal) + 12px) calc(var(--sab) + 40px) calc(var(--sar) + 12px); }
+  body { 
+    padding: calc(var(--sat) + 16px) calc(var(--sal) + 12px) calc(var(--sab) + 84px) calc(var(--sar) + 12px); 
+    align-items: center;
+    justify-content: center;
+  }
 
   #mobileRotateFab { display: none !important; }
 
-  .ww { max-width: 100%; border-radius: 28px; padding: 3px; margin-bottom: 0; }
-  .w { border-radius: 25px; }
-  .wi { padding: 24px 16px 16px; }
+  .ww { max-width: 100%; border-radius: 28px; padding: 1px; margin: auto 0; }
+  .w { border-radius: 26px; }
+  .wi { padding: 22px 18px 20px; }
 
-  .hd .tm { font-size: 32px; }
-  .cc .tt { font-size: 26px; }
-  .nc .rw .tt { font-size: 18px; }
+  .hd .tm { font-size: 34px; }
+  .cc .tt { font-size: 24px; }
+  .nc .rw .tt { font-size: 17px; }
 
-  .ch { padding: 14px 10px; gap: 6px; grid-template-columns: 80px 1fr 75px; }
-  .chn { font-size: 14px; }
-  .cht { font-size: 11px; }
+  .ch { padding: 14px 12px; gap: 8px; grid-template-columns: 80px 1fr 75px; }
+  .chn { font-size: 14.5px; }
+  .cht { font-size: 11.5px; }
   .chg { grid-template-columns: 1fr; }
 
   .md-h { padding: 18px 16px 0; }

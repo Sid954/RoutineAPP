@@ -7,8 +7,8 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 740px;
-  margin: 0 auto;
+  max-width: 860px;
+  margin: auto;
   border-radius: var(--r);
   padding: 1px;
   background: transparent;
@@ -46,14 +46,14 @@
 }
 
 .wi {
-  padding: 24px 22px 22px;
+  padding: 26px 24px 24px;
   position: relative;
   z-index: 1;
   transition: padding var(--t);
 }
 
 @media (min-width: 640px) {
-  .wi { padding: 30px 28px 26px; }
+  .wi { padding: 34px 32px 30px; }
 }
 
 /* Header Bar */

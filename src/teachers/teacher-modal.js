@@ -1,5 +1,5 @@
 import { DAY_NAMES, DAY_SHORT, CONFIG, FULL_COURSE_NAMES } from '../core/config.js';
-import { format12h, toTimeString, getCurrentMinutes } from '../core/utils.js';
+import { format12h, toTimeString, getCurrentMinutes, truncateText } from '../core/utils.js';
 import { openModal, closeModal } from '../modals/modal.js';
 import { showToast } from '../toast/toast.js';
 import { loadMasterTeacherData, searchTeachers, getTeacherClassesForDay, getTeacherWeeklySubjects } from './teacher-finder.js';
@@ -348,14 +348,7 @@ async function loadAdminPendingList(password) {
 export function updateTeacherFabBadge() {
   const badge = document.getElementById('teacherFinderBadge');
   if (!badge) return;
-
-  const currentDay = new Date().getDay();
-  const currentMins = getCurrentMinutes();
-  const res = searchTeachers(currentDay, currentMins);
-
-  const inClassCount = (res.teachers || []).filter(t => t.status === 'IN_CLASS').length;
-  badge.textContent = inClassCount;
-  badge.style.display = inClassCount > 0 ? 'flex' : 'none';
+  badge.style.display = 'none';
 }
 
 export function renderTeacherFinderModal() {
@@ -465,45 +458,54 @@ export async function openTeacherDetailByCode(teacherCode) {
   if (detailModal) {
     if (heroContainer) {
       heroContainer.innerHTML = `
-        <div style="text-align: center; padding: 30px 10px 20px; color: var(--dim);">
+        <div style="text-align: center; padding: 40px 10px; color: var(--dim);">
           <div style="font-size: 32px; margin-bottom: 8px; display: inline-block;" class="spin">⚡</div>
           <div style="font-size: 15px; font-weight: 800; color: #fff;">Loading ${escapeHtml(cleanCode)}'s Profile...</div>
-          <div style="font-size: 11.5px; color: var(--dim); margin-top: 3px;">Fetching faculty details</div>
+          <div style="font-size: 11.5px; color: var(--dim); margin-top: 3px;">Fetching schedule & details</div>
         </div>
       `;
     }
     openModal(detailModal);
   }
 
-  await initTeacherNames();
+  await Promise.all([loadMasterTeacherData(), initTeacherNames()]);
   openTeacherDetailModal({ teacher: cleanCode });
 }
 
 window.__openTeacherProfileByCode = openTeacherDetailByCode;
 
+window.__switchTeacherDetailDay = function(dayIdx) {
+  _selectedTeacherDetailDay = dayIdx;
+  if (_currentOpenTeacherData) {
+    openTeacherDetailModal(_currentOpenTeacherData, dayIdx);
+  }
+};
+
 /** Opens Full Faculty Profile Modal */
-export function openTeacherDetailModal(teacherData) {
+export function openTeacherDetailModal(teacherData, dayIdx = _selectedTeacherDetailDay) {
   const detailModal = document.getElementById('teacherDetailModal');
   const heroContainer = document.getElementById('facultyProfileHero');
 
-  if (!detailModal) return;
+  if (!detailModal || !heroContainer) return;
 
   _currentOpenTeacherData = teacherData;
+  _selectedTeacherDetailDay = dayIdx;
 
-  const info = getTeacherInfo(teacherData.teacher);
-  const fullName = info.name || teacherData.teacher;
-  const initials = (fullName || teacherData.teacher).split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const teacherKey = teacherData.teacher;
+  const info = getTeacherInfo(teacherKey);
+  const fullName = info.name || teacherKey;
+  const initials = (fullName || teacherKey).split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
   const photoHtml = info.photo
-    ? `<img class="ft-avatar ft-avatar-lg" src="${escapeHtml(info.photo)}" alt="${escapeHtml(teacherData.teacher)}" onerror="this.outerHTML='<div class=\\'ft-avatar ft-avatar-lg\\'>${initials}</div>'" />`
+    ? `<img class="ft-avatar ft-avatar-lg" src="${escapeHtml(info.photo)}" alt="${escapeHtml(teacherKey)}" onerror="this.outerHTML='<div class=\\'ft-avatar ft-avatar-lg\\'>${initials}</div>'" />`
     : `<div class="ft-avatar ft-avatar-lg">${initials}</div>`;
 
   const desigText = info.designation || 'Faculty Member · Department of Computer Science & Engineering';
   const statusBadge = info.status === 'Study Leave'
-    ? `<span style="font-size: 10px; font-weight: 800; color: #fbbf24; background: rgba(251,191,36,0.15); padding: 2px 7px; border-radius: 6px;">Study Leave</span>`
+    ? `<span style="font-size: 10px; font-weight: 800; color: #fbbf24; background: rgba(251,191,36,0.15); padding: 2px 7px; border-radius: 6px;">🎓 Study Leave</span>`
     : `<span style="font-size: 10px; font-weight: 800; color: #34d399; background: rgba(52,211,153,0.15); padding: 2px 7px; border-radius: 6px;">Active Faculty</span>`;
 
-  // Build Action Buttons: Only render Email, Call, or PUC Profile if available
+  // Action Buttons
   const primaryEmail = (info.emails && info.emails.length > 0) ? info.emails[0] : '';
   const emailBtn = primaryEmail
     ? `<a href="mailto:${escapeHtml(primaryEmail)}" class="ft-action-btn ft-action-btn-primary" title="Send Email: ${escapeHtml(primaryEmail)}">✉️ Email</a>`
@@ -521,30 +523,145 @@ export function openTeacherDetailModal(teacherData) {
     ? `<div class="ft-profile-actions">${emailBtn}${phoneBtn}${profileBtn}</div>`
     : '';
 
-  if (heroContainer) {
-    heroContainer.innerHTML = `
-      <div class="ft-profile-hero-card">
-        <div class="ft-profile-top">
-          <div class="ft-avatar-wrapper">
-            ${photoHtml}
-            <button class="ft-avatar-edit-icon-btn" onclick="window.__openFacultyEditModal('${escapeHtml(teacherData.teacher)}')" title="Suggest / Edit faculty info">✏️</button>
+  // 1. Live Status & Today's Summary
+  const realTodayIdx = new Date().getDay();
+  const currentMins = getCurrentMinutes();
+  const todayClasses = getTeacherClassesForDay(teacherKey, realTodayIdx);
+  const activeClass = todayClasses.find(c => currentMins >= c.startM && currentMins < c.endM);
+
+  let liveStatusSub = '';
+  if (info.status === 'Study Leave') {
+    liveStatusSub = `<div style="color: #fbbf24; font-size: 11.5px; font-weight: 700; margin-top: 4px;">🎓 On Study Leave</div>`;
+  } else if (activeClass) {
+    liveStatusSub = `<div style="color: #34d399; font-size: 12px; font-weight: 700; margin-top: 4px; display: flex; align-items: center; gap: 5px;"><span style="font-size: 8px;">●</span> Teaching in Room ${escapeHtml(activeClass.room || '—')} now (${format12h(activeClass.start)} – ${format12h(activeClass.end)})</div>`;
+  }
+
+  // 2. Day Switcher Tabs
+  const activeDays = CONFIG.activeDays || [6, 0, 1, 2, 3];
+  const dayTabButtons = activeDays.map(d => `
+    <button class="ft-day-tab ${dayIdx === d ? 'active' : ''}" onclick="window.__switchTeacherDetailDay(${d})">
+      ${DAY_SHORT[d] || DAY_NAMES[d]}
+    </button>
+  `).join('') + `
+    <button class="ft-day-tab ${dayIdx === -1 ? 'active' : ''}" onclick="window.__switchTeacherDetailDay(-1)">
+      All
+    </button>
+  `;
+
+  // 3. Render Routine Content
+  let routineCardsHtml = '';
+
+  const renderDayClasses = (d) => {
+    const classes = getTeacherClassesForDay(teacherKey, d);
+    if (!classes || classes.length === 0) {
+      return `<div class="ft-routine-empty">🌴 No Classes Scheduled on ${DAY_NAMES[d]}</div>`;
+    }
+
+    return classes.map(c => {
+      const isCurrent = (d === realTodayIdx) && (currentMins >= c.startM && currentMins < c.endM);
+      const isPast = (d === realTodayIdx) && (currentMins >= c.endM);
+      const isLab = String(c.type || '').toUpperCase() === 'LAB' || String(c.subject || '').toUpperCase().endsWith('L');
+
+      let cardClass = 'ft-tl-item';
+      if (isCurrent) cardClass += ' ft-tl-item-current';
+      else if (isPast) cardClass += ' ft-tl-item-past';
+
+      return `
+        <div class="${cardClass}">
+          <div class="ft-tl-time">
+            <div>${format12h(c.start)}</div>
+            <div style="opacity: 0.65; font-size: 10px;">${format12h(c.end)}</div>
           </div>
-          <div class="ft-profile-meta">
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <span class="ft-profile-name">${escapeHtml(fullName)}</span>
-              <span style="font-size: 11px; font-weight: 900; color: #c084fc; background: rgba(168,85,247,0.2); padding: 2px 8px; border-radius: 6px;">${escapeHtml(teacherData.teacher)}</span>
-            </div>
-            <div class="ft-profile-desig">${escapeHtml(desigText)}</div>
-            <div style="margin-top: 4px; display: flex; gap: 6px;">
-              ${statusBadge}
-            </div>
+          <div class="ft-tl-body">
+            <div class="ft-tl-subject">${escapeHtml(c.subject)}</div>
+            <div class="ft-tl-subinfo">Room ${escapeHtml(c.room || '—')}${c.semSec ? ` · ${escapeHtml(c.semSec)}` : ''}</div>
+          </div>
+          <div class="ft-tl-badge-wrap">
+            <span class="ft-tl-type-badge ${isLab ? 'ft-tl-type-lab' : 'ft-tl-type-theory'}">
+              ${isLab ? '★ LAB' : 'THEORY'}
+            </span>
+            ${isCurrent ? `<span class="ft-tl-live-pill">● LIVE</span>` : ''}
           </div>
         </div>
+      `;
+    }).join('');
+  };
 
-        ${actionsHtml}
+  if (dayIdx === -1) {
+    // All Days view
+    routineCardsHtml = activeDays.map(d => `
+      <div style="margin-bottom: 10px;">
+        <div style="font-size: 11.5px; font-weight: 800; color: #38bdf8; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;">
+          📅 ${DAY_NAMES[d]}
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          ${renderDayClasses(d)}
+        </div>
       </div>
-    `;
+    `).join('');
+  } else {
+    routineCardsHtml = renderDayClasses(dayIdx);
   }
+
+  const weekly = getTeacherWeeklySubjects(teacherKey);
+
+  heroContainer.innerHTML = `
+    <!-- Top Profile Header -->
+    <div class="ft-profile-hero-card">
+      <div class="ft-profile-top">
+        <div class="ft-avatar-wrapper">
+          ${photoHtml}
+          <button class="ft-avatar-edit-icon-btn" onclick="window.__openFacultyEditModal('${escapeHtml(teacherKey)}')" title="Suggest / Edit faculty info">✏️</button>
+        </div>
+        <div class="ft-profile-meta">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span class="ft-profile-name">${escapeHtml(fullName)}</span>
+            <span style="font-size: 11px; font-weight: 900; color: #c084fc; background: rgba(168,85,247,0.2); padding: 2px 8px; border-radius: 6px;">${escapeHtml(teacherKey)}</span>
+          </div>
+          <div class="ft-profile-desig">${escapeHtml(desigText)}</div>
+          ${liveStatusSub}
+        </div>
+      </div>
+
+      ${actionsHtml}
+    </div>
+
+    <!-- Weekly Routine Section -->
+    <div class="ft-detail-section">
+      <div class="ft-section-title">
+        <span>📅</span>
+        <span>Class Routine</span>
+      </div>
+
+      <!-- Day Switcher Tabs -->
+      <div class="ft-day-tabs-bar">
+        ${dayTabButtons}
+      </div>
+
+      <!-- Routine Cards List -->
+      <div class="ft-routine-list">
+        ${routineCardsHtml}
+      </div>
+    </div>
+
+    <!-- Courses Taught Section -->
+    ${(weekly.subjects && weekly.subjects.length > 0) ? `
+      <div class="ft-detail-section" style="margin-bottom: 4px;">
+        <div class="ft-section-title">
+          <span>📚</span>
+          <span>Courses Taught (${weekly.subjects.length})</span>
+        </div>
+        <div class="ft-courses-grid">
+          ${(weekly.subjects || []).map(s => `
+            <div class="ft-course-chip">
+              <span class="ft-course-code">${escapeHtml(s)}</span>
+              ${FULL_COURSE_NAMES[s] ? `<span class="ft-course-name">${escapeHtml(FULL_COURSE_NAMES[s])}</span>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+  `;
 
   openModal(detailModal);
 }

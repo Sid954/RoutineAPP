@@ -537,6 +537,28 @@ async function build() {
     console.log('Synced web assets directly to android/app/src/main/assets/public/');
   }
 
+  // Restore all custom Android native & Widget files from android-custom/
+  const androidCustomDir = path.join(__dirname, 'android-custom');
+  const androidMainDir = path.join(__dirname, 'android', 'app', 'src', 'main');
+  if (fs.existsSync(androidCustomDir) && fs.existsSync(androidMainDir)) {
+    // 1. Copy Java files
+    const customJava = path.join(androidCustomDir, 'java');
+    const mainJava = path.join(androidMainDir, 'java');
+    if (fs.existsSync(customJava)) copyDir(customJava, mainJava);
+
+    // 2. Copy res files (layouts, widgets, drawables, strings)
+    const customRes = path.join(androidCustomDir, 'res');
+    const mainRes = path.join(androidMainDir, 'res');
+    if (fs.existsSync(customRes)) copyDir(customRes, mainRes);
+
+    // 3. Copy AndroidManifest.xml
+    const customManifest = path.join(androidCustomDir, 'AndroidManifest.xml');
+    const mainManifest = path.join(androidMainDir, 'AndroidManifest.xml');
+    if (fs.existsSync(customManifest)) fs.copyFileSync(customManifest, mainManifest);
+
+    console.log('✅ Injected custom Android & Widget native files from android-custom/ to android/app/src/main/');
+  }
+
   console.log('Build completed! Web assets are in the /www folder.');
 }
 

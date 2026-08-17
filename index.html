@@ -229,17 +229,33 @@
       <!-- Detailed Update Check Panel -->
       <div id="updateCheckDetails" style="display: none; margin: 0 24px 12px; padding: 12px 14px; border-radius: var(--rx); background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border); font-size: 12px; line-height: 1.5; color: var(--text);"></div>
 
-      <!-- Card 4: Android Home Screen Widget Pinning -->
-      <div id="widgetPinSection" style="background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: var(--rx); padding: 14px; margin: 0 24px 12px; display: none;">
-        <div style="font-size: 11px; font-weight: 800; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-          <span>📲 Home Screen Timetable Widget</span>
+      <!-- Section: Android Home Screen Widgets -->
+      <div id="widgetPinSection" class="widget-pin-card" style="display: none;">
+        <div class="widget-header-title">
+          <span>📲 Android Home Screen Widgets</span>
         </div>
-        <p style="font-size: 12px; color: var(--dim); margin-bottom: 12px; line-height: 1.45;">
-          Pin the live timetable widget directly to your Android home screen for instant class tracking.
+        <p style="font-size: 11.5px; color: var(--dim); margin-bottom: 8px; line-height: 1.4;">
+          Select from 3 distinct widget formats and pin directly to your Android launcher:
         </p>
-        <button id="pinWidgetBtn" style="width: 100%; height: 40px; font-size: 13px; padding: 0 12px; border-radius: var(--rx); background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink))); color: var(--btn-text, #fff); font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px var(--ag);">
-          <span>📲 Add Widget to Home Screen</span>
+
+        <!-- Segmented 3 Widget Switcher -->
+        <div class="widget-size-segmented" id="widgetSizeSegmented">
+          <button class="widget-size-pill active" data-type="live">Live Class</button>
+          <button class="widget-size-pill" data-type="landscape">Landscape Matrix</button>
+          <button class="widget-size-pill" data-type="portrait">Portrait Timeline</button>
+        </div>
+
+        <!-- Live Android Mockup Canvas -->
+        <div class="widget-mockup-frame">
+          <div class="widget-adaptive-preview" id="widgetPreviewContainer">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <button id="pinWidgetBtn" style="width: 100%; height: 42px; font-size: 13px; padding: 0 16px; border-radius: var(--rx); background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink))); color: var(--btn-text, #fff); font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px var(--ag); transition: transform 0.15s ease;">
+          <span id="pinWidgetBtnText">📲 Add Live Class Tracker to Home Screen</span>
         </button>
+
         <div id="widgetFeedbackBox" style="display: none; margin-top: 12px; padding: 12px; border-radius: var(--rx); font-size: 12px; line-height: 1.5; text-align: left;"></div>
       </div>
 
@@ -769,7 +785,6 @@
     <button id="findTeacherFab" class="find-teacher-fab" title="Find where teachers are now">
       <span class="ft-fab-badge-text">Faculty</span>
       <span class="ft-fab-icon">👨‍🏫</span>
-      <span id="teacherFinderBadge" class="ft-fab-count-badge" style="display:none;">0</span>
     </button>
     
     <button id="freeRoomsFab" class="free-rooms-fab" title="Find available free rooms">
@@ -977,12 +992,12 @@
 
   <!-- Modal: Full Faculty Profile Card -->
   <div class="mo" id="teacherDetailModal" style="z-index: 100010;">
-    <div class="md" style="max-width: 440px; padding: 20px; position: relative;">
+    <div class="md" style="max-width: 520px; max-height: 85vh; max-height: 85dvh; overflow-y: auto; padding: 20px; position: relative;">
       <button class="cls" id="teacherDetailCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
       
       <!-- Interactive Hero Container -->
       <div id="facultyProfileHero">
-        <!-- Rendered dynamically: Photo, Name, Code, Designation, Status, Contact Action Buttons -->
+        <!-- Rendered dynamically: Photo, Name, Code, Designation, Status, Contact Action Buttons, Routine, Courses Taught -->
       </div>
     </div>
   </div>

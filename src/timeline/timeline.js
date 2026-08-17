@@ -53,7 +53,7 @@ export function renderTimeline(force = false) {
 
     if (!hasOnlineClasses) {
       DOM.timelineGrid.innerHTML = `
-        <div class="ch" style="grid-template-columns: 1fr; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1.5px dashed var(--pink) !important; background: rgba(244, 63, 94, 0.08) !important; padding: 26px 20px; box-shadow: 0 0 20px rgba(244, 63, 94, 0.15) !important;">
+        <div class="ch" style="grid-template-columns: 1fr; width: 100%; height: 100%; min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1.5px dashed var(--pink) !important; background: rgba(244, 63, 94, 0.08) !important; padding: 26px 20px; box-shadow: 0 0 20px rgba(244, 63, 94, 0.15) !important;">
           <span style="font-size: 28px; margin-bottom: 8px;">🎉</span>
           <span class="chn" style="color: var(--pink2); font-weight: 800; font-size: 17px; margin-bottom: 4px; letter-spacing: 0.5px;">HOLIDAY / DAY OFF</span>
           <span style="font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px;">${escapeHtml(holidayOverride.announcement.title)}</span>
@@ -65,7 +65,7 @@ export function renderTimeline(force = false) {
   }
 
   if (!classes.length) {
-    DOM.timelineGrid.innerHTML = `<div class="t-empty" style="width:100%; min-height:100px;">No classes scheduled for ${DAY_NAMES[State.currentViewDayIdx]}</div>`;
+    DOM.timelineGrid.innerHTML = `<div class="t-empty" style="width:100%; height: 100%; min-height: 280px; display: flex; align-items: center; justify-content: center;">No classes scheduled for ${DAY_NAMES[State.currentViewDayIdx]}</div>`;
     return;
   }
 
