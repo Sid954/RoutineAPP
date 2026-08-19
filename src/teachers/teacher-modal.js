@@ -3,7 +3,7 @@ import { format12h, toTimeString, getCurrentMinutes, truncateText } from '../cor
 import { openModal, closeModal } from '../modals/modal.js';
 import { showToast } from '../toast/toast.js';
 import { loadMasterTeacherData, searchTeachers, getTeacherClassesForDay, getTeacherWeeklySubjects } from './teacher-finder.js';
-import { initTeacherNames, getTeacherInfo, getFullName, submitNameSuggestion, fetchPendingSubmissions, reviewSubmission } from './teacher-names.js';
+import { initTeacherNames, getTeacherInfo, getFullName, resolveTeacherCode, submitNameSuggestion, fetchPendingSubmissions, reviewSubmission, uploadFacultyPhoto, getAllFacultyKeys } from './teacher-names.js';
 
 let _searchQuery = '';
 let _lastTeacherResults = [];
@@ -23,10 +23,24 @@ export function initTeacherFinderUI() {
   const suggestCloseBtn = document.getElementById('suggestTeacherCloseBtn');
   const suggestForm = document.getElementById('suggestTeacherForm');
   const suggestCodeSelect = document.getElementById('suggestTeacherCodeSelect');
+  const suggestCodeLockedBox = document.getElementById('suggestTeacherCodeLockedBox');
+  const suggestCodeLockedBadge = document.getElementById('suggestTeacherCodeLockedBadge');
+  const suggestNameLockedLabel = document.getElementById('suggestTeacherNameLockedLabel');
   const suggestNameInput = document.getElementById('suggestTeacherNameInput');
   const suggestEmailInput = document.getElementById('suggestTeacherEmailInput');
   const suggestPhoneInput = document.getElementById('suggestTeacherPhoneInput');
   const suggestDesigInput = document.getElementById('suggestTeacherDesigInput');
+  const suggestPhotoInput = document.getElementById('suggestTeacherPhotoInput');
+  const suggestPhotoFileInput = document.getElementById('suggestTeacherPhotoFileInput');
+  const suggestUploadBtn = document.getElementById('suggestTeacherUploadBtn');
+  const suggestUploadBtnText = document.getElementById('suggestTeacherUploadBtnText');
+  const suggestRemovePhotoBtn = document.getElementById('suggestTeacherRemovePhotoBtn');
+  const suggestPhotoPreview = document.getElementById('suggestTeacherPhotoPreview');
+  const suggestPhotoStatus = document.getElementById('suggestTeacherPhotoStatus');
+  const suggestProfileInput = document.getElementById('suggestTeacherProfileInput');
+
+  let _currentEditingOldData = null;
+  let _currentEditingLockedCode = '';
 
   // Admin Approval modal
   const adminBtn = document.getElementById('teacherAdminBtn');
@@ -45,45 +59,37 @@ export function initTeacherFinderUI() {
   if (!fab || !modal) return;
 
   // 1. Open Faculty Finder
-  const handleFabClick = async (e) => {
+  const handleFabClick = (e) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
+    renderTeacherFinderModal();
     modal.style.display = '';
     openModal(modal);
 
-    const container = document.getElementById('teacherFinderGrid');
-    if (container) {
-      container.innerHTML = `
-        <div style="text-align: center; padding: 40px 20px; color: var(--dim);">
-          <div style="font-size: 32px; margin-bottom: 8px;" class="spin">⚡</div>
-          <div style="font-weight: 700; font-size: 14px; color: var(--text);">Loading faculty directory...</div>
-        </div>
-      `;
-    }
-
-    await Promise.all([loadMasterTeacherData(true), initTeacherNames()]);
-    renderTeacherFinderModal();
+    Promise.all([loadMasterTeacherData(), initTeacherNames()]).then(() => {
+      renderTeacherFinderModal();
+    }).catch(() => {});
   };
 
   fab.addEventListener('click', handleFabClick);
 
   if (closeBtn) closeBtn.addEventListener('click', () => closeModal(modal));
   if (detailCloseBtn && detailModal) detailCloseBtn.addEventListener('click', () => closeModal(detailModal));
+  if (detailModal) {
+    detailModal.addEventListener('click', (e) => {
+      if (e.target === detailModal) closeModal(detailModal);
+    });
+  }
 
-  // Day navigation click handler inside detail modal
   if (dayNav) {
     dayNav.addEventListener('click', (e) => {
       const btn = e.target.closest('.ft-day-btn');
       if (!btn || !_currentOpenTeacherData) return;
       const dayIdx = parseInt(btn.dataset.day, 10);
       _selectedTeacherDetailDay = dayIdx;
-
-      // Update active button state
       dayNav.querySelectorAll('.ft-day-btn').forEach(b => b.classList.toggle('active', b === btn));
-
-      // Render timeline for chosen day
       renderTeacherTimelineForDay(_currentOpenTeacherData.teacher, _selectedTeacherDetailDay);
     });
   }
@@ -97,67 +103,295 @@ export function initTeacherFinderUI() {
 
   // 2. Suggest / Edit Info Handler
   if (suggestBtn && suggestModal) {
-    const openSuggestModalWithCode = (prefillCode = '') => {
-      if (suggestCodeSelect && _lastTeacherResults.length > 0) {
-        suggestCodeSelect.innerHTML = '<option value="">Select teacher code...</option>' +
-          _lastTeacherResults.map(t => {
-            const currentName = getFullName(t.teacher);
-            const label = currentName && currentName !== t.teacher ? `${t.teacher} (${currentName})` : t.teacher;
-            return `<option value="${escapeHtml(t.teacher)}">${escapeHtml(label)}</option>`;
-          }).join('');
-      }
+    const renderPhotoPreview = (url) => {
+      const cleanUrl = url ? String(url).trim() : '';
+      if (suggestPhotoInput) suggestPhotoInput.value = cleanUrl;
 
-      if (prefillCode) {
-        suggestCodeSelect.value = prefillCode;
-        const info = getTeacherInfo(prefillCode);
-        if (info) {
-          if (suggestNameInput) suggestNameInput.value = info.name !== prefillCode ? info.name : '';
-          if (suggestEmailInput) suggestEmailInput.value = (info.emails && info.emails.length > 0) ? info.emails[0] : '';
-          if (suggestPhoneInput) suggestPhoneInput.value = info.phone || '';
-          if (suggestDesigInput) suggestDesigInput.value = info.designation && info.designation !== 'Faculty Member' ? info.designation : '';
+      if (cleanUrl) {
+        if (suggestPhotoPreview) {
+          suggestPhotoPreview.innerHTML = `<img src="${escapeHtml(cleanUrl)}" alt="Photo Preview" onload="this.classList.add('loaded');" onerror="this.remove();" />`;
         }
+        if (suggestRemovePhotoBtn) suggestRemovePhotoBtn.style.display = 'inline-block';
+        if (suggestUploadBtnText) suggestUploadBtnText.textContent = 'Change Photo';
+        if (suggestPhotoStatus) suggestPhotoStatus.innerHTML = '<span style="color: #34d399; font-weight: 700;">✅ Photo attached</span>';
       } else {
-        if (suggestNameInput) suggestNameInput.value = '';
-        if (suggestEmailInput) suggestEmailInput.value = '';
-        if (suggestPhoneInput) suggestPhoneInput.value = '';
-        if (suggestDesigInput) suggestDesigInput.value = '';
+        if (suggestPhotoPreview) {
+          suggestPhotoPreview.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 20px; height: 20px; color: var(--dim);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
+        }
+        if (suggestRemovePhotoBtn) suggestRemovePhotoBtn.style.display = 'none';
+        if (suggestUploadBtnText) suggestUploadBtnText.textContent = 'Upload Photo';
+        if (suggestPhotoStatus) suggestPhotoStatus.textContent = 'JPG, PNG, or WebP up to 3MB';
       }
-
-      openModal(suggestModal);
     };
 
-    suggestBtn.addEventListener('click', () => openSuggestModalWithCode());
+    const compressImage = (file, maxWidth = 600, maxHeight = 600, quality = 0.85) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+              if (width > maxWidth) {
+                height = Math.round((height * maxWidth) / width);
+                width = maxWidth;
+              }
+            } else {
+              if (height > maxHeight) {
+                width = Math.round((width * maxHeight) / height);
+                height = maxHeight;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+            resolve({ base64: compressedDataUrl, mimeType: 'image/jpeg' });
+          };
+          img.onerror = (err) => reject(err);
+        };
+        reader.onerror = (err) => reject(err);
+      });
+    };
 
-    // Allow opening edit modal from profile hero button
-    window.__openFacultyEditModal = openSuggestModalWithCode;
-
-    if (suggestCloseBtn) suggestCloseBtn.addEventListener('click', () => closeModal(suggestModal));
-
-    if (suggestCodeSelect) {
-      suggestCodeSelect.addEventListener('change', (e) => {
-        const code = e.target.value;
-        if (code) {
-          const info = getTeacherInfo(code);
-          if (info) {
-            if (suggestNameInput) suggestNameInput.value = info.name !== code ? info.name : '';
-            if (suggestEmailInput) suggestEmailInput.value = (info.emails && info.emails.length > 0) ? info.emails[0] : '';
-            if (suggestPhoneInput) suggestPhoneInput.value = info.phone || '';
-            if (suggestDesigInput) suggestDesigInput.value = info.designation && info.designation !== 'Faculty Member' ? info.designation : '';
+    if (suggestUploadBtn && suggestPhotoFileInput) {
+      suggestUploadBtn.addEventListener('click', () => suggestPhotoFileInput.click());
+      suggestPhotoFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        if (!file.type.match(/^image\/(jpeg|png|webp|jpg)$/i)) {
+          showToast('Please select a valid image file.', 'warning');
+          return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          showToast('Selected photo is larger than 5MB.', 'warning');
+          return;
+        }
+        const currentCode = (_currentEditingLockedCode || (suggestCodeSelect ? suggestCodeSelect.value : '') || _currentEditingOldData?.code || 'faculty').trim();
+        try {
+          if (suggestUploadBtn) suggestUploadBtn.disabled = true;
+          if (suggestUploadBtnText) suggestUploadBtnText.textContent = 'Uploading...';
+          if (suggestPhotoStatus) suggestPhotoStatus.textContent = 'Compressing and uploading photo...';
+          const { base64, mimeType } = await compressImage(file);
+          if (suggestPhotoPreview) suggestPhotoPreview.innerHTML = `<img src="${base64}" alt="Preview" />`;
+          const uploadRes = await uploadFacultyPhoto(base64, currentCode, mimeType);
+          if (uploadRes && uploadRes.url) {
+            renderPhotoPreview(uploadRes.url);
+            if (uploadRes.isLocalFallback) {
+              showToast('Photo attached! (Deploy backend to save in Supabase bucket)', 'info');
+            } else {
+              showToast('Photo uploaded successfully to Supabase!', 'success');
+            }
           }
+        } catch (err) {
+          console.error(err);
+          showToast(err.message || 'Failed to attach photo.', 'error');
+          renderPhotoPreview(_currentEditingOldData?.photo || '');
+        } finally {
+          if (suggestUploadBtn) suggestUploadBtn.disabled = false;
+          suggestPhotoFileInput.value = '';
         }
       });
     }
 
+    if (suggestRemovePhotoBtn) {
+      suggestRemovePhotoBtn.addEventListener('click', () => {
+        renderPhotoPreview('');
+        showToast('Photo removed from suggestion.', 'info');
+      });
+    }
+
+    const populateFieldsForCode = (code) => {
+      if (!code) {
+        _currentEditingOldData = null;
+        if (suggestNameInput) suggestNameInput.value = '';
+        if (suggestEmailInput) suggestEmailInput.value = '';
+        if (suggestPhoneInput) suggestPhoneInput.value = '';
+        if (suggestDesigInput) suggestDesigInput.value = '';
+        renderPhotoPreview('');
+        if (suggestProfileInput) suggestProfileInput.value = '';
+        return;
+      }
+      const info = getTeacherInfo(code);
+      if (info) {
+        _currentEditingOldData = {
+          code: code,
+          name: (info.name && info.name !== code) ? info.name : '',
+          email: (info.emails && info.emails.length > 0) ? info.emails[0] : (info.email || ''),
+          phone: info.phone || '',
+          designation: (info.designation && info.designation !== 'Faculty Member' && info.designation !== 'Guest Faculty') ? info.designation : '',
+          photo: info.photo || '',
+          profileUrl: (info.profileUrl && !info.profileUrl.includes('cse.puc.ac.bd/Home/Profile?userName=')) ? info.profileUrl : ''
+        };
+        if (suggestNameInput) suggestNameInput.value = _currentEditingOldData.name;
+        if (suggestEmailInput) suggestEmailInput.value = _currentEditingOldData.email;
+        if (suggestPhoneInput) suggestPhoneInput.value = _currentEditingOldData.phone;
+        if (suggestDesigInput) suggestDesigInput.value = _currentEditingOldData.designation;
+        renderPhotoPreview(_currentEditingOldData.photo);
+        if (suggestProfileInput) suggestProfileInput.value = _currentEditingOldData.profileUrl;
+      }
+    };
+
+    let _cooldownTimerInterval = null;
+
+    const checkAndUpdateCooldownUI = () => {
+      const submitBtn = document.getElementById('suggestTeacherSubmitBtn');
+      const cooldownBanner = document.getElementById('suggestTeacherCooldownBanner');
+      const cooldownTimer = document.getElementById('suggestTeacherCooldownTimer');
+
+      const cooldownUntil = parseInt(localStorage.getItem('faculty_suggest_cooldown_until') || '0', 10);
+      const remainingMs = cooldownUntil - Date.now();
+
+      if (remainingMs > 0) {
+        const remainingSec = Math.ceil(remainingMs / 1000);
+        if (cooldownBanner) cooldownBanner.style.display = 'flex';
+        if (cooldownTimer) cooldownTimer.textContent = `${remainingSec}s`;
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.style.opacity = '0.5';
+          submitBtn.style.cursor = 'not-allowed';
+        }
+
+        if (!_cooldownTimerInterval) {
+          _cooldownTimerInterval = setInterval(() => {
+            checkAndUpdateCooldownUI();
+          }, 1000);
+        }
+        return true;
+      } else {
+        if (_cooldownTimerInterval) {
+          clearInterval(_cooldownTimerInterval);
+          _cooldownTimerInterval = null;
+        }
+        if (cooldownBanner) cooldownBanner.style.display = 'none';
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = '1';
+          submitBtn.style.cursor = 'pointer';
+        }
+        return false;
+      }
+    };
+
+    const openSuggestModalWithCode = (prefillCode = '') => {
+      const cleanPrefill = (prefillCode || '').trim().toUpperCase();
+      if (cleanPrefill) {
+        _currentEditingLockedCode = cleanPrefill;
+        const info = getTeacherInfo(cleanPrefill);
+        if (suggestCodeLockedBox) suggestCodeLockedBox.style.display = 'flex';
+        if (suggestCodeSelect) suggestCodeSelect.style.display = 'none';
+        if (suggestCodeLockedBadge) suggestCodeLockedBadge.textContent = cleanPrefill;
+        if (suggestNameLockedLabel) {
+          const displayLabel = (info.name && info.name !== cleanPrefill) ? info.name : cleanPrefill;
+          suggestNameLockedLabel.textContent = displayLabel;
+        }
+        populateFieldsForCode(cleanPrefill);
+      } else {
+        _currentEditingLockedCode = '';
+        if (suggestCodeLockedBox) suggestCodeLockedBox.style.display = 'none';
+        if (suggestCodeSelect) {
+          suggestCodeSelect.style.display = 'block';
+          const allCodes = Array.from(new Set(getAllFacultyKeys().map(k => k.toUpperCase()))).sort();
+          suggestCodeSelect.innerHTML = '<option value="">Select teacher code...</option>' +
+            allCodes.map(code => {
+              const info = getTeacherInfo(code);
+              const label = (info.name && info.name !== code) ? `${code} — ${info.name}` : code;
+              return `<option value="${escapeHtml(code)}">${escapeHtml(label)}</option>`;
+            }).join('');
+          suggestCodeSelect.value = '';
+        }
+        populateFieldsForCode('');
+      }
+
+      checkAndUpdateCooldownUI();
+      openModal(suggestModal);
+    };
+
+    suggestBtn.addEventListener('click', () => openSuggestModalWithCode());
+    window.__openFacultyEditModal = openSuggestModalWithCode;
+    if (suggestCloseBtn) suggestCloseBtn.addEventListener('click', () => closeModal(suggestModal));
+    if (suggestCodeSelect) suggestCodeSelect.addEventListener('change', (e) => populateFieldsForCode(e.target.value));
+
     if (suggestForm) {
       suggestForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const code = suggestCodeSelect.value;
-        const name = suggestNameInput.value.trim();
+
+        // 1. Double-click & cooldown check
+        if (checkAndUpdateCooldownUI()) {
+          showToast('Please wait before submitting another suggestion.', 'warning');
+          return;
+        }
+
+        const code = (_currentEditingLockedCode || (suggestCodeSelect ? suggestCodeSelect.value : '') || _currentEditingOldData?.code || '').trim();
+        const name = suggestNameInput ? suggestNameInput.value.trim() : '';
         const email = suggestEmailInput ? suggestEmailInput.value.trim() : '';
         const phone = suggestPhoneInput ? suggestPhoneInput.value.trim() : '';
         const desig = suggestDesigInput ? suggestDesigInput.value.trim() : '';
+        const photo = suggestPhotoInput ? suggestPhotoInput.value.trim() : '';
+        const profileUrl = suggestProfileInput ? suggestProfileInput.value.trim() : '';
 
-        if (!code || !name) return;
+        if (!code) {
+          showToast('Please select a teacher code.', 'warning');
+          return;
+        }
+
+        if (!name && !email && !phone && !desig && !photo && !profileUrl) {
+          showToast('Please fill in at least one field to suggest.', 'warning');
+          return;
+        }
+
+        // 2. Client-side Format Validations
+        if (email) {
+          const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+          if (!emailRegex.test(email)) {
+            showToast('Please enter a valid email address.', 'warning');
+            if (suggestEmailInput) suggestEmailInput.focus();
+            return;
+          }
+        }
+
+        if (phone) {
+          const digitCount = (phone.match(/\d/g) || []).length;
+          if (digitCount < 6) {
+            showToast('Please enter a valid phone number (at least 6 digits).', 'warning');
+            if (suggestPhoneInput) suggestPhoneInput.focus();
+            return;
+          }
+        }
+
+        if (profileUrl) {
+          try {
+            const parsed = new URL(profileUrl);
+            if (!parsed.protocol.startsWith('http')) throw new Error();
+            if (!parsed.hostname.endsWith('puc.ac.bd')) {
+              showToast('PUC Profile URL must be on the *.puc.ac.bd university domain.', 'warning');
+              if (suggestProfileInput) suggestProfileInput.focus();
+              return;
+            }
+          } catch (err) {
+            showToast('Please enter a valid PUC Profile URL (e.g. https://cse.puc.ac.bd/...).', 'warning');
+            if (suggestProfileInput) suggestProfileInput.focus();
+            return;
+          }
+        }
+
+        // 3. Client-side No-Op Detection
+        const isSameName = (name.trim()) === (_currentEditingOldData?.name || '').trim();
+        const isSameEmail = (email.trim().toLowerCase()) === (_currentEditingOldData?.email || '').trim().toLowerCase();
+        const isSamePhone = (phone.trim()) === (_currentEditingOldData?.phone || '').trim();
+        const isSameDesig = (desig.trim()) === (_currentEditingOldData?.designation || '').trim();
+        const isSamePhoto = (photo.trim()) === (_currentEditingOldData?.photo || '').trim();
+        const isSameProfile = (profileUrl.trim()) === (_currentEditingOldData?.profileUrl || '').trim();
+
+        if (isSameName && isSameEmail && isSamePhone && isSameDesig && isSamePhoto && isSameProfile) {
+          showToast('No changes detected. Please modify at least one field before submitting.', 'warning');
+          return;
+        }
 
         const submitBtn = document.getElementById('suggestTeacherSubmitBtn');
         if (submitBtn) {
@@ -166,17 +400,22 @@ export function initTeacherFinderUI() {
         }
 
         try {
-          await submitNameSuggestion(code, name, email, phone, desig);
+          await submitNameSuggestion({ code, name, email, phone, designation: desig, photo, profileUrl, oldData: _currentEditingOldData });
           showToast(`Faculty info for ${code} submitted for review!`, 'success');
-          suggestNameInput.value = '';
-          if (suggestEmailInput) suggestEmailInput.value = '';
-          if (suggestPhoneInput) suggestPhoneInput.value = '';
-          if (suggestDesigInput) suggestDesigInput.value = '';
+          
+          // Set 60-second client-side cooldown
+          localStorage.setItem('faculty_suggest_cooldown_until', (Date.now() + 60000).toString());
+          checkAndUpdateCooldownUI();
+
+          suggestForm.reset();
+          _currentEditingOldData = null;
+          _currentEditingLockedCode = '';
+          renderPhotoPreview('');
           closeModal(suggestModal);
         } catch (err) {
           showToast(err.message || 'Submission failed.', 'error');
         } finally {
-          if (submitBtn) {
+          if (submitBtn && !checkAndUpdateCooldownUI()) {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Submit for Review';
           }
@@ -238,8 +477,27 @@ export function initTeacherFinderUI() {
 
         const id = card.dataset.id;
         const code = card.dataset.code;
-        const inputEl = card.querySelector('.ft-admin-name-input');
-        const editedName = inputEl ? inputEl.value.trim() : '';
+
+        // Parse oldData for fallbacks
+        let cardOldData = {};
+        if (card.dataset.oldData) {
+          try { cardOldData = JSON.parse(card.dataset.oldData); } catch (e) {}
+        }
+
+        // Gather only modified inputs, falling back to existing data
+        const getFieldVal = (key, fallback) => {
+          const input = card.querySelector(`[data-field="${key}"]`);
+          return input ? input.value.trim() : (fallback || '');
+        };
+
+        const updatedPayload = {
+          name: getFieldVal('name', cardOldData.name),
+          email: getFieldVal('email', cardOldData.email),
+          phone: getFieldVal('phone', cardOldData.phone),
+          designation: getFieldVal('designation', cardOldData.designation),
+          photo: getFieldVal('photo', cardOldData.photo),
+          profileUrl: getFieldVal('profileUrl', cardOldData.profileUrl)
+        };
 
         const action = approveBtn ? 'approve' : 'reject';
         const actionBtn = approveBtn || rejectBtn;
@@ -247,13 +505,19 @@ export function initTeacherFinderUI() {
         actionBtn.textContent = 'Processing...';
 
         try {
-          await reviewSubmission(id, action, code, editedName, _adminSessionPass);
+          await reviewSubmission(id, action, code, updatedPayload, _adminSessionPass);
           showToast(`Suggestion for ${code} ${action}d!`, 'success');
           card.remove();
           renderTeacherFinderModal();
 
           if (!adminListBox.children.length) {
-            adminListBox.innerHTML = '<div style="text-align:center; padding:30px 10px; color:var(--dim);">No more pending submissions! 🎉</div>';
+            adminListBox.innerHTML = `
+              <div style="text-align: center; padding: 40px 20px; color: var(--dim);">
+                <div style="font-size: 32px; margin-bottom: 8px;">🎉</div>
+                <div style="font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 4px;">All Caught Up!</div>
+                <div style="font-size: 12px;">No pending faculty suggestions to review.</div>
+              </div>
+            `;
           }
         } catch (err) {
           showToast(err.message || 'Action failed.', 'error');
@@ -308,14 +572,21 @@ async function loadAdminPendingList(password) {
   if (!adminListBox) return;
 
   adminListBox.innerHTML = '<div style="text-align:center; padding:20px; color:var(--dim);">Loading pending submissions...</div>';
-  const pending = await fetchPendingSubmissions(password);
+  
+  let pending = [];
+  try {
+    pending = await fetchPendingSubmissions(password);
+  } catch (e) {
+    adminListBox.innerHTML = `<div style="text-align:center; padding:20px; color:#fb7185;">${escapeHtml(e.message || 'Failed to load submissions')}</div>`;
+    throw e;
+  }
 
   if (!pending || pending.length === 0) {
     adminListBox.innerHTML = `
       <div style="text-align: center; padding: 40px 20px; color: var(--dim);">
         <div style="font-size: 32px; margin-bottom: 8px;">🎉</div>
         <div style="font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 4px;">All Caught Up!</div>
-        <div style="font-size: 12px;">No pending faculty name submissions to review.</div>
+        <div style="font-size: 12px;">No pending faculty suggestions to review.</div>
       </div>
     `;
     return;
@@ -323,20 +594,115 @@ async function loadAdminPendingList(password) {
 
   let html = '';
   pending.forEach(item => {
-    const timeStr = item.submitted_at ? new Date(item.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    const code = (item.teacher_code || item.code || '').trim().toUpperCase();
+    const timeStr = item.submitted_at
+      ? new Date(item.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+      : 'Recently';
+
+    // Parse old_data snapshot if present, otherwise grab from current faculty info
+    let oldData = {};
+    if (item.old_data) {
+      try {
+        oldData = typeof item.old_data === 'string' ? JSON.parse(item.old_data) : item.old_data;
+      } catch (e) {}
+    } else {
+      const currentInfo = getTeacherInfo(code);
+      if (currentInfo) {
+        oldData = {
+          name: currentInfo.name !== code ? currentInfo.name : '',
+          email: (currentInfo.emails && currentInfo.emails.length > 0) ? currentInfo.emails[0] : (currentInfo.email || ''),
+          phone: currentInfo.phone || '',
+          designation: currentInfo.designation && currentInfo.designation !== 'Faculty Member' ? currentInfo.designation : '',
+          photo: currentInfo.photo || '',
+          profileUrl: currentInfo.profileUrl || ''
+        };
+      }
+    }
+
+    const suggestedName = item.full_name || item.name || '';
+    const suggestedEmail = item.email || '';
+    const suggestedPhone = item.phone || '';
+    const suggestedDesig = item.designation || '';
+    const suggestedPhoto = item.photo || '';
+    const suggestedProfile = item.profile_url || item.profileUrl || '';
+
+    // Field configuration for side-by-side Before/After diffs
+    const allFields = [
+      { key: 'name', label: 'Full Name', before: oldData.name || '', after: suggestedName },
+      { key: 'designation', label: 'Designation', before: oldData.designation || '', after: suggestedDesig },
+      { key: 'email', label: 'Email', before: oldData.email || '', after: suggestedEmail },
+      { key: 'phone', label: 'Phone', before: oldData.phone || '', after: suggestedPhone },
+      { key: 'photo', label: 'Profile Photo', before: oldData.photo || '', after: suggestedPhoto, isPhoto: true },
+      { key: 'profileUrl', label: 'PUC Profile URL', before: oldData.profileUrl || '', after: suggestedProfile }
+    ];
+
+    // Filter to ONLY fields where the suggested value differs from the baseline
+    const changedFields = allFields.filter(f => {
+      const b = (f.before || '').trim();
+      const a = (f.after || '').trim();
+      return a !== b;
+    });
+
+    const fieldsToRender = changedFields.length > 0 ? changedFields : allFields.filter(f => f.after);
+
+    const diffRowsHtml = fieldsToRender.map(f => {
+      const hasChange = (f.after || '').trim() !== (f.before || '').trim();
+      
+      let beforeContentHtml = `<span class="ft-diff-value">${escapeHtml(f.before || '—')}</span>`;
+      let afterContentHtml = `<input type="text" class="ft-admin-diff-input" data-field="${f.key}" value="${escapeHtml(f.after || f.before || '')}" placeholder="No value" />`;
+
+      if (f.isPhoto) {
+        beforeContentHtml = `
+          <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+            ${f.before ? `<img src="${escapeHtml(f.before)}" class="ft-admin-diff-photo-thumb" alt="Old Photo" onerror="this.style.display='none';" />` : ''}
+            <span class="ft-diff-value" style="font-size: 10.5px; word-break: break-all;">${escapeHtml(f.before || 'No photo')}</span>
+          </div>
+        `;
+        afterContentHtml = `
+          <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+            ${f.after ? `<img src="${escapeHtml(f.after)}" class="ft-admin-diff-photo-thumb" alt="New Photo" onload="this.classList.add('loaded');" onerror="this.style.display='none';" />` : ''}
+            <input type="text" class="ft-admin-diff-input" data-field="${f.key}" value="${escapeHtml(f.after || f.before || '')}" placeholder="Photo URL or image data" />
+          </div>
+        `;
+      }
+
+      return `
+        <div class="ft-admin-diff-row ${hasChange ? 'has-change' : ''}">
+          <div class="ft-admin-diff-label">
+            <span>${escapeHtml(f.label)}</span>
+            ${hasChange ? '<span class="ft-admin-diff-badge">Suggested Change</span>' : ''}
+          </div>
+          <div class="ft-admin-diff-grid">
+            <div class="ft-admin-diff-before-box">
+              <span class="ft-diff-prefix">Before:</span>
+              ${beforeContentHtml}
+            </div>
+            <div class="ft-admin-diff-after-box">
+              <span class="ft-diff-prefix">New:</span>
+              ${afterContentHtml}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
     html += `
-      <div class="ft-admin-pending-card" data-id="${item.id}" data-code="${escapeHtml(item.teacher_code)}" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
-        <div style="display: flex; justify-content: space-between; align-items: baseline;">
-          <span style="font-size: 15px; font-weight: 900; color: #c084fc;">Code: ${escapeHtml(item.teacher_code)}</span>
-          <span style="font-size: 10.5px; color: var(--dim);">${escapeHtml(timeStr)}</span>
+      <div class="ft-admin-pending-card" data-id="${item.id}" data-code="${escapeHtml(code)}" data-old-data="${escapeHtml(JSON.stringify(oldData))}">
+        <div class="ft-admin-pending-header">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="faculty-code-tag">${escapeHtml(code)}</span>
+            <span style="font-size: 14px; font-weight: 800; color: var(--text-main);">${escapeHtml(suggestedName || oldData.name || code)}</span>
+          </div>
+          <span style="font-size: 11px; color: var(--dim); font-family: var(--font-mono);">${escapeHtml(timeStr)}</span>
         </div>
-        <div>
-          <label style="font-size: 10px; font-weight: 800; color: var(--dim); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Full Name (Editable)</label>
-          <input type="text" class="ft-admin-name-input" value="${escapeHtml(item.full_name)}" style="width: 100%; height: 36px; padding: 0 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
+
+        <div class="ft-admin-diff-container">
+          ${diffRowsHtml}
         </div>
-        <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
-          <button class="ft-admin-reject-btn btn" style="padding: 6px 14px; background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.3); color: #fb7185; font-size: 12px; font-weight: 700; border-radius: 8px; cursor: pointer;">Reject ❌</button>
-          <button class="ft-admin-approve-btn btn" style="padding: 6px 16px; background: linear-gradient(135deg, #10b981, #059669); border: none; color: #fff; font-size: 12px; font-weight: 800; border-radius: 8px; cursor: pointer;">Approve ✅</button>
+
+        <div class="ft-admin-card-actions">
+          <button type="button" class="ft-admin-reject-btn btn" title="Reject this suggestion">Reject ❌</button>
+          <button type="button" class="ft-admin-approve-btn btn" title="Approve and apply live to all users">Approve ✅</button>
         </div>
       </div>
     `;
@@ -443,224 +809,281 @@ export function renderTeacherFinderModal() {
   container.innerHTML = html;
 }
 
-/**
- * Programmatically open teacher profile modal by short code (e.g. 'AIR', 'MHE', 'MHN')
- */
-export async function openTeacherDetailByCode(teacherCode) {
+const DAY_TAB_INDEX_MAP = { 'SAT': 6, 'SUN': 0, 'MON': 1, 'TUE': 2, 'WED': 3 };
+
+function getTeacherWeeklyAllClasses(teacherKey) {
+  const activeDays = [6, 0, 1, 2, 3];
+  const all = [];
+  activeDays.forEach(d => {
+    const dayClasses = getTeacherClassesForDay(teacherKey, d);
+    const dayShort = (DAY_SHORT[d] || DAY_NAMES[d] || 'SAT').substring(0, 3).toUpperCase();
+    const dayName = DAY_NAMES[d];
+    dayClasses.forEach(c => {
+      const durationMins = (typeof c.startM === 'number' && typeof c.endM === 'number' && c.endM > c.startM)
+        ? (c.endM - c.startM)
+        : (toMinutes(c.end) - toMinutes(c.start));
+      const durMins = durationMins > 0 ? durationMins : 75;
+      const durHours = Math.floor(durMins / 60);
+      const durMinsRemainder = durMins % 60;
+      const durationLabel = durHours > 0
+        ? (durMinsRemainder > 0 ? `${durHours}h ${durMinsRemainder}m` : `${durHours}h`)
+        : `${durMinsRemainder}m`;
+      
+      const isLab = String(c.type || '').toLowerCase() === 'lab' || String(c.subject || '').toUpperCase().endsWith('L');
+      const cleanRoom = (c.room || '').replace(/^room\s*/i, '').trim();
+
+      all.push({
+        ...c,
+        dayIdx: d,
+        dayShort,
+        dayName,
+        isLab,
+        room: cleanRoom,
+        duration: durationLabel,
+        fullCourseName: FULL_COURSE_NAMES[c.subject] || c.name || c.subject
+      });
+    });
+  });
+  return all;
+}
+
+function renderTeacherScheduleRowsHtml(teacherKey, activeTab) {
+  const allClasses = getTeacherWeeklyAllClasses(teacherKey);
+  let filtered = allClasses;
+  if (activeTab !== 'ALL') {
+    const targetDayIdx = DAY_TAB_INDEX_MAP[activeTab];
+    filtered = allClasses.filter(c => c.dayIdx === targetDayIdx);
+  }
+
+  if (!filtered || filtered.length === 0) {
+    return `<div class="faculty-empty-state">🌴 No Classes Scheduled on ${escapeHtml(activeTab)}</div>`;
+  }
+
+  return filtered.map(c => {
+    const isLab = c.isLab;
+    const roomText = c.room ? `Room ${escapeHtml(c.room)}` : 'Campus Room';
+    const courseTitle = escapeHtml(c.fullCourseName || c.subject);
+    
+    return `
+      <div class="faculty-routine-row">
+        <div class="faculty-routine-left">
+          <div class="faculty-routine-subj-row">
+            <span class="faculty-routine-subj">${escapeHtml(c.subject)}</span>
+            <span class="resting-tag ${isLab ? 'lab' : 'theory'}">${isLab ? '★ LAB' : 'THEORY'}</span>
+            <span class="faculty-day-chip">${escapeHtml(c.dayShort)}</span>
+          </div>
+          <div class="faculty-routine-meta">
+            <span>${roomText}</span>
+            <span>&bull;</span>
+            <span>${courseTitle}</span>
+          </div>
+        </div>
+        <div class="faculty-routine-right">
+          <span class="faculty-routine-time">${format12h(c.start)}</span>
+          <span class="faculty-routine-duration">${escapeHtml(c.duration)}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+export function closeTeacherDetailModal() {
+  const detailModal = document.getElementById('teacherDetailModal');
+  if (detailModal) {
+    closeModal(detailModal);
+  }
+}
+window.closeTeacherDetailModal = closeTeacherDetailModal;
+
+export function openTeacherDetailByCode(teacherCode) {
   if (!teacherCode) return;
   const cleanCode = String(teacherCode).trim().replace(/^[\s·\(\)]+|[\s·\(\)]+$/g, '');
   if (!cleanCode || cleanCode === '—' || cleanCode.toLowerCase() === 'tba') return;
 
-  const detailModal = document.getElementById('teacherDetailModal');
-  const heroContainer = document.getElementById('facultyProfileHero');
+  const canonicalCode = resolveTeacherCode(cleanCode);
+  const classDetailModal = document.getElementById('classDetailModal');
+  const isFromClassDetail = classDetailModal && classDetailModal.classList.contains('open');
 
-  // Immediately open modal and show instantaneous loading spinner
-  if (detailModal) {
-    if (heroContainer) {
-      heroContainer.innerHTML = `
-        <div style="text-align: center; padding: 40px 10px; color: var(--dim);">
-          <div style="font-size: 32px; margin-bottom: 8px; display: inline-block;" class="spin">⚡</div>
-          <div style="font-size: 15px; font-weight: 800; color: #fff;">Loading ${escapeHtml(cleanCode)}'s Profile...</div>
-          <div style="font-size: 11.5px; color: var(--dim); margin-top: 3px;">Fetching schedule & details</div>
-        </div>
-      `;
-    }
-    openModal(detailModal);
-  }
-
-  await Promise.all([loadMasterTeacherData(), initTeacherNames()]);
-  openTeacherDetailModal({ teacher: cleanCode });
+  // Populate content synchronously and trigger spring slide-up entrance animation
+  openTeacherDetailModal({ teacher: canonicalCode, isFromClassDetail }, 'ALL');
 }
 
+window.openTeacherDetailByCode = openTeacherDetailByCode;
 window.__openTeacherProfileByCode = openTeacherDetailByCode;
 
-window.__switchTeacherDetailDay = function(dayIdx) {
-  _selectedTeacherDetailDay = dayIdx;
-  if (_currentOpenTeacherData) {
-    openTeacherDetailModal(_currentOpenTeacherData, dayIdx);
+window.__switchTeacherDetailTab = function(tabName) {
+  _selectedTeacherDetailDay = tabName;
+  if (!_currentOpenTeacherData) return;
+  const rawTeacherKey = _currentOpenTeacherData.teacher || _currentOpenTeacherData.code || _currentOpenTeacherData;
+  const teacherKey = resolveTeacherCode(rawTeacherKey);
+
+  // Update tab buttons
+  const strip = document.getElementById('facultyDaysStrip');
+  if (strip) {
+    strip.querySelectorAll('.faculty-day-tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+  }
+
+  // Update routine list container
+  const routineList = document.getElementById('facultyRoutineList');
+  if (routineList) {
+    routineList.innerHTML = renderTeacherScheduleRowsHtml(teacherKey, tabName);
+    routineList.scrollTop = 0;
   }
 };
 
 /** Opens Full Faculty Profile Modal */
-export function openTeacherDetailModal(teacherData, dayIdx = _selectedTeacherDetailDay) {
+export function openTeacherDetailModal(teacherData, activeTab = 'ALL') {
   const detailModal = document.getElementById('teacherDetailModal');
   const heroContainer = document.getElementById('facultyProfileHero');
 
   if (!detailModal || !heroContainer) return;
 
   _currentOpenTeacherData = teacherData;
-  _selectedTeacherDetailDay = dayIdx;
+  _selectedTeacherDetailDay = activeTab;
 
-  const teacherKey = teacherData.teacher;
+  const rawTeacherKey = teacherData.teacher || teacherData.code || teacherData;
+  const teacherKey = resolveTeacherCode(rawTeacherKey);
   const info = getTeacherInfo(teacherKey);
   const fullName = info.name || teacherKey;
   const initials = (fullName || teacherKey).split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
   const photoHtml = info.photo
-    ? `<img class="ft-avatar ft-avatar-lg" src="${escapeHtml(info.photo)}" alt="${escapeHtml(teacherKey)}" onerror="this.outerHTML='<div class=\\'ft-avatar ft-avatar-lg\\'>${initials}</div>'" />`
-    : `<div class="ft-avatar ft-avatar-lg">${initials}</div>`;
+    ? `<span class="faculty-avatar-initials">${escapeHtml(initials)}</span><img src="${escapeHtml(info.photo)}" alt="${escapeHtml(teacherKey)}" loading="lazy" decoding="async" onload="this.classList.add('loaded');" onerror="this.remove();" />`
+    : `<span class="faculty-avatar-initials">${escapeHtml(initials)}</span>`;
 
-  const desigText = info.designation || 'Faculty Member · Department of Computer Science & Engineering';
-  const statusBadge = info.status === 'Study Leave'
-    ? `<span style="font-size: 10px; font-weight: 800; color: #fbbf24; background: rgba(251,191,36,0.15); padding: 2px 7px; border-radius: 6px;">🎓 Study Leave</span>`
-    : `<span style="font-size: 10px; font-weight: 800; color: #34d399; background: rgba(52,211,153,0.15); padding: 2px 7px; border-radius: 6px;">Active Faculty</span>`;
+  const desigText = info.designation || 'Assistant Professor';
+
+  // Fix: Code tag (e.g. MHE)
+  const isDistinctCode = teacherKey && fullName && (teacherKey.toUpperCase() !== fullName.toUpperCase());
+  const codePillHtml = isDistinctCode
+    ? `<span class="faculty-code-tag">${escapeHtml(teacherKey)}</span>`
+    : '';
+
+  // Status Pill
+  const isGuest = info.isGuest || info.status === 'Guest';
+  const isLeave = (info.status === 'Study Leave');
+  const statusPillHtml = isGuest
+    ? `<span class="faculty-status-pill guest">👤 GUEST FACULTY</span>`
+    : (isLeave
+      ? `<span class="faculty-status-pill leave">🎓 STUDY LEAVE</span>`
+      : `<span class="faculty-status-pill active">● ACTIVE FACULTY</span>`);
 
   // Action Buttons
-  const primaryEmail = (info.emails && info.emails.length > 0) ? info.emails[0] : '';
+  const emailsList = Array.isArray(info.emails) ? info.emails.filter(e => e && e.trim()) : [];
+  const singleEmail = (typeof info.email === 'string' && info.email.trim()) ? info.email.trim() : '';
+  const primaryEmail = emailsList.length > 0 ? emailsList[0] : singleEmail;
+
   const emailBtn = primaryEmail
-    ? `<a href="mailto:${escapeHtml(primaryEmail)}" class="ft-action-btn ft-action-btn-primary" title="Send Email: ${escapeHtml(primaryEmail)}">✉️ Email</a>`
-    : '';
+    ? `<a href="mailto:${escapeHtml(primaryEmail)}" class="faculty-action-chip" target="_blank" rel="noopener" title="Send Email: ${escapeHtml(primaryEmail)}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        <span>Email</span>
+      </a>`
+    : `<button type="button" class="faculty-action-chip is-disabled" disabled title="No email available for this instructor">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        <span>Email</span>
+      </button>`;
 
-  const phoneBtn = (info.phone && info.phone.trim())
-    ? `<a href="tel:${escapeHtml(info.phone.split(' ')[0])}" class="ft-action-btn" title="Call Faculty: ${escapeHtml(info.phone)}">📞 Call</a>`
-    : '';
+  const phone = (info.phone && typeof info.phone === 'string' && info.phone.trim()) ? info.phone.trim() : (info.mobile || info.cell || '');
+  const phoneBtn = (phone && phone.trim())
+    ? `<a href="tel:${escapeHtml(phone.split(' ')[0])}" class="faculty-action-chip" title="Call Faculty: ${escapeHtml(phone)}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <span>Call</span>
+      </a>`
+    : `<button type="button" class="faculty-action-chip is-disabled" disabled title="No phone number available for this instructor">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <span>Call</span>
+      </button>`;
 
-  const profileBtn = info.profileUrl
-    ? `<a href="${escapeHtml(info.profileUrl)}" target="_blank" rel="noopener" class="ft-action-btn" title="View Official PUC Website Profile">🌐 PUC Profile</a>`
-    : '';
+  const rawUrl = (info.profileUrl && typeof info.profileUrl === 'string') ? info.profileUrl.trim() : '';
+  const isGenericUrl = !rawUrl || rawUrl === 'https://cse.puc.ac.bd' || rawUrl === 'https://cse.puc.ac.bd/' || rawUrl === 'http://cse.puc.ac.bd' || rawUrl === 'http://cse.puc.ac.bd/';
+  const hasRealProfile = !isGenericUrl;
 
-  const actionsHtml = (emailBtn || phoneBtn || profileBtn)
-    ? `<div class="ft-profile-actions">${emailBtn}${phoneBtn}${profileBtn}</div>`
-    : '';
+  const pucBtn = hasRealProfile
+    ? `<a href="${escapeHtml(rawUrl)}" target="_blank" rel="noopener" class="faculty-action-chip" title="View Official PUC Website Profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span>PUC Profile</span>
+      </a>`
+    : `<button type="button" class="faculty-action-chip is-disabled" disabled title="No individual PUC profile page available">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span>PUC Profile</span>
+      </button>`;
 
-  // 1. Live Status & Today's Summary
-  const realTodayIdx = new Date().getDay();
-  const currentMins = getCurrentMinutes();
-  const todayClasses = getTeacherClassesForDay(teacherKey, realTodayIdx);
-  const activeClass = todayClasses.find(c => currentMins >= c.startM && currentMins < c.endM);
-
-  let liveStatusSub = '';
-  if (info.status === 'Study Leave') {
-    liveStatusSub = `<div style="color: #fbbf24; font-size: 11.5px; font-weight: 700; margin-top: 4px;">🎓 On Study Leave</div>`;
-  } else if (activeClass) {
-    liveStatusSub = `<div style="color: #34d399; font-size: 12px; font-weight: 700; margin-top: 4px; display: flex; align-items: center; gap: 5px;"><span style="font-size: 8px;">●</span> Teaching in Room ${escapeHtml(activeClass.room || '—')} now (${format12h(activeClass.start)} – ${format12h(activeClass.end)})</div>`;
-  }
-
-  // 2. Day Switcher Tabs
-  const activeDays = CONFIG.activeDays || [6, 0, 1, 2, 3];
-  const dayTabButtons = activeDays.map(d => `
-    <button class="ft-day-tab ${dayIdx === d ? 'active' : ''}" onclick="window.__switchTeacherDetailDay(${d})">
-      ${DAY_SHORT[d] || DAY_NAMES[d]}
+  // Day Switcher Tabs (SAT, SUN, MON, TUE, WED, ALL)
+  const dayTabs = ['SAT', 'SUN', 'MON', 'TUE', 'WED', 'ALL'];
+  const dayTabsHtml = dayTabs.map(d => `
+    <button class="faculty-day-tab-btn ${d === activeTab ? 'active' : ''}" data-tab="${d}" onclick="window.__switchTeacherDetailTab('${d}')">
+      ${d}
     </button>
-  `).join('') + `
-    <button class="ft-day-tab ${dayIdx === -1 ? 'active' : ''}" onclick="window.__switchTeacherDetailDay(-1)">
-      All
-    </button>
-  `;
+  `).join('');
 
-  // 3. Render Routine Content
-  let routineCardsHtml = '';
+  // Schedule rows (Max 3 visible, scrollable if > 3)
+  const routineRowsHtml = renderTeacherScheduleRowsHtml(teacherKey, activeTab);
 
-  const renderDayClasses = (d) => {
-    const classes = getTeacherClassesForDay(teacherKey, d);
-    if (!classes || classes.length === 0) {
-      return `<div class="ft-routine-empty">🌴 No Classes Scheduled on ${DAY_NAMES[d]}</div>`;
-    }
-
-    return classes.map(c => {
-      const isCurrent = (d === realTodayIdx) && (currentMins >= c.startM && currentMins < c.endM);
-      const isPast = (d === realTodayIdx) && (currentMins >= c.endM);
-      const isLab = String(c.type || '').toUpperCase() === 'LAB' || String(c.subject || '').toUpperCase().endsWith('L');
-
-      let cardClass = 'ft-tl-item';
-      if (isCurrent) cardClass += ' ft-tl-item-current';
-      else if (isPast) cardClass += ' ft-tl-item-past';
-
-      return `
-        <div class="${cardClass}">
-          <div class="ft-tl-time">
-            <div>${format12h(c.start)}</div>
-            <div style="opacity: 0.65; font-size: 10px;">${format12h(c.end)}</div>
-          </div>
-          <div class="ft-tl-body">
-            <div class="ft-tl-subject">${escapeHtml(c.subject)}</div>
-            <div class="ft-tl-subinfo">Room ${escapeHtml(c.room || '—')}${c.semSec ? ` · ${escapeHtml(c.semSec)}` : ''}</div>
-          </div>
-          <div class="ft-tl-badge-wrap">
-            <span class="ft-tl-type-badge ${isLab ? 'ft-tl-type-lab' : 'ft-tl-type-theory'}">
-              ${isLab ? '★ LAB' : 'THEORY'}
-            </span>
-            ${isCurrent ? `<span class="ft-tl-live-pill">● LIVE</span>` : ''}
-          </div>
-        </div>
-      `;
-    }).join('');
-  };
-
-  if (dayIdx === -1) {
-    // All Days view
-    routineCardsHtml = activeDays.map(d => `
-      <div style="margin-bottom: 10px;">
-        <div style="font-size: 11.5px; font-weight: 800; color: #38bdf8; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;">
-          📅 ${DAY_NAMES[d]}
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-          ${renderDayClasses(d)}
-        </div>
-      </div>
-    `).join('');
-  } else {
-    routineCardsHtml = renderDayClasses(dayIdx);
-  }
-
+  // Courses Taught (deduplicated short codes)
   const weekly = getTeacherWeeklySubjects(teacherKey);
+  const distinctCourses = Array.from(new Set((weekly.subjects || []).map(s => String(s).toUpperCase().trim()))).filter(Boolean).sort();
+  const coursesPillsHtml = distinctCourses.length > 0
+    ? distinctCourses.map(code => {
+        const isLab = code.endsWith('L') || code.toLowerCase().includes('lab');
+        return `<span class="resting-tag ${isLab ? 'lab' : 'theory'}" title="${escapeHtml(FULL_COURSE_NAMES[code] || code)}">${escapeHtml(code)}</span>`;
+      }).join('')
+    : '<span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">No active routine courses</span>';
+
+  const isFromClassDetail = teacherData.isFromClassDetail || (document.getElementById('classDetailModal') && document.getElementById('classDetailModal').classList.contains('open'));
+  const backTextEl = document.getElementById('teacherDetailBackText');
+  if (backTextEl) {
+    backTextEl.textContent = isFromClassDetail ? 'Back to Class' : 'Back to Class';
+  }
 
   heroContainer.innerHTML = `
-    <!-- Top Profile Header -->
-    <div class="ft-profile-hero-card">
-      <div class="ft-profile-top">
-        <div class="ft-avatar-wrapper">
-          ${photoHtml}
-          <button class="ft-avatar-edit-icon-btn" onclick="window.__openFacultyEditModal('${escapeHtml(teacherKey)}')" title="Suggest / Edit faculty info">✏️</button>
+    <!-- Faculty Hero Card -->
+    <div class="faculty-hero-card">
+      <div class="faculty-avatar-box">${photoHtml}</div>
+      <div class="faculty-hero-info">
+        <div class="faculty-hero-name-row">
+          <span class="faculty-hero-name">${escapeHtml(fullName)}</span>
+          ${codePillHtml}
+          <button type="button" class="faculty-hero-edit-btn" onclick="window.__openFacultyEditModal('${escapeHtml(teacherKey)}')" title="Suggest an edit for ${escapeHtml(fullName)}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
         </div>
-        <div class="ft-profile-meta">
-          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            <span class="ft-profile-name">${escapeHtml(fullName)}</span>
-            <span style="font-size: 11px; font-weight: 900; color: #c084fc; background: rgba(168,85,247,0.2); padding: 2px 8px; border-radius: 6px;">${escapeHtml(teacherKey)}</span>
-          </div>
-          <div class="ft-profile-desig">${escapeHtml(desigText)}</div>
-          ${liveStatusSub}
-        </div>
-      </div>
-
-      ${actionsHtml}
-    </div>
-
-    <!-- Weekly Routine Section -->
-    <div class="ft-detail-section">
-      <div class="ft-section-title">
-        <span>📅</span>
-        <span>Class Routine</span>
-      </div>
-
-      <!-- Day Switcher Tabs -->
-      <div class="ft-day-tabs-bar">
-        ${dayTabButtons}
-      </div>
-
-      <!-- Routine Cards List -->
-      <div class="ft-routine-list">
-        ${routineCardsHtml}
+        <div class="faculty-hero-desig">${escapeHtml(desigText)}</div>
+        ${statusPillHtml}
       </div>
     </div>
 
-    <!-- Courses Taught Section -->
-    ${(weekly.subjects && weekly.subjects.length > 0) ? `
-      <div class="ft-detail-section" style="margin-bottom: 4px;">
-        <div class="ft-section-title">
-          <span>📚</span>
-          <span>Courses Taught (${weekly.subjects.length})</span>
+    <!-- Quick Action Row -->
+    <div class="faculty-actions-row">
+      ${emailBtn}
+      ${phoneBtn}
+      ${pucBtn}
+    </div>
+
+    <!-- Day Switcher Segmented Bar -->
+    <div class="faculty-days-strip" id="facultyDaysStrip">
+      ${dayTabsHtml}
+    </div>
+
+    <!-- Fixed-Height Schedule Row List (Max 3 visible rows) -->
+    <div class="faculty-routine-list" id="facultyRoutineList">
+      ${routineRowsHtml}
+    </div>
+
+    <!-- Courses Taught Section (Always visible below schedule list) -->
+    <div class="faculty-courses-section">
+      <div class="faculty-courses-header">
+        <div style="display: flex; align-items: center; gap: 5px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span>Courses Taught</span>
         </div>
-        <div class="ft-courses-grid">
-          ${(weekly.subjects || []).map(s => `
-            <div class="ft-course-chip">
-              <span class="ft-course-code">${escapeHtml(s)}</span>
-              ${FULL_COURSE_NAMES[s] ? `<span class="ft-course-name">${escapeHtml(FULL_COURSE_NAMES[s])}</span>` : ''}
-            </div>
-          `).join('')}
-        </div>
+        <span class="faculty-courses-count">${distinctCourses.length} ${distinctCourses.length === 1 ? 'course' : 'courses'}</span>
       </div>
-    ` : ''}
+      <div class="faculty-courses-pills">
+        ${coursesPillsHtml}
+      </div>
+    </div>
   `;
 
   openModal(detailModal);

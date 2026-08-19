@@ -34,7 +34,7 @@
     "officialUsername": "shirin_cse",
     "name": "Ms. Farhana Shirin Chowdhury",
     "designation": "Associate Professor · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/shirin_cse_1031400005.JPG",
+    "photo": "src/assets/faculty/fsc.jpg",
     "status": "Active",
     "emails": [
       "fshirin2007@gmail.com",
@@ -49,7 +49,7 @@
     "officialUsername": "shirin_cse",
     "name": "Ms. Farhana Shirin Chowdhury",
     "designation": "Associate Professor · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/shirin_cse_1031400005.JPG",
+    "photo": "src/assets/faculty/fsc.jpg",
     "status": "Active",
     "emails": [
       "fshirin2007@gmail.com",
@@ -64,7 +64,7 @@
     "officialUsername": "akram_cse",
     "name": "N.U.M Akramul Kabir Khan",
     "designation": "Associate Professor · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/akram_cse_akram.jpg",
+    "photo": "src/assets/faculty/akk.jpg",
     "status": "Active",
     "emails": [
       "numakramulkabirkhan7@gmail.com"
@@ -78,7 +78,7 @@
     "officialUsername": "akram_cse",
     "name": "N.U.M Akramul Kabir Khan",
     "designation": "Associate Professor · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/akram_cse_akram.jpg",
+    "photo": "src/assets/faculty/akk.jpg",
     "status": "Active",
     "emails": [
       "numakramulkabirkhan7@gmail.com"
@@ -92,7 +92,7 @@
     "officialUsername": "kingshuk_cse",
     "name": "Kingshuk Dhar",
     "designation": "Assistant Professor & Administrative Coordinator · Department Of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/kingshuk_cse_1031400108.JPG",
+    "photo": "src/assets/faculty/kd.JPG",
     "status": "Active",
     "emails": [
       "kingshuk2006@yahoo.com",
@@ -108,7 +108,7 @@
     "officialUsername": "kingshuk_cse",
     "name": "Kingshuk Dhar",
     "designation": "Assistant Professor & Administrative Coordinator · Department Of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/kingshuk_cse_1031400108.JPG",
+    "photo": "src/assets/faculty/kd.JPG",
     "status": "Active",
     "emails": [
       "kingshuk2006@yahoo.com",
@@ -124,7 +124,7 @@
     "officialUsername": "ataur_cse",
     "name": "Md. Ataur Rahman",
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/ataur_cse_MD ATAUR RAHAMAN.jpg",
+    "photo": "src/assets/faculty/ataur.jpg",
     "status": "Study Leave",
     "emails": [],
     "phone": "",
@@ -136,7 +136,7 @@
     "officialUsername": "ataur_cse",
     "name": "Md. Ataur Rahman",
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/ataur_cse_MD ATAUR RAHAMAN.jpg",
+    "photo": "src/assets/faculty/ataur.jpg",
     "status": "Study Leave",
     "emails": [],
     "phone": "",
@@ -148,7 +148,7 @@
     "officialUsername": "tanni_cse",
     "name": "Ms. Tanni Dhoom",
     "designation": "Assistant Professor · Department of Computer Science and Engineering · Member, Eve Teasing Complain Committee",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/tanni_cse_DSC_3658.JPG",
+    "photo": "src/assets/faculty/tdm.jpg",
     "status": "Active",
     "emails": [
       "tanni.cse0708@gmail.com",
@@ -163,7 +163,7 @@
     "officialUsername": "tanni_cse",
     "name": "Ms. Tanni Dhoom",
     "designation": "Assistant Professor · Department of Computer Science and Engineering · Member, Eve Teasing Complain Committee",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/tanni_cse_DSC_3658.JPG",
+    "photo": "src/assets/faculty/tdm.jpg",
     "status": "Active",
     "emails": [
       "tanni.cse0708@gmail.com",
@@ -178,7 +178,7 @@
     "officialUsername": "asma_cse",
     "name": "Ms. Asma Joshita Trisha",
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/asma_cse_ASMA-JOSHITA-TRISHA.jpg",
+    "photo": "src/assets/faculty/ajt.jpg",
     "status": "Active",
     "emails": [
       "joshita.cu@gmail.com"
@@ -192,7 +192,7 @@
     "officialUsername": "asma_cse",
     "name": "Ms. Asma Joshita Trisha",
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/asma_cse_ASMA-JOSHITA-TRISHA.jpg",
+    "photo": "src/assets/faculty/ajt.jpg",
     "status": "Active",
     "emails": [
       "joshita.cu@gmail.com"
@@ -206,13 +206,9 @@
     "officialUsername": "anik_cse",
     "name": "Anik Sen",
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/anik_cse_1041800195.JPG",
+    "photo": "src/assets/faculty/anik_cse.jpg",
     "status": "Study Leave",
-    "emails": [
-      "aniksen.cuet09@gmail.com",
-      "anik.sen@puc.ac.bd",
-      "as5867@drexel.edu"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=anik_cse",
     "socialLinks": {}
@@ -236,7 +232,7 @@
     "officialUsername": "nazma_fbs",
     "name": "Nazma Akther",
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/nazma_fbs_Nazma.JPG",
+    "photo": "src/assets/faculty/nak.jpg",
     "status": "Active",
     "emails": [
       "nazmacse2013@gmail.com",
@@ -252,7 +248,7 @@
     "officialUsername": "nazma_fbs",
     "name": "Nazma Akther",
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/nazma_fbs_Nazma.JPG",
+    "photo": "src/assets/faculty/nak.jpg",
     "status": "Active",
     "emails": [
       "nazmacse2013@gmail.com",
@@ -268,7 +264,7 @@
     "officialUsername": "nusrat_cse",
     "name": "Ms. Nusrat Jahan Shirin",
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/nusrat_cse_1051500136.JPG",
+    "photo": "src/assets/faculty/njs.jpg",
     "status": "Active",
     "emails": [
       "nusratshirinpu@gmail.com"
@@ -282,7 +278,7 @@
     "officialUsername": "nusrat_cse",
     "name": "Ms. Nusrat Jahan Shirin",
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/nusrat_cse_1051500136.JPG",
+    "photo": "src/assets/faculty/njs.jpg",
     "status": "Active",
     "emails": [
       "nusratshirinpu@gmail.com"
@@ -296,7 +292,7 @@
     "officialUsername": "hasan_cse",
     "name": "Mohammad Hasan",
     "designation": "Assistant Professor & Coordinator of M. Sc in CSE · Department of Computer Science and Engineering · Assistant Proctor",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/hasan_cse_1041500137.JPG",
+    "photo": "src/assets/faculty/mh.jpg",
     "status": "Active",
     "emails": [
       "mehedi.cse@puc.ac.bd",
@@ -311,7 +307,7 @@
     "officialUsername": "hasan_cse",
     "name": "Mohammad Hasan",
     "designation": "Assistant Professor & Coordinator of M. Sc in CSE · Department of Computer Science and Engineering · Assistant Proctor",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/hasan_cse_1041500137.JPG",
+    "photo": "src/assets/faculty/mh.jpg",
     "status": "Active",
     "emails": [
       "mehedi.cse@puc.ac.bd",
@@ -326,7 +322,7 @@
     "officialUsername": "dhruba_cse",
     "name": "Dhrubajyoti Das",
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/dhruba_cse_1041800196.JPG",
+    "photo": "src/assets/faculty/dhruba_cse.jpg",
     "status": "Study Leave",
     "emails": [
       "dhrubajyoti1212@gmail.com",
@@ -341,7 +337,7 @@
     "officialUsername": "sabrina_cse",
     "name": "Ms. Sabrina Tarannum",
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/sabrina_cse_Ms. Sabrina Tarannum.jpg",
+    "photo": "src/assets/faculty/st.jpg",
     "status": "Active",
     "emails": [
       "sabrina.tarannum@puc.ac.bd",
@@ -356,7 +352,7 @@
     "officialUsername": "sabrina_cse",
     "name": "Ms. Sabrina Tarannum",
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/sabrina_cse_Ms. Sabrina Tarannum.jpg",
+    "photo": "src/assets/faculty/st.jpg",
     "status": "Active",
     "emails": [
       "sabrina.tarannum@puc.ac.bd",
@@ -371,7 +367,7 @@
     "officialUsername": "arif_cse",
     "name": "Md. Ariful Islam Bhuyan",
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/arif_cse_1041700177.JPG",
+    "photo": "src/assets/faculty/aib.jpg",
     "status": "Study Leave",
     "emails": [
       "arif.ajtfs@yahoo.com"
@@ -385,7 +381,7 @@
     "officialUsername": "arif_cse",
     "name": "Md. Ariful Islam Bhuyan",
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/arif_cse_1041700177.JPG",
+    "photo": "src/assets/faculty/aib.jpg",
     "status": "Study Leave",
     "emails": [
       "arif.ajtfs@yahoo.com"
@@ -399,7 +395,7 @@
     "officialUsername": "Shreyashi_cse",
     "name": "Shreyashi Paul",
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/shrayashi_cse_1042200212.JPG",
+    "photo": "src/assets/faculty/shreyashi_cse.jpg",
     "status": "Study Leave",
     "emails": [
       "shreyashicox@gmail.com"
@@ -471,7 +467,7 @@
     "officialUsername": "Adiba_cse",
     "name": "Adiba Ibnat Hossain",
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/Adiba_cse_Adiba Ibnat Hossain.jpg",
+    "photo": "src/assets/faculty/adiba_cse.jpg",
     "status": "Study Leave",
     "emails": [
       "hossainadiba123@gmail.com"
@@ -513,7 +509,7 @@
     "officialUsername": "Rezaur_cse",
     "name": "Mohammed Rezaur Rahman Chowdhury",
     "designation": "Lecturer & Academic Coordinator of B.Sc in CSE · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/Rezaur_cse_Mohammad Rezaur Rahman Chowdhury.jpg",
+    "photo": "src/assets/faculty/mrrc.jpg",
     "status": "Active",
     "emails": [
       "mrrchy999@gmail.com"
@@ -527,7 +523,7 @@
     "officialUsername": "Rezaur_cse",
     "name": "Mohammed Rezaur Rahman Chowdhury",
     "designation": "Lecturer & Academic Coordinator of B.Sc in CSE · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/Rezaur_cse_Mohammad Rezaur Rahman Chowdhury.jpg",
+    "photo": "src/assets/faculty/mrrc.jpg",
     "status": "Active",
     "emails": [
       "mrrchy999@gmail.com"
@@ -541,7 +537,7 @@
     "officialUsername": "mdhasan_cse",
     "name": "Md. Hasan",
     "designation": "Lecturer & Coordinator of Co-curricular activities · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/mdhasan_cse_223. 1042200223.jpg",
+    "photo": "src/assets/faculty/mhn.jpg",
     "status": "Active",
     "emails": [],
     "phone": "",
@@ -553,7 +549,7 @@
     "officialUsername": "mdhasan_cse",
     "name": "Md. Hasan",
     "designation": "Lecturer & Coordinator of Co-curricular activities · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/mdhasan_cse_223. 1042200223.jpg",
+    "photo": "src/assets/faculty/mhn.jpg",
     "status": "Active",
     "emails": [],
     "phone": "",
@@ -565,7 +561,7 @@
     "officialUsername": "noortaz_cse",
     "name": "Noortaz Rezoana",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/noortaz_cse_Noortaz Rezoana.jpg",
+    "photo": "src/assets/faculty/nr.jpg",
     "status": "Active",
     "emails": [
       "noortaz6@gmail.com"
@@ -579,7 +575,7 @@
     "officialUsername": "noortaz_cse",
     "name": "Noortaz Rezoana",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/noortaz_cse_Noortaz Rezoana.jpg",
+    "photo": "src/assets/faculty/nr.jpg",
     "status": "Active",
     "emails": [
       "noortaz6@gmail.com"
@@ -593,7 +589,7 @@
     "officialUsername": "mahmudul_hasan_cse",
     "name": "Mahmudul Hasan Emon",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/mahmudul_hasan_cse_mahmudul_hasan_cse.jpg",
+    "photo": "src/assets/faculty/mhe.jpg",
     "status": "Active",
     "emails": [
       "mahmudulhasan154422@gmail.com"
@@ -607,7 +603,7 @@
     "officialUsername": "mahmudul_hasan_cse",
     "name": "Mahmudul Hasan Emon",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/mahmudul_hasan_cse_mahmudul_hasan_cse.jpg",
+    "photo": "src/assets/faculty/mhe.jpg",
     "status": "Active",
     "emails": [
       "mahmudulhasan154422@gmail.com"
@@ -621,7 +617,7 @@
     "officialUsername": "tamim_hossain",
     "name": "MD Tamim Hossain",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/tamim_hossain_MD Tamim Hossain.png",
+    "photo": "src/assets/faculty/tmh.png",
     "status": "Active",
     "emails": [
       "tamim.hossain@puc.ac.bd",
@@ -636,7 +632,7 @@
     "officialUsername": "tamim_hossain",
     "name": "MD Tamim Hossain",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/tamim_hossain_MD Tamim Hossain.png",
+    "photo": "src/assets/faculty/tmh.png",
     "status": "Active",
     "emails": [
       "tamim.hossain@puc.ac.bd",
@@ -651,7 +647,7 @@
     "officialUsername": "jannattohfa",
     "name": "Jannat Tohfa Chowdhury",
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/jannattohfa_Jannat Tohfa Chowdhury.jpeg",
+    "photo": "src/assets/faculty/jtc.jpeg",
     "status": "Study Leave",
     "emails": [
       "jannattohfa@gmail.com"
@@ -665,7 +661,7 @@
     "officialUsername": "jannattohfa",
     "name": "Jannat Tohfa Chowdhury",
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/jannattohfa_Jannat Tohfa Chowdhury.jpeg",
+    "photo": "src/assets/faculty/jtc.jpeg",
     "status": "Study Leave",
     "emails": [
       "jannattohfa@gmail.com"
@@ -679,7 +675,7 @@
     "officialUsername": "asif_saad_cse",
     "name": "Asif Mohammed Saad",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/asif_saad_asif.jpg",
+    "photo": "src/assets/faculty/ams.jpg",
     "status": "Active",
     "emails": [
       "saad.cse@puc.ac.bd",
@@ -694,7 +690,7 @@
     "officialUsername": "asif_saad_cse",
     "name": "Asif Mohammed Saad",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/asif_saad_asif.jpg",
+    "photo": "src/assets/faculty/ams.jpg",
     "status": "Active",
     "emails": [
       "saad.cse@puc.ac.bd",
@@ -709,7 +705,7 @@
     "officialUsername": "nadim_cse",
     "name": "Nadim Bin Hossain",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/nadim_cse_nadim_cse.jpeg",
+    "photo": "src/assets/faculty/nbh.jpeg",
     "status": "Active",
     "emails": [
       "nadim.cse@puc.ac.bd"
@@ -723,7 +719,7 @@
     "officialUsername": "nadim_cse",
     "name": "Nadim Bin Hossain",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/nadim_cse_nadim_cse.jpeg",
+    "photo": "src/assets/faculty/nbh.jpeg",
     "status": "Active",
     "emails": [
       "nadim.cse@puc.ac.bd"
@@ -737,7 +733,7 @@
     "officialUsername": "tashin_hossain_cse",
     "name": "Ms. Tashin Hossain",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/tashin_hossain_tashin.jpg",
+    "photo": "src/assets/faculty/th.jpg",
     "status": "Active",
     "emails": [
       "tashin.hossain.cu@gmail.com"
@@ -751,7 +747,7 @@
     "officialUsername": "tashin_hossain_cse",
     "name": "Ms. Tashin Hossain",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/tashin_hossain_tashin.jpg",
+    "photo": "src/assets/faculty/th.jpg",
     "status": "Active",
     "emails": [
       "tashin.hossain.cu@gmail.com"
@@ -765,7 +761,7 @@
     "officialUsername": "estiaksazid",
     "name": "Estiak Ahamed Sazid",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/estiaksazid_Estiak Ahamed Sazid.png",
+    "photo": "src/assets/faculty/eas.png",
     "status": "Active",
     "emails": [
       "estiak.ahamed@puc.ac.bd",
@@ -780,7 +776,7 @@
     "officialUsername": "estiaksazid",
     "name": "Estiak Ahamed Sazid",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/estiaksazid_Estiak Ahamed Sazid.png",
+    "photo": "src/assets/faculty/eas.png",
     "status": "Active",
     "emails": [
       "estiak.ahamed@puc.ac.bd",
@@ -825,7 +821,7 @@
     "officialUsername": "roshni",
     "name": "Rowshon Akter",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/roshni_Rowshon Akter.jpg",
+    "photo": "src/assets/faculty/ra.jpg",
     "status": "Active",
     "emails": [
       "roshni.cse18@gmail.com"
@@ -839,7 +835,7 @@
     "officialUsername": "roshni",
     "name": "Rowshon Akter",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/roshni_Rowshon Akter.jpg",
+    "photo": "src/assets/faculty/ra.jpg",
     "status": "Active",
     "emails": [
       "roshni.cse18@gmail.com"
@@ -853,7 +849,7 @@
     "officialUsername": "fariha_cse",
     "name": "Chowdhury Fariha Kamrul",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/fariha_cse_Chowdhury_Fariha_Kamrul_PUC_CSE.jpeg",
+    "photo": "src/assets/faculty/cfk.jpeg",
     "status": "Active",
     "emails": [
       "far400305@gmail.com"
@@ -867,7 +863,7 @@
     "officialUsername": "fariha_cse",
     "name": "Chowdhury Fariha Kamrul",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/fariha_cse_Chowdhury_Fariha_Kamrul_PUC_CSE.jpeg",
+    "photo": "src/assets/faculty/cfk.jpeg",
     "status": "Active",
     "emails": [
       "far400305@gmail.com"
@@ -881,7 +877,7 @@
     "officialUsername": "raisulislam_cse",
     "name": "Md. Raisul Islam",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/raisulislam_cse_1042500278 Md. Raisul Islam.jpeg",
+    "photo": "src/assets/faculty/mri.jpeg",
     "status": "Active",
     "emails": [
       "mdraisulislam2040@mail.com"
@@ -895,7 +891,7 @@
     "officialUsername": "raisulislam_cse",
     "name": "Md. Raisul Islam",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/raisulislam_cse_1042500278 Md. Raisul Islam.jpeg",
+    "photo": "src/assets/faculty/mri.jpeg",
     "status": "Active",
     "emails": [
       "mdraisulislam2040@mail.com"
@@ -909,7 +905,7 @@
     "officialUsername": "fahim_csecu_gt",
     "name": "Mohammd Fahim Foisal",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/fahim_csecu_gt_1042500279 Mohammad Fahim Foisal.png",
+    "photo": "src/assets/faculty/mff.png",
     "status": "Active",
     "emails": [
       "fahim.csecu@gmail.com"
@@ -923,7 +919,7 @@
     "officialUsername": "fahim_csecu_gt",
     "name": "Mohammd Fahim Foisal",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/fahim_csecu_gt_1042500279 Mohammad Fahim Foisal.png",
+    "photo": "src/assets/faculty/mff.png",
     "status": "Active",
     "emails": [
       "fahim.csecu@gmail.com"
@@ -965,7 +961,7 @@
     "officialUsername": "tahiatmahabub_cse",
     "name": "Tahiat Mahabub Chowdhury",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/tahiatmahabub_cse_1042500281 Tahiat Mahabub Chowdhury.jpeg",
+    "photo": "src/assets/faculty/tmc.jpeg",
     "status": "Active",
     "emails": [
       "tahiatmahabub355@gmail.com"
@@ -979,7 +975,7 @@
     "officialUsername": "tahiatmahabub_cse",
     "name": "Tahiat Mahabub Chowdhury",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/tahiatmahabub_cse_1042500281 Tahiat Mahabub Chowdhury.jpeg",
+    "photo": "src/assets/faculty/tmc.jpeg",
     "status": "Active",
     "emails": [
       "tahiatmahabub355@gmail.com"
@@ -993,7 +989,7 @@
     "officialUsername": "yakinur_cse",
     "name": "Yakinur Rahman",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/yakinur_cse_1042500282 Yakinur Rahman.jpeg",
+    "photo": "src/assets/faculty/yr.jpeg",
     "status": "Active",
     "emails": [],
     "phone": "",
@@ -1005,7 +1001,7 @@
     "officialUsername": "yakinur_cse",
     "name": "Yakinur Rahman",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/yakinur_cse_1042500282 Yakinur Rahman.jpeg",
+    "photo": "src/assets/faculty/yr.jpeg",
     "status": "Active",
     "emails": [],
     "phone": "",
@@ -1069,7 +1065,7 @@
     "officialUsername": "wong_cse",
     "name": "Wong May Nu",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/wong_cse_1042600286 Wong May Nu.jpeg",
+    "photo": "src/assets/faculty/wmn.jpeg",
     "status": "Active",
     "emails": [
       "wong.ngyo@gmail.com"
@@ -1083,7 +1079,7 @@
     "officialUsername": "wong_cse",
     "name": "Wong May Nu",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/wong_cse_1042600286 Wong May Nu.jpeg",
+    "photo": "src/assets/faculty/wmn.jpeg",
     "status": "Active",
     "emails": [
       "wong.ngyo@gmail.com"
@@ -1097,7 +1093,7 @@
     "officialUsername": "afsar_cse",
     "name": "Afsar Uddin",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/afsar_cse_afsar_PUC_CSE.jpeg",
+    "photo": "src/assets/faculty/au.jpeg",
     "status": "Active",
     "emails": [
       "afsarmohammadi52@gmail.com"
@@ -1111,7 +1107,7 @@
     "officialUsername": "afsar_cse",
     "name": "Afsar Uddin",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/afsar_cse_afsar_PUC_CSE.jpeg",
+    "photo": "src/assets/faculty/au.jpeg",
     "status": "Active",
     "emails": [
       "afsarmohammadi52@gmail.com"

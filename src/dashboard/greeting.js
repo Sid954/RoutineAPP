@@ -3,16 +3,18 @@ import { getClassesForDay } from '../schedule/queries.js';
 
 export function updateGreeting() {
   const hour = new Date().getHours();
-  let greeting;
-  if (hour >= 5 && hour < 12) greeting = 'Good morning ☀️';
-  else if (hour >= 12 && hour < 17) greeting = 'Good afternoon 🌤️';
-  else if (hour >= 17 && hour < 21) greeting = 'Good evening 🌅';
-  else greeting = 'Good night 🌙';
+  let salutation = 'Good afternoon';
+  if (hour >= 5 && hour < 12) salutation = 'Good morning';
+  else if (hour >= 12 && hour < 17) salutation = 'Good afternoon';
+  else if (hour >= 17 && hour < 21) salutation = 'Good evening';
+  else salutation = 'Good night';
 
   const todayClasses = getClassesForDay(new Date().getDay());
   const count = todayClasses.length;
-  const sub = count > 0 ? `You have ${count} class${count !== 1 ? 'es' : ''} today` : 'No classes today — enjoy!';
+  const sub = count > 0 ? `${count} session${count !== 1 ? 's' : ''} scheduled` : 'No classes today — enjoy!';
 
-  if (DOM.greetText) DOM.greetText.textContent = greeting;
+  const salutationEl = document.getElementById('greetSalutation');
+  if (salutationEl) salutationEl.textContent = salutation;
+  if (DOM.greetText) DOM.greetText.textContent = 'Sid';
   if (DOM.greetSub) DOM.greetSub.textContent = sub;
 }

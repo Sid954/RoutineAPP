@@ -1,30 +1,23 @@
 import { Storage } from '../storage/storage.js';
 
 export const THEME_COLORS = {
-  pitch_black: { name: 'AMOLED Black',   desc: 'Pure OLED · 100% Black',   bg: '#000000', card: '#111114', accent: '#38bdf8', icon: '🖤' },
-  dark:        { name: 'Midnight Navy',  desc: 'Cosmic Blue & Sky Glow',   bg: '#06080d', card: '#141824', accent: '#38bdf8', icon: '🌌' },
-  cyberpunk:   { name: 'Cyberpunk Neon', desc: 'Electric Violet & Pink',   bg: '#080312', card: '#180c33', accent: '#c084fc', icon: '⚡' },
-  matcha:      { name: 'Emerald Forest', desc: 'Deep Forest & Mint',       bg: '#020c07', card: '#0a2719', accent: '#34d399', icon: '🌲' },
-  sunset:      { name: 'Solar Sunset',   desc: 'Ruby Rose & Amber Gold',   bg: '#0f0307', card: '#261223', accent: '#fb923c', icon: '🌅' },
-  oceanic:     { name: 'Oceanic Abyss',  desc: 'Abyss Navy & Cyan Glow',   bg: '#020914', card: '#0a213f', accent: '#22d3ee', icon: '🌊' },
-  nordic:      { name: 'Nordic Slate',   desc: 'Minimal Steel & Ice Blue', bg: '#0b0f17', card: '#1c2536', accent: '#93c5fd', icon: '❄️' },
-  light:       { name: 'Pearl Light',    desc: 'Clean High-Key Day Mode',  bg: '#e2e8f0', card: '#ffffff', accent: '#0284c7', icon: '☀️' },
+  dark:  { name: 'Dark Mode',  desc: 'Refined Charcoal & Luminescent Sky', bg: '#18191E', card: '#23252C', accent: '#38BDF8', icon: '🌙' },
+  light: { name: 'Light Mode', desc: 'Alabaster Ivory & Cobalt Ultramarine', bg: '#F4F6F9', card: '#FFFFFF', accent: '#2563EB', icon: '☀️' },
 };
 
 export const THEME_STYLES = {
-  glassmorphism: { name: 'Glassmorphic', icon: '✨' },
-  neumorphic:    { name: 'Neumorphic 3D', icon: '📐' },
-  cyberpunk:     { name: 'Cyberpunk HUD', icon: '⚡' },
-  bento:         { name: 'Bento Grid', icon: '🌿' },
+  solid: { name: 'Solid Surface', icon: '💎' },
 };
 
 export function applyTheme(style, color) {
-  const activeStyle = style || Storage.getThemeStyle();
-  const activeColor = color || Storage.getThemeColor();
+  let activeColor = color || Storage.getThemeColor();
+  if (activeColor !== 'light') activeColor = 'dark';
+  const activeStyle = 'solid';
 
   const root = document.documentElement;
   root.setAttribute('data-style', activeStyle);
   root.setAttribute('data-color', activeColor);
+  root.setAttribute('data-theme', activeColor);
 
   // Update canvas visibility
   const ptc = document.getElementById('ptc');

@@ -1,0 +1,444 @@
+/* ==========================================================================
+   Class Detail Bottom Sheet (100% Solid Card Surface — Zero Glassmorphism)
+   ========================================================================== */
+
+.class-sheet-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.24s ease;
+}
+
+.class-sheet-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.class-detail-bottom-sheet {
+  width: 100%;
+  max-width: 480px;
+  background-color: var(--card-bg);
+  border-top: 1px solid var(--card-border);
+  border-radius: 28px 28px 0 0;
+  padding: 16px 18px max(24px, env(safe-area-inset-bottom, 24px));
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.45);
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow-y: auto;
+  color: var(--text-main);
+  box-sizing: border-box;
+  position: inherit;
+  bottom: 0;
+}
+
+.class-sheet-modal-overlay.open .class-detail-bottom-sheet {
+  transform: translateY(0);
+}
+
+@keyframes sheetSpringSlideUp {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheetSlideDown {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes sheetBackdropFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes sheetBackdropFadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.sheet-drag-handle-bar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.sheet-drag-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--r-full);
+  background: var(--card-border);
+}
+
+.class-sheet-top-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.class-sheet-left-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.class-sheet-icon-squircle {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-tile);
+  background-color: var(--canvas);
+  border: 1px solid var(--card-border);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.class-sheet-icon-squircle svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.2;
+}
+
+.class-sheet-code-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.class-sheet-code-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.class-sheet-hero-code {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+.class-sheet-hero-title {
+  font-family: var(--font-ui);
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  line-height: 1.35;
+  margin-top: 2px;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.class-sheet-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background-color: var(--canvas);
+  border: 1px solid var(--card-border);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: all var(--duration-fast) ease;
+  flex-shrink: 0;
+}
+
+.class-sheet-close-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.class-sheet-close-btn:active {
+  transform: scale(0.92);
+}
+
+/* Core Parameters Grid */
+.class-sheet-params-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.class-param-tile {
+  background-color: var(--canvas);
+  border: 1px solid var(--card-border);
+  border-radius: var(--r-tile);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.class-param-tile.full-width {
+  grid-column: span 2;
+}
+
+.class-param-tile.interactive-faculty-tile {
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease, transform var(--duration-fast) var(--ease-spring);
+}
+
+.class-param-tile.interactive-faculty-tile:hover {
+  border-color: var(--accent);
+}
+
+.class-param-tile.interactive-faculty-tile:active {
+  transform: scale(0.98);
+}
+
+.faculty-avatar-mini {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background-color: var(--card-bg, #23252c);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.08));
+  color: var(--accent, #38bdf8);
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.faculty-avatar-mini .faculty-avatar-initials {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono, monospace);
+  font-weight: 900;
+  color: var(--accent, #38bdf8);
+  z-index: 1;
+  user-select: none;
+}
+
+.faculty-avatar-mini img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  z-index: 2;
+  transition: opacity 0.22s ease-out;
+}
+
+.faculty-avatar-mini img.loaded {
+  opacity: 1;
+}
+
+html[data-theme="light"] .faculty-avatar-mini,
+:root[data-color="light"] .faculty-avatar-mini {
+  background-color: #f1f5f9;
+  border-color: #e2e8f0;
+  color: var(--accent, #0284c7);
+}
+
+.view-profile-hint {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 0.3px;
+}
+
+.class-param-header {
+  display: flex;
+  align-items: center;
+  gap: 5.5px;
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+}
+
+.class-param-header svg {
+  width: 12px;
+  height: 12px;
+  color: var(--accent);
+  stroke-width: 2.2;
+}
+
+.class-param-main-val {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.class-param-main-val.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.class-param-subtext {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* Weekly Recurrence Track */
+.class-recurrence-card {
+  margin-bottom: 12px;
+}
+
+.recurrence-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.recurrence-card-title {
+  display: flex;
+  align-items: center;
+  gap: 5.5px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+}
+
+.recurrence-card-title svg {
+  width: 12px;
+  height: 12px;
+  color: var(--accent);
+  stroke-width: 2.2;
+}
+
+.recurrence-sessions-badge {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 800;
+  color: var(--accent);
+  background-color: var(--canvas);
+  border: 1px solid var(--card-border);
+  padding: 2.5px 7.5px;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+}
+
+.recurrence-card-rows-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.recurrence-card-row {
+  background-color: var(--canvas);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all var(--duration-fast) ease;
+}
+
+.recurrence-card-row.is-active-session {
+  border-color: var(--accent);
+}
+
+.recurrence-row-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recurrence-day-chip {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  padding: 3px 6px;
+  border-radius: 6px;
+  color: var(--text-main);
+  text-transform: uppercase;
+}
+
+.recurrence-row-time {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.recurrence-row-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.recurrence-room-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.recurrence-active-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--accent);
+  background-color: var(--accent-subtle);
+  border: 1px solid var(--accent-border);
+  padding: 2px 6px;
+  border-radius: 5px;
+}

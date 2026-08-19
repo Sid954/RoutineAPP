@@ -33,13 +33,13 @@ export const Storage = {
   },
 
   getThemeStyle() {
-    try { return localStorage.getItem(this.THEME_STYLE_KEY) || 'glassmorphism'; } catch { return 'glassmorphism'; }
+    try { return localStorage.getItem(this.THEME_STYLE_KEY) || 'solid'; } catch { return 'solid'; }
   },
   saveThemeStyle(style) {
     try { localStorage.setItem(this.THEME_STYLE_KEY, style); } catch {}
   },
   getThemeColor() {
-    try { return localStorage.getItem(this.THEME_COLOR_KEY) || 'pitch_black'; } catch { return 'pitch_black'; }
+    try { return localStorage.getItem(this.THEME_COLOR_KEY) || 'dark'; } catch { return 'dark'; }
   },
   saveThemeColor(color) {
     try { localStorage.setItem(this.THEME_COLOR_KEY, color); } catch {}

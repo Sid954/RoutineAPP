@@ -25,6 +25,7 @@ export function normalizeSchedule(rawSchedule) {
         title: item.subject,
         room: item.room,
         instructor: item.instructor || '',
+        teacher: item.instructor || '',
         type: item.type || 'Theory'
       };
     });

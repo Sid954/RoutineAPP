@@ -6,6 +6,7 @@ export const State = {
   selectedDay: new Date().getDay(),
   currentViewDayIdx: new Date().getDay(),
   matrixSelectedDayIdx: new Date().getDay(),
+  viewDate: new Date(),
   isModalOpen: false,
   lastRenderedMinute: -1,
   clockIntervalId: null,

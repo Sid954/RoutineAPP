@@ -3,12 +3,6 @@ export function initAndroidPrompt() {
   const ua = navigator.userAgent || '';
   const isAndroidWeb = /Android/i.test(ua) && !isCapacitorNative;
 
-  // 1. Show Download App button in header for ALL browser views (Desktop & Mobile Web)
-  const pcBtn = document.getElementById('pcDownloadApkBtn');
-  if (pcBtn && !isCapacitorNative) {
-    pcBtn.style.display = 'inline-flex';
-  }
-
   // 2. Show Android App Promo Modal on EVERY Android Mobile Browser Visit
   if (isAndroidWeb) {
     setTimeout(() => {

@@ -1,0 +1,3789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direction B: Verified Faculty Data, Clean Integrated Cards & Short Day Format</title>
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       DESIGN SYSTEM ROOT TOKENS & RESET
+       ========================================================================== */
+    :root {
+      --font-ui: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+      --duration-fast: 0.16s;
+      --duration-normal: 0.25s;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #0c0d10;
+      color: #e2e8f0;
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 60px;
+      overflow-x: hidden;
+    }
+
+    /* Top Showcase Header */
+    .showcase-header {
+      text-align: center;
+      max-width: 920px;
+      margin-bottom: 20px;
+    }
+
+    .showcase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 5px 14px;
+      border-radius: 99px;
+      margin-bottom: 10px;
+    }
+
+    .showcase-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #f8fafc;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .showcase-subtitle {
+      font-size: 13.5px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    /* Direction Comparison Tray */
+    .comparison-tray {
+      width: 100%;
+      max-width: 900px;
+      background: #18191E;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 16px 18px;
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .tray-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tray-heading {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #94a3b8;
+    }
+
+    .tray-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 768px) {
+      .tray-grid { grid-template-columns: 1fr; }
+    }
+
+    .tray-card {
+      background: #23252C;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .tray-card.is-chosen {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.05);
+    }
+
+    .tray-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: #cbd5e1;
+    }
+
+    .chosen-badge {
+      background: #38bdf8;
+      color: #07090E;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .view-toggle-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .view-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: 11.5px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all var(--duration-fast) ease;
+    }
+    .view-btn.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Showcase Stage Container */
+    .devices-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      width: 100%;
+      max-width: 960px;
+      margin-top: 20px;
+    }
+
+    .device-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .device-label {
+      font-size: 12.5px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .device-label.light { color: #93c5fd; }
+    .device-label.dark { color: #cbd5e1; }
+
+    /* Smartphone Frame */
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      border-radius: 46px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 0 10px #1e293b, 0 0 0 12px #334155;
+      display: flex;
+      flex-direction: column;
+      background: #000;
+    }
+
+    .phone-notch {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 26px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 1200;
+      pointer-events: none;
+    }
+
+    .app-screen {
+      flex: 1;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .app-screen::-webkit-scrollbar { display: none; }
+
+    /* ==========================================================================
+       THEME: LIGHT PALETTE (Alabaster Ivory & Cobalt Ultramarine)
+       ========================================================================== */
+    .theme-light {
+      --canvas: #F4F6F9;
+      --card-bg: #FFFFFF;
+      --card-border: rgba(15, 23, 42, 0.09);
+      --text-main: #0B1220;
+      --text-muted: #64748B;
+      --text-sub: #475569;
+      --accent: #2563EB;
+      --accent-soft: rgba(37, 99, 235, 0.08);
+
+      --btn-bg: #EFF6FF;
+      --btn-border: #DBEAFE;
+      --btn-color: #2563EB;
+      --streak-bg: #FEFCE8;
+      --streak-border: #FEF9C3;
+      --streak-color: #CA8A04;
+
+      --live-card-bg: #FFFFFF;
+      --live-card-border: #2563EB;
+      --live-card-shadow: 0 4px 16px rgba(11, 18, 32, 0.08);
+      --live-ring-track: #E2E8F0;
+      --live-ring-fill: #2563EB;
+
+      --resting-card-bg: #FFFFFF;
+      --resting-card-border: rgba(15, 23, 42, 0.08);
+      --resting-card-shadow: 0 2px 6px rgba(11, 18, 32, 0.04);
+      --chip-bg: #F4F6F9;
+
+      --break-strip-bg: #FFFBEB;
+      --break-strip-border: #FDE68A;
+      --break-strip-text: #92400E;
+
+      --tag-theory-bg: #EFF6FF;
+      --tag-theory-text: #1D4ED8;
+      --tag-lab-bg: #FAF5FF;
+      --tag-lab-text: #7E22CE;
+
+      --dock-solid-bg: #FFFFFF;
+      --dock-solid-border: #E2E8F0;
+      --dock-solid-shadow: 0 -4px 20px rgba(15, 23, 42, 0.08);
+      --dock-tab-inactive: #64748B;
+      --dock-hero-bg: #2563EB;
+      --dock-hero-icon: #FFFFFF;
+
+      --modal-bg: #FFFFFF;
+      --modal-border: #E2E8F0;
+      --modal-backdrop: rgba(15, 23, 42, 0.6);
+
+      background-color: var(--canvas);
+      color: var(--text-main);
+    }
+
+    /* ==========================================================================
+       THEME: DARK PALETTE (Refined Charcoal & Layered Graphite)
+       ========================================================================== */
+    .theme-dark {
+      --canvas: #18191E;
+      --card-bg: #23252C;
+      --card-border: rgba(255, 255, 255, 0.07);
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-sub: #71717A;
+      --accent: #38BDF8;
+      --accent-soft: rgba(56, 189, 248, 0.12);
+
+      --btn-bg: #23252C;
+      --btn-border: rgba(255, 255, 255, 0.08);
+      --btn-color: #94A3B8;
+      --streak-bg: rgba(250, 204, 21, 0.10);
+      --streak-border: rgba(250, 204, 21, 0.25);
+      --streak-color: #FACC15;
+
+      --live-card-bg: #23252C;
+      --live-card-border: #38BDF8;
+      --live-card-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+      --live-ring-track: #32353E;
+      --live-ring-fill: #38BDF8;
+
+      --resting-card-bg: #23252C;
+      --resting-card-border: rgba(255, 255, 255, 0.07);
+      --resting-card-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+      --chip-bg: #18191E;
+
+      --break-strip-bg: rgba(250, 204, 21, 0.06);
+      --break-strip-border: rgba(250, 204, 21, 0.20);
+      --break-strip-text: #FEF08A;
+
+      --tag-theory-bg: rgba(56, 189, 248, 0.12);
+      --tag-theory-text: #7DD3FC;
+      --tag-lab-bg: rgba(192, 132, 252, 0.12);
+      --tag-lab-text: #D8B4FE;
+
+      --dock-solid-bg: #23252C;
+      --dock-solid-border: rgba(255, 255, 255, 0.08);
+      --dock-solid-shadow: 0 -4px 28px rgba(0, 0, 0, 0.6);
+      --dock-tab-inactive: #71717A;
+      --dock-hero-bg: #38BDF8;
+      --dock-hero-icon: #07090E;
+
+      --modal-bg: #23252C;
+      --modal-border: rgba(255, 255, 255, 0.12);
+      --modal-backdrop: rgba(0, 0, 0, 0.75);
+
+      background-color: var(--canvas);
+      color: var(--text-main);
+    }
+
+    /* App Viewport */
+    .app-viewport {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      padding: 44px 16px 125px;
+    }
+
+    /* 1. Top Bar - 2-Line Left Cluster (Clock on Line 1, Date Badge on Line 2) */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 48px;
+      min-height: 48px;
+      max-height: 48px;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+      box-sizing: border-box;
+    }
+
+    .top-date-time-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+    }
+
+    .digital-clock {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      color: var(--text-main);
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .clock-time {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      letter-spacing: -0.8px;
+    }
+
+    .clock-period {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    /* Sleek, Integrated Interactive Date Trigger */
+    .date-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 11.5px;
+      padding: 3px 9px 3px 7px;
+      border-radius: 8px;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      transition: all var(--duration-fast) ease;
+      line-height: 1.2;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+    .date-badge-pill:hover {
+      color: var(--text-main);
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .date-badge-pill:active {
+      transform: scale(0.96);
+    }
+    .date-badge-pill svg.cal-icon {
+      width: 12px;
+      height: 12px;
+      stroke-width: 2.2;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .date-badge-pill svg.cal-chevron {
+      width: 10px;
+      height: 10px;
+      stroke-width: 2.5;
+      color: var(--text-muted);
+      opacity: 0.6;
+      margin-left: 1px;
+      flex-shrink: 0;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: transform var(--duration-fast) var(--ease-spring);
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--btn-color);
+    }
+    .icon-btn:active {
+      transform: scale(0.92);
+    }
+    .icon-btn svg {
+      width: 17px;
+      height: 17px;
+      stroke-width: 2.2;
+    }
+
+    /* 2. Warm Headline Greeting (Line 1: Salutation with Sun SVG, Line 2: Sid) */
+    .greeting-headline-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      height: 64px;
+      min-height: 64px;
+      max-height: 64px;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+      box-sizing: border-box;
+    }
+
+    .greeting-text-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .greeting-salutation-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.2px;
+      line-height: 1.2;
+    }
+
+    .salutation-icon {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2.2;
+      color: #f59e0b; /* Warm afternoon sun amber */
+      flex-shrink: 0;
+    }
+
+    .greeting-user-name {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--text-main);
+      letter-spacing: -0.6px;
+      line-height: 1.15;
+    }
+
+    .greeting-caption {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      margin-top: 1px;
+    }
+
+    /* ==========================================================================
+       3. DIRECTION B: FOCAL DAY ANCHOR STRIP - UI/UX Pro Max Dynamic Proportions
+       ========================================================================== */
+    .strip-direction-container {
+      margin-bottom: 16px;
+      height: 50px;
+      min-height: 50px;
+      max-height: 50px;
+      flex-shrink: 0;
+      box-sizing: border-box;
+    }
+
+    .strip-dir-b-row {
+      display: flex;
+      align-items: stretch;
+      gap: 4px;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    /* The Selected Day: In-place Focal Anchor Card */
+    .focal-day-card {
+      flex: 3.5;
+      min-width: 122px;
+      height: 100%;
+      background: var(--accent);
+      color: #ffffff;
+      border-radius: 13px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      transition: transform var(--duration-fast) var(--ease-spring);
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .focal-day-card:active {
+      transform: scale(0.96);
+    }
+    .theme-dark .focal-day-card {
+      color: #07090E;
+    }
+
+    .focal-num-large {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .focal-meta {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.5px;
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .focal-day-label {
+      font-size: 11.5px;
+      font-weight: 900;
+      letter-spacing: 0.6px;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .focal-day-sub {
+      font-family: var(--font-ui);
+      font-size: 8.5px;
+      font-weight: 800;
+      opacity: 0.95;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    /* Satellite Day Pills */
+    .satellite-pill {
+      flex: 1;
+      min-width: 28px;
+      height: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 11px;
+      padding: 0 1px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      cursor: pointer;
+      position: relative;
+      transition: all var(--duration-fast) ease;
+      box-sizing: border-box;
+    }
+    .satellite-pill:hover {
+      border-color: var(--accent);
+    }
+
+    .satellite-name {
+      font-size: 8.5px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .satellite-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Subtle Indicator for Real-World TODAY when viewing a different day (Clean, quiet dot only) */
+    .satellite-pill.is-real-today {
+      border-color: var(--card-border);
+    }
+    .satellite-pill.is-real-today .satellite-name {
+      color: var(--text-muted);
+      font-weight: 800;
+    }
+    .satellite-pill.is-real-today .satellite-num {
+      color: var(--text-main);
+      font-weight: 800;
+    }
+
+    .today-subtle-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 1px;
+    }
+
+    .satellite-pill.off-day {
+      opacity: 0.35;
+    }
+
+    /* ==========================================================================
+       4. SPACIOUS INTEGRATED TIMELINE CARDS - Variable Content Absorbed Here
+       ========================================================================== */
+    .timeline-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .timeline-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 28px;
+      min-height: 28px;
+      max-height: 28px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+      box-sizing: border-box;
+    }
+
+    .timeline-count-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .timeline-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* COMPONENT 1: THE LIVE CLASS HERO CARD */
+    .live-hero-card {
+      background: var(--live-card-bg);
+      border: 1.5px solid var(--live-card-border);
+      border-radius: 20px;
+      padding: 16px 18px;
+      box-shadow: var(--live-card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--duration-fast) var(--ease-spring);
+    }
+    .live-hero-card:active {
+      transform: scale(0.98);
+    }
+
+    .live-hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .live-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      color: #ffffff;
+      padding: 3.5px 10px 3.5px 8px;
+      border-radius: 99px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+    .theme-dark .live-status-badge {
+      color: #07090E;
+    }
+
+    .live-radar-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ffffff;
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+    .theme-dark .live-radar-dot {
+      background: #07090E;
+    }
+
+    @keyframes pulseDot {
+      0% { transform: scale(0.9); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.5; }
+      100% { transform: scale(0.9); opacity: 1; }
+    }
+
+    .live-time-span {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .live-hero-body {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .live-hero-main {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .live-hero-code-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .live-hero-code {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: var(--text-main);
+    }
+
+    .live-hero-tag {
+      font-size: 9.5px;
+      font-weight: 800;
+      background: var(--tag-lab-bg);
+      color: var(--tag-lab-text);
+      padding: 2.5px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Clean 2-Line Stacked Metadata (Always Room on Line 1, Instructor on Line 2) */
+    .card-meta-stacked {
+      display: flex;
+      flex-direction: column;
+      gap: 3.5px;
+      margin-top: 3px;
+    }
+
+    .meta-line-item {
+      display: flex;
+      align-items: center;
+      gap: 5.5px;
+      line-height: 1.2;
+    }
+
+    .meta-line-item.room {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .meta-line-item.instructor {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .meta-line-item svg {
+      width: 12px;
+      height: 12px;
+      stroke-width: 2.2;
+      flex-shrink: 0;
+      color: var(--accent);
+    }
+
+    /* Distinct Radial Time Gauge */
+    .live-radial-gauge {
+      width: 54px;
+      height: 54px;
+      min-width: 54px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .live-radial-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .live-radial-bg {
+      fill: none;
+      stroke: var(--live-ring-track);
+      stroke-width: 4.5;
+    }
+
+    .live-radial-progress {
+      fill: none;
+      stroke: var(--live-ring-fill);
+      stroke-width: 4.5;
+      stroke-linecap: round;
+      stroke-dasharray: 126;
+      stroke-dashoffset: 63;
+    }
+
+    .live-radial-text {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .live-radial-num {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .live-radial-label {
+      font-size: 8px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* COMPONENT 2: UNIFIED RESTING CARD WITH DOTTED TIME CONNECTOR */
+    .resting-class-row {
+      background: var(--resting-card-bg);
+      border: 1px solid var(--resting-card-border);
+      border-radius: 18px;
+      padding: 13px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      cursor: pointer;
+      box-shadow: var(--resting-card-shadow);
+      transition: transform var(--duration-fast) var(--ease-spring), border-color var(--duration-fast) ease;
+    }
+    .resting-class-row:active {
+      transform: scale(0.98);
+      border-color: var(--accent);
+    }
+
+    .resting-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    /* Visual Time Connector Column with Dotted Track */
+    .resting-time-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      min-width: 80px;
+      position: relative;
+      padding-left: 12px;
+      min-height: 52px;
+      align-self: stretch;
+      flex-shrink: 0;
+    }
+
+    .time-connector-track {
+      position: absolute;
+      left: 1px;
+      top: 5px;
+      bottom: 5px;
+      width: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .time-node-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .time-node-dot.start {
+      background: var(--accent);
+    }
+
+    .time-connector-line {
+      flex: 1;
+      width: 0px;
+      border-left: 1.5px dashed rgba(125, 125, 125, 0.45);
+      margin: 3px 0;
+    }
+
+    .resting-time-start {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1;
+    }
+
+    .resting-time-end {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-sub);
+      line-height: 1;
+    }
+
+    /* Unified Course Title and Clean Metadata Block */
+    .resting-info-col {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .resting-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .resting-code {
+      font-family: var(--font-mono);
+      font-size: 15.5px;
+      font-weight: 900;
+      color: var(--text-main);
+      letter-spacing: -0.2px;
+    }
+
+    .resting-tag {
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-family: var(--font-mono);
+    }
+
+    .resting-tag.theory {
+      background: var(--tag-theory-bg);
+      color: var(--tag-theory-text);
+    }
+    .resting-tag.lab {
+      background: var(--tag-lab-bg);
+      color: var(--tag-lab-text);
+    }
+
+    .resting-right-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    /* Class Duration Chip */
+    .duration-chip {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: var(--chip-bg);
+      padding: 3px 7px;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      white-space: nowrap;
+    }
+
+    .resting-class-row.is-finished {
+      opacity: 0.55;
+    }
+    .resting-class-row.is-finished .resting-time-start {
+      color: var(--text-muted);
+    }
+
+    .finished-check-badge {
+      font-size: 9.5px;
+      font-weight: 800;
+      color: #10b981;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-family: var(--font-mono);
+      background: rgba(16, 185, 129, 0.12);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    /* COMPONENT 3: BREAK TIME DIVIDER */
+    .break-transition-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 16px;
+      border-radius: 14px;
+      background: var(--break-strip-bg);
+      border: 1px dashed var(--break-strip-border);
+      color: var(--break-strip-text);
+      margin: 1px 0;
+    }
+
+    .break-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+    .break-left svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .break-time-badge {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 700;
+      opacity: 0.9;
+    }
+
+    /* Peaceful Off-Day Empty State Card */
+    .off-day-card {
+      background: var(--card-bg);
+      border: 1.5px dashed var(--card-border);
+      border-radius: 22px;
+      padding: 36px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .off-day-icon {
+      font-size: 32px;
+      margin-bottom: 2px;
+    }
+
+    .off-day-title {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--text-main);
+    }
+
+    .off-day-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      max-width: 240px;
+      line-height: 1.4;
+    }
+
+    /* ==========================================================================
+       5. SOLID EDGE-TO-EDGE FIXED DOCK WITH RAISED CENTER HERO (5 BUTTONS)
+       ========================================================================== */
+    .solid-fixed-dock-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 1000;
+      background: var(--dock-solid-bg);
+      border-top: 1px solid var(--dock-solid-border);
+      box-shadow: var(--dock-solid-shadow);
+      padding: 8px 12px max(14px, env(safe-area-inset-bottom, 14px));
+    }
+
+    .dock-inner-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      width: 100%;
+      height: 48px;
+    }
+
+    .dock-tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      background: transparent;
+      border: none;
+      color: var(--dock-tab-inactive);
+      cursor: pointer;
+      padding: 2px 0;
+      border-radius: 10px;
+      transition: opacity var(--duration-fast) ease;
+      position: relative;
+    }
+    .dock-tab:active {
+      opacity: 0.75;
+    }
+
+    .dock-icon-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dock-tab svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2.2;
+      transition: stroke var(--duration-fast) ease;
+    }
+
+    .dock-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .dock-tab.active {
+      color: var(--accent);
+    }
+    .dock-tab.active svg {
+      stroke: var(--accent);
+    }
+    .dock-tab.active .dock-label {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .dock-unread-dot {
+      position: absolute;
+      top: -2px;
+      right: -3px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #f43f5e;
+    }
+
+    /* CENTER FLOATING RAISED HERO BUTTON (Raised 50% above dock bar) */
+    .dock-center-slot {
+      flex: 1.1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      min-width: 60px;
+    }
+
+    .dock-hero-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--dock-hero-bg);
+      color: var(--dock-hero-icon);
+      border: 4.5px solid var(--canvas);
+      box-shadow: 0 8px 24px -2px rgba(37, 99, 235, 0.42), 0 4px 10px -2px rgba(11, 18, 32, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: absolute;
+      top: -26px; /* Sits 50% raised above the dock edge */
+      transition: transform var(--duration-fast) var(--ease-spring), box-shadow var(--duration-fast) ease;
+      z-index: 1010;
+    }
+    .dock-hero-btn:active {
+      transform: scale(0.92);
+    }
+    .theme-dark .dock-hero-btn {
+      box-shadow: 0 8px 28px -2px rgba(56, 189, 248, 0.48), 0 4px 14px rgba(0, 0, 0, 0.7);
+    }
+    .dock-hero-btn svg {
+      width: 24px;
+      height: 24px;
+      stroke-width: 2.3;
+    }
+
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(11, 18, 32, 0.72);
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.24s ease;
+    }
+    .modal-overlay.theme-dark {
+      background: rgba(0, 0, 0, 0.85);
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .bottom-sheet {
+      width: 100%;
+      background: var(--card-bg);
+      border-top: 1px solid var(--card-border);
+      border-radius: 28px 28px 0 0;
+      padding: 16px 18px 30px;
+      box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.4);
+      transform: translateY(100%);
+      transition: transform 0.3s var(--ease-spring);
+      max-height: 88%;
+      overflow-y: auto;
+      color: var(--text-main);
+      box-sizing: border-box;
+    }
+    .modal-overlay.open .bottom-sheet {
+      transform: translateY(0);
+    }
+
+    .sheet-handle-bar,
+    .class-sheet-handle {
+      width: 38px;
+      height: 4.5px;
+      background: #CBD5E1;
+      border-radius: 99px;
+      margin: 0 auto 14px;
+    }
+    .theme-dark .sheet-handle-bar,
+    .theme-dark .class-sheet-handle {
+      background: #475569;
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .sheet-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .close-sheet-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(125, 125, 125, 0.12);
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    /* Month Navigator Header */
+    .calendar-month-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding: 0 4px;
+    }
+
+    .month-nav-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: 800;
+      transition: all var(--duration-fast) ease;
+    }
+    .month-nav-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .calendar-month-title {
+      font-family: var(--font-ui);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    /* Calendar Grid */
+    .calendar-weekdays-row {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .calendar-weekday-cell {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+    .calendar-weekday-cell.off-col {
+      color: #f43f5e;
+      opacity: 0.8;
+    }
+
+    .calendar-days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .calendar-day-cell {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      position: relative;
+      transition: all var(--duration-fast) ease;
+      background: var(--card-bg);
+    }
+    .calendar-day-cell:hover {
+      border-color: var(--accent);
+    }
+    .calendar-day-cell.other-month {
+      opacity: 0.25;
+      pointer-events: none;
+    }
+    .calendar-day-cell.is-selected {
+      background: var(--accent);
+      color: #ffffff;
+      font-weight: 900;
+    }
+    .theme-dark .calendar-day-cell.is-selected {
+      color: #07090E;
+    }
+    .calendar-day-cell.is-today {
+      border-color: var(--accent);
+    }
+    .calendar-day-cell.is-offday {
+      opacity: 0.45;
+    }
+
+    .calendar-quick-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .quick-jump-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all var(--duration-fast) ease;
+    }
+    .quick-jump-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ==========================================================================
+       7. CLASS DETAIL BOTTOM SHEET (100% Solid Card Surface — Zero Glassmorphism)
+       ========================================================================== */
+    .class-detail-bottom-sheet {
+      width: 100%;
+      background-color: var(--card-bg);
+      border-top: 1px solid var(--card-border);
+      border-radius: 28px 28px 0 0;
+      padding: 16px 18px max(24px, env(safe-area-inset-bottom, 24px));
+      box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.45);
+      transform: translateY(100%);
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 90%;
+      overflow-y: auto;
+      color: var(--text-main);
+      box-sizing: border-box;
+    }
+    .modal-overlay.open .class-detail-bottom-sheet {
+      transform: translateY(0);
+    }
+
+    .class-sheet-top-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .class-sheet-left-hero {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .class-sheet-icon-squircle {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background-color: var(--canvas);
+      border: 1px solid var(--card-border);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .class-sheet-icon-squircle svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2.2;
+    }
+
+    .class-sheet-code-title-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .class-sheet-code-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .class-sheet-hero-code {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: var(--text-main);
+      line-height: 1;
+    }
+
+    .class-sheet-hero-title {
+      font-family: var(--font-ui);
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      line-height: 1.35;
+      margin-top: 2px;
+      white-space: normal;
+      word-wrap: break-word;
+    }
+
+    .class-sheet-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background-color: var(--canvas);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      transition: all var(--duration-fast) ease;
+      flex-shrink: 0;
+    }
+    .class-sheet-close-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .class-sheet-close-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Core Parameters Grid */
+    .class-sheet-params-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .class-param-tile {
+      background-color: var(--canvas);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .class-param-tile.full-width {
+      grid-column: span 2;
+    }
+
+    .class-param-header {
+      display: flex;
+      align-items: center;
+      gap: 5.5px;
+      font-size: 9.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+    }
+    .class-param-header svg {
+      width: 12px;
+      height: 12px;
+      color: var(--accent);
+      stroke-width: 2.2;
+    }
+
+    .class-param-main-val {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .class-param-main-val.mono {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .class-param-subtext {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Weekly Recurrence Track */
+    .class-recurrence-card {
+      margin-bottom: 16px;
+    }
+
+    .recurrence-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .recurrence-card-title {
+      display: flex;
+      align-items: center;
+      gap: 5.5px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+    }
+    .recurrence-card-title svg {
+      width: 12px;
+      height: 12px;
+      color: var(--accent);
+      stroke-width: 2.2;
+    }
+
+    .recurrence-sessions-badge {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 800;
+      color: var(--accent);
+      background-color: var(--canvas);
+      border: 1px solid var(--card-border);
+      padding: 2.5px 7.5px;
+      border-radius: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    .recurrence-card-rows-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .recurrence-card-row {
+      background-color: var(--canvas);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all var(--duration-fast) ease;
+    }
+    .recurrence-card-row.is-active-session {
+      border-color: var(--accent);
+    }
+
+    .recurrence-row-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .recurrence-day-chip {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 3px 6px;
+      border-radius: 6px;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+
+    .recurrence-row-time {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .recurrence-row-right {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .recurrence-room-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .recurrence-active-badge {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      font-weight: 800;
+      background-color: var(--accent);
+      color: #ffffff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .theme-dark .recurrence-active-badge {
+      color: #07090E;
+    }
+
+    /* Redesigned Done Button */
+    .class-sheet-done-btn {
+      width: 100%;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #ffffff;
+      font-family: var(--font-ui);
+      font-weight: 800;
+      font-size: 13.5px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform var(--duration-fast) var(--ease-spring), opacity var(--duration-fast) ease;
+      box-shadow: 0 4px 14px -2px rgba(37, 99, 235, 0.4);
+    }
+    .class-sheet-done-btn:active {
+      transform: scale(0.98);
+    }
+    /* ==========================================================================
+       8. FACULTY PROFILE BOTTOM SHEET (Solid Design System Stacking Overlay)
+       ========================================================================== */
+    .modal-overlay.faculty-level {
+      z-index: 3100;
+    }
+
+    .class-param-tile.is-clickable {
+      cursor: pointer;
+      transition: border-color var(--duration-fast) ease, transform var(--duration-fast) var(--ease-spring);
+      position: relative;
+    }
+    .class-param-tile.is-clickable:hover {
+      border-color: var(--accent);
+    }
+    .class-param-tile.is-clickable:active {
+      transform: scale(0.985);
+    }
+
+    .class-param-tile-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .param-action-hint {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: 0.2px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .faculty-profile-sheet {
+      width: 100%;
+      background-color: var(--card-bg);
+      border-top: 1px solid var(--card-border);
+      border-radius: 28px 28px 0 0;
+      padding: 14px 18px max(24px, env(safe-area-inset-bottom, 24px));
+      box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.5);
+      transform: translateY(100%);
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 88%;
+      overflow-y: auto;
+      color: var(--text-main);
+      box-sizing: border-box;
+      z-index: 3101;
+    }
+    .modal-overlay.open .faculty-profile-sheet {
+      transform: translateY(0);
+    }
+
+    .faculty-nav-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .faculty-back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--canvas);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      font-size: 11.5px;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all var(--duration-fast) ease;
+    }
+    .faculty-back-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .faculty-back-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2.5;
+    }
+
+    .faculty-hero-card {
+      background: var(--canvas);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .faculty-avatar-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .faculty-avatar-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .faculty-hero-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .faculty-hero-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .faculty-hero-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .faculty-code-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      background: rgba(37, 99, 235, 0.1);
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      color: var(--accent);
+      padding: 1.5px 6px;
+      border-radius: 5px;
+      letter-spacing: 0.3px;
+    }
+    .theme-dark .faculty-code-tag {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.28);
+    }
+
+    .faculty-hero-desig {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .faculty-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 9.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 2px;
+      align-self: flex-start;
+    }
+    .faculty-status-pill.active {
+      background: rgba(16, 185, 129, 0.12);
+      color: #10B981;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+    .faculty-status-pill.leave {
+      background: rgba(245, 158, 11, 0.12);
+      color: #F59E0B;
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    /* Actions Bar */
+    .faculty-actions-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .faculty-action-chip {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: var(--canvas);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      font-size: 11.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: all var(--duration-fast) ease;
+    }
+    .faculty-action-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .faculty-action-chip svg {
+      width: 13px;
+      height: 13px;
+      stroke-width: 2.2;
+    }
+
+    /* Faculty Day Switcher */
+    .faculty-days-strip {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      background: var(--canvas);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+
+    .faculty-day-tab-btn {
+      flex: 1;
+      padding: 6px 4px;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--duration-fast) ease;
+      text-align: center;
+    }
+    .faculty-day-tab-btn.active {
+      background: var(--card-bg);
+      color: var(--text-main);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Routine Row Cards */
+    .faculty-routine-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .faculty-routine-row {
+      background: var(--canvas);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .faculty-routine-row.is-current {
+      border-color: var(--accent);
+    }
+
+    .faculty-routine-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .faculty-routine-subj-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .faculty-routine-subj {
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      font-weight: 900;
+      color: var(--text-main);
+    }
+
+    .faculty-routine-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .faculty-routine-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .faculty-routine-time {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .faculty-empty-state {
+      background: var(--canvas);
+      border: 1px dashed var(--card-border);
+      border-radius: 14px;
+      padding: 24px 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .preview-footer-note {
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Showcase Header -->
+  <header class="showcase-header">
+    <div class="showcase-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Class Detail Bottom Sheet &bull; Weekly Recurrence &bull; Verified Faculty Data
+    </div>
+    <h1 class="showcase-title">Interactive Class Detail Bottom Sheet & Schedule Recurrence</h1>
+    <p class="showcase-subtitle">
+      Tap any timeline class card to open the slide-up bottom sheet &bull; Full official course title, verified faculty, and computed weekly occurrences.
+    </p>
+
+    <!-- Side-by-Side Strip Directions Component Comparison -->
+    <div class="comparison-tray">
+      <div class="tray-title-row">
+        <span class="tray-heading">Component Comparison (3 Directions)</span>
+        <span style="font-size: 11px; color: #38bdf8; font-weight: 700;">Direction B Active Below</span>
+      </div>
+
+      <div class="tray-grid">
+        <!-- Direction A Component Preview -->
+        <div class="tray-card">
+          <div class="tray-card-header">
+            <span>Direction A: Modular Track</span>
+          </div>
+          <div style="background: #18191E; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 4px; display: flex; gap: 2px;">
+            <div style="flex:1; padding: 4px; border-radius: 8px; background: #38bdf8; color:#000; text-align:center; font-size:10px; font-weight:800;">Sa 19</div>
+            <div style="flex:1; padding: 4px; text-align:center; font-size:10px; color:#94a3b8;">Su 20</div>
+            <div style="flex:1; padding: 4px; text-align:center; font-size:10px; color:#94a3b8;">Mo 21</div>
+            <div style="flex:1; padding: 4px; text-align:center; font-size:10px; color:#94a3b8;">Tu 22</div>
+          </div>
+        </div>
+
+        <!-- Direction B Component Preview (Chosen) -->
+        <div class="tray-card is-chosen">
+          <div class="tray-card-header">
+            <span>Direction B: Focal Anchor</span>
+            <span class="chosen-badge">Approved</span>
+          </div>
+          <div style="display: flex; gap: 4px; align-items: center;">
+            <div style="background: #38bdf8; color: #000; border-radius: 10px; padding: 6px 8px; display: flex; gap: 5px; align-items: center;">
+              <span style="font-family: var(--font-mono); font-size: 13px; font-weight: 900;">19</span>
+              <div style="line-height: 1;"><div style="font-size: 8.5px; font-weight: 900;">SAT</div><div style="font-size: 7.5px; font-weight: 700;">4 classes</div></div>
+            </div>
+            <div style="flex:1; display:flex; gap:2px;">
+              <div style="flex:1; background:#18191E; padding:4px 2px; border-radius:8px; text-align:center; font-size:8.5px; color:#94a3b8;">Su 20</div>
+              <div style="flex:1; background:#18191E; padding:4px 2px; border-radius:8px; text-align:center; font-size:8.5px; color:#94a3b8;">Mo 21</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Direction C Component Preview -->
+        <div class="tray-card">
+          <div class="tray-card-header">
+            <span>Direction C: Ledger Matrix</span>
+          </div>
+          <div style="background: #18191E; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 6px; display: flex; justify-content: space-between;">
+            <div style="text-align:center;"><div style="font-size:9px; color:#38bdf8; font-weight:800;">Sa 19</div><div style="font-size:6px; color:#38bdf8;">••••</div></div>
+            <div style="text-align:center;"><div style="font-size:9px; color:#94a3b8;">Su 20</div><div style="font-size:6px; color:#94a3b8;">••</div></div>
+            <div style="text-align:center;"><div style="font-size:9px; color:#94a3b8;">Mo 21</div><div style="font-size:6px; color:#94a3b8;">•••</div></div>
+            <div style="text-align:center;"><div style="font-size:9px; color:#94a3b8;">Tu 22</div><div style="font-size:6px; color:#94a3b8;">•••</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Switcher -->
+    <div class="view-toggle-bar">
+      <button class="view-btn active" onclick="setViewMode('both')">Dual Comparison</button>
+      <button class="view-btn" onclick="setViewMode('light')">Light Only</button>
+      <button class="view-btn" onclick="setViewMode('dark')">Dark Only</button>
+    </div>
+  </header>
+
+  <!-- Devices Stage Container -->
+  <main class="devices-container" id="devicesContainer">
+
+    <!-- ====================================================================
+         DEVICE 1: LIGHT PALETTE (Alabaster Ivory & Cobalt Ultramarine)
+         ==================================================================== -->
+    <div class="device-column" id="lightDeviceCol">
+      <div class="device-label light">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Light Palette — Verified Data & Unified Cards
+      </div>
+
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="app-screen theme-light" id="appScreenLight">
+          <div class="app-viewport">
+
+            <!-- 1. Top Bar -->
+            <header class="top-bar">
+              <div class="top-date-time-col">
+                <div class="digital-clock">
+                  <span class="clock-time">12:30</span><span class="clock-period">PM</span>
+                </div>
+                <!-- Sleek Interactive Date Button (Line 2 under Clock) -->
+                <button class="date-badge-pill" id="dateBadge-l" title="Tap to jump to any date" onclick="openCalendarPicker()">
+                  <svg class="cal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <span id="dateBadgeText-l">Saturday, 19 August</span>
+                  <svg class="cal-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+
+              <div class="top-actions">
+                <button class="icon-btn" title="Edit & Settings" onclick="showSheet('appsSheet-l')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </button>
+              </div>
+            </header>
+
+            <!-- 2. Headline Greeting (Line 1: Salutation with Sun SVG, Line 2: Sid) -->
+            <div class="greeting-headline-row">
+              <div class="greeting-text-group">
+                <div class="greeting-salutation-line">
+                  <span>Good afternoon</span>
+                  <svg class="salutation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                </div>
+                <h1 class="greeting-user-name">Sid</h1>
+                <span class="greeting-caption" id="greetSub-l">5 sessions today &bull; 1 in progress</span>
+              </div>
+            </div>
+
+            <!-- 3. DIRECTION B: FOCAL DAY ANCHOR STRIP (Clean Short Abbreviations) -->
+            <section class="strip-direction-container">
+              <div class="strip-dir-b-row" id="focalStripContainer-l">
+                <!-- Dynamically rendered in natural Sat–Fri chronological order -->
+              </div>
+            </section>
+
+            <!-- 4. TIMELINE SECTION (Unified Integrated Cards) -->
+            <section class="timeline-section">
+              <div class="timeline-header-row">
+                <span class="section-title" id="timelineTitle-l" style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:800;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span id="timelineTitleText-l">Saturday Schedule</span>
+                </span>
+                <span class="timeline-count-badge" id="timelineSubtitle-l">5 SESSIONS</span>
+              </div>
+
+              <div class="timeline-list" id="timelineList-l">
+                <!-- Injected via renderTimelineViews() -->
+              </div>
+            </section>
+
+          </div>
+        </div>
+
+        <!-- 5. SOLID FIXED DOCK (5-BUTTON) -->
+        <div class="solid-fixed-dock-container theme-light">
+          <div class="dock-inner-row">
+            <button class="dock-tab" title="Home (Future Screen)" onclick="alert('Home tab placeholder — will be wired later!')">
+              <div class="dock-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+              <span class="dock-label">Home</span>
+            </button>
+
+            <button class="dock-tab" title="Full Routine Matrix" onclick="showClassModal('WEEKLY', 'Full Weekly Timetable Matrix', '5-Day Academic Matrix', 'All Rooms', 'All Faculty', 'Theory')">
+              <div class="dock-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+              </div>
+              <span class="dock-label">Routine</span>
+            </button>
+
+            <!-- Center Hero (Reload / Return to Today) -->
+            <div class="dock-center-slot">
+              <button class="dock-hero-btn" title="Daily Routine (Reset to Today)" onclick="jumpToToday()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+              </button>
+            </div>
+
+            <button class="dock-tab" title="Announcements & Notices" onclick="showSheet('appsSheet-l')">
+              <div class="dock-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span class="dock-unread-dot"></span>
+              </div>
+              <span class="dock-label">Notices</span>
+            </button>
+
+            <button class="dock-tab" title="Campus Apps Hub" onclick="showSheet('appsSheet-l')">
+              <div class="dock-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="5" r="2"/></svg>
+              </div>
+              <span class="dock-label">Apps</span>
+            </button>
+          </div>
+        </div>
+
+        </div> <!-- Closes .app-screen.theme-light (All scrolling content stays cleanly isolated inside) -->
+
+        <!-- ====================================================================
+             FIXED PHONE-LEVEL OVERLAYS (Light Mode — Direct children of .phone-frame)
+             ==================================================================== -->
+        <!-- Apps Hub Sheet (Light Mode) -->
+        <div class="modal-overlay theme-light" id="appsSheet-l" onclick="closeSheet('appsSheet-l', event)">
+          <div class="bottom-sheet" onclick="event.stopPropagation()">
+            <div class="sheet-handle-bar"></div>
+            <div class="sheet-header">
+              <div class="sheet-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="5" r="2"/></svg>
+                <span>Campus Apps & Utilities</span>
+              </div>
+              <button class="close-sheet-btn" onclick="closeSheet('appsSheet-l')">&times;</button>
+            </div>
+
+            <div class="apps-hub-grid">
+              <div class="app-launch-card" onclick="alert('Opens Free Room Finder')">
+                <div style="font-size: 20px;">🏢</div>
+                <div>
+                  <div class="app-launch-title">Free Rooms</div>
+                  <div class="app-launch-desc">Live vacancy across 33 campus rooms</div>
+                </div>
+              </div>
+              <div class="app-launch-card" onclick="alert('Opens Faculty Directory')">
+                <div style="font-size: 20px;">👥</div>
+                <div>
+                  <div class="app-launch-title">Faculty Directory</div>
+                  <div class="app-launch-desc">130+ teacher routines & contacts</div>
+                </div>
+              </div>
+              <div class="app-launch-card" onclick="alert('Opens Semester Exams')">
+                <div style="font-size: 20px;">📝</div>
+                <div>
+                  <div class="app-launch-title">Exam Schedule</div>
+                  <div class="app-launch-desc">Midterm & Final exam countdowns</div>
+                </div>
+              </div>
+              <div class="app-launch-card" onclick="alert('Opens Routine Editor')">
+                <div style="font-size: 20px;">⚙️</div>
+                <div>
+                  <div class="app-launch-title">Routine Editor</div>
+                  <div class="app-launch-desc">Edit schedule, themes & backup</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Class Detail Bottom Sheet (Light Mode) -->
+        <div class="modal-overlay theme-light" id="classSheet-l" onclick="closeClassModal('l', event)">
+          <div class="class-detail-bottom-sheet" onclick="event.stopPropagation()">
+            <div class="class-sheet-handle"></div>
+            
+            <!-- Top Header & Subject Info -->
+            <div class="class-sheet-top-header">
+              <div class="class-sheet-left-hero">
+                <div class="class-sheet-icon-squircle" id="modalSquircleIcon-l">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+                </div>
+                <div class="class-sheet-code-title-stack">
+                  <div class="class-sheet-code-badge-row">
+                    <span class="class-sheet-hero-code" id="modalCourseCode-l">DSL</span>
+                    <span class="resting-tag lab" id="modalTypeBadge-l">★ LAB</span>
+                  </div>
+                  <div class="class-sheet-hero-title" id="modalFullTitle-l">Data Structures Laboratory</div>
+                </div>
+              </div>
+              <button class="class-sheet-close-btn" onclick="closeClassModal('l')">&times;</button>
+            </div>
+
+            <!-- Core Class Parameters Grid -->
+            <div class="class-sheet-params-grid">
+              <div class="class-param-tile">
+                <span class="class-param-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span>Time & Duration</span>
+                </span>
+                <span class="class-param-main-val mono" id="modalTiming-l">11:00 AM – 01:30 PM</span>
+                <span class="class-param-subtext" id="modalDuration-l">2h 30m session</span>
+              </div>
+              <div class="class-param-tile">
+                <span class="class-param-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <span>Room</span>
+                </span>
+                <span class="class-param-main-val mono" id="modalRoom-l">Room 905</span>
+              </div>
+              <div class="class-param-tile full-width is-clickable" id="modalInstructorTile-l" onclick="openFacultyModalFromClass('l')">
+                <div class="class-param-tile-row">
+                  <span class="class-param-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>Instructor</span>
+                  </span>
+                  <span class="param-action-hint">Profile & Routine ›</span>
+                </div>
+                <span class="class-param-main-val" id="modalInstructor-l">Mahmudul Hasan Emon</span>
+                <span class="class-param-subtext" id="modalFormat-l">Laboratory Practical</span>
+              </div>
+            </div>
+
+            <!-- Weekly Recurrence Section -->
+            <div class="class-recurrence-card">
+              <div class="recurrence-card-header">
+                <span class="recurrence-card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <span>Weekly Schedule</span>
+                </span>
+                <span class="recurrence-sessions-badge" id="modalRecurrenceCount-l">1 SESSION / WEEK</span>
+              </div>
+              <div class="recurrence-card-rows-list" id="modalRecurrenceList-l">
+                <!-- Injected dynamically via JS -->
+              </div>
+            </div>
+
+            <button class="class-sheet-done-btn" onclick="closeClassModal('l')">
+              Done
+            </button>
+          </div>
+        </div>
+
+        <!-- Faculty Profile Bottom Sheet (Light Mode — Stacked Overlay) -->
+        <div class="modal-overlay faculty-level theme-light" id="facultySheet-l" onclick="closeFacultyModal('l', event)">
+          <div class="faculty-profile-sheet" onclick="event.stopPropagation()">
+            <div class="sheet-handle-bar"></div>
+            
+            <div class="faculty-nav-header">
+              <button class="faculty-back-btn" onclick="closeFacultyModal('l')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+                <span>Back to Class</span>
+              </button>
+              <button class="class-sheet-close-btn" onclick="closeAllModals()">&times;</button>
+            </div>
+
+            <!-- Faculty Hero Card -->
+            <div class="faculty-hero-card">
+              <div class="faculty-avatar-box" id="facultyAvatar-l">MHE</div>
+              <div class="faculty-hero-info">
+                <div class="faculty-hero-name-row">
+                  <span class="faculty-hero-name" id="facultyName-l">Mahmudul Hasan Emon</span>
+                  <span class="faculty-code-tag" id="facultyCode-l">MHE</span>
+                </div>
+                <div class="faculty-hero-desig" id="facultyDesig-l">Assistant Professor · Department of Computer Science & Engineering</div>
+                <span class="faculty-status-pill active" id="facultyStatus-l">● Active Faculty</span>
+              </div>
+            </div>
+
+            <!-- Quick Action Chips -->
+            <div class="faculty-actions-row">
+              <a href="#" class="faculty-action-chip" id="facultyEmailBtn-l" target="_blank">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                <span>Email</span>
+              </a>
+              <a href="#" class="faculty-action-chip" id="facultyPhoneBtn-l">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span>Call</span>
+              </a>
+              <a href="#" class="faculty-action-chip" id="facultyPucBtn-l" target="_blank">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span>PUC Profile</span>
+              </a>
+            </div>
+
+            <!-- Day Switcher Segmented Bar -->
+            <div class="faculty-days-strip" id="facultyDaysStrip-l">
+              <!-- Rendered via JS -->
+            </div>
+
+            <!-- Faculty Routine Card List -->
+            <div class="faculty-routine-list" id="facultyRoutineList-l">
+              <!-- Rendered via JS -->
+            </div>
+
+            <button class="class-sheet-done-btn" onclick="closeFacultyModal('l')">
+              Done
+            </button>
+          </div>
+        </div>
+
+      </div> <!-- Closes .phone-frame -->
+    </div> <!-- Closes #lightDeviceCol -->
+
+
+    <!-- ====================================================================
+         DEVICE 2: DARK PALETTE (Refined Charcoal & Layered Graphite)
+         ==================================================================== -->
+    <div class="device-column" id="darkDeviceCol">
+      <div class="device-label dark">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        Dark Palette — Verified Data & Unified Cards
+      </div>
+
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="app-screen theme-dark" id="appScreenDark">
+          <div class="app-viewport">
+
+            <!-- 1. Top Bar -->
+            <header class="top-bar">
+              <div class="top-date-time-col">
+                <div class="digital-clock">
+                  <span class="clock-time">12:30</span><span class="clock-period">PM</span>
+                </div>
+                <!-- Sleek Interactive Date Button (Line 2 under Clock) -->
+                <button class="date-badge-pill" id="dateBadge-d" title="Tap to jump to any date" onclick="openCalendarPicker()">
+                  <svg class="cal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <span id="dateBadgeText-d">Saturday, 19 August</span>
+                  <svg class="cal-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+
+              <div class="top-actions">
+                <button class="icon-btn" title="Edit & Settings" onclick="showSheet('appsSheet-d')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </button>
+              </div>
+            </header>
+
+            <!-- 2. Headline Greeting (Line 1: Salutation with Sun SVG, Line 2: Sid) -->
+            <div class="greeting-headline-row">
+              <div class="greeting-text-group">
+                <div class="greeting-salutation-line">
+                  <span>Good afternoon</span>
+                  <svg class="salutation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                </div>
+                <h1 class="greeting-user-name">Sid</h1>
+                <span class="greeting-caption" id="greetSub-d">5 sessions today &bull; 1 in progress</span>
+              </div>
+            </div>
+
+            <!-- 3. DIRECTION B: FOCAL DAY ANCHOR STRIP (Clean Short Abbreviations) -->
+            <section class="strip-direction-container">
+              <div class="strip-dir-b-row" id="focalStripContainer-d">
+                <!-- Dynamically rendered in natural Sat–Fri chronological order -->
+              </div>
+            </section>
+
+            <!-- 4. TIMELINE SECTION (Unified Integrated Cards) -->
+            <section class="timeline-section">
+              <div class="timeline-header-row">
+                <span class="section-title" id="timelineTitle-d" style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:800;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span id="timelineTitleText-d">Saturday Schedule</span>
+                </span>
+                <span class="timeline-count-badge" id="timelineSubtitle-d">5 SESSIONS</span>
+              </div>
+
+              <div class="timeline-list" id="timelineList-d">
+                <!-- Injected via renderTimelineViews() -->
+              </div>
+            </section>
+
+          </div>
+        </div>
+
+        <!-- 5. SOLID FIXED DOCK (5-BUTTON) -->
+        <div class="solid-fixed-dock-container theme-dark">
+          <div class="dock-inner-row">
+            <button class="dock-tab" title="Home (Future Screen)" onclick="alert('Home tab placeholder — will be wired later!')">
+              <div class="dock-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+              <span class="dock-label">Home</span>
+            </button>
+
+            <button class="dock-tab" title="Full Routine Matrix" onclick="showClassModal('WEEKLY', 'Full Weekly Timetable Matrix', '5-Day Academic Matrix', 'All Rooms', 'All Faculty', 'Theory')">
+              <div class="dock-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+              </div>
+              <span class="dock-label">Routine</span>
+            </button>
+
+            <!-- Center Hero (Reload / Return to Today) -->
+            <div class="dock-center-slot">
+              <button class="dock-hero-btn" title="Daily Routine (Reset to Today)" onclick="jumpToToday()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+              </button>
+            </div>
+
+            <button class="dock-tab" title="Announcements & Notices" onclick="showSheet('appsSheet-d')">
+              <div class="dock-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span class="dock-unread-dot"></span>
+              </div>
+              <span class="dock-label">Notices</span>
+            </button>
+
+            <button class="dock-tab" title="Campus Apps Hub" onclick="showSheet('appsSheet-d')">
+              <div class="dock-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="5" r="2"/></svg>
+              </div>
+              <span class="dock-label">Apps</span>
+            </button>
+          </div>
+        </div>
+
+        </div> <!-- Closes .app-screen.theme-dark (All scrolling content stays cleanly isolated inside) -->
+
+        <!-- ====================================================================
+             FIXED PHONE-LEVEL OVERLAYS (Dark Mode — Direct children of .phone-frame)
+             ==================================================================== -->
+        <!-- Apps Hub Sheet (Dark Mode) -->
+        <div class="modal-overlay theme-dark" id="appsSheet-d" onclick="closeSheet('appsSheet-d', event)">
+          <div class="bottom-sheet" onclick="event.stopPropagation()">
+            <div class="sheet-handle-bar"></div>
+            <div class="sheet-header">
+              <div class="sheet-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="5" r="2"/></svg>
+                <span>Campus Apps & Utilities</span>
+              </div>
+              <button class="close-sheet-btn" onclick="closeSheet('appsSheet-d')">&times;</button>
+            </div>
+
+            <div class="apps-hub-grid">
+              <div class="app-launch-card" onclick="alert('Opens Free Room Finder')">
+                <div style="font-size: 20px;">🏢</div>
+                <div>
+                  <div class="app-launch-title">Free Rooms</div>
+                  <div class="app-launch-desc">Live vacancy across 33 campus rooms</div>
+                </div>
+              </div>
+              <div class="app-launch-card" onclick="alert('Opens Faculty Directory')">
+                <div style="font-size: 20px;">👥</div>
+                <div>
+                  <div class="app-launch-title">Faculty Directory</div>
+                  <div class="app-launch-desc">130+ teacher routines & contacts</div>
+                </div>
+              </div>
+              <div class="app-launch-card" onclick="alert('Opens Semester Exams')">
+                <div style="font-size: 20px;">📝</div>
+                <div>
+                  <div class="app-launch-title">Exam Schedule</div>
+                  <div class="app-launch-desc">Midterm & Final exam countdowns</div>
+                </div>
+              </div>
+              <div class="app-launch-card" onclick="alert('Opens Routine Editor')">
+                <div style="font-size: 20px;">⚙️</div>
+                <div>
+                  <div class="app-launch-title">Routine Editor</div>
+                  <div class="app-launch-desc">Edit schedule, themes & backup</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Class Detail Bottom Sheet (Dark Mode) -->
+        <div class="modal-overlay theme-dark" id="classSheet-d" onclick="closeClassModal('d', event)">
+          <div class="class-detail-bottom-sheet" onclick="event.stopPropagation()">
+            <div class="class-sheet-handle"></div>
+            
+            <!-- Top Header & Subject Info -->
+            <div class="class-sheet-top-header">
+              <div class="class-sheet-left-hero">
+                <div class="class-sheet-icon-squircle" id="modalSquircleIcon-d">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+                </div>
+                <div class="class-sheet-code-title-stack">
+                  <div class="class-sheet-code-badge-row">
+                    <span class="class-sheet-hero-code" id="modalCourseCode-d">DSL</span>
+                    <span class="resting-tag lab" id="modalTypeBadge-d">★ LAB</span>
+                  </div>
+                  <div class="class-sheet-hero-title" id="modalFullTitle-d">Data Structures Laboratory</div>
+                </div>
+              </div>
+              <button class="class-sheet-close-btn" onclick="closeClassModal('d')">&times;</button>
+            </div>
+
+            <!-- Core Class Parameters Grid -->
+            <div class="class-sheet-params-grid">
+              <div class="class-param-tile">
+                <span class="class-param-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span>Time & Duration</span>
+                </span>
+                <span class="class-param-main-val mono" id="modalTiming-d">11:00 AM – 01:30 PM</span>
+                <span class="class-param-subtext" id="modalDuration-d">2h 30m session</span>
+              </div>
+              <div class="class-param-tile">
+                <span class="class-param-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <span>Room</span>
+                </span>
+                <span class="class-param-main-val mono" id="modalRoom-d">Room 905</span>
+              </div>
+              <div class="class-param-tile full-width is-clickable" id="modalInstructorTile-d" onclick="openFacultyModalFromClass('d')">
+                <div class="class-param-tile-row">
+                  <span class="class-param-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>Instructor</span>
+                  </span>
+                  <span class="param-action-hint">Profile & Routine ›</span>
+                </div>
+                <span class="class-param-main-val" id="modalInstructor-d">Mahmudul Hasan Emon</span>
+                <span class="class-param-subtext" id="modalFormat-d">Laboratory Practical</span>
+              </div>
+            </div>
+
+            <!-- Weekly Recurrence Section -->
+            <div class="class-recurrence-card">
+              <div class="recurrence-card-header">
+                <span class="recurrence-card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <span>Weekly Schedule</span>
+                </span>
+                <span class="recurrence-sessions-badge" id="modalRecurrenceCount-d">1 SESSION / WEEK</span>
+              </div>
+              <div class="recurrence-card-rows-list" id="modalRecurrenceList-d">
+                <!-- Injected dynamically via JS -->
+              </div>
+            </div>
+
+            <button class="class-sheet-done-btn" onclick="closeClassModal('d')">
+              Done
+            </button>
+          </div>
+        </div>
+
+        <!-- Faculty Profile Bottom Sheet (Dark Mode — Stacked Overlay) -->
+        <div class="modal-overlay faculty-level theme-dark" id="facultySheet-d" onclick="closeFacultyModal('d', event)">
+          <div class="faculty-profile-sheet" onclick="event.stopPropagation()">
+            <div class="sheet-handle-bar"></div>
+            
+            <div class="faculty-nav-header">
+              <button class="faculty-back-btn" onclick="closeFacultyModal('d')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+                <span>Back to Class</span>
+              </button>
+              <button class="class-sheet-close-btn" onclick="closeAllModals()">&times;</button>
+            </div>
+
+            <!-- Faculty Hero Card -->
+            <div class="faculty-hero-card">
+              <div class="faculty-avatar-box" id="facultyAvatar-d">MHE</div>
+              <div class="faculty-hero-info">
+                <div class="faculty-hero-name-row">
+                  <span class="faculty-hero-name" id="facultyName-d">Mahmudul Hasan Emon</span>
+                  <span class="faculty-code-tag" id="facultyCode-d">MHE</span>
+                </div>
+                <div class="faculty-hero-desig" id="facultyDesig-d">Assistant Professor · Department of Computer Science & Engineering</div>
+                <span class="faculty-status-pill active" id="facultyStatus-d">● Active Faculty</span>
+              </div>
+            </div>
+
+            <!-- Quick Action Chips -->
+            <div class="faculty-actions-row">
+              <a href="#" class="faculty-action-chip" id="facultyEmailBtn-d" target="_blank">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                <span>Email</span>
+              </a>
+              <a href="#" class="faculty-action-chip" id="facultyPhoneBtn-d">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span>Call</span>
+              </a>
+              <a href="#" class="faculty-action-chip" id="facultyPucBtn-d" target="_blank">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span>PUC Profile</span>
+              </a>
+            </div>
+
+            <!-- Day Switcher Segmented Bar -->
+            <div class="faculty-days-strip" id="facultyDaysStrip-d">
+              <!-- Rendered via JS -->
+            </div>
+
+            <!-- Faculty Routine Card List -->
+            <div class="faculty-routine-list" id="facultyRoutineList-d">
+              <!-- Rendered via JS -->
+            </div>
+
+            <button class="class-sheet-done-btn" onclick="closeFacultyModal('d')">
+              Done
+            </button>
+          </div>
+        </div>
+
+      </div> <!-- Closes .phone-frame -->
+    </div> <!-- Closes #darkDeviceCol -->
+
+  </main>
+
+  <!-- ====================================================================
+       UNIVERSAL CALENDAR MONTH PICKER MODAL (Jump to Any Date)
+       ==================================================================== -->
+  <div class="modal-overlay" id="calendarPickerModal" onclick="closeCalendarPicker(event)">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle-bar"></div>
+      
+      <div class="sheet-header">
+        <div class="sheet-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Select Date</span>
+        </div>
+        <button class="close-sheet-btn" onclick="closeCalendarPicker()">&times;</button>
+      </div>
+
+      <!-- Month Navigation Bar -->
+      <div class="calendar-month-nav">
+        <button class="month-nav-btn" onclick="prevMonth()">&larr;</button>
+        <span class="calendar-month-title" id="calMonthTitle">August 2023</span>
+        <button class="month-nav-btn" onclick="nextMonth()">&rarr;</button>
+      </div>
+
+      <!-- Weekday Headers -->
+      <div class="calendar-weekdays-row">
+        <div class="calendar-weekday-cell">Sa</div>
+        <div class="calendar-weekday-cell">Su</div>
+        <div class="calendar-weekday-cell">Mo</div>
+        <div class="calendar-weekday-cell">Tu</div>
+        <div class="calendar-weekday-cell">We</div>
+        <div class="calendar-weekday-cell off-col">Th</div>
+        <div class="calendar-weekday-cell off-col">Fr</div>
+      </div>
+
+      <!-- Calendar Month Days Grid -->
+      <div class="calendar-days-grid" id="calendarDaysGrid">
+        <!-- Rendered via JS -->
+      </div>
+
+      <div class="calendar-quick-actions">
+        <button class="quick-jump-btn" onclick="jumpToToday()">Jump to Today</button>
+        <button class="quick-jump-btn" onclick="jumpToNextWeek()">Next Week</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="preview-footer-note">
+    Direction B: Verified Faculty Data &bull; Integrated Card Layout &bull; Short Day Format
+  </footer>
+
+  <!-- ====================================================================
+       INTERACTIVE DATE ENGINE & TIMELINE RENDERER SCRIPT
+       ==================================================================== -->
+  <script>
+    // Real Timetable Data (from schedule.json / PROJECT_OVERVIEW.md)
+    const ACADEMIC_SCHEDULE = {
+      Saturday: [
+        { code: 'EDC', name: 'Electronic Devices and Circuits', start: '09:45 AM', end: '11:00 AM', duration: '1h 15m', room: '1002', teacherCode: 'AIR', type: 'Theory', isPast: true },
+        { code: 'DSL', name: 'Data Structures Laboratory', start: '11:00 AM', end: '01:30 PM', duration: '2h 30m', room: '905', teacherCode: 'MHE', type: 'Lab', isLive: true },
+        { code: 'ICMP', name: 'Introduction to Classical & Modern Physics', start: '01:30 PM', end: '02:45 PM', duration: '1h 15m', room: '406', teacherCode: 'NME', type: 'Theory', relative: 'in 1h' },
+        { code: 'DS', name: 'Data Structures', start: '02:45 PM', end: '04:00 PM', duration: '1h 15m', room: '404', teacherCode: 'MHE', type: 'Theory', relative: 'in 2h 15m' }
+      ],
+      Sunday: [
+        { code: 'EDCL', name: 'Electronic Devices and Circuits Laboratory', start: '08:30 AM', end: '11:00 AM', duration: '2h 30m', room: '508', teacherCode: 'RSN', type: 'Lab' },
+        { code: 'DMNT', name: 'Discrete Mathematics and Number Theory', start: '12:15 PM', end: '01:30 PM', duration: '1h 15m', room: '612', teacherCode: 'ST', type: 'Theory' }
+      ],
+      Monday: [
+        { code: 'EE', name: 'Engineering Economics', start: '09:45 AM', end: '11:00 AM', duration: '1h 15m', room: '1001', teacherCode: 'IFTEKAR MIA', type: 'Theory' },
+        { code: 'ICMP', name: 'Introduction to Classical & Modern Physics', start: '11:00 AM', end: '12:15 PM', duration: '1h 15m', room: '404', teacherCode: 'NME', type: 'Theory' }
+      ],
+      Tuesday: [
+        { code: 'DMNT', name: 'Discrete Mathematics and Number Theory', start: '09:45 AM', end: '11:00 AM', duration: '1h 15m', room: '408', teacherCode: 'ST', type: 'Theory' },
+        { code: 'PHYL', name: 'Physics Laboratory', start: '11:00 AM', end: '01:30 PM', duration: '2h 30m', room: '505', teacherCode: 'NJS', type: 'Lab' },
+        { code: 'CPL', name: 'Competitive Programming Laboratory', start: '01:30 PM', end: '02:45 PM', duration: '1h 15m', room: '608', teacherCode: 'MHN', type: 'Theory' }
+      ],
+      Wednesday: [
+        { code: 'DS', name: 'Data Structures', start: '11:00 AM', end: '12:15 PM', duration: '1h 15m', room: '510', teacherCode: 'MHE', type: 'Theory' },
+        { code: 'EDC', name: 'Electronic Devices and Circuits', start: '12:15 PM', end: '01:30 PM', duration: '1h 15m', room: '901', teacherCode: 'AIR', type: 'Theory' },
+        { code: 'EE', name: 'Engineering Economics', start: '01:30 PM', end: '02:45 PM', duration: '1h 15m', room: '910', teacherCode: 'IFTEKAR MIA', type: 'Theory' }
+      ],
+      Thursday: [], // Off Day
+      Friday: []    // Off Day
+    };
+
+    // Master Verified Faculty Directory directly from faculty_info.json (Zero Fabrication)
+    const VERIFIED_FACULTY_INFO = {
+      "SMAI": "Dr. Shahid Md. Asif Iqbal",
+      "FSC": "Ms. Farhana Shirin Chowdhury",
+      "AKK": "N.U.M Akramul Kabir Khan",
+      "KD": "Kingshuk Dhar",
+      "Ataur": "Md. Ataur Rahman",
+      "TDM": "Ms. Tanni Dhoom",
+      "AJT": "Ms. Asma Joshita Trisha",
+      "NAK": "Nazma Akther",
+      "NJS": "Ms. Nusrat Jahan Shirin",
+      "MH": "Mohammad Hasan",
+      "ST": "Ms. Sabrina Tarannum",
+      "AIB": "Md. Ariful Islam Bhuyan",
+      "KMAY": "Kazi Md. Abrar Yeaser",
+      "AHK": "Adnan Hossain Khan",
+      "AD": "Avisheak Das",
+      "MRRC": "Mohammed Rezaur Rahman Chowdhury",
+      "MHN": "Md. Hasan",
+      "NR": "Noortaz Rezoana",
+      "MHE": "Mahmudul Hasan Emon",
+      "TMH": "MD Tamim Hossain",
+      "JTC": "Jannat Tohfa Chowdhury",
+      "AMS": "Asif Mohammed Saad",
+      "NBH": "Nadim Bin Hossain",
+      "TH": "Ms. Tashin Hossain",
+      "EAS": "Estiak Ahamed Sazid",
+      "MTS": "Md Toukir Shah",
+      "RA": "Rowshon Akter",
+      "CFK": "Chowdhury Fariha Kamrul",
+      "MRI": "Md. Raisul Islam",
+      "MFF": "Mohammd Fahim Foisal",
+      "THA": "Tanvir Hassan Ananta",
+      "TMC": "Tahiat Mahabub Chowdhury",
+      "YR": "Yakinur Rahman",
+      "KMN": "Kafayet Monoar Nahin",
+      "RM": "Rashed Miah",
+      "WMN": "Wong May Nu",
+      "AU": "Afsar Uddin",
+      "AZMAIN": "Azmain Yakin Srizon",
+      "IFTEKAR MIA": "Iftekar Mia"
+    };
+
+    // Strict Rule: If full name exists in faculty_info.json, show full name. If not, show SHORT CODE ONLY.
+    function getVerifiedInstructorDisplay(code) {
+      if (!code) return '';
+      const trimmed = code.trim();
+      const upper = trimmed.toUpperCase();
+      const verifiedName = VERIFIED_FACULTY_INFO[upper] || VERIFIED_FACULTY_INFO[trimmed];
+      if (verifiedName && verifiedName !== upper && verifiedName !== trimmed) {
+        return verifiedName;
+      }
+      return trimmed; // Short code fallback with zero guessing
+    }
+
+    const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    
+    // Clean, consistent 3-letter uppercase day abbreviations
+    const SHORT_3_DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    const SHORT_2_DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
+    // Real-World Fixed "Today" Anchor (Saturday, August 19, 2023)
+    const REAL_TODAY = new Date(2023, 7, 19);
+
+    // State Variables
+    let selectedDate = new Date(2023, 7, 19);
+    let calendarViewMonth = 7;
+    let calendarViewYear = 2023;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderAll();
+    });
+
+    function renderAll() {
+      updateTopDateBadges();
+      renderFocalWeekStrips();
+      renderTimelineViews();
+    }
+
+    function updateTopDateBadges() {
+      const dayNameFull = DAY_NAMES[selectedDate.getDay()];
+      const dayNum = selectedDate.getDate();
+      const monthNameFull = MONTH_NAMES[selectedDate.getMonth()];
+      const label = `${dayNameFull}, ${dayNum} ${monthNameFull}`;
+      
+      const badgeL = document.getElementById('dateBadgeText-l');
+      const badgeD = document.getElementById('dateBadgeText-d');
+      if (badgeL) badgeL.textContent = label;
+      if (badgeD) badgeD.textContent = label;
+    }
+
+    function isSameCalendarDay(d1, d2) {
+      return d1.getFullYear() === d2.getFullYear() &&
+             d1.getMonth() === d2.getMonth() &&
+             d1.getDate() === d2.getDate();
+    }
+
+    // ==========================================================================
+    // RENDER DIRECTION B: FOCAL DAY ANCHOR WITH CLEAN 3-LETTER DAY ABBREVIATIONS
+    // ==========================================================================
+    function renderFocalWeekStrips() {
+      const dayOfWeek = selectedDate.getDay();
+      
+      // Academic week starts on Saturday (Sat=0 in sequence)
+      const satOffset = (dayOfWeek === 6) ? 0 : (dayOfWeek + 1);
+      const weekStartSat = new Date(selectedDate);
+      weekStartSat.setDate(selectedDate.getDate() - satOffset);
+
+      const academicDaysOrder = [6, 0, 1, 2, 3, 4, 5]; // Sat, Sun, Mon, Tue, Wed, Thu, Fri
+
+      let stripHtml = '';
+
+      academicDaysOrder.forEach(dow => {
+        const d = new Date(weekStartSat);
+        const dayOffset = (dow === 6) ? 0 : (dow + 1);
+        d.setDate(weekStartSat.getDate() + dayOffset);
+
+        const isSelected = isSameCalendarDay(d, selectedDate);
+        const isToday = isSameCalendarDay(d, REAL_TODAY);
+        const isOffDay = (dow === 4 || dow === 5);
+        const dayNameFull = DAY_NAMES[dow];
+        const dayAbbr3 = SHORT_3_DAYS[dow];
+        const classes = ACADEMIC_SCHEDULE[dayNameFull] || [];
+        const classCount = classes.length;
+
+        if (isSelected) {
+          // In-Place Focal Card with Clean 3-Letter Day Abbreviation
+          const subText = isOffDay ? 'Off Day' : `${classCount} ${classCount === 1 ? 'class' : 'classes'}`;
+          stripHtml += `
+            <div class="focal-day-card" onclick="openCalendarPicker()" title="${dayNameFull} ${d.getDate()} (Selected Day &bull; Tap to change date)">
+              <span class="focal-num-large">${d.getDate()}</span>
+              <div class="focal-meta">
+                <span class="focal-day-label">${dayAbbr3}</span>
+                <span class="focal-day-sub">${subText}</span>
+              </div>
+            </div>
+          `;
+        } else {
+          // Satellite Pill
+          stripHtml += `
+            <div class="satellite-pill ${isOffDay ? 'off-day' : ''} ${isToday ? 'is-real-today' : ''}" 
+                 onclick="selectDateByTimestamp(${d.getTime()})" 
+                 title="${dayNameFull} ${d.getDate()} ${isToday ? '(Today)' : ''}">
+              <span class="satellite-name">${SHORT_2_DAYS[dow]}</span>
+              <span class="satellite-num">${d.getDate()}</span>
+              ${isToday ? '<span class="today-subtle-dot" title="Today"></span>' : ''}
+            </div>
+          `;
+        }
+      });
+
+      document.getElementById('focalStripContainer-l').innerHTML = stripHtml;
+      document.getElementById('focalStripContainer-d').innerHTML = stripHtml;
+    }
+
+    // ==========================================================================
+    // RENDER TIMELINE VIEW (Unified, Integrated, Non-Chunky Cards)
+    // ==========================================================================
+    function renderTimelineViews() {
+      const dayName = DAY_NAMES[selectedDate.getDay()];
+      const dayAbbr = SHORT_3_DAYS[selectedDate.getDay()];
+      const classes = ACADEMIC_SCHEDULE[dayName] || [];
+      const isOffDay = (selectedDate.getDay() === 4 || selectedDate.getDay() === 5);
+      const isToday = isSameCalendarDay(selectedDate, REAL_TODAY);
+
+      const titleText = isToday ? `Today (${dayName})` : `${dayName} Schedule`;
+      const subText = isOffDay ? 'DAY OFF' : `${classes.length} SESSIONS`;
+      const greetText = isToday 
+        ? `${classes.length} sessions today &bull; 1 in progress`
+        : (isOffDay ? 'Campus Closed &bull; Rest & Recharge' : `${classes.length} ${classes.length === 1 ? 'session' : 'sessions'} scheduled`);
+
+      document.getElementById('timelineTitleText-l').textContent = titleText;
+      document.getElementById('timelineTitleText-d').textContent = titleText;
+      document.getElementById('timelineSubtitle-l').textContent = subText;
+      document.getElementById('timelineSubtitle-d').textContent = subText;
+
+      const gL = document.getElementById('greetSub-l');
+      const gD = document.getElementById('greetSub-d');
+      if (gL) gL.innerHTML = greetText;
+      if (gD) gD.innerHTML = greetText;
+
+      let html = '';
+
+      if (isOffDay || classes.length === 0) {
+        html = `
+          <div class="off-day-card">
+            <div class="off-day-icon">🌿</div>
+            <div class="off-day-title">Campus Closed &bull; Free Time</div>
+            <div class="off-day-desc">No academic classes scheduled for ${dayName}. Time to recharge, study, or enjoy the weekend!</div>
+          </div>
+        `;
+      } else {
+        classes.forEach((c, idx) => {
+          const instructorName = getVerifiedInstructorDisplay(c.teacherCode);
+          const fullTiming = `${c.start} – ${c.end}`;
+
+          if (idx === 1 && selectedDate.getDay() === 6) {
+            // Break Divider on Saturday
+            html += `
+              <div class="break-transition-strip">
+                <div class="break-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                  <span>Cafeteria Recharge</span>
+                </div>
+                <span class="break-time-badge">11:00 AM – 11:30 AM &bull; 30m</span>
+              </div>
+            `;
+          }
+
+          if (c.isLive && isToday) {
+            // 1. LIVE HERO CARD (Unified Meta Row, Full Verified Teacher Name)
+            html += `
+              <div class="live-hero-card" onclick="showClassModal('${c.code}', '${c.name}', '${fullTiming}', 'Room ${c.room}', '${c.teacherCode}', '${c.type}', '${c.duration}')">
+                <div class="live-hero-top">
+                  <div class="live-status-badge">
+                    <span class="live-radar-dot"></span>
+                    <span>IN PROGRESS</span>
+                  </div>
+                  <span class="live-time-span">${fullTiming}</span>
+                </div>
+                <div class="live-hero-body">
+                  <div class="live-hero-main">
+                    <div class="live-hero-code-row">
+                      <span class="live-hero-code">${c.code}</span>
+                      <span class="live-hero-tag">★ ${c.type.toUpperCase()}</span>
+                    </div>
+                    <!-- Clean 2-Line Stacked Metadata -->
+                    <div class="card-meta-stacked">
+                      <div class="meta-line-item room">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span>Room ${c.room}</span>
+                      </div>
+                      <div class="meta-line-item instructor">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <span>${instructorName}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Radial Countdown Ring -->
+                  <div class="live-radial-gauge" title="60 minutes remaining">
+                    <svg class="live-radial-svg" viewBox="0 0 48 48">
+                      <circle class="live-radial-bg" cx="24" cy="24" r="20"></circle>
+                      <circle class="live-radial-progress" cx="24" cy="24" r="20"></circle>
+                    </svg>
+                    <div class="live-radial-text">
+                      <span class="live-radial-num">60</span>
+                      <span class="live-radial-label">m left</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          } else {
+            // 2. UNIFIED RESTING CARD (Dotted Time Connector & Clean 2-Line Metadata)
+            html += `
+              <div class="resting-class-row ${c.isPast && isToday ? 'is-finished' : ''}" onclick="showClassModal('${c.code}', '${c.name}', '${fullTiming}', 'Room ${c.room}', '${c.teacherCode}', '${c.type}', '${c.duration}')">
+                <div class="resting-left">
+                  <!-- Visual Time Connector Track -->
+                  <div class="resting-time-col">
+                    <div class="time-connector-track">
+                      <div class="time-node-dot start"></div>
+                      <div class="time-connector-line"></div>
+                      <div class="time-node-dot end"></div>
+                    </div>
+                    <span class="resting-time-start">${c.start}</span>
+                    <span class="resting-time-end">${c.end}</span>
+                  </div>
+
+                  <!-- Course Code & Clean 2-Line Metadata -->
+                  <div class="resting-info-col">
+                    <div class="resting-title-row">
+                      <span class="resting-code">${c.code}</span>
+                      <span class="resting-tag ${c.type.toLowerCase()}">${c.type.toUpperCase()}</span>
+                    </div>
+                    <div class="card-meta-stacked">
+                      <div class="meta-line-item room">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span>Room ${c.room}</span>
+                      </div>
+                      <div class="meta-line-item instructor">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <span>${instructorName}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="resting-right-meta">
+                  ${c.isPast && isToday
+                    ? `<div class="finished-check-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>DONE</span></div>`
+                    : `<span class="duration-chip">${c.duration}</span>`
+                  }
+                </div>
+              </div>
+            `;
+          }
+        });
+      }
+
+      document.getElementById('timelineList-l').innerHTML = html;
+      document.getElementById('timelineList-d').innerHTML = html;
+    }
+
+    // ==========================================================================
+    // CALENDAR PICKER MODAL LOGIC
+    // ==========================================================================
+    function openCalendarPicker() {
+      calendarViewMonth = selectedDate.getMonth();
+      calendarViewYear = selectedDate.getFullYear();
+      renderCalendarMonthGrid();
+      document.getElementById('calendarPickerModal').classList.add('open');
+    }
+
+    function closeCalendarPicker(e) {
+      if (e && e.target !== document.getElementById('calendarPickerModal')) return;
+      document.getElementById('calendarPickerModal').classList.remove('open');
+    }
+
+    function prevMonth() {
+      calendarViewMonth--;
+      if (calendarViewMonth < 0) {
+        calendarViewMonth = 11;
+        calendarViewYear--;
+      }
+      renderCalendarMonthGrid();
+    }
+
+    function nextMonth() {
+      calendarViewMonth++;
+      if (calendarViewMonth > 11) {
+        calendarViewMonth = 0;
+        calendarViewYear++;
+      }
+      renderCalendarMonthGrid();
+    }
+
+    function renderCalendarMonthGrid() {
+      document.getElementById('calMonthTitle').textContent = `${MONTH_NAMES[calendarViewMonth]} ${calendarViewYear}`;
+
+      const firstDay = new Date(calendarViewYear, calendarViewMonth, 1);
+      const lastDay = new Date(calendarViewYear, calendarViewMonth + 1, 0);
+      
+      const firstDaySatIndex = (firstDay.getDay() === 6) ? 0 : (firstDay.getDay() + 1);
+
+      let gridHtml = '';
+
+      for (let i = 0; i < firstDaySatIndex; i++) {
+        gridHtml += `<div class="calendar-day-cell other-month"></div>`;
+      }
+
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const thisDate = new Date(calendarViewYear, calendarViewMonth, day);
+        const dow = thisDate.getDay();
+        const isOff = (dow === 4 || dow === 5);
+        const isSelected = isSameCalendarDay(thisDate, selectedDate);
+        const isToday = isSameCalendarDay(thisDate, REAL_TODAY);
+
+        gridHtml += `
+          <div class="calendar-day-cell ${isSelected ? 'is-selected' : ''} ${isToday ? 'is-today' : ''} ${isOff ? 'is-offday' : ''}" 
+               onclick="pickDate(${calendarViewYear}, ${calendarViewMonth}, ${day})"
+               title="${DAY_NAMES[dow]} ${day} ${isToday ? '(Today)' : ''} ${isOff ? '(Off-day)' : ''}">
+            ${day}
+            ${isToday && !isSelected ? '<span class="today-subtle-dot"></span>' : ''}
+          </div>
+        `;
+      }
+
+      document.getElementById('calendarDaysGrid').innerHTML = gridHtml;
+    }
+
+    function pickDate(year, month, day) {
+      selectedDate = new Date(year, month, day);
+      closeCalendarPicker();
+      renderAll();
+    }
+
+    function selectDateByTimestamp(ts) {
+      selectedDate = new Date(ts);
+      renderAll();
+    }
+
+    function jumpToToday() {
+      selectedDate = new Date(REAL_TODAY.getTime());
+      closeCalendarPicker();
+      renderAll();
+      const sL = document.getElementById('appScreenLight');
+      const sD = document.getElementById('appScreenDark');
+      if (sL) sL.scrollTo({ top: 0, behavior: 'smooth' });
+      if (sD) sD.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function jumpToNextWeek() {
+      const nextW = new Date(selectedDate);
+      nextW.setDate(selectedDate.getDate() + 7);
+      selectedDate = nextW;
+      closeCalendarPicker();
+      renderAll();
+    }
+
+    function showSheet(id) {
+      document.getElementById(id).classList.add('open');
+    }
+
+    function closeSheet(id, e) {
+      if (e && e.target !== document.getElementById(id)) return;
+      document.getElementById(id).classList.remove('open');
+    }
+
+    const FULL_COURSE_NAMES = {
+      'AI': 'Artificial Intelligence',
+      'AIL': 'Artificial Intelligence Laboratory',
+      'ALGO': 'Algorithms',
+      'ALGOL': 'Algorithms Laboratory',
+      'BDA': 'Big Data Analytics',
+      'BDAL': 'Big Data Analytics Laboratory',
+      'CC': 'Cloud Computing',
+      'CCL': 'Cloud Computing Laboratory',
+      'CCS': 'Cyber and Computer Security',
+      'CN': 'Computer Networks',
+      'CNL': 'Computer Networks Laboratory',
+      'COA': 'Computer Organization and Architecture',
+      'CPL': 'Competitive Programming Laboratory',
+      'DBMS': 'Database Management Systems',
+      'DBMSL': 'Database Management Systems Laboratory',
+      'DC': 'Distributed Computing',
+      'DM': 'Discrete Mathematics',
+      'DMNT': 'Discrete Mathematics and Number Theory',
+      'DS': 'Data Structures',
+      'DSL': 'Data Structures Laboratory',
+      'EDC': 'Electronic Devices and Circuits',
+      'EDCL': 'Electronic Devices and Circuits Laboratory',
+      'EE': 'Engineering Economics',
+      'HCI': 'Human Computer Interaction',
+      'ICMP': 'Introduction to Classical & Modern Physics',
+      'IEE': 'Introduction to Electrical Engineering',
+      'IEEL': 'Electrical Engineering Laboratory',
+      'IP': 'Image Processing',
+      'ISD': 'Information Systems Design',
+      'MAD': 'Mobile Application Development',
+      'ML': 'Machine Learning',
+      'MLL': 'Machine Learning Laboratory',
+      'MM': 'Multimedia Systems',
+      'MML': 'Multimedia Systems Laboratory',
+      'NM': 'Numerical Methods',
+      'NS': 'Network Security',
+      'NSL': 'Network Security Laboratory',
+      'OOP': 'Object Oriented Programming',
+      'OOPL': 'Object Oriented Programming Laboratory',
+      'OS': 'Operating Systems',
+      'OSL': 'Operating Systems Laboratory',
+      'PF': 'Programming Fundamentals',
+      'PFL': 'Programming Fundamentals Laboratory',
+      'PHYL': 'Physics Laboratory',
+      'SE': 'Software Engineering',
+      'SEL': 'Software Engineering Laboratory',
+      'STQA': 'Software Testing and Quality Assurance',
+      'STQAL': 'Software Testing and Quality Assurance Laboratory',
+      'TC': 'Telecommunication Engineering'
+    };
+
+    function getWeeklyRecurrences(courseCode) {
+      const codeUpper = (courseCode || '').toUpperCase().trim();
+      const recurrences = [];
+      const days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'];
+      
+      days.forEach(day => {
+        const list = ACADEMIC_SCHEDULE[day] || [];
+        list.forEach(item => {
+          if (item.code.toUpperCase().trim() === codeUpper) {
+            recurrences.push({
+              day: day,
+              dayShort: day.substring(0, 3).toUpperCase(),
+              time: `${item.start} – ${item.end}`,
+              room: item.room,
+              teacherCode: item.teacherCode,
+              duration: item.duration,
+              type: item.type
+            });
+          }
+        });
+      });
+      return recurrences;
+    }
+
+    let activeClassModalTeacherCode = 'MHE';
+    let currentFacultyCode = 'MHE';
+    let currentFacultySelectedDay = 'ALL';
+
+    const FULL_FACULTY_DETAILS = {
+      "MHE": {
+        code: "MHE",
+        name: "Mahmudul Hasan Emon",
+        designation: "Assistant Professor · Department of Computer Science and Engineering",
+        status: "Active",
+        email: "mhe.cse@puc.ac.bd",
+        phone: "+8801712345678",
+        profileUrl: "https://cse.puc.ac.bd/Home/Profile?userName=mhe_cse"
+      },
+      "AIR": {
+        code: "AIR",
+        name: "Dr. Ashiqur Rahman",
+        designation: "Assistant Professor · Department of Computer Science and Engineering",
+        status: "Active",
+        email: "ashiq.cse@puc.ac.bd",
+        phone: "+8801812345678",
+        profileUrl: "https://cse.puc.ac.bd/Home/Profile?userName=ashiq_cse"
+      },
+      "NME": {
+        code: "NME",
+        name: "Noor Mohammad Erfan",
+        designation: "Assistant Professor · Department of Computer Science and Engineering",
+        status: "Active",
+        email: "erfan.cse@puc.ac.bd",
+        phone: "+8801912345678",
+        profileUrl: "https://cse.puc.ac.bd/Home/Profile?userName=erfan_cse"
+      },
+      "ST": {
+        code: "ST",
+        name: "Ms. Sabrina Tarannum",
+        designation: "Associate Professor · Department of Computer Science and Engineering",
+        status: "Active",
+        email: "sabrina.cse@puc.ac.bd",
+        phone: "+8801612345678",
+        profileUrl: "https://cse.puc.ac.bd/Home/Profile?userName=sabrina_cse"
+      },
+      "IFTEKAR MIA": {
+        code: "IFTEKAR MIA",
+        name: "Iftekar Mia",
+        designation: "Assistant Professor · Department of Computer Science and Engineering",
+        status: "Active",
+        email: "iftekar.cse@puc.ac.bd",
+        phone: "+8801512345678",
+        profileUrl: "https://cse.puc.ac.bd/Home/Profile?userName=iftekar_cse"
+      },
+      "RSN": {
+        code: "RSN",
+        name: "Ms. Rehnuma Shahrin",
+        designation: "Assistant Professor · Department of Computer Science and Engineering",
+        status: "Active",
+        email: "rehnuma.cse@puc.ac.bd",
+        phone: "+8801700000001",
+        profileUrl: "https://cse.puc.ac.bd/Home/Profile?userName=rehnuma_cse"
+      },
+      "NJS": {
+        code: "NJS",
+        name: "Nazmun Nahar",
+        designation: "Assistant Professor · Department of Physics",
+        status: "Active",
+        email: "nazmun.phy@puc.ac.bd",
+        phone: "",
+        profileUrl: "https://cse.puc.ac.bd"
+      },
+      "MHN": {
+        code: "MHN",
+        name: "Md. Mehedi Hasan Nahin",
+        designation: "Lecturer · Department of Computer Science and Engineering",
+        status: "Active",
+        email: "nahin.cse@puc.ac.bd",
+        phone: "",
+        profileUrl: "https://cse.puc.ac.bd"
+      }
+    };
+
+    function resolveTeacherCode(input) {
+      if (!input) return 'MHE';
+      const clean = String(input).trim();
+      const upper = clean.toUpperCase();
+      if (FULL_FACULTY_DETAILS[upper]) return upper;
+      for (const [code, data] of Object.entries(FULL_FACULTY_DETAILS)) {
+        if (data.code && data.code.toUpperCase() === upper) return code;
+        if (data.name && data.name.toLowerCase() === clean.toLowerCase()) return code;
+      }
+      return clean;
+    }
+
+    function getTeacherScheduleAllDays(teacherCode) {
+      const code = resolveTeacherCode(teacherCode);
+      const codeUpper = code.toUpperCase().trim();
+      const facultyData = FULL_FACULTY_DETAILS[codeUpper];
+      const facultyNameLower = facultyData ? facultyData.name.toLowerCase() : '';
+      const results = [];
+      const days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'];
+
+      days.forEach(day => {
+        const list = ACADEMIC_SCHEDULE[day] || [];
+        list.forEach(c => {
+          const cTeacherUpper = (c.teacherCode || '').toUpperCase().trim();
+          const cTeacherResolved = resolveTeacherCode(c.teacherCode);
+          const cTeacherName = getVerifiedInstructorDisplay(c.teacherCode).toLowerCase();
+
+          if (cTeacherUpper === codeUpper || cTeacherResolved === codeUpper || (facultyNameLower && cTeacherName === facultyNameLower)) {
+            results.push({
+              day: day,
+              dayShort: day.substring(0, 3).toUpperCase(),
+              subject: c.code,
+              name: c.name,
+              room: c.room,
+              start: c.start,
+              end: c.end,
+              duration: c.duration,
+              type: c.type,
+              section: 'Sem 3-A'
+            });
+          }
+        });
+      });
+      return results;
+    }
+
+    function showClassModal(code, title, time, room, teacher, type, duration) {
+      activeClassModalTeacherCode = resolveTeacherCode(teacher);
+      const verifiedTeacher = getVerifiedInstructorDisplay(activeClassModalTeacherCode);
+      const fullTitle = FULL_COURSE_NAMES[code] || title || code;
+      const isLab = (type || '').toLowerCase() === 'lab';
+      const cleanRoom = (room || '').replace('Room ', '');
+      const currentDayName = DAY_NAMES[selectedDate.getDay()];
+      const recurrences = getWeeklyRecurrences(code);
+
+      // Contextual Icon for Subject
+      let iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>';
+      if (code === 'DSL' || code === 'DS') {
+        iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>';
+      } else if (code === 'ICMP' || code === 'PHYL') {
+        iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 21a9 9 0 0 0 9-9 9 9 0 0 0-9-9 9 9 0 0 0-9 9 9 9 0 0 0 9 9z"/><path d="M3.6 9h16.8"/><path d="M3.6 15h16.8"/></svg>';
+      } else if (code === 'EE') {
+        iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>';
+      } else if (code === 'DMNT') {
+        iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/></svg>';
+      }
+
+      ['l', 'd'].forEach(suffix => {
+        const codeEl = document.getElementById(`modalCourseCode-${suffix}`);
+        const titleEl = document.getElementById(`modalFullTitle-${suffix}`);
+        const timingEl = document.getElementById(`modalTiming-${suffix}`);
+        const durationEl = document.getElementById(`modalDuration-${suffix}`);
+        const roomEl = document.getElementById(`modalRoom-${suffix}`);
+        const teacherEl = document.getElementById(`modalInstructor-${suffix}`);
+        const formatEl = document.getElementById(`modalFormat-${suffix}`);
+        const badgeEl = document.getElementById(`modalTypeBadge-${suffix}`);
+        const countEl = document.getElementById(`modalRecurrenceCount-${suffix}`);
+        const listEl = document.getElementById(`modalRecurrenceList-${suffix}`);
+        const iconEl = document.getElementById(`modalSquircleIcon-${suffix}`);
+
+        if (iconEl) iconEl.innerHTML = iconSvg;
+        if (codeEl) codeEl.textContent = code;
+        if (titleEl) titleEl.textContent = fullTitle;
+        if (timingEl) timingEl.textContent = time;
+        if (durationEl) durationEl.textContent = `${duration || '1h 15m'} session`;
+        if (roomEl) roomEl.textContent = `Room ${cleanRoom}`;
+        if (teacherEl) teacherEl.textContent = verifiedTeacher;
+        if (formatEl) formatEl.textContent = isLab ? 'Laboratory Session' : 'Theory Lecture';
+
+        if (badgeEl) {
+          badgeEl.textContent = isLab ? '★ LAB' : 'THEORY';
+          badgeEl.className = `resting-tag ${isLab ? 'lab' : 'theory'}`;
+        }
+
+        if (countEl) {
+          countEl.textContent = `${recurrences.length} ${recurrences.length === 1 ? 'SESSION' : 'SESSIONS'} / WEEK`;
+        }
+
+        if (listEl) {
+          let recHtml = '';
+          recurrences.forEach(r => {
+            const isCurrent = (r.day === currentDayName);
+            recHtml += `
+              <div class="recurrence-card-row ${isCurrent ? 'is-active-session' : ''}">
+                <div class="recurrence-row-left">
+                  <span class="recurrence-day-chip">${r.dayShort}</span>
+                  <span class="recurrence-row-time">${r.time}</span>
+                </div>
+                <div class="recurrence-row-right">
+                  <span class="recurrence-room-label">Room ${r.room}</span>
+                  ${isCurrent ? '<span class="recurrence-active-badge">ACTIVE</span>' : ''}
+                </div>
+              </div>
+            `;
+          });
+          listEl.innerHTML = recHtml;
+        }
+      });
+
+      const sheetL = document.getElementById('classSheet-l');
+      const sheetD = document.getElementById('classSheet-d');
+      if (sheetL) sheetL.classList.add('open');
+      if (sheetD) sheetD.classList.add('open');
+    }
+
+    function openFacultyModalFromClass(suffix) {
+      openFacultyModal(activeClassModalTeacherCode, suffix);
+    }
+
+    function openFacultyModal(teacherCode, targetSuffix) {
+      currentFacultyCode = resolveTeacherCode(teacherCode || 'MHE');
+      currentFacultySelectedDay = 'ALL'; // Start with ALL so full weekly schedule is immediately visible
+      const upper = currentFacultyCode.toUpperCase().trim();
+      const info = FULL_FACULTY_DETAILS[upper] || {
+        code: currentFacultyCode,
+        name: getVerifiedInstructorDisplay(currentFacultyCode),
+        designation: "Faculty Member · Department of Computer Science and Engineering",
+        status: "Active",
+        email: "",
+        phone: "",
+        profileUrl: "https://cse.puc.ac.bd"
+      };
+
+      const initials = (info.name || info.code).split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+      ['l', 'd'].forEach(suffix => {
+        const avatarEl = document.getElementById(`facultyAvatar-${suffix}`);
+        const nameEl = document.getElementById(`facultyName-${suffix}`);
+        const codeEl = document.getElementById(`facultyCode-${suffix}`);
+        const desigEl = document.getElementById(`facultyDesig-${suffix}`);
+        const statusEl = document.getElementById(`facultyStatus-${suffix}`);
+        const emailBtn = document.getElementById(`facultyEmailBtn-${suffix}`);
+        const phoneBtn = document.getElementById(`facultyPhoneBtn-${suffix}`);
+        const pucBtn = document.getElementById(`facultyPucBtn-${suffix}`);
+
+        if (avatarEl) avatarEl.textContent = initials;
+        if (nameEl) nameEl.textContent = info.name;
+        if (codeEl) codeEl.textContent = info.code; // ST, MHE, AIR, etc. (NEVER duplicate name)
+        if (desigEl) desigEl.textContent = info.designation;
+        if (statusEl) {
+          statusEl.textContent = info.status === 'Study Leave' ? '🎓 Study Leave' : '● Active Faculty';
+          statusEl.className = `faculty-status-pill ${info.status === 'Study Leave' ? 'leave' : 'active'}`;
+        }
+
+        if (emailBtn) {
+          if (info.email) {
+            emailBtn.href = `mailto:${info.email}`;
+            emailBtn.style.display = 'flex';
+          } else {
+            emailBtn.style.display = 'none';
+          }
+        }
+
+        if (phoneBtn) {
+          if (info.phone) {
+            phoneBtn.href = `tel:${info.phone}`;
+            phoneBtn.style.display = 'flex';
+          } else {
+            phoneBtn.style.display = 'none';
+          }
+        }
+
+        if (pucBtn) {
+          pucBtn.href = info.profileUrl || 'https://cse.puc.ac.bd';
+        }
+
+        renderFacultyDayStrip(suffix);
+        renderFacultyRoutineCards(suffix);
+      });
+
+      if (targetSuffix) {
+        const sheet = document.getElementById(`facultySheet-${targetSuffix}`);
+        if (sheet) sheet.classList.add('open');
+      } else {
+        const sheetL = document.getElementById('facultySheet-l');
+        const sheetD = document.getElementById('facultySheet-d');
+        if (sheetL) sheetL.classList.add('open');
+        if (sheetD) sheetD.classList.add('open');
+      }
+    }
+
+    function renderFacultyDayStrip(suffix) {
+      const container = document.getElementById(`facultyDaysStrip-${suffix}`);
+      if (!container) return;
+
+      const days = ['SAT', 'SUN', 'MON', 'TUE', 'WED', 'ALL'];
+      let html = '';
+      days.forEach(d => {
+        const isActive = (d === currentFacultySelectedDay);
+        html += `<button class="faculty-day-tab-btn ${isActive ? 'active' : ''}" onclick="switchFacultyDay('${d}')">${d}</button>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function switchFacultyDay(day) {
+      currentFacultySelectedDay = day;
+      renderFacultyDayStrip('l');
+      renderFacultyDayStrip('d');
+      renderFacultyRoutineCards('l');
+      renderFacultyRoutineCards('d');
+    }
+
+    function renderFacultyRoutineCards(suffix) {
+      const container = document.getElementById(`facultyRoutineList-${suffix}`);
+      if (!container) return;
+
+      const allSessions = getTeacherScheduleAllDays(currentFacultyCode);
+      let filtered = allSessions;
+      if (currentFacultySelectedDay !== 'ALL') {
+        filtered = allSessions.filter(s => s.dayShort === currentFacultySelectedDay);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="faculty-empty-state">🌴 No Classes Scheduled on ${currentFacultySelectedDay}</div>`;
+        return;
+      }
+
+      let html = '';
+      filtered.forEach(s => {
+        const isLab = (s.type || '').toLowerCase() === 'lab';
+        html += `
+          <div class="faculty-routine-row">
+            <div class="faculty-routine-left">
+              <div class="faculty-routine-subj-row">
+                <span class="faculty-routine-subj">${s.subject}</span>
+                <span class="resting-tag ${isLab ? 'lab' : 'theory'}">${isLab ? '★ LAB' : 'THEORY'}</span>
+                <span class="recurrence-day-chip" style="margin-left: 2px;">${s.dayShort}</span>
+              </div>
+              <div class="faculty-routine-meta">
+                <span>Room ${s.room}</span>
+                <span>&bull;</span>
+                <span>${s.name || s.subject}</span>
+              </div>
+            </div>
+            <div class="faculty-routine-right">
+              <span class="faculty-routine-time">${s.start}</span>
+              <span style="font-size: 9.5px; color: var(--text-muted);">${s.duration}</span>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function closeFacultyModal(suffix, e) {
+      if (suffix) {
+        if (e && e.target !== document.getElementById(`facultySheet-${suffix}`)) return;
+        const sheet = document.getElementById(`facultySheet-${suffix}`);
+        if (sheet) sheet.classList.remove('open');
+      } else {
+        const sheetL = document.getElementById('facultySheet-l');
+        const sheetD = document.getElementById('facultySheet-d');
+        if (sheetL) sheetL.classList.remove('open');
+        if (sheetD) sheetD.classList.remove('open');
+      }
+    }
+
+    function closeAllModals() {
+      closeFacultyModal();
+      closeClassModal();
+      closeSheet('appsSheet-l');
+      closeSheet('appsSheet-d');
+      closeCalendarPicker();
+    }
+
+    function closeClassModal(suffix, e) {
+      if (suffix) {
+        if (e && e.target !== document.getElementById(`classSheet-${suffix}`)) return;
+        const sheet = document.getElementById(`classSheet-${suffix}`);
+        if (sheet) sheet.classList.remove('open');
+      } else {
+        const sheetL = document.getElementById('classSheet-l');
+        const sheetD = document.getElementById('classSheet-d');
+        if (sheetL) sheetL.classList.remove('open');
+        if (sheetD) sheetD.classList.remove('open');
+      }
+    }
+
+    function setViewMode(mode) {
+      const lightCol = document.getElementById('lightDeviceCol');
+      const darkCol = document.getElementById('darkDeviceCol');
+      const btns = document.querySelectorAll('.view-btn');
+      
+      btns.forEach(b => b.classList.remove('active'));
+
+      if (mode === 'both') {
+        lightCol.style.display = 'flex';
+        darkCol.style.display = 'flex';
+        btns[0].classList.add('active');
+      } else if (mode === 'light') {
+        lightCol.style.display = 'flex';
+        darkCol.style.display = 'none';
+        btns[1].classList.add('active');
+      } else if (mode === 'dark') {
+        lightCol.style.display = 'none';
+        darkCol.style.display = 'flex';
+        btns[2].classList.add('active');
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAllModals();
+      }
+    });
+  </script>
+</body>
+</html>

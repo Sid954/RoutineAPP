@@ -9,6 +9,7 @@
 @import './banners/banners.css';
 @import './dashboard/dashboard.css';
 @import './timeline/timeline.css';
+@import './timeline/class-detail.css';
 @import './modals/modal.css';
 @import './weekly-matrix/matrix.css';
 @import './edit-schedule/editor.css';
@@ -19,3 +20,4 @@
 @import './teachers/teachers.css';
 @import './themes/themes.css';
 @import './widget/widget.css';
+

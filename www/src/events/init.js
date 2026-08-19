@@ -14,6 +14,9 @@ import { updateDashboard, forceUpdate } from '../dashboard/update.js';
 import { DOM } from '../core/dom.js';
 import { performUnifiedUpdateCheck } from '../updater/apk-updater.js';
 import { initThemeEngine, applyTheme } from '../core/theme.js';
+import { initTeacherNames } from '../teachers/teacher-names.js';
+import { loadMasterTeacherData } from '../teachers/teacher-finder.js';
+import { preloadScheduleImages } from '../core/image-cache.js';
 
 export function fetchAnnouncementsAndNotify() {
   return Announcements.fetchAll().then(fetched => {
@@ -29,7 +32,17 @@ export function fetchAnnouncementsAndNotify() {
 
 export function initializeApp() {
   initThemeEngine();
+  initTeacherNames();
+  loadMasterTeacherData();
   if (FEATURES.streak) Streak.update();
+
+  // Always default to today's actual date on fresh app launch
+  const realToday = new Date();
+  const realTodayIdx = realToday.getDay();
+  State.currentViewDayIdx = realTodayIdx;
+  State.selectedDay = realTodayIdx;
+  State.viewDate = realToday;
+  State.matrixSelectedDayIdx = CONFIG.activeDays.includes(realTodayIdx) ? realTodayIdx : CONFIG.activeDays[0];
 
   // ── STEP 1: Load cached schedule instantly (offline-first)
   const savedSchedule = Storage.loadSchedule();
@@ -50,6 +63,9 @@ export function initializeApp() {
   updateGreeting();
   updateStats();
   forceUpdate();
+
+  // Asynchronously warm image cache in idle time
+  preloadScheduleImages(State.schedule);
 
   // Start intervals immediately
   State.clockIntervalId = setInterval(updateClock, CONFIG.updateIntervalMs);
@@ -72,8 +88,6 @@ export function initializeApp() {
       let needsRefresh = false;
       if (configData.activeDays) {
         CONFIG.activeDays = configData.activeDays;
-        if (!CONFIG.activeDays.includes(State.currentViewDayIdx)) { State.currentViewDayIdx = CONFIG.activeDays[0]; needsRefresh = true; }
-        if (!CONFIG.activeDays.includes(State.selectedDay)) { State.selectedDay = CONFIG.activeDays[0]; needsRefresh = true; }
         if (!CONFIG.activeDays.includes(State.matrixSelectedDayIdx)) { State.matrixSelectedDayIdx = CONFIG.activeDays[0]; needsRefresh = true; }
       }
       if (configData.matrixIntervals) CONFIG.matrixIntervals = configData.matrixIntervals;

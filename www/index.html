@@ -5,19 +5,17 @@
   <script>
     (function() {
       try {
-        var s = localStorage.getItem('routine_theme_style') || 'glassmorphism';
-        var c = localStorage.getItem('routine_theme_color') || 'pitch_black';
-        document.documentElement.setAttribute('data-style', s);
+        var c = localStorage.getItem('routine_theme_color') || 'dark';
+        if (c !== 'light') c = 'dark';
+        document.documentElement.setAttribute('data-style', 'solid');
         document.documentElement.setAttribute('data-color', c);
-        var bgMap = { dark: '#06080d', pitch_black: '#000000', light: '#e2e8f0', matcha: '#08120e', sunset: '#140812' };
-        var meta = document.querySelector('meta[name="theme-color"]');
-        if (meta && bgMap[c]) meta.setAttribute('content', bgMap[c]);
+        document.documentElement.setAttribute('data-theme', c);
       } catch (e) {}
     })();
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="description" content="Smart university timetable dashboard with class notifications, progress tracking, and weekly schedule views.">
-  <meta name="theme-color" content="#06080d">
+  <meta name="theme-color" content="#18191E">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>My Routine — Smart Timetable</title>
@@ -26,16 +24,8 @@
   <link rel="apple-touch-icon" href="icon-512.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="src/main.css">
-  <script>
-    (function() {
-      try {
-        var savedTheme = localStorage.getItem('puc_app_theme') || 'midnight';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-      } catch(e) {}
-    })();
-  </script>
 </head>
 <body>
 
@@ -86,81 +76,120 @@
     <div class="w" id="app">
       <div class="wi">
 
-        <!-- Header: Clock, Date, Controls -->
-        <header class="hd">
-          <div>
-            <div class="tm" id="clockTrigger">
-              <span id="hD">12</span>:<span id="mD">30</span> <span class="ap" id="apD">PM</span>
+        <!-- Header: Clock, Date Badge Pill, Controls -->
+        <header class="top-bar">
+          <div class="top-date-time-col">
+            <div class="digital-clock" id="clockTrigger">
+              <span class="clock-time" id="hD">12</span>:<span id="mD">30</span>
+              <span class="clock-period" id="apD">PM</span>
             </div>
-            <div class="dr"><span id="dayD">Wednesday</span><span class="db" id="dateD">Jul 11</span></div>
+            <!-- Sleek Interactive Date Button (Line 2 under Clock) -->
+            <button class="date-badge-pill" id="dateBadgeBtn" title="Current Academic Date">
+              <svg class="cal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="dateD">Saturday, 19 August</span>
+              <svg class="cal-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <span id="dayD" style="display:none;"></span>
           </div>
-          <div class="hd-actions">
-            <a class="download-apk-btn" id="pcDownloadApkBtn" href="https://github.com/sid954/RoutineAPP/releases/latest/download/app-release.apk" target="_blank" title="Download Android App" style="display: none;">
-              <span>📱 Download App</span>
-            </a>
-            <button class="hd-btn" id="announcementsBtn" title="Announcements" style="position: relative;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h2"/><path d="M6 9h9l5-5v16l-5-5H6V9z"/><path d="M3 11h3v4H3v-4z"/></svg>
-              <span class="announce-badge-blob" id="announceBadge" style="display:none;"></span>
+          <div class="top-actions">
+            <button class="hd-btn" id="editBtn" title="Edit schedule & appearance">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             </button>
-            <button class="hd-btn" id="notifSettingsBtn" title="Notification settings">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            </button>
-            <button class="hd-btn" id="editBtn" title="Edit schedule"><span>⚙️</span></button>
+            <div style="display: none;" aria-hidden="true">
+              <button id="announcementsBtn"><span id="announceBadge"></span></button>
+              <button id="notifSettingsBtn"></button>
+            </div>
           </div>
         </header>
 
-        <!-- Smart Greeting -->
-        <div class="greeting" id="greeting">
-          <span class="greeting-text" id="greetText">Good morning!</span>
-          <span class="greeting-sub" id="greetSub">Loading schedule...</span>
+        <!-- 2. Headline Greeting (Line 1: Salutation with Sun SVG, Line 2: Sid, Line 3: Caption) -->
+        <div class="greeting-headline-row" id="greeting">
+          <div class="greeting-text-group">
+            <div class="greeting-salutation-line">
+              <span id="greetSalutation">Good afternoon</span>
+              <svg class="salutation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            </div>
+            <h1 class="greeting-user-name" id="greetText">Sid</h1>
+            <span class="greeting-caption" id="greetSub">2 sessions scheduled</span>
+          </div>
         </div>
 
-        <!-- Current Active Class -->
-        <section class="cc" id="cc">
-          <div class="lb">
-            <span class="lb-left"><span class="pd"></span>CURRENT</span>
-            <span class="lb-right" id="cTR">—</span>
-          </div>
-          <h2 class="tt" id="cT">Loading...</h2>
-          <div class="mr"><span class="rp" id="cR">—</span></div>
-          <div class="ps">
-            <div class="pi"><span id="cEl"></span></div>
-            <div class="pt"><div class="pf" id="cBar"></div></div>
-            <div class="rm" id="cRm">Remaining: —</div>
+        <!-- Direction B: Focal Day Anchor Strip -->
+        <section class="strip-direction-container">
+          <div class="strip-dir-b-row" id="focalStripContainer">
+            <!-- Rendered dynamically -->
           </div>
         </section>
 
-        <!-- Next Upcoming Class -->
-        <section class="nc" id="nc">
-          <div class="lb">NEXT</div>
-          <div class="rw"><span class="tt" id="nT">—</span><span class="eta" id="nE">—</span></div>
-          <div class="sb">Room: <span class="rm" id="nR">—</span>&nbsp;·&nbsp;<span id="nTR">—</span></div>
-        </section>
-
-        <!-- Day Timeline with Switcher -->
+        <!-- Unified Spacious Timeline Cards -->
         <section class="cs" id="chS">
-          <div class="cs-header">
-            <button class="day-nav-btn" id="prevDayBtn" title="Previous Day">← Prev</button>
-            <div class="csh-wrapper">
-              <div class="csh" id="timelineTitle">Today's Classes</div>
-              <div class="csh-sub" id="timelineSubtitle">Wednesday</div>
-            </div>
-            <button class="day-nav-btn" id="nextDayBtn" title="Next Day">Next →</button>
+          <div class="timeline-header-row">
+            <div class="timeline-title-text" id="timelineTitle">Today's Schedule</div>
+            <div class="timeline-count-badge" id="timelineSubtitle">Loading...</div>
           </div>
           <div class="chg" id="chG">
-            <!-- Skeleton loader -->
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
+            <!-- Timeline Cards injected via renderTimeline() -->
           </div>
         </section>
 
-        <!-- View Full Routine Button -->
-        <div class="vrw">
-          <button class="vrb" id="vrB"><span>View Full Routine</span><span class="ar">→</span></button>
+        <!-- Compatibility Hidden Containers for Background Updates -->
+        <div style="display: none;" aria-hidden="true">
+          <div id="prevDayBtn"></div>
+          <div id="nextDayBtn"></div>
+          <div id="vrB"></div>
+          <div id="cc"><span id="cTR"></span><span id="cT"></span><div class="mr"><span id="cR"></span></div><div class="ps"><div class="pi"><span id="cEl"></span></div><div class="pt"><div id="cBar"></div></div><div id="cRm"></div></div></div>
+          <div id="nc"><span id="nT"></span><span id="nE"></span><span id="nR"></span><span id="nTR"></span></div>
         </div>
 
       </div>
+
+      <!-- Fixed 5-Button Bottom Dock with Raised Center Daily Routine Button -->
+      <nav class="solid-fixed-dock-container" aria-label="Bottom Navigation">
+        <div class="solid-dock-bar">
+          <!-- 1. Home (Structural Placeholder) -->
+          <button class="dock-tab is-placeholder" id="dockHomeBtn" title="Home">
+            <div class="dock-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <span class="dock-label">Home</span>
+          </button>
+
+          <!-- 2. Routine Matrix -->
+          <button class="dock-tab" id="dockRoutineBtn" title="Full Routine Matrix">
+            <div class="dock-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <span class="dock-label">Routine</span>
+          </button>
+
+          <!-- 3. RAISED CENTER FLOATING FAB: Daily Routine -->
+          <div class="dock-center-fab-slot">
+            <button class="dock-center-raised-fab" id="dockCenterFab" title="Daily Routine Timeline">
+              <div class="dock-raised-fab-core">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="m9 16 2 2 4-4"></path></svg>  
+              </div>
+            </button>
+          </div>
+
+          <!-- 4. Notices / Announcements -->
+          <button class="dock-tab" id="dockNoticesBtn" title="Announcements & Notices">
+            <div class="dock-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span class="dock-unread-dot" id="dockAnnounceDot" style="display:none;"></span>
+            </div>
+            <span class="dock-label">Notices</span>
+          </button>
+
+          <!-- 5. Apps Hub (Structural Placeholder) -->
+          <button class="dock-tab is-placeholder" id="dockAppsBtn" title="Campus Apps Hub">
+            <div class="dock-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="5" r="2"/></svg>
+            </div>
+            <span class="dock-label">Apps</span>
+          </button>
+        </div>
+      </nav>
+
     </div>
   </div>
 
@@ -675,16 +704,91 @@
     </div>
   </div>
 
-  <!-- Modal: Class Detail Popover -->
-  <div class="mo" id="classDetailModal" style="z-index: 1000;">
-    <div class="md" style="max-width: 360px;padding: 10px; background: rgba(15, 18, 26, 0.95); backdrop-filter: blur(16px); border: 1.5px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
-      <div class="md-h" style="border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px;">
-        <h2 id="cdTitle" style="font-size: 18px; font-weight: 800; color: #fff; line-height: 1.2;">Class Details</h2>
-        <button class="cls" id="classDetailClose">✕</button>
+  <!-- Modal: Class Detail Bottom Sheet (100% Solid Card Surface) -->
+  <div class="class-sheet-modal-overlay" id="classDetailModal" style="z-index: 3000;">
+    <div class="class-detail-bottom-sheet">
+      <!-- Drag Handle -->
+      <div class="sheet-drag-handle-bar">
+        <div class="sheet-drag-handle"></div>
       </div>
-      <div id="classDetailBody" style="display: flex; flex-direction: column; gap: 14px; font-size: 13.5px; color: var(--text);">
-        <!-- Loaded dynamically -->
+
+      <!-- Top Header Row -->
+      <div class="class-sheet-top-header">
+        <div class="class-sheet-left-hero">
+          <div class="class-sheet-icon-squircle" id="modalSquircleIcon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <div class="class-sheet-code-title-stack">
+            <div class="class-sheet-code-badge-row">
+              <span class="class-sheet-hero-code" id="modalCourseCode">DSL</span>
+              <span class="resting-tag lab" id="modalTypeBadge">★ LAB</span>
+            </div>
+            <div class="class-sheet-hero-title" id="modalFullTitle">Data Structures Laboratory</div>
+            <span id="cdTitle" style="display:none;">Class Details</span>
+          </div>
+        </div>
+        <button class="class-sheet-close-btn" id="classDetailClose" title="Close sheet">&times;</button>
       </div>
+
+      <!-- Core Parameters Grid -->
+      <div class="class-sheet-params-grid">
+        <!-- 1. Timing & Duration -->
+        <div class="class-param-tile">
+          <div class="class-param-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Time &bull; Duration</span>
+          </div>
+          <div class="class-param-main-val mono" id="modalTiming">11:00 AM – 01:30 PM</div>
+          <div class="class-param-subtext" id="modalDuration">2h 30m session</div>
+        </div>
+
+        <!-- 2. Room & Location -->
+        <div class="class-param-tile">
+          <div class="class-param-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>Campus Room</span>
+          </div>
+          <div class="class-param-main-val" id="modalRoom">Room 905</div>
+          <div class="class-param-subtext" id="modalFormat">Laboratory Session</div>
+        </div>
+
+        <!-- 3. Full Verified Instructor Row (Tappable -> Opens Faculty Profile) -->
+        <div class="class-param-tile full-width interactive-faculty-tile" id="modalInstructorTile" title="Tap to view full faculty profile and routine">
+          <div class="class-param-header" style="justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 5.5px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>Instructor</span>
+            </div>
+            <span class="view-profile-hint">Profile &rsaquo;</span>
+          </div>
+          <div class="class-param-main-val" style="align-items: center; gap: 10px;">
+            <div class="faculty-tile-left-content" style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+              <div class="faculty-avatar-mini" id="modalInstructorAvatar">MH</div>
+              <div class="faculty-tile-text-stack" style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                <span id="modalInstructor" style="font-size: 13.5px; font-weight: 800; color: var(--text-main); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Mahmudul Hasan Emon</span>
+                <span id="modalInstructorDesig" class="class-param-subtext" style="font-size: 10.5px; font-weight: 600; color: var(--text-muted); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Assistant Professor</span>
+              </div>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0;"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Schedule Recurrence Section -->
+      <div class="class-recurrence-card">
+        <div class="recurrence-card-header">
+          <div class="recurrence-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Weekly Schedule</span>
+          </div>
+          <span class="recurrence-sessions-badge" id="modalRecurrenceCount">1 SESSION / WEEK</span>
+        </div>
+        <div class="recurrence-card-rows-list" id="modalRecurrenceList">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <div id="classDetailBody" style="display: none;"></div>
     </div>
   </div>
 
@@ -780,18 +884,92 @@
     </div>
   </div>
 
-  <!-- Floating Action Button Group: Free Rooms & Teacher Finder -->
-  <div class="app-fab-container">
-    <button id="findTeacherFab" class="find-teacher-fab" title="Find where teachers are now">
-      <span class="ft-fab-badge-text">Faculty</span>
-      <span class="ft-fab-icon">👨‍🏫</span>
-    </button>
-    
-    <button id="freeRoomsFab" class="free-rooms-fab" title="Find available free rooms">
-      <span class="fr-fab-badge-text">Free</span>
-      <span class="fr-fab-icon">🚪</span>
-      <span id="freeRoomsBadge" class="fr-fab-count-badge" style="display:none;">0</span>
-    </button>
+  <!-- Hidden Compatibility FAB triggers for Free Rooms & Teacher Finder -->
+  <div style="display: none;" aria-hidden="true">
+    <button id="findTeacherFab" class="find-teacher-fab"></button>
+    <button id="freeRoomsFab" class="free-rooms-fab"><span id="freeRoomsBadge"></span></button>
+  </div>
+
+  <!-- Modal: Campus Apps & Utilities Hub -->
+  <div class="mo" id="appsModal" style="z-index: 100020;">
+    <div class="md" style="max-width: 460px; padding: 20px; border-radius: var(--r-card);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 20px;">⚡</span>
+          <h2 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin: 0;">Campus Apps & Hub</h2>
+        </div>
+        <button class="cls" id="appsModalClose" style="background: var(--canvas); border: 1px solid var(--card-border); color: var(--text-muted); border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">✕</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div id="appHubFreeRooms" style="background: var(--canvas); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 6px;">
+          <div style="font-size: 24px;">🚪</div>
+          <div style="font-size: 13px; font-weight: 800; color: var(--text-main);">Free Rooms</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Live vacancy across campus</div>
+        </div>
+
+        <div id="appHubFaculty" style="background: var(--canvas); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 6px;">
+          <div style="font-size: 24px;">👨‍🏫</div>
+          <div style="font-size: 13px; font-weight: 800; color: var(--text-main);">Faculty Directory</div>
+          <div style="font-size: 11px; color: var(--text-muted);">130+ faculty routines & info</div>
+        </div>
+
+        <div id="appHubRoutineMatrix" style="background: var(--canvas); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 6px;">
+          <div style="font-size: 24px;">📅</div>
+          <div style="font-size: 13px; font-weight: 800; color: var(--text-main);">Routine Matrix</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Full weekly timetable grid</div>
+        </div>
+
+        <div id="appHubSettings" style="background: var(--canvas); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 6px;">
+          <div style="font-size: 24px;">⚙️</div>
+          <div style="font-size: 13px; font-weight: 800; color: var(--text-main);">Routine Settings</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Change theme & section</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Universal Calendar Month Picker (Jump to Any Date) -->
+  <div class="modal-overlay" id="calendarPickerModal" style="z-index: 100030;">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle-bar"></div>
+      
+      <div class="sheet-header">
+        <div class="sheet-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Select Date</span>
+        </div>
+        <button class="close-sheet-btn" id="calendarPickerCloseBtn" type="button">&times;</button>
+      </div>
+
+      <!-- Month Navigation Bar -->
+      <div class="calendar-month-nav">
+        <button class="month-nav-btn" id="calPrevMonthBtn" type="button">&larr;</button>
+        <span class="calendar-month-title" id="calMonthTitle">August 2026</span>
+        <button class="month-nav-btn" id="calNextMonthBtn" type="button">&rarr;</button>
+      </div>
+
+      <!-- Weekday Headers (Saturday to Friday) -->
+      <div class="calendar-weekdays-row">
+        <div class="calendar-weekday-cell">Sa</div>
+        <div class="calendar-weekday-cell">Su</div>
+        <div class="calendar-weekday-cell">Mo</div>
+        <div class="calendar-weekday-cell">Tu</div>
+        <div class="calendar-weekday-cell">We</div>
+        <div class="calendar-weekday-cell off-col">Th</div>
+        <div class="calendar-weekday-cell off-col">Fr</div>
+      </div>
+
+      <!-- Calendar Month Days Grid -->
+      <div class="calendar-days-grid" id="calendarDaysGrid">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="calendar-quick-actions">
+        <button class="quick-jump-btn" id="calJumpTodayBtn" type="button">Jump to Today</button>
+        <button class="quick-jump-btn" id="calJumpNextWeekBtn" type="button">Next Week</button>
+      </div>
+    </div>
   </div>
 
   <!-- Modal: Free Rooms Finder -->
@@ -927,32 +1105,74 @@
         Help keep faculty info updated. Submissions are verified by an admin.
       </div>
 
+      <!-- Cooldown Warning Banner -->
+      <div id="suggestTeacherCooldownBanner" class="faculty-cooldown-banner" style="display: none;">
+        <span>⏳ Please wait <strong id="suggestTeacherCooldownTimer">60s</strong> before submitting another suggestion.</span>
+      </div>
+
       <form id="suggestTeacherForm" style="display: flex; flex-direction: column; gap: 10px;">
         <div>
           <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Teacher Code *</label>
-          <select id="suggestTeacherCodeSelect" class="fr-sort-select" style="width: 100%; height: 38px; font-size: 13px;" required>
+          
+          <!-- Locked view when opened from teacher profile -->
+          <div id="suggestTeacherCodeLockedBox" style="display: none; align-items: center; justify-content: space-between; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="faculty-code-tag" id="suggestTeacherCodeLockedBadge">MHE</span>
+              <span style="font-size: 13px; font-weight: 700; color: var(--text);" id="suggestTeacherNameLockedLabel">Mahmudul Hasan Emon</span>
+            </div>
+            <span style="font-size: 10px; font-weight: 800; color: var(--dim); text-transform: uppercase; letter-spacing: 0.4px;">🔒 Locked</span>
+          </div>
+
+          <!-- Select dropdown when opened from general context -->
+          <select id="suggestTeacherCodeSelect" class="fr-sort-select" style="width: 100%; height: 38px; font-size: 13px;">
             <option value="">Select teacher code...</option>
           </select>
         </div>
 
         <div>
-          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Full Name *</label>
-          <input type="text" id="suggestTeacherNameInput" placeholder="e.g. Azmain Yakin Srizon" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" required />
+          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Full Name</label>
+          <input type="text" id="suggestTeacherNameInput" maxlength="100" placeholder="e.g. Azmain Yakin Srizon" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
         </div>
 
         <div>
-          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Email Address (Optional)</label>
-          <input type="email" id="suggestTeacherEmailInput" placeholder="e.g. teacher@puc.ac.bd" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
+          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Email Address</label>
+          <input type="email" id="suggestTeacherEmailInput" maxlength="120" placeholder="e.g. teacher@puc.ac.bd" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
         </div>
 
         <div>
-          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Phone / Mobile (Optional)</label>
-          <input type="tel" id="suggestTeacherPhoneInput" placeholder="e.g. +8801700000000" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
+          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Phone / Mobile</label>
+          <input type="tel" id="suggestTeacherPhoneInput" maxlength="25" placeholder="e.g. +8801700000000" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
         </div>
 
         <div>
-          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Designation (Optional)</label>
-          <input type="text" id="suggestTeacherDesigInput" placeholder="e.g. Assistant Professor" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
+          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Designation</label>
+          <input type="text" id="suggestTeacherDesigInput" maxlength="100" placeholder="e.g. Assistant Professor" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Profile Photo</label>
+          <div class="faculty-photo-upload-box" id="suggestTeacherPhotoBox">
+            <div class="faculty-photo-preview-squircle" id="suggestTeacherPhotoPreview">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 20px; height: 20px; color: var(--dim);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <button type="button" id="suggestTeacherUploadBtn" class="faculty-photo-upload-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  <span id="suggestTeacherUploadBtnText">Upload Photo</span>
+                </button>
+                <button type="button" id="suggestTeacherRemovePhotoBtn" class="faculty-photo-remove-btn" style="display: none;">Remove</button>
+              </div>
+              <div id="suggestTeacherPhotoStatus" style="font-size: 11px; color: var(--dim); margin-top: 4px;">JPG, PNG, or WebP up to 3MB</div>
+            </div>
+            <input type="file" id="suggestTeacherPhotoFileInput" accept="image/jpeg,image/png,image/webp" style="display: none;" />
+            <input type="hidden" id="suggestTeacherPhotoInput" />
+          </div>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">PUC Profile URL</label>
+          <input type="url" id="suggestTeacherProfileInput" maxlength="200" placeholder="e.g. https://cse.puc.ac.bd/Home/Profile?userName=..." style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
         </div>
 
         <button type="submit" id="suggestTeacherSubmitBtn" class="btn btn-primary" style="margin-top: 6px; width: 100%; height: 40px; font-size: 13px; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7c3aed); border: none; border-radius: 10px; color: #fff; cursor: pointer;">
@@ -990,14 +1210,26 @@
     </div>
   </div>
 
-  <!-- Modal: Full Faculty Profile Card -->
-  <div class="mo" id="teacherDetailModal" style="z-index: 100010;">
-    <div class="md" style="max-width: 520px; max-height: 85vh; max-height: 85dvh; overflow-y: auto; padding: 20px; position: relative;">
-      <button class="cls" id="teacherDetailCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
-      
+  <!-- Modal: Full Faculty Profile Card (Slide-up Bottom Sheet) -->
+  <div class="class-sheet-modal-overlay faculty-sheet-overlay" id="teacherDetailModal" style="z-index: 3100;">
+    <div class="faculty-profile-sheet" onclick="event.stopPropagation()">
+      <!-- Drag Handle -->
+      <div class="sheet-drag-handle-bar">
+        <div class="sheet-drag-handle"></div>
+      </div>
+
+      <!-- Navigation & Close Header -->
+      <div class="faculty-nav-header">
+        <button class="faculty-back-btn" id="teacherDetailBackBtn" onclick="window.closeTeacherDetailModal?.()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          <span id="teacherDetailBackText">Back to Class</span>
+        </button>
+        <button class="class-sheet-close-btn" id="teacherDetailCloseBtn" onclick="window.closeTeacherDetailModal?.()" title="Close sheet">&times;</button>
+      </div>
+
       <!-- Interactive Hero Container -->
       <div id="facultyProfileHero">
-        <!-- Rendered dynamically: Photo, Name, Code, Designation, Status, Contact Action Buttons, Routine, Courses Taught -->
+        <!-- Rendered dynamically -->
       </div>
     </div>
   </div>

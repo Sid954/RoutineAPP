@@ -56,7 +56,7 @@
 .mf .ma { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; flex-wrap: wrap; }
 .mf .ma button { padding: 12px 26px; border-radius: var(--rx); border: none; font-weight: 700; font-size: 15px; cursor: pointer; transition: transform var(--t), box-shadow var(--t), background var(--t); font-family: var(--f); }
 .mf .ma button:active { transform: scale(0.96); }
-.mf .ma .bp { background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; }
-.mf .ma .bp:hover { box-shadow: 0 4px 20px var(--ag); transform: translateY(-1px); }
-.mf .ma .bd { background: rgba(244, 63, 94, 0.12); color: var(--pink); border: 1px solid rgba(244, 63, 94, 0.2); }
-.mf .ma .bd:hover { background: rgba(244, 63, 94, 0.2); }
+.mf .ma .bp { background: var(--accent); color: #07090E; font-weight: 800; }
+.mf .ma .bp:hover { opacity: 0.9; }
+.mf .ma .bd { background: var(--canvas); color: var(--danger); border: 1px solid var(--card-border); }
+.mf .ma .bd:hover { background: rgba(244, 63, 94, 0.1); }

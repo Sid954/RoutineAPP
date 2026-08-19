@@ -8,19 +8,22 @@ let _particles = null;
 export function setParticlesRef(p) { _particles = p; }
 
 export function openModal(modalEl, onOpen) {
+  if (!modalEl) return;
   State.isModalOpen = true;
   if (_particles) _particles.stop();
   document.body.style.overflow = 'hidden';
   document.body.classList.add('modal-open');
+
   modalEl.classList.add('open');
   if (onOpen) onOpen();
 }
 
 export function closeModal(modalEl, onClose) {
+  if (!modalEl) return;
   modalEl.classList.remove('open');
   if (modalEl === DOM.viewModal) modalEl.classList.remove('rotated-mode');
-  
-  const remainingOpenModals = document.querySelectorAll('.mo.open');
+
+  const remainingOpenModals = document.querySelectorAll('.mo.open, .class-sheet-modal-overlay.open');
   if (remainingOpenModals.length === 0) {
     State.isModalOpen = false;
     if (_particles) _particles.start();

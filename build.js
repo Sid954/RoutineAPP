@@ -417,6 +417,22 @@ async function updateFacultyDirectoryFromWeb() {
       }
     });
 
+    // Link local bundled faculty photo assets if present
+    const assetsDir = path.join(__dirname, 'src', 'assets', 'faculty');
+    if (fs.existsSync(assetsDir)) {
+      const localFiles = fs.readdirSync(assetsDir);
+      for (const [key, info] of Object.entries(richFacultyData)) {
+        const cleanKey = (info.code || info.officialUsername || key).toLowerCase().replace(/[^a-z0-9_]/g, '_');
+        const matchedFile = localFiles.find(f => {
+          const base = path.basename(f, path.extname(f)).toLowerCase();
+          return base === cleanKey || base === key.toLowerCase();
+        });
+        if (matchedFile) {
+          info.photo = `src/assets/faculty/${matchedFile}`;
+        }
+      }
+    }
+
     const outPath = path.join(__dirname, 'src', 'data', 'faculty_rich_map.json');
     fs.writeFileSync(outPath, JSON.stringify(richFacultyData, null, 2), 'utf8');
 

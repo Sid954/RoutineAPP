@@ -1,7 +1,8 @@
 /**
  * Service Worker — Handles caching, offline support, and notification events.
  */
-const CACHE_VERSION = 'routine-cache-1786964372075';
+const CACHE_VERSION = 'routine-cache-1787175540913';
+const IMAGE_CACHE = 'routine-images-v1';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -15,6 +16,7 @@ const STATIC_ASSETS = [
 
 /* ── Install: Pre-cache static assets ── */
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_VERSION)
       .then(cache => cache.addAll(STATIC_ASSETS).catch(err => {
@@ -28,17 +30,27 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
-        keys.filter(key => key !== CACHE_VERSION).map(key => caches.delete(key))
+        keys.filter(key => key !== CACHE_VERSION && key !== IMAGE_CACHE).map(key => caches.delete(key))
       ))
       .then(() => self.clients.claim())
   );
 });
 
-/* ── Fetch: Stale-while-revalidate for static, network-first for JSON ── */
+/* ── Fetch: Cache-first for images, Network-first for app data ── */
 self.addEventListener('fetch', event => {
   const url = event.request.url;
 
-  // Only handle same-origin requests
+  // 1. Intercept image requests (same-origin and external faculty photos)
+  if (
+    event.request.destination === 'image' ||
+    /\.(jpe?g|png|webp|gif|svg)(\?.*)?$/i.test(url) ||
+    url.includes('admin.puc.ac.bd')
+  ) {
+    event.respondWith(cacheFirstImage(event.request));
+    return;
+  }
+
+  // Only handle same-origin requests for non-image assets
   if (!url.startsWith(self.location.origin)) return;
 
   // Network-first for JSON data (schedule updates must be fresh)
@@ -50,6 +62,27 @@ self.addEventListener('fetch', event => {
   // Network-first for all assets (ensures fresh content after updates)
   event.respondWith(networkFirst(event.request));
 });
+
+/**
+ * Cache-first strategy for images: serve instantly from cache, fetch & cache in background.
+ */
+async function cacheFirstImage(request) {
+  const cache = await caches.open(IMAGE_CACHE);
+  const cached = await cache.match(request);
+  if (cached) {
+    return cached;
+  }
+
+  try {
+    const response = await fetch(request);
+    if (response && (response.ok || response.type === 'opaque')) {
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (err) {
+    return cached || new Response('', { status: 408, statusText: 'Image Request Timeout' });
+  }
+}
 
 /**
  * Network-first strategy: try network, fallback to cache.
