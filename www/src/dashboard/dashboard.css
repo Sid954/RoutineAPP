@@ -33,7 +33,7 @@
 }
 
 .wi {
-  padding: max(40px, calc(env(safe-area-inset-top, 0px) + 28px)) 16px 0;
+  padding: max(40px, calc(env(safe-area-inset-top, 0px) + 28px)) 2px 0;
   position: relative;
   z-index: 1;
   display: flex;
@@ -49,9 +49,8 @@
 .top-bar, .hd {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 16px;
-  min-height: 48px;
   flex-shrink: 0;
   box-sizing: border-box;
 }
@@ -60,22 +59,22 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: 6px;
 }
 
 .digital-clock, .hd .tm {
   font-family: var(--font-mono);
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 800;
   letter-spacing: -0.6px;
   color: var(--text-main);
   display: flex;
   align-items: baseline;
   gap: 4px;
-  line-height: 1.2;
+  line-height: 1.15;
   font-variant-numeric: tabular-nums;
   cursor: pointer;
-  padding: 2px 0;
+  padding: 0;
 }
 
 .clock-time {
@@ -106,7 +105,7 @@
   border: 1px solid var(--card-border);
   color: var(--text-muted);
   font-weight: 700;
-  font-size: 11.5px;
+  font-size: 12px;
   padding: 3px 9px 3px 7px;
   border-radius: 8px;
   font-family: var(--font-ui);
@@ -148,6 +147,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-right: 4px;
 }
 
 .hd-btn {
@@ -175,8 +175,8 @@
 }
 
 .hd-btn svg {
-  width: 17px;
-  height: 17px;
+  width: 20px;
+  height: 20px;
   stroke-width: 2.2;
 }
 
@@ -201,7 +201,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 12.5px;
+  font-size: 14.5px;
   font-weight: 700;
   color: var(--text-muted);
   letter-spacing: 0.2px;
@@ -217,7 +217,7 @@
 }
 
 .greeting-user-name {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 900;
   letter-spacing: -0.5px;
   color: var(--text-main);
@@ -226,7 +226,7 @@
 }
 
 .greeting-caption {
-  font-size: 11.5px;
+  font-size: 13px;
   color: var(--text-muted);
   font-weight: 600;
   margin-top: 1px;
@@ -514,7 +514,7 @@
   justify-content: space-between;
   position: relative;
   width: 100%;
-  height: 55px;
+  height: 64px;
 }
 
 .dock-tab {
@@ -523,12 +523,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2.5px;
+  gap: 3px;
   background: transparent;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 2px 0;
+  padding: 3px 0;
   border-radius: 8px;
   transition: all var(--duration-fast) ease;
   position: relative;
@@ -546,13 +546,13 @@
 }
 
 .dock-tab svg {
-  width: 25px;
-  height: 25px;
+  width: 28px;
+  height: 28px;
   stroke-width: 2.2;
 }
 
 .dock-label {
-  font-size: 10.5px;
+  font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.2px;
 }
@@ -574,8 +574,8 @@
   position: absolute;
   top: -2px;
   right: -3px;
-  width: 6px;
-  height: 6px;
+  width: 6.5px;
+  height: 6.5px;
   border-radius: 50%;
   background: var(--danger);
 }
@@ -587,7 +587,7 @@
   justify-content: center;
   align-items: center;
   position: relative;
-  min-width: 64px;
+  min-width: 68px;
 }
 
 .dock-center-raised-fab {
@@ -599,13 +599,13 @@
   border: none;
   cursor: pointer;
   position: absolute;
-  top: -50px;
+  top: -55px;
   z-index: 1010;
 }
 
 .dock-raised-fab-core {
-  width: 70px;
-  height: 70px;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
   background: var(--accent);
   color: #07090E;
@@ -629,14 +629,14 @@
 }
 
 .dock-raised-fab-core svg {
-  width: 30px;
-  height: 30px;
+  width: 33px;
+  height: 33px;
   stroke-width: 2.3;
 }
 
 .dock-label.raised-label {
-  margin-top: 3px;
-  font-size: 9.5px;
+  margin-top: 4px;
+  font-size: 10.5px;
   font-weight: 800;
   color: var(--text-main);
   white-space: nowrap;
@@ -655,37 +655,13 @@
   overflow-x: hidden;
   box-sizing: border-box;
   scrollbar-width: none;
+  padding: 10px 0px 0px 10px;
 }
 .app-page-view::-webkit-scrollbar {
   display: none;
 }
 
 /* ── Campus Apps Hub View ────────────────────────────────────── */
-.apps-hub-container {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding-bottom: 96px;
-}
-
-.apps-hub-header {
-  margin-bottom: 4px;
-}
-
-.apps-hub-title {
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: -0.6px;
-  color: var(--text-main);
-  margin: 0 0 2px 0;
-}
-
-.apps-hub-subtitle {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
 .apps-hub-grid {
   display: flex;
   flex-direction: column;

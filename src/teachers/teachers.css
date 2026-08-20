@@ -70,7 +70,7 @@
 .ft-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   max-height: 400px;
   overflow-y: auto;
   padding-right: 2px;
@@ -80,11 +80,11 @@
   background: var(--card2, #111827);
   border: 1px solid var(--border, #1f2937);
   border-radius: 12px;
-  padding: 10px 14px;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 14px;
   cursor: pointer;
   transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
   user-select: none;
@@ -102,8 +102,8 @@
 
 /* Avatar in list and profile */
 .ft-avatar {
-  width: 40px;
-  height: 40px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid rgba(255, 255, 255, 0.1);
@@ -113,17 +113,17 @@
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 16px;
   color: #c084fc;
 }
 
 .ft-avatar-lg {
-  width: 68px;
-  height: 68px;
+  width: 78px;
+  height: 78px;
   border-radius: 50%;
   border: 3px solid rgba(168, 85, 247, 0.4);
   box-shadow: 0 0 16px rgba(168, 85, 247, 0.25);
-  font-size: 22px;
+  font-size: 26px;
 }
 
 .ft-avatar-wrapper {
@@ -136,13 +136,13 @@
   position: absolute;
   bottom: -2px;
   left: -2px;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: #1e1b4b;
   border: 1.5px solid #a855f7;
   color: #c084fc;
-  font-size: 11px;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -171,16 +171,16 @@
 .ft-item-in-class .ft-item-name {
   color: #ffffff;
   font-weight: 800;
-  font-size: 14.5px;
+  font-size: 16px;
 }
 
 .ft-item-in-class-tag {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 800;
   color: #34d399;
   background: rgba(16, 185, 129, 0.15);
   border: 1px solid rgba(52, 211, 153, 0.3);
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 20px;
   display: flex;
   align-items: center;
@@ -196,7 +196,7 @@
 .ft-item-free .ft-item-name {
   color: var(--text, #ffffff);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 15.5px;
 }
 
 /* Faculty Profile Hero */
@@ -1315,120 +1315,12 @@
 /* ==========================================================================
    Faculty Full-Page App View Styles
    ========================================================================== */
-.faculty-page-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-}
-
-.faculty-page-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 10px;
-  flex-shrink: 0;
-}
-
-.faculty-page-header-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.faculty-page-back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  background: var(--card-bg, #1e2028);
-  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
-  border-radius: 20px;
-  color: var(--text-main);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all var(--duration-fast, 0.15s) ease;
-}
-.faculty-page-back-btn svg {
-  width: 14px;
-  height: 14px;
-  stroke-width: 2.5;
-}
-.faculty-page-back-btn:hover, .faculty-page-back-btn:active {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.faculty-page-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.faculty-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 11px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all var(--duration-fast, 0.15s) ease;
-  border: 1px solid transparent;
-}
-.faculty-action-btn svg {
-  width: 13px;
-  height: 13px;
-  stroke-width: 2.2;
-}
-
-.faculty-action-btn.primary {
-  background: rgba(168, 85, 247, 0.14);
-  border-color: rgba(168, 85, 247, 0.3);
-  color: #c084fc;
-}
-.faculty-action-btn.primary:hover {
-  background: rgba(168, 85, 247, 0.25);
-  color: #d8b4fe;
-}
-
-.faculty-action-btn.secondary {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--card-border, rgba(255, 255, 255, 0.1));
-  color: var(--text-main);
-}
-.faculty-action-btn.secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.faculty-page-title-group {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.faculty-page-title {
-  font-size: 22px;
-  font-weight: 900;
-  letter-spacing: -0.5px;
-  color: var(--text-main);
-  margin: 0;
-}
-
-.faculty-page-subtitle {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
 .faculty-page-search-container {
   display: flex;
   flex-direction: column;
   gap: 6px;
   margin-bottom: 10px;
+  padding-right: 10px;
   flex-shrink: 0;
 }
 
@@ -1482,7 +1374,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 2px;
+  padding: 0 10px 0 2px;
 }
 
 .faculty-count-text {
@@ -1496,7 +1388,23 @@
   flex-direction: column;
   gap: 8px;
   padding-bottom: 96px;
+  padding-right: 10px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.faculty-full-grid::-webkit-scrollbar {
+  width: 3px;
+}
+
+.faculty-full-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.faculty-full-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
 }
 
 /* Section Dividers for Two-Group Layout */

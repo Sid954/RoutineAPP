@@ -249,18 +249,10 @@ export function renderTimeline(force = false) {
       }
     } else if (isOnline) {
       cardModifierClass = 'is-online-override';
-      titleHtml = `${escapeHtml(c.title)} <span class="override-indicator online">(ONLINE)</span>`;
-      tagHtml = `<span class="resting-tag online">📡 ONLINE</span>`;
-      subMetaHtml = `
-        <div class="meta-line-item online-session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49"/></svg>
-          <span>Virtual Class Session</span>
-        </div>
-      `;
+      tagHtml = `<span class="resting-tag online">ONLINE</span>`;
+ 
     } else if (effectiveCancelled) {
       cardModifierClass = 'is-cancelled-override';
-      titleHtml = `${escapeHtml(c.title)} <span class="override-indicator cancelled">(CANCELLED)</span>`;
-      tagHtml = `<span class="resting-tag cancelled">🚫 CANCELLED</span>`;
     }
 
     // 1. Live Hero Card

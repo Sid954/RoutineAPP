@@ -3,9 +3,11 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# Capacitor Web Output (Generated from npm run build)
+# Capacitor Web Output (Generated from node build.js / npx cap sync)
 www/
+dist/
 
 # Android Build Outputs, Gradle & IDE Files
 android/.gradle/
@@ -15,15 +17,34 @@ android/build/
 android/captures/
 android/local.properties
 android/app/release/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/res/xml/config.xml
+android/capacitor-cordova-android-plugins/
 .gradle/
 *.apk
 *.aab
 *.keystore
+*.jks
 
-# Logs & Debug Output
+# Environment & Secret Files
+.env
+.env.*
+*.env
+*.pem
+*.key
+
+# Logs, Debug, Scratch & Agent Tools
 LOGS/
 *.log
 *.logcat
+.agent/
+.gemini/
+.antigravity/
+scratch/
+temp/
+tmp/
+.tempmediaStorage/
 
 # IDE & Editor Settings
 .vscode/

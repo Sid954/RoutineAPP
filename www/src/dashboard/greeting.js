@@ -15,6 +15,6 @@ export function updateGreeting() {
 
   const salutationEl = document.getElementById('greetSalutation');
   if (salutationEl) salutationEl.textContent = salutation;
-  if (DOM.greetText) DOM.greetText.textContent = 'Sid';
+  if (DOM.greetText) DOM.greetText.textContent = 'Siddd';
   if (DOM.greetSub) DOM.greetSub.textContent = sub;
 }

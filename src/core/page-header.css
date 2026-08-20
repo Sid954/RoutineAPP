@@ -1,0 +1,202 @@
+/* ==========================================================================
+   Shared Page Header Component
+   Canonical full-page containers, sticky headers, back buttons, action bars & titles
+   ========================================================================== */
+
+/* Full-Page View Containers */
+.page-container,
+.faculty-page-container,
+.announcements-page-container,
+.post-announce-page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  color: var(--text-main, #F8FAFC);
+  font-family: var(--font-ui);
+}
+
+/* Page Headers */
+.page-header,
+.faculty-page-header,
+.announcements-page-header,
+.post-announce-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-right: 10px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+/* Header Top Bar (Back Button + Action Buttons) */
+.page-header-top,
+.faculty-page-header-top,
+.announcements-page-header-top,
+.post-announce-page-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Back Navigation Buttons */
+.page-back-btn,
+.faculty-page-back-btn,
+.announcements-page-back-btn,
+.post-announce-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  background: var(--card-bg, #23252C);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--r-full, 9999px);
+  color: var(--text-main, #F8FAFC);
+  font-size: clamp(11.5px, 3vw, 13px);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--duration-fast, 0.15s) ease;
+  user-select: none;
+}
+
+.page-back-btn:hover,
+.faculty-page-back-btn:hover,
+.announcements-page-back-btn:hover,
+.post-announce-back-btn:hover {
+  border-color: var(--accent, #38BDF8);
+  color: var(--accent, #38BDF8);
+}
+
+.page-back-btn:active,
+.faculty-page-back-btn:active,
+.announcements-page-back-btn:active,
+.post-announce-back-btn:active {
+  transform: scale(0.95);
+}
+
+.page-back-btn svg,
+.faculty-page-back-btn svg,
+.announcements-page-back-btn svg,
+.post-announce-back-btn svg {
+  width: clamp(13px, 3.5vw, 15px);
+  height: clamp(13px, 3.5vw, 15px);
+  stroke-width: 2.5;
+}
+
+/* Header Action Button Rows */
+.page-actions,
+.faculty-page-actions,
+.announcements-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Header Action Buttons */
+.page-action-btn,
+.faculty-action-btn,
+.announcements-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: clamp(6px, 1.8vw, 8px) clamp(10px, 2.8vw, 14px);
+  border-radius: var(--r-tile, 10px);
+  font-size: clamp(11px, 3vw, 12.5px);
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--duration-fast, 0.15s) ease;
+  user-select: none;
+}
+
+.page-action-btn svg,
+.faculty-action-btn svg,
+.announcements-action-btn svg {
+  width: clamp(12.5px, 3.4vw, 14px);
+  height: clamp(12.5px, 3.4vw, 14px);
+  stroke-width: 2.2;
+}
+
+/* Primary Action Buttons */
+.page-action-btn.primary,
+.faculty-action-btn.primary {
+  background: rgba(168, 85, 247, 0.14);
+  border-color: rgba(168, 85, 247, 0.3);
+  color: #C084FC;
+}
+
+.page-action-btn.primary:hover,
+.faculty-action-btn.primary:hover {
+  background: rgba(168, 85, 247, 0.25);
+  color: #D8B4FE;
+}
+
+.announcements-action-btn.primary {
+  background-color: var(--accent-subtle, rgba(56, 189, 248, 0.12));
+  border-color: var(--accent-border, rgba(56, 189, 248, 0.28));
+  color: var(--accent, #38BDF8);
+}
+
+.announcements-action-btn.primary:hover {
+  background-color: rgba(56, 189, 248, 0.22);
+}
+
+/* Secondary Action Buttons */
+.page-action-btn.secondary,
+.faculty-action-btn.secondary,
+.announcements-action-btn.secondary {
+  background: var(--card-bg, #23252C);
+  border-color: var(--card-border, rgba(255, 255, 255, 0.08));
+  color: var(--text-muted, #94A3B8);
+}
+
+.page-action-btn.secondary:hover,
+.faculty-action-btn.secondary:hover,
+.announcements-action-btn.secondary:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-main, #F8FAFC);
+}
+
+.page-action-btn:active,
+.faculty-action-btn:active,
+.announcements-action-btn:active {
+  transform: scale(0.96);
+}
+
+/* Title & Subtitle Groups */
+.page-title-group,
+.faculty-page-title-group,
+.announcements-page-title-group,
+.post-announce-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.page-title,
+.faculty-page-title,
+.announcements-page-title,
+.post-announce-title {
+  font-size: clamp(22px, 5.8vw, 28px);
+  font-weight: 900;
+  letter-spacing: -0.6px;
+  color: var(--text-main, #F8FAFC);
+  margin: 0;
+  line-height: 1.15;
+}
+
+.page-subtitle,
+.faculty-page-subtitle,
+.announcements-page-subtitle,
+.post-announce-subtitle {
+  font-size: clamp(12px, 3.2vw, 13.5px);
+  font-weight: 600;
+  color: var(--text-muted, #94A3B8);
+  line-height: 1.35;
+  margin-top: 1px;
+}

@@ -33,10 +33,114 @@ if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && proc
   console.warn('Firebase environment variables are missing. FCM notifications will be skipped.');
 }
 
+const LIMITS = {
+  AUTHOR_NAME: 15,
+  TITLE: 50,
+  EXAM_NAME: 15,
+  TOPICS: 50,
+  PLATFORM_LINK: 100
+};
+
+function collapseNewlines(str) {
+  if (typeof str !== 'string') return '';
+  return str
+    .replace(/\r\n/g, '\n')
+    .replace(/\n{2,}/g, '\n')
+    .trim();
+}
+
+function sanitizeAndValidatePayload(body) {
+  const { name, title, announcement, type, subject, date_override, subject_override, semester, section, is_pinned } = body || {};
+
+  const cleanName = (typeof name === 'string' ? name.trim() : '');
+  if (!cleanName) {
+    return { error: 'Name is required and cannot be whitespace only.' };
+  }
+  if (cleanName.length > LIMITS.AUTHOR_NAME) {
+    return { error: `Name cannot exceed ${LIMITS.AUTHOR_NAME} characters.` };
+  }
+
+  const cleanTitle = (typeof title === 'string' ? title.trim() : '');
+  if (!cleanTitle) {
+    return { error: 'Title is required and cannot be whitespace only.' };
+  }
+  if (cleanTitle.length > LIMITS.TITLE) {
+    return { error: `Title cannot exceed ${LIMITS.TITLE} characters.` };
+  }
+
+  let cleanAnnouncement = announcement;
+  const itemType = type || 'general';
+
+  if (itemType === 'general') {
+    cleanAnnouncement = collapseNewlines(typeof announcement === 'string' ? announcement : '');
+    if (!cleanAnnouncement) {
+      return { error: 'Announcement content is required and cannot be whitespace only.' };
+    }
+  } else if (itemType === 'class_test') {
+    try {
+      const parsed = typeof announcement === 'string' ? JSON.parse(announcement) : announcement;
+      const examName = (parsed?.exam_name || '').trim();
+      const topics = collapseNewlines(parsed?.topics || '');
+      
+      if (!examName) {
+        return { error: 'Exam name is required.' };
+      }
+      if (examName.length > LIMITS.EXAM_NAME) {
+        return { error: `Exam name cannot exceed ${LIMITS.EXAM_NAME} characters.` };
+      }
+      if (topics.length > LIMITS.TOPICS) {
+        return { error: `Syllabus / Topics cannot exceed ${LIMITS.TOPICS} characters.` };
+      }
+      cleanAnnouncement = JSON.stringify({
+        exam_name: examName,
+        topics: topics || 'Not Specified'
+      });
+    } catch (e) {
+      return { error: 'Invalid class_test payload structure.' };
+    }
+  } else if (itemType === 'online_class') {
+    try {
+      const parsed = typeof announcement === 'string' ? JSON.parse(announcement) : announcement;
+      const platform = (parsed?.platform || '').trim();
+      if (platform.length > LIMITS.PLATFORM_LINK) {
+        return { error: `Platform link cannot exceed ${LIMITS.PLATFORM_LINK} characters.` };
+      }
+      const obj = {
+        platform,
+        start_time: (parsed?.start_time || '09:45 AM').trim()
+      };
+      if (parsed?.end_time && typeof parsed.end_time === 'string' && parsed.end_time.trim()) {
+        obj.end_time = parsed.end_time.trim();
+      }
+      cleanAnnouncement = JSON.stringify(obj);
+    } catch (e) {
+      return { error: 'Invalid online_class payload structure.' };
+    }
+  } else {
+    cleanAnnouncement = collapseNewlines(typeof announcement === 'string' ? announcement : '');
+  }
+
+  return {
+    data: {
+      name: cleanName,
+      title: cleanTitle,
+      announcement: cleanAnnouncement,
+      subject: (typeof subject === 'string' ? subject.trim() : null) || null,
+      type: itemType,
+      date_override: (typeof date_override === 'string' ? date_override.trim() : null) || null,
+      subject_override: (typeof subject_override === 'string' ? subject_override.trim() : null) || null,
+      semester: (typeof semester === 'string' ? semester.trim() : null) || null,
+      section: (typeof section === 'string' ? section.trim() : null) || null,
+      is_pinned: typeof is_pinned === 'boolean' ? is_pinned : (is_pinned === 'true' ? true : false)
+    }
+  };
+}
+
 module.exports = async (req, res) => {
   // CORS Headers
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers?.origin || '*';
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader(
     'Access-Control-Allow-Headers',
@@ -55,12 +159,21 @@ module.exports = async (req, res) => {
   // GET: Fetch all announcements
   if (req.method === 'GET') {
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('announcements')
         .select('*')
+        .order('is_pinned', { ascending: false, nullsFirst: false })
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        // Fallback in case is_pinned column does not exist in Supabase table
+        const fallback = await supabase
+          .from('announcements')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (fallback.error) throw fallback.error;
+        data = fallback.data;
+      }
       return res.status(200).json(data);
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -69,7 +182,7 @@ module.exports = async (req, res) => {
 
   // POST: Publish a new announcement OR update existing OR check password
   if (req.method === 'POST' || req.method === 'PATCH' || req.method === 'PUT') {
-    const { id, isUpdate, action, name, title, announcement, password, subject, type, date_override, subject_override, semester, section, checkPasswordOnly } = req.body || {};
+    const { id, isUpdate, action, password, checkPasswordOnly } = req.body || {};
 
     if (!process.env.ANNOUNCEMENT_PASSWORD) {
       return res.status(503).json({ error: 'Announcement password is not configured on the server.' });
@@ -83,35 +196,42 @@ module.exports = async (req, res) => {
       return res.status(200).json({ success: true, valid: true });
     }
 
+    // Validate & Sanitize Payload
+    const validationResult = sanitizeAndValidatePayload(req.body);
+    if (validationResult.error) {
+      return res.status(400).json({ error: validationResult.error });
+    }
+    const sanitizedPayload = validationResult.data;
+
     // UPDATE Handler (triggered by PATCH, PUT, or POST with id / isUpdate / action: 'update')
     if (req.method === 'PATCH' || req.method === 'PUT' || isUpdate || action === 'update' || (id && req.method === 'POST')) {
       if (!id) {
         return res.status(400).json({ error: 'Missing announcement ID.' });
       }
-      if (!name || !title || !announcement) {
-        return res.status(400).json({ error: 'Missing name, title, or announcement content.' });
-      }
 
       try {
-        const updatePayload = {
-          name,
-          title,
-          announcement,
-          subject: subject || null,
-          type: type || 'general',
-          date_override: date_override || null,
-          subject_override: subject_override || null,
-          semester: semester || null,
-          section: section || null
-        };
-
-        const { data, error } = await supabase
+        let { data, error } = await supabase
           .from('announcements')
-          .update(updatePayload)
+          .update(sanitizedPayload)
           .eq('id', id)
           .select();
 
-        if (error) throw error;
+        if (error) {
+          // Fallback if is_pinned column does not exist in table
+          const payloadWithoutPin = { ...sanitizedPayload };
+          delete payloadWithoutPin.is_pinned;
+          const retry = await supabase
+            .from('announcements')
+            .update(payloadWithoutPin)
+            .eq('id', id)
+            .select();
+          if (retry.error) throw retry.error;
+          data = retry.data;
+          if (data && data[0]) {
+            data[0].is_pinned = sanitizedPayload.is_pinned;
+          }
+        }
+
         if (!data || data.length === 0) {
           return res.status(404).json({ error: 'Announcement not found.' });
         }
@@ -123,28 +243,26 @@ module.exports = async (req, res) => {
     }
 
     // INSERT Handler (new announcement)
-    if (!name || !title || !announcement) {
-      return res.status(400).json({ error: 'Missing name, title, or announcement content.' });
-    }
-
     try {
       // 1. Insert into Supabase database with semester and section scoping
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('announcements')
-        .insert([{ 
-          name, 
-          title, 
-          announcement, 
-          subject: subject || null, 
-          type: type || 'general', 
-          date_override: date_override || null, 
-          subject_override: subject_override || null,
-          semester: semester || null,
-          section: section || null
-        }])
+        .insert([sanitizedPayload])
         .select();
 
-      if (error) throw error;
+      if (error) {
+        const payloadWithoutPin = { ...sanitizedPayload };
+        delete payloadWithoutPin.is_pinned;
+        const retry = await supabase
+          .from('announcements')
+          .insert([payloadWithoutPin])
+          .select();
+        if (retry.error) throw retry.error;
+        data = retry.data;
+        if (data && data[0]) {
+          data[0].is_pinned = sanitizedPayload.is_pinned;
+        }
+      }
       const newAnnouncement = data[0];
 
       // 2. Fetch device tokens to send targeted FCM push notifications

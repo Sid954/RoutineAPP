@@ -111,7 +111,7 @@
                 <span id="greetSalutation">Good afternoon</span>
                 <svg class="salutation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
               </div>
-              <h1 class="greeting-user-name" id="greetText">Sid</h1>
+              <h1 class="greeting-user-name" id="greetText">Siddd</h1>
               <span class="greeting-caption" id="greetSub">2 sessions scheduled</span>
             </div>
           </div>
@@ -344,8 +344,9 @@
                     <label>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                       <span>Your Name</span>
+                      <span class="char-counter" id="paNameCounter">0/15</span>
                     </label>
-                    <input type="text" id="paName" placeholder="e.g. Dr. John Doe" required />
+                    <input type="text" id="paName" placeholder="e.g. Dr. John Doe" maxlength="15" required />
                   </div>
                   <div class="post-form-group">
                     <label>
@@ -430,8 +431,9 @@
                       <label>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                         <span>Title</span>
+                        <span class="char-counter" id="paTitleCounter">0/15</span>
                       </label>
-                      <input type="text" id="paTitle" placeholder="e.g. Special Guest Lecture" />
+                      <input type="text" id="paTitle" placeholder="e.g. Special Guest Lecture" maxlength="15" />
                     </div>
                     <div class="post-form-group">
                       <label>
@@ -498,8 +500,11 @@
                     <input type="date" id="paHolidayEndDate" />
                   </div>
                   <div class="post-form-group" style="margin-top: 10px;">
-                    <label>Holiday Name / Reason</label>
-                    <input type="text" id="paHolidayDetails" placeholder="e.g. Eid Vacation / University Foundation Day" />
+                    <label>
+                      <span>Holiday Name / Reason</span>
+                      <span class="char-counter" id="paHolidayDetailsCounter">0/15</span>
+                    </label>
+                    <input type="text" id="paHolidayDetails" placeholder="e.g. Eid Vacation / University Day" maxlength="15" />
                   </div>
                 </div>
 
@@ -519,19 +524,16 @@
                       <select id="paOnlineSubjectSelect" class="clean-select"></select>
                     </div>
                   </div>
-                  <div class="post-form-row" style="margin-top: 10px;">
-                    <div class="post-form-group">
-                      <label>Start Time</label>
-                      <input type="time" id="paOnlineStart" value="09:45" />
-                    </div>
-                    <div class="post-form-group">
-                      <label>End Time</label>
-                      <input type="time" id="paOnlineEnd" value="11:00" />
-                    </div>
+                  <div class="post-form-group" style="margin-top: 10px;">
+                    <label>Class Time / Start Time</label>
+                    <input type="time" id="paOnlineStart" value="09:45" />
                   </div>
                   <div class="post-form-group" style="margin-top: 10px;">
-                    <label>Platform / Join Link (Optional)</label>
-                    <input type="text" id="paOnlineLink" placeholder="e.g. Google Meet link, Zoom URL, etc." />
+                    <label>
+                      <span>Platform / Join Link (Optional)</span>
+                      <span class="char-counter" id="paOnlineLinkCounter">0/100</span>
+                    </label>
+                    <input type="text" id="paOnlineLink" placeholder="e.g. Google Meet link, Zoom URL, etc." maxlength="100" />
                   </div>
                 </div>
 
@@ -555,12 +557,18 @@
                     </div>
                   </div>
                   <div class="post-form-group" style="margin-top: 10px;">
-                    <label>Exam / Test Name</label>
-                    <input type="text" id="paClassTestName" placeholder="e.g. CT-1 (Diode Circuits)" />
+                    <label>
+                      <span>Exam / Test Name</span>
+                      <span class="char-counter" id="paClassTestNameCounter">0/15</span>
+                    </label>
+                    <input type="text" id="paClassTestName" placeholder="e.g. CT-1 (Diode Circuits)" maxlength="15" />
                   </div>
                   <div class="post-form-group" style="margin-top: 10px;">
-                    <label>Syllabus / Topics (Optional)</label>
-                    <textarea id="paClassTestTopics" placeholder="e.g. Chapter 1-3, Clipper & Clamper, Diode Models..."></textarea>
+                    <label>
+                      <span>Syllabus / Topics (Optional)</span>
+                      <span class="char-counter" id="paClassTestTopicsCounter">0/50</span>
+                    </label>
+                    <textarea id="paClassTestTopics" placeholder="e.g. Chapter 1-3, Clipper & Clamper, Diode Models..." maxlength="50"></textarea>
                   </div>
                 </div>
 
