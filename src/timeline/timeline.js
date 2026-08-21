@@ -2,7 +2,7 @@ import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
 import { DAY_NAMES, FULL_COURSE_NAMES } from '../core/config.js';
 import { getClassesForDay } from '../schedule/queries.js';
-import { getOverrideFor, getOverridesByDateMap, normalizeDate, getDateForDayIndex, getExtraClassesForDate, getDeadlinesForDate } from '../announcements/overrides.js';
+import { getOverrideFor, getOverridesByDateMap, normalizeDate, getDateForDayIndex, getExtraClassesForDate, getRescheduledClassesForDate, getDeadlinesForDate } from '../announcements/overrides.js';
 import { toMinutes, format12h, toTimeString, getCurrentMinutes, escapeHtml, formatRoom } from '../core/utils.js';
 import { getFullName } from '../teachers/teacher-names.js';
 
@@ -12,7 +12,8 @@ const OVERRIDE_ICONS = {
   cancellation: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>',
   holiday: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
   class_test: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
-  online_class: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>'
+  online_class: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>',
+  rescheduled: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
 };
 
 export function renderWeekStrip() {
@@ -160,6 +161,7 @@ export function renderTimeline(force = false) {
 
   // Process extra classes, rescheduled classes, and deadlines for the current view day
   const extraClassesList = getExtraClassesForDate(State.currentViewDayIdx);
+  const rescheduledIncoming = getRescheduledClassesForDate(State.currentViewDayIdx);
   const deadlinesList = getDeadlinesForDate(State.currentViewDayIdx);
 
   // Clone classes array to avoid mutating global schedule
@@ -211,44 +213,85 @@ function findInstructorForSubject(subj) {
     });
   });
 
-  // Process rescheduled classes & create ghost strips for original time slots
+  // Inject incoming rescheduled classes on destination date
+  rescheduledIncoming.forEach(item => {
+    let parsed = {};
+    if (typeof item.announcement === 'string') {
+      try { parsed = JSON.parse(item.announcement); } catch (e) {}
+    } else if (typeof item.announcement === 'object' && item.announcement !== null) {
+      parsed = item.announcement;
+    }
+    const subj = parsed.target_subject || item.subject_override || item.subject || 'Rescheduled Class';
+    const startStr = parsed.new_start_time || '03:00 PM';
+    const startM = toMinutes(startStr);
+    const endM = startM >= 0 ? startM + 75 : -1;
+    const room = parsed.new_room || parsed.original_room || 'TBA';
+    const teacher = (parsed.teacher || '').trim() || findInstructorForSubject(subj);
+    allScheduleClasses.push({
+      start: startStr,
+      end: '',
+      startM: startM,
+      endM: endM,
+      hasExplicitEndTime: false,
+      subject: subj,
+      title: subj,
+      room: room,
+      teacher: teacher,
+      instructor: teacher,
+      type: 'Theory',
+      isRescheduled: true,
+      rescheduledReason: parsed.reason || '',
+      origDate: parsed.original_date || item.date_override || '',
+      origStart: parsed.original_start_time || ''
+    });
+  });
+
+  // Process rescheduled classes & create ghost strips for original time slots (on original date)
   const ghostStrips = [];
   if (State.announcementsList && State.announcementsList.length > 0) {
     const targetDateStr = getDateForDayIndex(State.currentViewDayIdx);
     State.announcementsList.forEach(item => {
       if (item.type !== 'rescheduled') return;
-      if (normalizeDate(item.date_override) !== targetDateStr) return;
-
       let parsed = {};
-      try { parsed = JSON.parse(item.announcement); } catch (e) {}
-      const targetSubj = (item.subject_override || item.subject || '').toUpperCase().trim();
-      const targetClass = allScheduleClasses.find(c => (c.title || '').toUpperCase().trim() === targetSubj);
-
-      if (targetClass) {
-        // Record ghost strip at original time
-        ghostStrips.push({
-          type: 'ghost_strip',
-          subject: targetClass.title,
-          origStart: targetClass.start,
-          sortM: toMinutes(targetClass.start),
-          newStart: parsed.new_start_time || '3:00 PM'
-        });
-
-        // Update class to new time & room
-        if (parsed.new_start_time) {
-          targetClass.start = parsed.new_start_time;
-          targetClass.startM = toMinutes(parsed.new_start_time);
-        }
-        if (parsed.new_end_time) {
-          targetClass.end = parsed.new_end_time;
-          targetClass.endM = toMinutes(parsed.new_end_time);
-        }
-        if (parsed.new_room) {
-          targetClass.room = parsed.new_room;
-        }
-        targetClass.isRescheduled = true;
-        targetClass.rescheduledReason = parsed.reason || '';
+      if (typeof item.announcement === 'string') {
+        try { parsed = JSON.parse(item.announcement); } catch (e) {}
+      } else if (typeof item.announcement === 'object' && item.announcement !== null) {
+        parsed = item.announcement;
       }
+      const origDateStr = normalizeDate(parsed.original_date || item.date_override);
+      if (origDateStr !== targetDateStr) return;
+
+      const targetSubj = (parsed.target_subject || item.subject_override || item.subject || '').toUpperCase().trim();
+      const targetClassIdx = allScheduleClasses.findIndex(c => (c.title || c.subject || '').toUpperCase().trim() === targetSubj && !c.isRescheduled);
+      const targetClass = targetClassIdx >= 0 ? allScheduleClasses[targetClassIdx] : null;
+
+      // Remove original routine class from this day
+      if (targetClassIdx >= 0) {
+        allScheduleClasses.splice(targetClassIdx, 1);
+      }
+
+      const origStart = parsed.original_start_time || targetClass?.start || '09:45 AM';
+      const newDateStr = parsed.new_date || '';
+      let formattedNewDate = newDateStr;
+      if (newDateStr) {
+        const [ny, nm, nd] = newDateStr.split('-').map(Number);
+        if (ny && nm && nd) {
+          const dObj = new Date(ny, nm - 1, nd);
+          const dNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+          const mNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          formattedNewDate = `${dNames[dObj.getDay()]}, ${mNames[dObj.getMonth()]} ${nd}`;
+        }
+      }
+
+      ghostStrips.push({
+        type: 'ghost_strip',
+        subject: parsed.target_subject || item.subject_override || item.subject || 'Class',
+        origStart: origStart,
+        sortM: toMinutes(origStart),
+        newDate: newDateStr,
+        formattedNewDate: formattedNewDate,
+        newStart: parsed.new_start_time || '03:00 PM'
+      });
     });
   }
 
@@ -308,13 +351,17 @@ function findInstructorForSubject(subj) {
   renderItems.forEach((item) => {
     if (item.kind === 'ghost_strip') {
       const g = item.data;
+      const destinationText = g.newDate && g.formattedNewDate ? `moved to ${escapeHtml(g.formattedNewDate)}` : 'moved to new slot';
       html += `
-        <div class="timeline-ghost-strip">
+        <div class="timeline-ghost-strip ${g.newDate ? 'tappable' : ''}" ${g.newDate ? `onclick="if(window.navigateToDate) window.navigateToDate('${escapeHtml(g.newDate)}');"` : ''} title="${g.newDate ? `Tap to jump to ${escapeHtml(g.formattedNewDate)}` : ''}">
           <div class="timeline-ghost-content">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>${escapeHtml(g.subject)} Class Rescheduled</span>
+            <span>${escapeHtml(g.subject)} ${destinationText}</span>
           </div>
-          <span class="timeline-ghost-badge">Moved to ${escapeHtml(g.newStart)}</span>
+          <span class="timeline-ghost-badge">
+            <span>${escapeHtml(g.newStart)}</span>
+            ${g.newDate ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>' : ''}
+          </span>
         </div>
       `;
       return;
@@ -430,6 +477,10 @@ function findInstructorForSubject(subj) {
       onlinePlatform: onlinePlatform,
       isCancelled: effectiveCancelled,
       cancelReason: cancelReason,
+      isRescheduled: !!c.isRescheduled,
+      rescheduledReason: c.rescheduledReason || '',
+      origDate: c.origDate || '',
+      origStart: c.origStart || '',
       isLive: isActive,
       isPast: isPast
     };
@@ -445,6 +496,14 @@ function findInstructorForSubject(subj) {
     if (c.isRescheduled) {
       cardModifierClass = 'is-rescheduled-override';
       tagHtml = `<span class="resting-tag rescheduled">RESCHEDULED</span>`;
+      if (c.rescheduledReason) {
+        subMetaHtml = `
+          <div class="meta-line-item rescheduled-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>${escapeHtml(c.rescheduledReason)}</span>
+          </div>
+        `;
+      }
     } else if (c.isExtraClass) {
       if (isOnline) {
         cardModifierClass = 'is-online-override';

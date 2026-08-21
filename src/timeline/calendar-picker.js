@@ -187,4 +187,12 @@ export function initCalendarPicker() {
   window.__pickCalendarDate = pickDate;
   window.openCalendarPicker = openCalendarPicker;
   window.closeCalendarPicker = closeCalendarPicker;
+  window.navigateToDate = navigateToDate;
+}
+
+export function navigateToDate(dateStr) {
+  if (!dateStr) return;
+  const [y, m, d] = dateStr.split('-').map(Number);
+  if (!y || !m || !d) return;
+  pickDate(y, m - 1, d);
 }

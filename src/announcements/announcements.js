@@ -467,24 +467,48 @@ export const Announcements = {
         let parsed = {};
         try { parsed = JSON.parse(rawContent); } catch (e) {}
         const newStart = parsed.new_start_time || "";
-        const newEnd = parsed.new_end_time || "";
         const origStart = parsed.original_start_time || "";
+        const origDate = parsed.original_date || item.date_override || "";
+        const newDate = parsed.new_date || origDate;
         const newRoom = parsed.new_room || "";
         const reason = parsed.reason || "";
-        let timingTitle = newStart && newEnd ? `${newStart} – ${newEnd}` : (newStart || "Rescheduled Time");
-        if (origStart) timingTitle += ` (Moved from ${origStart})`;
+
+        let origSlotLabel = '';
+        if (origDate) {
+          const [oy, om, od] = origDate.split('-').map(Number);
+          if (oy && om && od) {
+            const dObj = new Date(oy, om - 1, od);
+            const dNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const mNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            origSlotLabel = `${dNames[dObj.getDay()]}, ${mNames[dObj.getMonth()]} ${od}${origStart ? ` at ${origStart}` : ''}`;
+          }
+        }
+
+        let newSlotLabel = newStart ? `Starts at ${newStart}` : 'New Slot';
+        if (newDate && newDate !== origDate) {
+          const [ny, nm, nd] = newDate.split('-').map(Number);
+          if (ny && nm && nd) {
+            const dObj = new Date(ny, nm - 1, nd);
+            const dNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const mNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            newSlotLabel = `${dNames[dObj.getDay()]}, ${mNames[dObj.getMonth()]} ${nd} at ${newStart}`;
+          }
+        }
+
+        let timingTitle = newSlotLabel;
         if (newRoom) timingTitle += ` · Room ${newRoom}`;
 
         cardBodyHtml = `
           <div class="announce-subcard">
             <div class="announce-subcard-header">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span>RESCHEDULED TIMING</span>
+              <span>RESCHEDULED CLASS</span>
             </div>
             <div class="announce-subcard-body">
               <div class="announce-subcard-title">${escapeHtml(timingTitle)}</div>
+              ${origSlotLabel ? `<div class="announce-subcard-text" style="color: var(--text-muted); font-size: 11.5px; margin-top: 2px;">Moved from: ${escapeHtml(origSlotLabel)}</div>` : ''}
               ${reason ? `
-                <div class="announce-subcard-scroll-wrap">
+                <div class="announce-subcard-scroll-wrap" style="margin-top: 4px;">
                   <div class="announce-subcard-text">${escapeHtml(reason)}</div>
                   <div class="announce-subcard-fade"></div>
                 </div>` : ""}

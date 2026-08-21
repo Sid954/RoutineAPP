@@ -157,6 +157,26 @@ export function getExtraClassesForDate(dayOrDate, explicitAnchor) {
 }
 
 /**
+ * Returns all classes rescheduled TO a specific date.
+ */
+export function getRescheduledClassesForDate(dayOrDate, explicitAnchor) {
+  if (!State.announcementsList || State.announcementsList.length === 0) return [];
+  const targetDateStr = getDateForDayIndex(dayOrDate, explicitAnchor);
+
+  return State.announcementsList.filter(item => {
+    if (item.type !== 'rescheduled') return false;
+    let parsed = {};
+    if (typeof item.announcement === 'string') {
+      try { parsed = JSON.parse(item.announcement); } catch (e) {}
+    } else if (typeof item.announcement === 'object' && item.announcement !== null) {
+      parsed = item.announcement;
+    }
+    const destinationDate = normalizeDate(parsed.new_date || item.date_override);
+    return destinationDate === targetDateStr;
+  });
+}
+
+/**
  * Returns all assignment/deadline reminders for a specific date.
  */
 export function getDeadlinesForDate(dayOrDate, explicitAnchor) {

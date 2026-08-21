@@ -1,6 +1,6 @@
 import { State } from '../core/state.js';
 import { showToast } from '../toast/toast.js';
-import { escapeHtml, format12h, parseTo24h } from '../core/utils.js';
+import { escapeHtml, format12h, parseTo24h, toMinutes } from '../core/utils.js';
 import { Announcements } from './announcements.js';
 import { getClassesForDay } from '../schedule/queries.js';
 import {
@@ -138,26 +138,69 @@ export function updateClassTestSubjectsList(selectedVal = '') {
 }
 
 export function updateRescheduleSubjectsList(selectedVal = '') {
-  const paRescheduleDate = document.getElementById('paRescheduleDate');
+  const paRescheduleOrigDate = document.getElementById('paRescheduleOrigDate');
   const paRescheduleSubjectSelect = document.getElementById('paRescheduleSubjectSelect');
-  if (!paRescheduleDate || !paRescheduleSubjectSelect) return;
-  const dateVal = paRescheduleDate.value;
+  if (!paRescheduleOrigDate || !paRescheduleSubjectSelect) return;
+  const dateVal = paRescheduleOrigDate.value;
   if (!dateVal) {
-    paRescheduleSubjectSelect.innerHTML = '<option value="">Select a date first</option>';
+    paRescheduleSubjectSelect.innerHTML = '<option value="">Select an original date first</option>';
     return;
   }
   const [y, m, d] = dateVal.split('-').map(Number);
   const dayIdx = new Date(y, m - 1, d).getDay();
   const classes = getClassesForDay(dayIdx);
-  const subjs = Array.from(new Set(classes.map(c => c.title).filter(Boolean)));
 
-  if (subjs.length === 0) {
-    paRescheduleSubjectSelect.innerHTML = '<option value="">No classes scheduled on this day</option>';
+  if (classes.length === 0) {
+    const isWeekend = (dayIdx === 4 || dayIdx === 5);
+    paRescheduleSubjectSelect.innerHTML = `<option value="">No classes scheduled (${isWeekend ? 'Weekend' : 'Off-day'})</option>`;
   } else {
-    paRescheduleSubjectSelect.innerHTML = subjs
-      .sort()
-      .map(sub => `<option value="${escapeHtml(sub)}" ${sub === selectedVal ? 'selected' : ''}>${escapeHtml(sub)}</option>`)
+    paRescheduleSubjectSelect.innerHTML = classes
+      .map(c => {
+        const title = c.title || c.subject || 'Class';
+        const start = c.start || '';
+        const end = c.end || '';
+        const room = c.room || '';
+        const timeLabel = start && end ? `${start} – ${end}` : (start ? `Starts at ${start}` : '');
+        const label = `${title} (${timeLabel}${room ? ` · Room ${room}` : ''})`;
+        return `<option value="${escapeHtml(title)}" data-start="${escapeHtml(start)}" data-room="${escapeHtml(room)}" ${title === selectedVal ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+      })
       .join('');
+  }
+}
+
+export function checkRescheduleOverlap() {
+  const paRescheduleNewDate = document.getElementById('paRescheduleNewDate');
+  const paRescheduleNewStart = document.getElementById('paRescheduleNewStart');
+  const warningEl = document.getElementById('paRescheduleOverlapWarning');
+  const warningTextEl = document.getElementById('paRescheduleOverlapWarningText');
+
+  if (!paRescheduleNewDate || !paRescheduleNewStart || !warningEl || !warningTextEl) return;
+
+  const dateVal = paRescheduleNewDate.value;
+  const startVal = paRescheduleNewStart.value;
+
+  if (!dateVal || !startVal) {
+    warningEl.style.display = 'none';
+    return;
+  }
+
+  const [y, m, d] = dateVal.split('-').map(Number);
+  const dayIdx = new Date(y, m - 1, d).getDay();
+  const startMins = toMinutes(format12h(startVal));
+  const endMins = startMins + 75; // Standard 75 min class slot
+
+  const existingClasses = getClassesForDay(dayIdx);
+  const conflict = existingClasses.find(c => {
+    const cStart = toMinutes(c.start);
+    const cEnd = c.end ? toMinutes(c.end) : (cStart + 75);
+    return startMins < cEnd && endMins > cStart;
+  });
+
+  if (conflict) {
+    warningEl.style.display = 'flex';
+    warningTextEl.textContent = `Note: ${format12h(startVal)} overlaps with scheduled class ${conflict.title || conflict.subject} (${conflict.start}${conflict.end ? ` – ${conflict.end}` : ''}) on the new date.`;
+  } else {
+    warningEl.style.display = 'none';
   }
 }
 
@@ -313,20 +356,28 @@ export function openPostForm(existingAnnouncement = null) {
         if (paClassTestTopics) paClassTestTopics.value = parsed.topics || '';
       } catch (e) {}
     } else if (type === 'rescheduled') {
-      const paRescheduleDate = document.getElementById('paRescheduleDate');
-      if (paRescheduleDate) paRescheduleDate.value = item.date_override || todayStr;
-      updateRescheduleSubjectsList(item.subject_override || item.subject || '');
+      const paRescheduleOrigDate = document.getElementById('paRescheduleOrigDate');
+      const paRescheduleNewDate = document.getElementById('paRescheduleNewDate');
+      const paRescheduleNewStart = document.getElementById('paRescheduleNewStart');
+      const paRescheduleNewRoom = document.getElementById('paRescheduleNewRoom');
+      const paRescheduleReason = document.getElementById('paRescheduleReason');
+
       try {
         const parsed = JSON.parse(item.announcement);
-        const paRescheduleNewStart = document.getElementById('paRescheduleNewStart');
+        const origDate = parsed.original_date || item.date_override || todayStr;
+        const newDate = parsed.new_date || origDate;
+        if (paRescheduleOrigDate) paRescheduleOrigDate.value = origDate;
+        if (paRescheduleNewDate) paRescheduleNewDate.value = newDate;
+        updateRescheduleSubjectsList(parsed.target_subject || item.subject_override || item.subject || '');
         if (paRescheduleNewStart) paRescheduleNewStart.value = parseTo24h(parsed.new_start_time) || '15:00';
-        const paRescheduleNewEnd = document.getElementById('paRescheduleNewEnd');
-        if (paRescheduleNewEnd) paRescheduleNewEnd.value = parseTo24h(parsed.new_end_time) || '16:15';
-        const paRescheduleNewRoom = document.getElementById('paRescheduleNewRoom');
         if (paRescheduleNewRoom) paRescheduleNewRoom.value = parsed.new_room || '';
-        const paRescheduleReason = document.getElementById('paRescheduleReason');
         if (paRescheduleReason) paRescheduleReason.value = parsed.reason || '';
-      } catch (e) {}
+      } catch (e) {
+        if (paRescheduleOrigDate) paRescheduleOrigDate.value = item.date_override || todayStr;
+        if (paRescheduleNewDate) paRescheduleNewDate.value = item.date_override || todayStr;
+        updateRescheduleSubjectsList(item.subject_override || item.subject || '');
+      }
+      checkRescheduleOverlap();
     } else if (type === 'assignment') {
       const paAssignmentDueDate = document.getElementById('paAssignmentDueDate');
       if (paAssignmentDueDate) paAssignmentDueDate.value = item.date_override || todayStr;
@@ -376,9 +427,24 @@ export function openPostForm(existingAnnouncement = null) {
     if (paClassTestTopics) paClassTestTopics.value = '';
     if (paClassTestShowAllSubjects) paClassTestShowAllSubjects.checked = false;
 
+    const paRescheduleOrigDate = document.getElementById('paRescheduleOrigDate');
+    const paRescheduleNewDate = document.getElementById('paRescheduleNewDate');
+    const paRescheduleNewStart = document.getElementById('paRescheduleNewStart');
+    const paRescheduleNewRoom = document.getElementById('paRescheduleNewRoom');
+    const paRescheduleReason = document.getElementById('paRescheduleReason');
+    const paRescheduleWarning = document.getElementById('paRescheduleOverlapWarning');
+
+    if (paRescheduleOrigDate) { paRescheduleOrigDate.value = todayStr; paRescheduleOrigDate.min = todayStr; }
+    if (paRescheduleNewDate) { paRescheduleNewDate.value = todayStr; paRescheduleNewDate.min = todayStr; }
+    if (paRescheduleNewStart) paRescheduleNewStart.value = '15:00';
+    if (paRescheduleNewRoom) paRescheduleNewRoom.value = '';
+    if (paRescheduleReason) paRescheduleReason.value = '';
+    if (paRescheduleWarning) paRescheduleWarning.style.display = 'none';
+
     setSectionVisibility('general');
     updateCancelSubjectsList();
     updateClassTestSubjectsList();
+    updateRescheduleSubjectsList();
   }
 
   // Refresh character counts after populating fields
@@ -418,6 +484,10 @@ export function initPostForm() {
   setupCharCounter(paOnlineRoom, document.getElementById('paOnlineRoomCounter'), 20);
   setupCharCounter(paClassTestName, document.getElementById('paClassTestNameCounter'), ANNOUNCEMENT_LIMITS.EXAM_NAME);
   setupCharCounter(paClassTestTopics, document.getElementById('paClassTestTopicsCounter'), ANNOUNCEMENT_LIMITS.TOPICS);
+  const paRescheduleNewRoom = document.getElementById('paRescheduleNewRoom');
+  const paRescheduleReason = document.getElementById('paRescheduleReason');
+  setupCharCounter(paRescheduleNewRoom, document.getElementById('paRescheduleRoomCounter'), 20);
+  setupCharCounter(paRescheduleReason, document.getElementById('paRescheduleReasonCounter'), 50);
 
   // Multi-line newline collapse on blur / change
   if (paContent) {
@@ -431,6 +501,12 @@ export function initPostForm() {
       refreshAllCounters();
     });
   }
+  if (paRescheduleReason) {
+    paRescheduleReason.addEventListener('blur', () => {
+      paRescheduleReason.value = collapseNewlines(paRescheduleReason.value);
+      refreshAllCounters();
+    });
+  }
 
   const paType = document.getElementById('paType');
   const paGeneralSection = document.getElementById('paGeneralSection');
@@ -438,6 +514,8 @@ export function initPostForm() {
   const paHolidaySection = document.getElementById('paHolidaySection');
   const paOnlineSection = document.getElementById('paOnlineSection');
   const paClassTestSection = document.getElementById('paClassTestSection');
+  const paRescheduledSection = document.getElementById('paRescheduledSection');
+  const paAssignmentSection = document.getElementById('paAssignmentSection');
 
   const paHolidayRangeType = document.getElementById('paHolidayRangeType');
   const paHolidayEndDateContainer = document.getElementById('paHolidayEndDateContainer');
@@ -448,6 +526,10 @@ export function initPostForm() {
   const paClassTestDate = document.getElementById('paClassTestDate');
   const paClassTestSubjectSelect = document.getElementById('paClassTestSubjectSelect');
   const paClassTestShowAllSubjects = document.getElementById('paClassTestShowAllSubjects');
+
+  const paRescheduleOrigDate = document.getElementById('paRescheduleOrigDate');
+  const paRescheduleNewDate = document.getElementById('paRescheduleNewDate');
+  const paRescheduleNewStart = document.getElementById('paRescheduleNewStart');
 
   const paOnlineSubjectSelect = document.getElementById('paOnlineSubjectSelect');
   const paOnlineDate = document.getElementById('paOnlineDate');
@@ -475,6 +557,13 @@ export function initPostForm() {
   if (paCancelDate) paCancelDate.addEventListener('change', () => updateCancelSubjectsList());
   if (paClassTestDate) paClassTestDate.addEventListener('change', () => updateClassTestSubjectsList());
   if (paClassTestShowAllSubjects) paClassTestShowAllSubjects.addEventListener('change', () => updateClassTestSubjectsList());
+
+  if (paRescheduleOrigDate) paRescheduleOrigDate.addEventListener('change', () => updateRescheduleSubjectsList());
+  if (paRescheduleNewDate) paRescheduleNewDate.addEventListener('change', checkRescheduleOverlap);
+  if (paRescheduleNewStart) {
+    paRescheduleNewStart.addEventListener('input', checkRescheduleOverlap);
+    paRescheduleNewStart.addEventListener('change', checkRescheduleOverlap);
+  }
 
   // Custom Popover Type Picker Binding
   const typePickerBtn = document.getElementById('paTypePickerBtn');
@@ -557,6 +646,8 @@ export function initPostForm() {
       if (paHolidaySection) paHolidaySection.style.display = val === 'holiday' ? 'block' : 'none';
       if (paOnlineSection) paOnlineSection.style.display = val === 'online_class' ? 'block' : 'none';
       if (paClassTestSection) paClassTestSection.style.display = val === 'class_test' ? 'block' : 'none';
+      if (paRescheduledSection) paRescheduledSection.style.display = val === 'rescheduled' ? 'block' : 'none';
+      if (paAssignmentSection) paAssignmentSection.style.display = val === 'assignment' ? 'block' : 'none';
     });
   }
 
@@ -902,31 +993,44 @@ export function initPostForm() {
         }
 
       } else if (type === 'rescheduled') {
-        const subject = document.getElementById('paRescheduleSubjectSelect')?.value;
-        const date = document.getElementById('paRescheduleDate')?.value;
+        const origDate = document.getElementById('paRescheduleOrigDate')?.value;
+        const newDate = document.getElementById('paRescheduleNewDate')?.value;
+        const selectEl = document.getElementById('paRescheduleSubjectSelect');
+        const subject = selectEl?.value;
+        const selectedOption = selectEl?.options[selectEl.selectedIndex];
+        const origStart = selectedOption?.getAttribute('data-start') || '';
+        const origRoom = selectedOption?.getAttribute('data-room') || '';
         const newStart = document.getElementById('paRescheduleNewStart')?.value;
-        const newEnd = document.getElementById('paRescheduleNewEnd')?.value;
         const newRoom = document.getElementById('paRescheduleNewRoom')?.value || '';
         const reason = document.getElementById('paRescheduleReason')?.value || '';
 
-        if (!subject || !date || !newStart || !newEnd) {
-          showToast('Please select Subject, Date, New Start Time, and New End Time.', 'warning');
+        if (!origDate || !newDate || !subject || !newStart) {
+          showToast('Please select Original Date, Class, New Date, and New Start Time.', 'warning');
           submitBtn.disabled = false;
           submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
           return;
         }
 
+        if (!isEdit && origDate < todayStr) {
+          showToast('Cannot reschedule classes for past dates.', 'warning');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Publish & Notify';
+          return;
+        }
+
         const formattedStart = format12h(newStart);
-        const formattedEnd = format12h(newEnd);
 
         const validation = validateAnnouncementPayload({
           name,
           title: `Rescheduled: ${subject}`,
           type: 'rescheduled',
-          date_override: date,
+          date_override: origDate,
           subject_override: subject,
+          original_date: origDate,
+          original_start_time: origStart,
+          original_room: origRoom,
+          new_date: newDate,
           new_start_time: formattedStart,
-          new_end_time: formattedEnd,
           new_room: newRoom,
           reason
         });

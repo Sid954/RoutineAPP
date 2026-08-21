@@ -332,14 +332,6 @@ export function validateAnnouncementPayload(rawData = {}) {
     sanitized.announcement = structuredAnnouncement;
 
   } else if (type === 'rescheduled') {
-    if (!cleanString(rawData.date_override)) {
-      return { valid: false, error: 'Rescheduled Date is required.' };
-    }
-    const subj = cleanString(rawData.subject_override || rawData.subject);
-    if (!subj) {
-      return { valid: false, error: 'Subject to reschedule is required.' };
-    }
-
     let parsedPayload = {};
     if (typeof rawData.announcement === 'string') {
       try { parsedPayload = JSON.parse(rawData.announcement); } catch (e) {}
@@ -347,22 +339,43 @@ export function validateAnnouncementPayload(rawData = {}) {
       parsedPayload = rawData.announcement;
     }
 
+    const origDate = cleanString(parsedPayload.original_date || rawData.date_override);
+    if (!origDate) {
+      return { valid: false, error: 'Original Scheduled Date is required.' };
+    }
+
+    const newDate = cleanString(parsedPayload.new_date || rawData.new_date || origDate);
+    if (!newDate) {
+      return { valid: false, error: 'New Scheduled Date is required.' };
+    }
+
+    const subj = cleanString(parsedPayload.target_subject || rawData.subject_override || rawData.subject);
+    if (!subj) {
+      return { valid: false, error: 'Class to reschedule is required.' };
+    }
+
     const newStart = cleanString(parsedPayload.new_start_time || rawData.new_start_time || '03:00 PM');
-    const newEnd = cleanString(parsedPayload.new_end_time || rawData.new_end_time || '04:15 PM');
     const origStart = cleanString(parsedPayload.original_start_time || rawData.original_start_time || '');
+    const origRoom = cleanString(parsedPayload.original_room || rawData.original_room || '');
     const newRoom = cleanString(parsedPayload.new_room || rawData.new_room || '');
-    const reason = collapseNewlines(parsedPayload.reason || rawData.reason || '');
+    const reasonRaw = collapseNewlines(parsedPayload.reason || rawData.reason || '');
+    const reasonCheck = validateField(reasonRaw, 50, 'Reason / Instructions', false);
+    if (!reasonCheck.valid) return { valid: false, error: reasonCheck.error };
 
     const structuredObj = {
       target_subject: subj,
+      original_date: origDate,
       original_start_time: origStart,
+      original_room: origRoom,
+      new_date: newDate,
       new_start_time: newStart,
-      new_end_time: newEnd,
       new_room: newRoom,
-      reason
+      reason: reasonCheck.cleaned
     };
 
     sanitized.title = `Rescheduled: ${subj}`;
+    sanitized.date_override = origDate;
+    sanitized.subject_override = subj;
     sanitized.announcement = JSON.stringify(structuredObj);
 
   } else if (type === 'assignment') {

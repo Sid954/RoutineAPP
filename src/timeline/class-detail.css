@@ -487,14 +487,21 @@ html[data-theme="light"] .faculty-avatar-mini,
 .class-detail-override-card.cancellation {
   background: rgba(244, 63, 94, 0.08);
   border: 1.5px solid rgba(244, 63, 94, 0.35);
-}
-
-.class-detail-override-card.cancellation .cd-override-header {
-  color: #FDA4AF;
-}
-
 .class-detail-override-card.cancellation .cd-override-header svg {
   color: #F43F5E;
+}
+
+.class-detail-override-card.rescheduled {
+  background: rgba(100, 116, 139, 0.08);
+  border: 1.5px solid rgba(100, 116, 139, 0.35);
+}
+
+.class-detail-override-card.rescheduled .cd-override-header {
+  color: #CBD5E1;
+}
+
+.class-detail-override-card.rescheduled .cd-override-header svg {
+  color: #94A3B8;
 }
 
 .cd-override-header {

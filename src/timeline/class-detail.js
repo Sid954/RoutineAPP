@@ -93,7 +93,9 @@ export function showClassDetails(data) {
   if (roomEl) roomEl.textContent = `Room ${cleanRoom}`;
   if (teacherEl) teacherEl.textContent = teacherName;
   if (formatEl) {
-    if (data.isExtraClass) {
+    if (data.isRescheduled) {
+      formatEl.textContent = 'Rescheduled Class';
+    } else if (data.isExtraClass) {
       formatEl.textContent = data.isOnline ? 'Extra Online Class' : 'Extra In-Person Class';
     } else {
       formatEl.textContent = isLab ? 'Laboratory Session' : 'Theory Lecture';
@@ -176,6 +178,39 @@ export function showClassDetails(data) {
           </div>
         </div>
       `;
+    } else if (data.isRescheduled) {
+      overrideBox.style.display = 'block';
+      let origSlotText = '';
+      if (data.origDate) {
+        const [oy, om, od] = data.origDate.split('-').map(Number);
+        if (oy && om && od) {
+          const dObj = new Date(oy, om - 1, od);
+          const dNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+          const mNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          origSlotText = `${dNames[dObj.getDay()]}, ${mNames[dObj.getMonth()]} ${od}${data.origStart ? ` at ${data.origStart}` : ''}`;
+        }
+      }
+      overrideBox.innerHTML = `
+        <div class="class-detail-override-card rescheduled">
+          <div class="cd-override-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Rescheduled Session</span>
+          </div>
+          <div class="cd-override-body">
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 4px;">This class was moved to this date & time slot.</div>
+            ${origSlotText ? `
+              <div style="font-size: 12px; font-weight: 600; color: var(--text); margin-top: 4px;">
+                Original Slot: <span style="font-weight: 400;">${escapeHtml(origSlotText)}</span>
+              </div>
+            ` : ''}
+            ${data.rescheduledReason ? `
+              <div style="font-size: 12px; font-weight: 600; color: var(--text); margin-top: 4px;">
+                Reason / Note: <span style="font-weight: 400;">${escapeHtml(data.rescheduledReason)}</span>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
     } else if (data.isExtraClass && !data.isOnline) {
       overrideBox.style.display = 'block';
       overrideBox.innerHTML = `
@@ -204,6 +239,9 @@ export function showClassDetails(data) {
     if (data.isExam) {
       badgeEl.textContent = (data.examName || 'EXAM').toUpperCase();
       badgeEl.className = 'resting-tag exam';
+    } else if (data.isRescheduled) {
+      badgeEl.textContent = 'RESCHEDULED';
+      badgeEl.className = 'resting-tag rescheduled';
     } else if (data.isOnline) {
       badgeEl.textContent = 'ONLINE';
       badgeEl.className = 'resting-tag online';

@@ -41,6 +41,11 @@ const LIMITS = {
   PLATFORM_LINK: 100
 };
 
+function collapseNewlines(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/\n{3,}/g, '\n\n').trim();
+}
+
 function toMinutes(timeStr) {
   if (!timeStr || typeof timeStr !== 'string') return -1;
   const clean = timeStr.trim();
@@ -157,15 +162,17 @@ function sanitizeAndValidatePayload(body) {
     try {
       const parsed = typeof announcement === 'string' ? JSON.parse(announcement) : announcement;
       const obj = {
+        original_date: (parsed?.original_date || date_override || '').trim(),
         original_start_time: (parsed?.original_start_time || '').trim(),
-        new_start_time: (parsed?.new_start_time || '').trim(),
-        new_end_time: (parsed?.new_end_time || '').trim(),
+        original_room: (parsed?.original_room || '').trim(),
+        new_date: (parsed?.new_date || date_override || '').trim(),
+        new_start_time: (parsed?.new_start_time || '03:00 PM').trim(),
         new_room: (parsed?.new_room || '').trim(),
         reason: collapseNewlines(parsed?.reason || '')
       };
       cleanAnnouncement = JSON.stringify(obj);
     } catch (e) {
-      cleanAnnouncement = collapseNewlines(typeof announcement === 'string' ? announcement : '');
+      return { error: 'Invalid rescheduled payload structure.' };
     }
   } else if (itemType === 'assignment') {
     try {
@@ -363,6 +370,11 @@ module.exports = async (req, res) => {
               const parsed = JSON.parse(targetAnnouncement);
               notificationBody = `Exam: ${parsed.exam_name || 'Class Test'}. Topics: ${parsed.topics || 'Not Specified'}`;
             } catch (e) {}
+          } else if (targetType === 'rescheduled') {
+            try {
+              const parsed = JSON.parse(targetAnnouncement);
+              notificationBody = `Class rescheduled to ${parsed.new_date ? `${parsed.new_date} at ` : ''}${parsed.new_start_time || 'new slot'}${parsed.new_room ? ` (Room ${parsed.new_room})` : ''}`;
+            } catch (e) {}
           }
 
           const BATCH_SIZE = 500;
@@ -373,7 +385,7 @@ module.exports = async (req, res) => {
             const message = {
               tokens: batchTokens,
               notification: {
-                title: `${targetType === 'cancellation' ? '🚫 ' : targetType === 'holiday' ? '🎉 ' : targetType === 'online_class' ? '📡 ' : targetType === 'class_test' ? '📝 ' : '📢 '}${targetTitle}`,
+                title: `${targetType === 'cancellation' ? '🚫 ' : targetType === 'holiday' ? '🎉 ' : targetType === 'online_class' ? '📡 ' : targetType === 'class_test' ? '📝 ' : targetType === 'rescheduled' ? '🔄 ' : '📢 '}${targetTitle}`,
                 body: notificationBody,
               },
               data: {

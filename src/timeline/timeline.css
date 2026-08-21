@@ -592,6 +592,68 @@ html[data-theme="dark"] .focal-day-card,
   opacity: 0.9;
 }
 
+/* COMPONENT 4: RESCHEDULED GHOST STRIP */
+.timeline-ghost-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: var(--canvas);
+  border: 1px dashed rgba(100, 116, 139, 0.4);
+  color: var(--text-muted);
+  margin: 2px 0;
+  transition: all 0.2s ease;
+}
+
+.timeline-ghost-strip.tappable {
+  cursor: pointer;
+}
+
+.timeline-ghost-strip.tappable:hover,
+.timeline-ghost-strip.tappable:active {
+  background: rgba(100, 116, 139, 0.08);
+  border-color: #64748B;
+  color: var(--text-main);
+  transform: scale(0.99);
+}
+
+.timeline-ghost-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.timeline-ghost-content svg {
+  width: 14px;
+  height: 14px;
+  color: #94A3B8;
+  flex-shrink: 0;
+}
+
+.timeline-ghost-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #94A3B8;
+  background: rgba(100, 116, 139, 0.12);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(100, 116, 139, 0.25);
+  white-space: nowrap;
+}
+
+:root[data-color="light"] .timeline-ghost-strip.tappable:hover,
+html[data-theme="light"] .timeline-ghost-strip.tappable:hover {
+  background: #F1F5F9;
+  border-color: #475569;
+}
+
 /* Peaceful Off-Day Empty State Card */
 .off-day-card {
   background: var(--card-bg);
@@ -1017,28 +1079,43 @@ html[data-theme="light"] .resting-tag.extra {
   display: inline-block;
 }
 
-.override-indicator.online {
-  color: #10B981;
+.resting-tag.rescheduled {
+  background: rgba(100, 116, 139, 0.16) !important;
+  color: #CBD5E1 !important;
+  border: 1px solid rgba(100, 116, 139, 0.35) !important;
 }
 
-.meta-line-item.exam-topics {
-  color: #FDBA74;
+:root[data-color="light"] .resting-tag.rescheduled,
+html[data-theme="light"] .resting-tag.rescheduled {
+  background: #F1F5F9 !important;
+  color: #334155 !important;
+  border: 1px solid #CBD5E1 !important;
+}
+
+.resting-class-row.is-rescheduled-override {
+  border: 1.5px solid #64748B;
+  background: linear-gradient(135deg, rgba(100, 116, 139, 0.06) 0%, rgba(35, 37, 44, 1) 100%);
+  box-shadow: 0 4px 18px rgba(100, 116, 139, 0.12);
+}
+
+:root[data-color="light"] .resting-class-row.is-rescheduled-override {
+  background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 100%);
+  border-color: #475569;
+  box-shadow: 0 2px 6px rgba(100, 116, 139, 0.10), 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.override-indicator.rescheduled {
+  color: #94A3B8;
+}
+
+.meta-line-item.rescheduled-note {
+  color: #94A3B8;
   font-weight: 700;
   font-size: 11px;
 }
 
-.meta-line-item.exam-topics svg {
-  color: #F97316;
-}
-
-.meta-line-item.online-session {
-  color: #6EE7B7;
-  font-weight: 700;
-  font-size: 11px;
-}
-
-.meta-line-item.online-session svg {
-  color: #10B981;
+.meta-line-item.rescheduled-note svg {
+  color: #64748B;
 }
 
 
