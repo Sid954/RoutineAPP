@@ -41,12 +41,42 @@ const LIMITS = {
   PLATFORM_LINK: 100
 };
 
-function collapseNewlines(str) {
-  if (typeof str !== 'string') return '';
-  return str
-    .replace(/\r\n/g, '\n')
-    .replace(/\n{2,}/g, '\n')
-    .trim();
+function toMinutes(timeStr) {
+  if (!timeStr || typeof timeStr !== 'string') return -1;
+  const clean = timeStr.trim();
+  const match12 = clean.match(/^(\d{1,2}):(\d{2})(?:\s*([ap]m))?$/i);
+  if (match12) {
+    let h = parseInt(match12[1], 10);
+    const m = parseInt(match12[2], 10);
+    const p = match12[3] ? match12[3].toUpperCase() : null;
+    if (p === 'PM' && h !== 12) h += 12;
+    if (p === 'AM' && h === 12) h = 0;
+    return h * 60 + m;
+  }
+  const parts = clean.split(':');
+  if (parts.length >= 2) {
+    const h = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    if (!isNaN(h) && !isNaN(m)) return h * 60 + m;
+  }
+  return -1;
+}
+
+function calculateEndTime(startTimeStr, endTimeStr) {
+  const startM = toMinutes(startTimeStr);
+  const endM = toMinutes(endTimeStr);
+  if (endM > startM && startM >= 0) {
+    return endTimeStr.trim();
+  }
+  if (startM >= 0) {
+    const m = Math.min(1439, startM + 75);
+    const h = Math.floor(m / 60);
+    const min = m % 60;
+    const period = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${String(h12).padStart(2, '0')}:${String(min).padStart(2, '0')} ${period}`;
+  }
+  return '11:00 AM';
 }
 
 function sanitizeAndValidatePayload(body) {
@@ -116,11 +146,9 @@ function sanitizeAndValidatePayload(body) {
         platform: isOnline ? platform : '',
         room: !isOnline ? room : '',
         teacher,
-        start_time: (parsed?.start_time || '09:45 AM').trim()
+        start_time: (parsed?.start_time || '09:45 AM').trim(),
+        end_time: calculateEndTime(parsed?.start_time || '09:45 AM', parsed?.end_time || '')
       };
-      if (parsed?.end_time && typeof parsed.end_time === 'string' && parsed.end_time.trim()) {
-        obj.end_time = parsed.end_time.trim();
-      }
       cleanAnnouncement = JSON.stringify(obj);
     } catch (e) {
       return { error: 'Invalid online_class payload structure.' };

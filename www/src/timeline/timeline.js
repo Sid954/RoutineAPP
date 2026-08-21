@@ -165,18 +165,42 @@ export function renderTimeline(force = false) {
   // Clone classes array to avoid mutating global schedule
   let allScheduleClasses = classes.map(c => ({ ...c }));
 
+function findInstructorForSubject(subj) {
+  if (!subj) return '';
+  const cleanSubj = subj.toUpperCase().trim();
+  if (State.schedule) {
+    for (const day in State.schedule) {
+      const list = State.schedule[day] || [];
+      const match = list.find(c => (c.title || c.subject || '').toUpperCase().trim() === cleanSubj);
+      if (match && (match.instructor || match.teacher)) {
+        return (match.instructor || match.teacher).trim();
+      }
+    }
+  }
+  return '';
+}
+
   // Inject net-new extra classes
   extraClassesList.forEach(item => {
     let parsed = {};
     try { parsed = JSON.parse(item.announcement); } catch (e) {}
     const subj = item.subject_override || item.subject || 'Extra Class';
     const startStr = parsed.start_time || '09:45 AM';
-    const endStr = parsed.end_time || '11:00 AM';
+    let endStr = parsed.end_time || '';
+    const startM = toMinutes(startStr);
+    const endM = toMinutes(endStr);
+    if (!endStr || endM <= startM) {
+      if (startM >= 0) {
+        endStr = format12h(toTimeString(Math.min(1439, startM + 75)));
+      } else {
+        endStr = '11:00 AM';
+      }
+    }
     const isOnline = (parsed.is_online === false || /extra class/i.test(item.title || '')) 
       ? false 
       : (parsed.is_online !== undefined ? Boolean(parsed.is_online) : true);
     const room = parsed.room || (isOnline ? 'Online' : 'TBA');
-    const teacher = parsed.teacher || item.name || '';
+    const teacher = (parsed.teacher || '').trim() || findInstructorForSubject(subj);
     allScheduleClasses.push({
       start: startStr,
       end: endStr,
@@ -387,7 +411,7 @@ export function renderTimeline(force = false) {
     const isActive = isToday && currentMins >= startMins && currentMins < endMins && !effectiveCancelled;
     const isPast = isToday && endMins <= currentMins;
 
-    const teacherCode = (c.teacher || c.instructor || '').trim();
+    const teacherCode = (c.teacher || c.instructor || '').trim() || findInstructorForSubject(c.title);
     const teacherFullName = getFullName(teacherCode) || teacherCode || 'TBA';
     const cleanRoom = isOnline ? 'Online' : formatRoom(c.room);
 

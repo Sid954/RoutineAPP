@@ -124,12 +124,26 @@ export function showClassDetails(data) {
           </div>
           <div class="cd-override-body">
             <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 4px;">This class will be conducted online for this date.</div>
-            ${data.onlinePlatform ? `
-              <a href="${escapeHtml(data.onlinePlatform)}" target="_blank" rel="noopener noreferrer" class="announce-join-btn" style="margin-top: 6px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                <span>Join Online Session</span>
-              </a>
-            ` : ''}
+            ${(() => {
+              const platformStr = (data.onlinePlatform || '').trim();
+              const isUrl = /^https?:\/\//i.test(platformStr);
+              if (isUrl) {
+                return `
+                  <a href="${escapeHtml(platformStr)}" target="_blank" rel="noopener noreferrer" class="announce-join-btn" style="margin-top: 6px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    <span>Join Online Session</span>
+                  </a>
+                `;
+              }
+              if (platformStr) {
+                return `
+                  <div style="font-size: 12px; font-weight: 600; color: var(--text); margin-top: 5px;">
+                    Platform / Info: <span style="font-weight: 400;">${escapeHtml(platformStr)}</span>
+                  </div>
+                `;
+              }
+              return '';
+            })()}
           </div>
         </div>
       `;

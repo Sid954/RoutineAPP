@@ -1,7 +1,4 @@
-/**
- * validation.js — Shared Validation, Character Limits & Anti-Abuse Formatting
- * Enforces field limits, whitespace trimming, and multi-line newline collapse.
- */
+import { toMinutes, format12h, toTimeString } from '../core/utils.js';
 
 export const ANNOUNCEMENT_LIMITS = {
   AUTHOR_NAME: 15,
@@ -270,12 +267,24 @@ export function validateAnnouncementPayload(rawData = {}) {
     const isExtra = Boolean(parsedPayload.is_extra_class || rawData.is_extra_class);
     const isOnline = parsedPayload.is_online !== undefined ? Boolean(parsedPayload.is_online) : (rawData.is_online !== undefined ? Boolean(rawData.is_online) : true);
 
+    const startTimeStr = cleanString(parsedPayload.start_time || rawData.start_time || '09:45 AM');
+    let endTimeStr = cleanString(parsedPayload.end_time || rawData.end_time || '');
+    const startM = toMinutes(startTimeStr);
+    const endM = toMinutes(endTimeStr);
+    if (!endTimeStr || endM <= startM) {
+      if (startM >= 0) {
+        endTimeStr = format12h(toTimeString(Math.min(1439, startM + 75)));
+      } else {
+        endTimeStr = '11:00 AM';
+      }
+    }
+
     const structuredObj = {
       is_extra_class: isExtra,
       is_online: isOnline,
       platform: platformCheck.cleaned,
-      start_time: cleanString(parsedPayload.start_time || rawData.start_time || '09:45 AM'),
-      end_time: cleanString(parsedPayload.end_time || rawData.end_time || '11:00 AM'),
+      start_time: startTimeStr,
+      end_time: endTimeStr,
       room: cleanString(parsedPayload.room || rawData.room || ''),
       teacher: cleanString(parsedPayload.teacher || rawData.teacher || '')
     };
