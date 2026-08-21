@@ -474,6 +474,7 @@
   box-shadow: var(--sh-dock);
   padding: 6px 8px max(10px, env(safe-area-inset-bottom, 10px));
   box-sizing: border-box;
+  border-radius: 20px;
 }
 
 .solid-dock-bar {
