@@ -8,13 +8,13 @@ import { format12h, formatRoom, toMinutes } from '../core/utils.js';
 export let _nativePush = null;
 export function setNativePush(np) { _nativePush = np; }
 
-function isCancelledClass(todayIdx, subjectTitle) {
-  const ov = getOverrideFor(todayIdx, subjectTitle);
+function isCancelledClass(todayDate, subjectTitle) {
+  const ov = getOverrideFor(todayDate, subjectTitle);
   return ov && ov.type === 'cancellation';
 }
 
-function buildReminderPayload(cls, settings, todayIdx) {
-  const cancelOverride = getOverrideFor(todayIdx, cls.title);
+function buildReminderPayload(cls, settings, todayDate) {
+  const cancelOverride = getOverrideFor(todayDate, cls.title);
   const isOnline = cancelOverride && cancelOverride.type === 'online_class';
   const isExam = cls.isExam || (cancelOverride && cancelOverride.type === 'class_test');
 
@@ -130,10 +130,11 @@ export const Notifications = {
 
       await this.cancelAll();
 
-      const todayIdx = new Date().getDay();
+      const todayDate = new Date();
+      const todayIdx = todayDate.getDay();
       const classes = State.schedule[todayIdx] || [];
-      const now = new Date().getHours() * 60 + new Date().getMinutes();
-      const holidayOverride = getOverrideFor(todayIdx);
+      const now = todayDate.getHours() * 60 + todayDate.getMinutes();
+      const holidayOverride = getOverrideFor(todayDate);
       const isHoliday = holidayOverride && holidayOverride.type === 'holiday';
 
       if (isHoliday) return;
@@ -148,14 +149,14 @@ export const Notifications = {
 
         classes.forEach((cls) => {
           const startMins = toMinutes(cls.start);
-          if (isCancelledClass(todayIdx, cls.title)) return;
+          if (isCancelledClass(todayDate, cls.title)) return;
 
           // Pre-class / Pre-exam Reminder
           const alertMins = startMins - settings.leadTime;
           if (alertMins > now) {
             const alertDate = new Date();
             alertDate.setHours(Math.floor(alertMins / 60), alertMins % 60, 0, 0);
-            const payload = buildReminderPayload(cls, settings, todayIdx);
+            const payload = buildReminderPayload(cls, settings, todayDate);
 
             nativeNotifs.push({
               title: payload.title,
@@ -189,14 +190,14 @@ export const Notifications = {
         // ── Web Browser Notifications ──
         classes.forEach((cls) => {
           const startMins = toMinutes(cls.start);
-          if (isCancelledClass(todayIdx, cls.title)) return;
+          if (isCancelledClass(todayDate, cls.title)) return;
 
           // Pre-class / Pre-exam Reminder
           const alertMins = startMins - settings.leadTime;
           if (alertMins > now) {
             const delay = (alertMins - now) * 60000;
             this.timeouts.push(setTimeout(() => {
-              const payload = buildReminderPayload(cls, settings, todayIdx);
+              const payload = buildReminderPayload(cls, settings, todayDate);
               this.show(payload.title, payload.body);
             }, delay));
           }

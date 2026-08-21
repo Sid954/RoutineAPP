@@ -20,7 +20,8 @@ export function renderWidgetPreview(type = 'live') {
   const container = document.getElementById('widgetPreviewContainer');
   if (!container) return;
 
-  const todayIdx = new Date().getDay();
+  const todayDate = new Date();
+  const todayIdx = todayDate.getDay();
   const classes = getClassesForDay(todayIdx);
   const now = getCurrentMinutes();
 
@@ -66,7 +67,7 @@ export function renderWidgetPreview(type = 'live') {
       const remMins = Math.max(0, endMins - now);
       progressPct = Math.min(100, Math.max(0, Math.round((elapsedMins / durationMins) * 100)));
 
-      const override = getOverrideFor(todayIdx, activeClass.title);
+      const override = getOverrideFor(todayDate, activeClass.title);
       const isCancelled = override && override.type === 'cancellation';
       const isOnline = override && override.type === 'online_class';
 
@@ -226,7 +227,8 @@ export async function updateNativeWidget() {
     const { WidgetPlugin } = window.Capacitor.Plugins;
     if (!WidgetPlugin) return;
 
-    const todayIdx = new Date().getDay();
+    const todayDate = new Date();
+    const todayIdx = todayDate.getDay();
     const classes = getClassesForDay(todayIdx);
     const now = getCurrentMinutes();
 
@@ -245,7 +247,7 @@ export async function updateNativeWidget() {
     let showNext = true;
 
     // Check Holiday Override
-    const holidayOverride = getOverrideFor(todayIdx);
+    const holidayOverride = getOverrideFor(todayDate);
     if (holidayOverride && holidayOverride.type === 'holiday') {
       currentLabel = "● HOLIDAY 🎉";
       currentTime = "DAY OFF";
@@ -292,7 +294,7 @@ export async function updateNativeWidget() {
         const remMins = Math.max(0, endMins - now);
         const pct = Math.min(100, Math.max(0, Math.round((elapsedMins / durationMins) * 100)));
 
-        const override = getOverrideFor(todayIdx, activeClass.title);
+        const override = getOverrideFor(todayDate, activeClass.title);
         const isCancelled = override && override.type === 'cancellation';
         const isOnline = override && override.type === 'online_class';
 

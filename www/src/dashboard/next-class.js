@@ -4,8 +4,9 @@ import { getOverrideFor } from '../announcements/overrides.js';
 import { toMinutes, format12h, formatRoom, getCurrentMinutes, escapeHtml } from '../core/utils.js';
 
 export function renderNextClass() {
-  const todayIdx = new Date().getDay();
-  const holidayOverride = getOverrideFor(todayIdx);
+  const todayDate = new Date();
+  const todayIdx = todayDate.getDay();
+  const holidayOverride = getOverrideFor(todayDate);
   const subRow = DOM.nextRoom.parentElement;
   const currentMins = getCurrentMinutes();
 
@@ -13,7 +14,7 @@ export function renderNextClass() {
 
   // If holiday and no online classes are scheduled, render break message and exit
   const hasOnlineClasses = todayClasses.some(c => {
-    const ov = getOverrideFor(todayIdx, c.title);
+    const ov = getOverrideFor(todayDate, c.title);
     return ov && ov.type === 'online_class';
   });
 
@@ -37,7 +38,7 @@ export function renderNextClass() {
   }
 
   if (nextItem) {
-    const cancelOverride = getOverrideFor(todayIdx, nextItem.title);
+    const cancelOverride = getOverrideFor(todayDate, nextItem.title);
     const isCancelled = cancelOverride && cancelOverride.type === 'cancellation';
     const isOnline = cancelOverride && cancelOverride.type === 'online_class';
     const isHolidayCancelled = !isOnline && !isCancelled && holidayOverride && holidayOverride.type === 'holiday';

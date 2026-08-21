@@ -20,7 +20,15 @@ export function renderWeekStrip() {
 
   // Academic week starts on Saturday (Sat=6, Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5)
   const academicDaysOrder = [6, 0, 1, 2, 3, 4, 5];
-  const satOffset = (anchorDayIdx === 6) ? 0 : (anchorDayIdx + 1);
+  let satOffset;
+  if (anchorDayIdx === 6) {
+    satOffset = 0;
+  } else if ((anchorDate === realToday || (anchorDate.getFullYear() === realToday.getFullYear() && anchorDate.getMonth() === realToday.getMonth() && anchorDate.getDate() === realToday.getDate())) && (anchorDayIdx === 4 || anchorDayIdx === 5)) {
+    // On Thursday/Friday off-days, look ahead to the upcoming academic week starting Saturday
+    satOffset = (anchorDayIdx === 4) ? -2 : -1;
+  } else {
+    satOffset = anchorDayIdx + 1;
+  }
   const weekStartSat = new Date(anchorDate);
   weekStartSat.setDate(anchorDate.getDate() - satOffset);
 

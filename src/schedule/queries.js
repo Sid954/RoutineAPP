@@ -1,6 +1,6 @@
 import { State } from '../core/state.js';
 import { toMinutes, parseTo24h } from '../core/utils.js';
-import { getDateForDayIndex } from '../announcements/overrides.js';
+import { getDateForDayIndex, normalizeDate } from '../announcements/overrides.js';
 
 export function getClassesForDay(dayIdx) {
   const target = dayIdx !== undefined ? dayIdx : State.currentViewDayIdx;
@@ -14,7 +14,7 @@ export function getClassesForDay(dayIdx) {
     // 1. Process Online Class Overrides
     const onlineClasses = State.announcementsList.filter(item => 
       item.type === 'online_class' && 
-      item.date_override === targetDateStr &&
+      normalizeDate(item.date_override) === targetDateStr &&
       item.subject_override
     );
 
@@ -74,7 +74,7 @@ export function getClassesForDay(dayIdx) {
     // 2. Process Class Test / Exam Overrides
     const classTests = State.announcementsList.filter(item => 
       item.type === 'class_test' && 
-      item.date_override === targetDateStr &&
+      normalizeDate(item.date_override) === targetDateStr &&
       item.subject_override
     );
 

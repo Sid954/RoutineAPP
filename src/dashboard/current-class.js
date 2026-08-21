@@ -4,8 +4,9 @@ import { getOverrideFor } from '../announcements/overrides.js';
 import { toMinutes, format12h, formatRoom, getCurrentMinutes, toTimeString, escapeHtml } from '../core/utils.js';
 
 export function renderCurrentClass() {
-  const todayIdx = new Date().getDay();
-  const holidayOverride = getOverrideFor(todayIdx);
+  const todayDate = new Date();
+  const todayIdx = todayDate.getDay();
+  const holidayOverride = getOverrideFor(todayDate);
   const progressSection = DOM.currentBar.parentElement.parentElement;
   const roomPill = DOM.currentRoom;
   const timePill = DOM.currentTimeRange;
@@ -15,7 +16,7 @@ export function renderCurrentClass() {
     const todayClasses = getClassesForDay(todayIdx);
     const currentMins = getCurrentMinutes();
     const activeOnline = todayClasses.find(c => {
-      const ov = getOverrideFor(todayIdx, c.title);
+      const ov = getOverrideFor(todayDate, c.title);
       return ov && ov.type === 'online_class' &&
              currentMins >= toMinutes(c.start) && currentMins < toMinutes(c.end);
     });
@@ -38,14 +39,14 @@ export function renderCurrentClass() {
   const currentMins = getCurrentMinutes();
   let activeItem = getActiveClass(todayClasses, currentMins);
   if (activeItem) {
-    const cancelOverride = getOverrideFor(todayIdx, activeItem.title);
+    const cancelOverride = getOverrideFor(todayDate, activeItem.title);
     if (cancelOverride && cancelOverride.type === 'cancellation') {
       activeItem = null;
     }
   }
 
   if (activeItem) {
-    const cancelOverride = getOverrideFor(todayIdx, activeItem.title);
+    const cancelOverride = getOverrideFor(todayDate, activeItem.title);
     const isOnline = cancelOverride && cancelOverride.type === 'online_class';
 
     progressSection.style.display = 'block';
