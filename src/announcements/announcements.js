@@ -701,7 +701,14 @@ export const Announcements = {
       State.sessionDeletePassword = pwd;
       this.list = this.list.filter((a) => String(a.id) !== String(id));
       State.announcementsList = this.list;
+      try {
+        localStorage.setItem(this.CACHE_KEY, JSON.stringify(this.list));
+      } catch (e) {}
       this.renderFeed();
+      this.checkBadge();
+      if (typeof window.renderTimeline === "function") {
+        window.renderTimeline(true);
+      }
       showToast("Announcement deleted.", "success");
     } catch (err) {
       showToast(`Error: ${err.message}`, "error");
