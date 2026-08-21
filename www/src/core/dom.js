@@ -5,16 +5,11 @@ export const DOM = {
   clockHour: $id('hD'),
   clockMin: $id('mD'),
   clockPeriod: $id('apD'),
-  dayDisplay: $id('dayD'),
   dateDisplay: $id('dateD'),
 
   // Greeting & stats
   greetText: $id('greetText'),
   greetSub: $id('greetSub'),
-  statClasses: $id('statClasses'),
-  statHours: $id('statHours'),
-  statGaps: $id('statGaps'),
-  statStreak: $id('statStreak'),
 
   // Current class card
   currentCard: $id('cc'),
@@ -63,15 +58,9 @@ export const DOM = {
   // Notification settings
   notifToggle: $id('notifToggle'),
   notifLeadTime: $id('notifLeadTime'),
-  notifBriefingToggle: $id('notifBriefingToggle'),
-  notifBriefingTime: $id('notifBriefingTime'),
-  notifClassEndToggle: $id('notifClassEndToggle'),
-  notifDayDoneToggle: $id('notifDayDoneToggle'),
-  testBriefingBtn: $id('testBriefingBtn'),
   notifPermStatus: $id('notifPermStatus'),
   routineSemesterSelect: $id('routineSemesterSelect'),
   routineSectionSelect: $id('routineSectionSelect'),
-  loadRoutineBtn: $id('loadRoutineBtn'),
   saveAllSettingsBtn: $id('saveAllSettingsBtn'),
   saveNotifSettingsBtn: $id('saveNotifSettingsBtn'),
 
@@ -120,7 +109,6 @@ export const DOM = {
   paOnlineDate: $id('paOnlineDate'),
   paOnlineLink: $id('paOnlineLink'),
   paOnlineStart: $id('paOnlineStart'),
-  paOnlineEnd: $id('paOnlineEnd'),
   paClassTestSection: $id('paClassTestSection'),
   paClassTestDate: $id('paClassTestDate'),
   paClassTestSubjectSelect: $id('paClassTestSubjectSelect'),
@@ -128,11 +116,4 @@ export const DOM = {
   paClassTestTopics: $id('paClassTestTopics'),
   paClassTestShowAllSubjects: $id('paClassTestShowAllSubjects'),
   paPassword: $id('paPassword'),
-  notifBriefingToggle: $id('notifBriefingToggle'),
-  notifBriefingTime: $id('notifBriefingTime'),
-  notifClassEndToggle: $id('notifClassEndToggle'),
-  notifDayDoneToggle: $id('notifDayDoneToggle'),
-  notifHistoryList: $id('notifHistoryList'),
-  notifHistoryModal: $id('notifHistoryModal'),
-
 };

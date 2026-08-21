@@ -1,10 +1,6 @@
 import { CONFIG } from '../core/config.js';
-import { DOM } from '../core/dom.js';
-import { showToast } from '../toast/toast.js';
-import { Notifications, setNativePush } from '../notifications/notifications.js';
+import { setNativePush } from '../notifications/notifications.js';
 import { Storage } from '../storage/storage.js';
-import { Announcements } from '../announcements/announcements.js';
-import { openModal } from '../modals/modal.js';
 
 export const NativePush = {
   isSupported() {

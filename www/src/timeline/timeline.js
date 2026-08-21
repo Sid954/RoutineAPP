@@ -1,11 +1,10 @@
 import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
-import { CONFIG, DAY_NAMES, DAY_SHORT, FULL_COURSE_NAMES } from '../core/config.js';
+import { DAY_NAMES, FULL_COURSE_NAMES } from '../core/config.js';
 import { getClassesForDay } from '../schedule/queries.js';
 import { getOverrideFor } from '../announcements/overrides.js';
 import { toMinutes, format12h, toTimeString, getCurrentMinutes, escapeHtml, formatRoom } from '../core/utils.js';
 import { getFullName } from '../teachers/teacher-names.js';
-import { showClassDetails } from './class-detail.js';
 
 let _lastRenderHash = '';
 

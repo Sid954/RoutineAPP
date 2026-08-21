@@ -1,8 +1,7 @@
-import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
 import { FULL_COURSE_NAMES, DAY_NAMES } from '../core/config.js';
 import { format12h, formatRoom, escapeHtml } from '../core/utils.js';
-import { getFullName, getTeacherInfo } from '../teachers/teacher-names.js';
+import { getTeacherInfo } from '../teachers/teacher-names.js';
 import { openModal, closeModal } from '../modals/modal.js';
 
 let _activeModalTeacherCode = 'MHE';

@@ -11,6 +11,5 @@ export function updateClock() {
   if (DOM.clockHour) DOM.clockHour.textContent = pad(hours);
   if (DOM.clockMin) DOM.clockMin.textContent = mins;
   if (DOM.clockPeriod) DOM.clockPeriod.textContent = period;
-  if (DOM.dayDisplay) DOM.dayDisplay.textContent = DAY_NAMES[now.getDay()] || 'Weekend';
   if (DOM.dateDisplay) DOM.dateDisplay.textContent = `${DAY_NAMES[now.getDay()] || ''}, ${now.getDate()} ${FULL_MONTHS[now.getMonth()] || MONTHS[now.getMonth()]}`;
 }

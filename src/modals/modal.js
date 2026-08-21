@@ -47,7 +47,7 @@ export function hideLoadingScreen() {
   if (overlay) overlay.classList.remove('active');
 }
 
-export function showConfirm(title, message, onOk, showPasswordInput = false) {
+export function showConfirm(title, message, onOk, showPasswordInput = false, variant = 'danger') {
   const modal = DOM.confirmModal;
   const titleEl = document.getElementById('confirmTitle');
   const msgEl = document.getElementById('confirmMessage');
@@ -55,12 +55,29 @@ export function showConfirm(title, message, onOk, showPasswordInput = false) {
   const okBtn = document.getElementById('confirmOkBtn');
   const pwdContainer = document.getElementById('confirmPasswordContainer');
   const pwdInput = document.getElementById('confirmPassword');
-  
+  const iconWrap = document.getElementById('confirmIconWrap');
+  const iconSvg = document.getElementById('confirmIconSvg');
+
   if (!modal || !titleEl || !msgEl || !cancelBtn || !okBtn) return;
-  
+
   titleEl.textContent = title;
   msgEl.textContent = message;
-  
+
+  // Variant-aware styling
+  const isUnlock = variant === 'unlock';
+  if (iconWrap) {
+    iconWrap.classList.toggle('unlock', isUnlock);
+  }
+  if (okBtn) {
+    okBtn.classList.toggle('unlock', isUnlock);
+    okBtn.textContent = isUnlock ? 'Unlock' : 'Delete';
+  }
+  if (iconSvg) {
+    iconSvg.innerHTML = isUnlock
+      ? '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'
+      : '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>';
+  }
+
   if (pwdContainer) {
     pwdContainer.style.display = showPasswordInput ? 'block' : 'none';
   }
@@ -70,12 +87,12 @@ export function showConfirm(title, message, onOk, showPasswordInput = false) {
       setTimeout(() => pwdInput.focus(), 150);
     }
   }
-  
+
   const handleCancel = () => {
     closeModal(modal);
     cleanup();
   };
-  
+
   const handleOk = () => {
     let pwdVal = '';
     if (showPasswordInput && pwdInput) {
@@ -89,14 +106,14 @@ export function showConfirm(title, message, onOk, showPasswordInput = false) {
     cleanup();
     if (onOk) onOk(pwdVal);
   };
-  
+
   const cleanup = () => {
     cancelBtn.removeEventListener('click', handleCancel);
     okBtn.removeEventListener('click', handleOk);
   };
-  
+
   cancelBtn.addEventListener('click', handleCancel);
   okBtn.addEventListener('click', handleOk);
-  
+
   openModal(modal);
 }

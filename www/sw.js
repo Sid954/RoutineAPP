@@ -1,7 +1,7 @@
 /**
  * Service Worker — Handles caching, offline support, and notification events.
  */
-const CACHE_VERSION = 'routine-cache-1787268246967';
+const CACHE_VERSION = 'routine-cache-1787295041245';
 const IMAGE_CACHE = 'routine-images-v1';
 const STATIC_ASSETS = [
   './',
@@ -90,13 +90,25 @@ async function cacheFirstImage(request) {
 async function networkFirst(request) {
   try {
     const response = await fetch(request);
-    if (response && response.ok) {
-      const cache = await caches.open(CACHE_VERSION);
-      cache.put(request, response.clone());
+    if (response && response.status === 200 && request.method === 'GET') {
+      try {
+        const cache = await caches.open(CACHE_VERSION);
+        await cache.put(request, response.clone());
+      } catch (cacheErr) {
+        // Caching errors must not break response delivery
+      }
     }
     return response;
-  } catch {
-    return caches.match(request);
+  } catch (err) {
+    const cached = await caches.match(request);
+    if (cached) {
+      return cached;
+    }
+    return new Response('Network error and no cache match', {
+      status: 503,
+      statusText: 'Service Unavailable',
+      headers: { 'Content-Type': 'text/plain' }
+    });
   }
 }
 

@@ -1,7 +1,7 @@
 import { State } from '../core/state.js';
 import { getClassesForDay } from '../schedule/queries.js';
 import { getOverrideFor } from '../announcements/overrides.js';
-import { toMinutes, format12h, getCurrentMinutes, formatRoom, pad, escapeHtml } from '../core/utils.js';
+import { toMinutes, format12h, getCurrentMinutes, formatRoom, escapeHtml } from '../core/utils.js';
 import { showToast } from '../toast/toast.js';
 
 let selectedWidgetType = 'live'; // 'live', 'landscape', 'portrait'

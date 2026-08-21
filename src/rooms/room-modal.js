@@ -9,7 +9,6 @@ let _sortBy = 'availability';
 let _lastSearchResults = [];
 
 export function initRoomFinderUI() {
-  const fab = document.getElementById('freeRoomsFab');
   const modal = document.getElementById('freeRoomsModal');
   const closeBtn = document.getElementById('freeRoomsCloseBtn');
   const searchInput = document.getElementById('freeRoomsSearchInput');
@@ -19,31 +18,7 @@ export function initRoomFinderUI() {
   const detailModal = document.getElementById('roomDetailModal');
   const detailCloseBtn = document.getElementById('roomDetailCloseBtn');
 
-  if (!fab || !modal) return;
-
-  const handleFabClick = async (e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    modal.style.display = '';
-    openModal(modal);
-
-    const container = document.getElementById('freeRoomsGrid');
-    if (container) {
-      container.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: var(--dim);">
-          <div style="font-size: 32px; margin-bottom: 8px;" class="spin">⚡</div>
-          <div style="font-weight: 700; font-size: 14px; color: var(--text);">Searching available free rooms...</div>
-        </div>
-      `;
-    }
-
-    await loadMasterRoomData(true);
-    renderFreeRoomsModal();
-  };
-
-  fab.addEventListener('click', handleFabClick);
+  if (!modal) return;
 
   if (closeBtn) {
     closeBtn.addEventListener('click', () => closeModal(modal));

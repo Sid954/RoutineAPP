@@ -1,9 +1,9 @@
-import { DAY_NAMES, DAY_SHORT, CONFIG, FULL_COURSE_NAMES } from '../core/config.js';
-import { format12h, toTimeString, getCurrentMinutes, truncateText } from '../core/utils.js';
+import { DAY_NAMES, DAY_SHORT, FULL_COURSE_NAMES } from '../core/config.js';
+import { format12h, getCurrentMinutes } from '../core/utils.js';
 import { openModal, closeModal } from '../modals/modal.js';
 import { showToast } from '../toast/toast.js';
 import { loadMasterTeacherData, searchTeachers, getTeacherClassesForDay, getTeacherWeeklySubjects } from './teacher-finder.js';
-import { initTeacherNames, getTeacherInfo, getFullName, resolveTeacherCode, submitNameSuggestion, fetchPendingSubmissions, reviewSubmission, uploadFacultyPhoto, getAllFacultyKeys, isGuestTeacher } from './teacher-names.js';
+import { initTeacherNames, getTeacherInfo, resolveTeacherCode, submitNameSuggestion, fetchPendingSubmissions, reviewSubmission, uploadFacultyPhoto, getAllFacultyKeys } from './teacher-names.js';
 
 let _searchQuery = '';
 let _lastTeacherResults = [];
@@ -12,7 +12,6 @@ let _currentOpenTeacherData = null;
 let _selectedTeacherDetailDay = new Date().getDay();
 
 export function initTeacherFinderUI() {
-  const fab = document.getElementById('findTeacherFab');
   const backBtn = document.getElementById('facultyPageBackBtn');
   const searchInput = document.getElementById('teacherFinderSearchInput');
   const searchClear = document.getElementById('teacherFinderSearchClear');
@@ -20,12 +19,6 @@ export function initTeacherFinderUI() {
   if (backBtn) {
     backBtn.addEventListener('click', () => {
       if (window.switchAppView) window.switchAppView('apps');
-    });
-  }
-
-  if (fab) {
-    fab.addEventListener('click', () => {
-      if (window.switchAppView) window.switchAppView('faculty');
     });
   }
 
@@ -562,14 +555,12 @@ export function initTeacherFinderUI() {
   });
 
   // Pre-fetch fresh data on startup
-  Promise.all([loadMasterTeacherData(true), initTeacherNames()]).then(() => {
-    updateTeacherFabBadge();
-  }).catch(err => {
+  Promise.all([loadMasterTeacherData(true), initTeacherNames()]).catch(err => {
     console.warn('Background teacher data load error:', err);
   });
 
   setInterval(() => {
-    loadMasterTeacherData(true).then(() => updateTeacherFabBadge());
+    loadMasterTeacherData(true);
   }, 60000);
 }
 
@@ -715,12 +706,6 @@ async function loadAdminPendingList(password) {
   });
 
   adminListBox.innerHTML = html;
-}
-
-export function updateTeacherFabBadge() {
-  const badge = document.getElementById('teacherFinderBadge');
-  if (!badge) return;
-  badge.style.display = 'none';
 }
 
 export function renderTeacherFinderModal() {

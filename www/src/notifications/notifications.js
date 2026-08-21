@@ -2,7 +2,6 @@ import { Storage } from '../storage/storage.js';
 import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
 import { showToast } from '../toast/toast.js';
-import { NotificationLog } from './notification-log.js';
 import { getOverrideFor } from '../announcements/overrides.js';
 import { format12h, formatRoom, toMinutes } from '../core/utils.js';
 
@@ -55,67 +54,6 @@ function buildReminderPayload(cls, settings, todayIdx) {
   }
 
   return { title: titleText, body: bodyText, iconColor, isExam, isOnline };
-}
-
-function buildClassStartPayload(cls, todayIdx) {
-  const cancelOverride = getOverrideFor(todayIdx, cls.title);
-  const isOnline = cancelOverride && cancelOverride.type === 'online_class';
-  const isExam = cls.isExam || (cancelOverride && cancelOverride.type === 'class_test');
-
-  let titleText = `📚 STARTING NOW: ${cls.title}`;
-  let iconColor = '#10b981';
-
-  if (isExam) {
-    titleText = `📝 EXAM STARTING NOW: ${cls.title}`;
-    iconColor = '#f97316';
-  } else if (isOnline) {
-    titleText = `📡 LIVE ONLINE CLASS: ${cls.title}`;
-    iconColor = '#10b981';
-  }
-
-  let bodyText = isOnline
-    ? `📡 Virtual class is now live!\n⏰ ${format12h(cls.start)} – ${format12h(cls.end)}`
-    : `📍 Head to Room ${formatRoom(cls.room)} right now!\n👤 Instructor: ${cls.instructor || 'TBA'} · ⏰ ${format12h(cls.start)} – ${format12h(cls.end)}`;
-
-  return { title: titleText, body: bodyText, iconColor };
-}
-
-function buildBriefingPayload(classes, isHoliday, holidayOverride, todayIdx) {
-  const sec = Storage.getSection().toUpperCase();
-  const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-  const titleText = `🌅 Morning Briefing — Section ${sec} (${dateStr})`;
-  let iconColor = '#fbbf24';
-
-  if (isHoliday) {
-    return {
-      title: `🎉 Holiday Today — Section ${sec}`,
-      body: `Enjoy your day off! ${holidayOverride.announcement.title}`,
-      iconColor: '#fb923c'
-    };
-  }
-
-  const activeClasses = classes.filter(c => !isCancelledClass(todayIdx, c.title));
-
-  if (!activeClasses.length) {
-    return {
-      title: titleText,
-      body: '🎉 No classes scheduled for today. Enjoy your free day!',
-      iconColor
-    };
-  }
-
-  let bodyText = `📊 ${activeClasses.length} Class${activeClasses.length !== 1 ? 'es' : ''} Scheduled Today:\n`;
-  activeClasses.forEach(c => {
-    const cancelOverride = getOverrideFor(todayIdx, c.title);
-    const isOnline = cancelOverride && cancelOverride.type === 'online_class';
-    const isExam = c.isExam || (cancelOverride && cancelOverride.type === 'class_test');
-
-    const typeTag = isExam ? '📝 Exam' : isOnline ? '📡 Online' : `Room ${formatRoom(c.room)}`;
-    const instStr = c.instructor ? ` · ${c.instructor}` : '';
-    bodyText += `\n• ${format12h(c.start)} – ${format12h(c.end)}: ${c.title} (${typeTag}${instStr})`;
-  });
-
-  return { title: titleText, body: bodyText, iconColor };
 }
 
 export const Notifications = {
@@ -198,6 +136,8 @@ export const Notifications = {
       const holidayOverride = getOverrideFor(todayIdx);
       const isHoliday = holidayOverride && holidayOverride.type === 'holiday';
 
+      if (isHoliday) return;
+
       // ── Capacitor Native Platform Scheduling ──
       if (window.Capacitor && window.Capacitor.isNativePlatform()) {
         const { LocalNotifications } = window.Capacitor.Plugins;
@@ -206,115 +146,27 @@ export const Notifications = {
         const nativeNotifs = [];
         let notifId = 100;
 
-        // Morning Briefing
-        if (settings.briefingEnabled !== false) {
-          const briefingMins = settings.briefingTime || 450;
-          if (briefingMins > now) {
-            const briefDate = new Date();
-            briefDate.setHours(Math.floor(briefingMins / 60), briefingMins % 60, 0, 0);
+        classes.forEach((cls) => {
+          const startMins = toMinutes(cls.start);
+          if (isCancelledClass(todayIdx, cls.title)) return;
 
-            const brief = buildBriefingPayload(classes, isHoliday, holidayOverride, todayIdx);
+          // Pre-class / Pre-exam Reminder
+          const alertMins = startMins - settings.leadTime;
+          if (alertMins > now) {
+            const alertDate = new Date();
+            alertDate.setHours(Math.floor(alertMins / 60), alertMins % 60, 0, 0);
+            const payload = buildReminderPayload(cls, settings, todayIdx);
 
             nativeNotifs.push({
-              title: brief.title,
-              body: brief.body,
-              largeBody: brief.body,
-              summaryText: `Section ${Storage.getSection().toUpperCase()} Timetable`,
+              title: payload.title,
+              body: payload.body,
+              largeBody: payload.body,
               id: notifId++,
-              schedule: { at: briefDate, allowWhileIdle: true },
-              iconColor: brief.iconColor
+              schedule: { at: alertDate, allowWhileIdle: true },
+              iconColor: payload.iconColor
             });
           }
-        }
-
-        if (!isHoliday) {
-          classes.forEach((cls) => {
-            const startMins = toMinutes(cls.start);
-            const endMins = toMinutes(cls.end);
-            if (isCancelledClass(todayIdx, cls.title)) return;
-
-            // Pre-class / Pre-exam Reminder
-            const alertMins = startMins - settings.leadTime;
-            if (alertMins > now) {
-              const alertDate = new Date();
-              alertDate.setHours(Math.floor(alertMins / 60), alertMins % 60, 0, 0);
-              const payload = buildReminderPayload(cls, settings, todayIdx);
-
-              nativeNotifs.push({
-                title: payload.title,
-                body: payload.body,
-                largeBody: payload.body,
-                id: notifId++,
-                schedule: { at: alertDate, allowWhileIdle: true },
-                iconColor: payload.iconColor
-              });
-            }
-
-            // Class Starting Now
-            if (startMins > now) {
-              const startDate = new Date();
-              startDate.setHours(Math.floor(startMins / 60), startMins % 60, 0, 0);
-              const payload = buildClassStartPayload(cls, todayIdx);
-
-              nativeNotifs.push({
-                title: payload.title,
-                body: payload.body,
-                largeBody: payload.body,
-                id: notifId++,
-                schedule: { at: startDate, allowWhileIdle: true },
-                iconColor: payload.iconColor
-              });
-            }
-
-            // Class Ending Soon
-            if (settings.classEndEnabled) {
-              const endAlertMins = endMins - 5;
-              if (endAlertMins > now) {
-                const endAlertDate = new Date();
-                endAlertDate.setHours(Math.floor(endAlertMins / 60), endAlertMins % 60, 0, 0);
-
-                let nextClassInfo = 'Free time after this!';
-                const remaining = classes.filter(c => toMinutes(c.start) >= endMins && !isCancelledClass(todayIdx, c.title));
-                if (remaining.length) {
-                  nextClassInfo = `Next up: ${remaining[0].title} at ${format12h(remaining[0].start)} in Room ${formatRoom(remaining[0].room)}`;
-                }
-
-                const titleText = `⌛ 5 MIN REMAINING: ${cls.title}`;
-                nativeNotifs.push({
-                  title: titleText,
-                  body: nextClassInfo,
-                  largeBody: nextClassInfo,
-                  id: notifId++,
-                  schedule: { at: endAlertDate, allowWhileIdle: true },
-                  iconColor: '#a78bfa'
-                });
-              }
-            }
-          });
-
-          // Day Complete
-          if (settings.dayDoneEnabled !== false && classes.length > 0) {
-            const activeClasses = classes.filter(c => !isCancelledClass(todayIdx, c.title));
-            if (activeClasses.length > 0) {
-              const lastClass = activeClasses[activeClasses.length - 1];
-              const lastEndMins = toMinutes(lastClass.end);
-              if (lastEndMins > now) {
-                const doneDate = new Date();
-                doneDate.setHours(Math.floor(lastEndMins / 60), lastEndMins % 60, 0, 0);
-                const titleText = '🎉 ALL CLASSES COMPLETED FOR TODAY!';
-                const bodyText = `Great job! You finished all ${activeClasses.length} class${activeClasses.length !== 1 ? 'es' : ''} today. Time to relax! ☕`;
-                nativeNotifs.push({
-                  title: titleText,
-                  body: bodyText,
-                  largeBody: bodyText,
-                  id: notifId++,
-                  schedule: { at: doneDate, allowWhileIdle: true },
-                  iconColor: '#34d399'
-                });
-              }
-            }
-          }
-        }
+        });
 
         if (nativeNotifs.length) {
           try {
@@ -335,82 +187,20 @@ export const Notifications = {
         }
       } else {
         // ── Web Browser Notifications ──
+        classes.forEach((cls) => {
+          const startMins = toMinutes(cls.start);
+          if (isCancelledClass(todayIdx, cls.title)) return;
 
-        // Morning Briefing
-        if (settings.briefingEnabled !== false) {
-          const briefingMins = settings.briefingTime || 450;
-          if (briefingMins > now) {
-            const delay = (briefingMins - now) * 60000;
+          // Pre-class / Pre-exam Reminder
+          const alertMins = startMins - settings.leadTime;
+          if (alertMins > now) {
+            const delay = (alertMins - now) * 60000;
             this.timeouts.push(setTimeout(() => {
-              const brief = buildBriefingPayload(classes, isHoliday, holidayOverride, todayIdx);
-              this.show(brief.title, brief.body);
-              NotificationLog.add({ type: 'morning_briefing', title: brief.title, body: brief.body });
+              const payload = buildReminderPayload(cls, settings, todayIdx);
+              this.show(payload.title, payload.body);
             }, delay));
           }
-        }
-
-        if (!isHoliday) {
-          classes.forEach((cls) => {
-            const startMins = toMinutes(cls.start);
-            const endMins = toMinutes(cls.end);
-            if (isCancelledClass(todayIdx, cls.title)) return;
-
-            // Pre-class / Pre-exam Reminder
-            const alertMins = startMins - settings.leadTime;
-            if (alertMins > now) {
-              const delay = (alertMins - now) * 60000;
-              this.timeouts.push(setTimeout(() => {
-                const payload = buildReminderPayload(cls, settings, todayIdx);
-                this.show(payload.title, payload.body);
-                NotificationLog.add({ type: payload.isExam ? 'class_test' : (payload.isOnline ? 'online_class' : 'reminder'), title: payload.title, body: payload.body });
-              }, delay));
-            }
-
-            // Class / Exam Starting Now
-            if (startMins > now) {
-              const delay = (startMins - now) * 60000;
-              this.timeouts.push(setTimeout(() => {
-                const payload = buildClassStartPayload(cls, todayIdx);
-                this.show(payload.title, payload.body);
-                NotificationLog.add({ type: 'class_start', title: payload.title, body: payload.body });
-              }, delay));
-            }
-
-            // Class Ending Soon
-            if (settings.classEndEnabled) {
-              const endAlertMins = endMins - 5;
-              if (endAlertMins > now) {
-                const delay = (endAlertMins - now) * 60000;
-                this.timeouts.push(setTimeout(() => {
-                  let nextInfo = 'Free time after this!';
-                  const remaining = classes.filter(c => toMinutes(c.start) >= endMins && !isCancelledClass(todayIdx, c.title));
-                  if (remaining.length) nextInfo = `Next up: ${remaining[0].title} at ${format12h(remaining[0].start)} in Room ${formatRoom(remaining[0].room)}`;
-                  const title = `⌛ 5 MIN REMAINING: ${cls.title}`;
-                  this.show(title, nextInfo);
-                  NotificationLog.add({ type: 'class_end', title, body: nextInfo });
-                }, delay));
-              }
-            }
-          });
-
-          // Day Complete
-          if (settings.dayDoneEnabled !== false && classes.length > 0) {
-            const activeClasses = classes.filter(c => !isCancelledClass(todayIdx, c.title));
-            if (activeClasses.length > 0) {
-              const lastClass = activeClasses[activeClasses.length - 1];
-              const lastEndMins = toMinutes(lastClass.end);
-              if (lastEndMins > now) {
-                const delay = (lastEndMins - now) * 60000;
-                this.timeouts.push(setTimeout(() => {
-                  const title = '🎉 ALL CLASSES COMPLETED FOR TODAY!';
-                  const body = `Great job! You finished all ${activeClasses.length} class${activeClasses.length !== 1 ? 'es' : ''} today. Time to relax! ☕`;
-                  this.show(title, body);
-                  NotificationLog.add({ type: 'day_done', title, body });
-                }, delay));
-              }
-            }
-          }
-        }
+        });
       }
     } catch (e) {
       console.warn('scheduleForToday failed:', e);
@@ -465,7 +255,7 @@ export const Notifications = {
               title,
               body,
               largeBody: body,
-              summaryText: type === 'morning_briefing' ? `Section ${Storage.getSection().toUpperCase()} Timetable` : '',
+              summaryText: '',
               id: Math.floor(Math.random() * 1000000),
               iconColor: type === 'class_test' ? '#f97316' : (type === 'online_class' ? '#10b981' : (type === 'cancellation' ? '#f43f5e' : '#38bdf8'))
             }]
@@ -477,7 +267,6 @@ export const Notifications = {
     } else {
       this.show(title, body);
     }
-    NotificationLog.add({ type, title, body });
   },
 
   async maybeShowBanner() {
@@ -535,53 +324,6 @@ export const Notifications = {
       Storage.saveNotifSettings(settings);
       Notifications.scheduleForToday(true);
       showToast(`Alert time: ${settings.leadTime} min before class`, 'info');
-    });
-
-    DOM.notifBriefingToggle.addEventListener('change', () => {
-      const settings = Storage.getNotifSettings();
-      settings.briefingEnabled = DOM.notifBriefingToggle.checked;
-      Storage.saveNotifSettings(settings);
-      Notifications.scheduleForToday(true);
-      showToast(settings.briefingEnabled ? 'Morning briefing enabled' : 'Morning briefing disabled', 'info');
-    });
-
-    DOM.notifBriefingTime.addEventListener('change', () => {
-      const settings = Storage.getNotifSettings();
-      settings.briefingTime = parseInt(DOM.notifBriefingTime.value);
-      Storage.saveNotifSettings(settings);
-      Notifications.scheduleForToday(true);
-      const h = Math.floor(settings.briefingTime / 60);
-      const m = settings.briefingTime % 60;
-      showToast(`Briefing time set to ${h > 12 ? h - 12 : h}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`, 'info');
-    });
-
-    if (DOM.testBriefingBtn) {
-      DOM.testBriefingBtn.addEventListener('click', async () => {
-        const todayIdx = new Date().getDay();
-        const classes = State.schedule[todayIdx] || [];
-        const holidayOverride = getOverrideFor(todayIdx);
-        const isHoliday = holidayOverride && holidayOverride.type === 'holiday';
-
-        const brief = buildBriefingPayload(classes, isHoliday, holidayOverride, todayIdx);
-        await Notifications.showInstant(brief.title, brief.body, 'morning_briefing');
-        showToast('Morning briefing test notification sent!', 'success');
-      });
-    }
-
-    DOM.notifClassEndToggle.addEventListener('change', () => {
-      const settings = Storage.getNotifSettings();
-      settings.classEndEnabled = DOM.notifClassEndToggle.checked;
-      Storage.saveNotifSettings(settings);
-      Notifications.scheduleForToday(true);
-      showToast(settings.classEndEnabled ? 'Class end alerts enabled' : 'Class end alerts disabled', 'info');
-    });
-
-    DOM.notifDayDoneToggle.addEventListener('change', () => {
-      const settings = Storage.getNotifSettings();
-      settings.dayDoneEnabled = DOM.notifDayDoneToggle.checked;
-      Storage.saveNotifSettings(settings);
-      Notifications.scheduleForToday(true);
-      showToast(settings.dayDoneEnabled ? 'Day complete alerts enabled' : 'Day complete alerts disabled', 'info');
     });
   }
 };

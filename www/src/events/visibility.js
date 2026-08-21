@@ -3,7 +3,6 @@ import { CONFIG } from '../core/config.js';
 import { FEATURES } from '../features.js';
 import { updateClock } from '../clock/clock.js';
 import { updateGreeting } from '../dashboard/greeting.js';
-import { updateStats } from '../dashboard/stats.js';
 import { updateDashboard, forceUpdate } from '../dashboard/update.js';
 import { Notifications } from '../notifications/notifications.js';
 import { fetchAnnouncementsAndNotify } from './init.js';
@@ -20,7 +19,6 @@ export function initVisibility() {
       updateClock();
       forceUpdate();
       updateGreeting();
-      updateStats();
       if (FEATURES.notifications) {
         Notifications.scheduleForToday();
       }

@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
     let cleanMime = mimeType || 'image/jpeg';
     let base64Data = imageBase64;
 
-    const match = imageBase64.match(/^data:([a-zA-Z0-9]+/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+    const match = imageBase64.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
     if (match) {
       cleanMime = match[1];
       base64Data = match[2];

@@ -5,7 +5,7 @@
  */
 
 import { State } from '../core/state.js';
-import { CONFIG, DAY_NAMES, MONTHS, FULL_MONTHS } from '../core/config.js';
+import { DAY_NAMES, MONTHS, FULL_MONTHS } from '../core/config.js';
 import { renderTimeline } from './timeline.js';
 
 let _calendarViewMonth = new Date().getMonth();

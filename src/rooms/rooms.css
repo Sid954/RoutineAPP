@@ -1,65 +1,6 @@
 /* ==========================================================================
-   Free Rooms Finder — Floating Action Button & Modal Styling
+   Free Rooms Finder — Modal Styling
    ========================================================================== */
-
-.free-rooms-fab {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 15px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 99px;
-  color: var(--text, #ffffff);
-  cursor: pointer;
-  box-shadow: none;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  white-space: nowrap;
-}
-
-.free-rooms-fab:hover {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: rgba(56, 189, 248, 0.5);
-  transform: translateY(-2px);
-}
-
-.free-rooms-fab:active {
-  transform: scale(0.95);
-}
-
-.fr-fab-badge-text {
-  font-size: 11.5px;
-  font-weight: 800;
-  color: #38bdf8;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-}
-
-.fr-fab-icon {
-  font-size: 16px;
-  display: inline-block;
-  line-height: 1;
-}
-
-.fr-fab-count-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  border-radius: 99px;
-  font-size: 9.5px;
-  font-weight: 900;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #10b981, #059669);
-  border: 1.5px solid var(--bg, #06080d);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-}
 
 /* 2-Column Fixed-Height Modal Layout */
 .fr-modal-body {
@@ -253,15 +194,6 @@
   line-height: 1.2;
 }
 
-.fr-compact-occupied-text {
-  font-size: 10px;
-  font-weight: 700;
-  color: #fb7185;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* ==========================================================================
    Room Detail Modal & Class Timeline Items
    ========================================================================== */
@@ -277,56 +209,44 @@
 .fr-tl-item-past {
   opacity: 0.45;
   filter: grayscale(70%);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 12px;
-  padding: 10px 14px;
 }
 
-.fr-tl-past-badge {
-  font-size: 9.5px;
-  font-weight: 800;
+.fr-tl-item-past .fr-tl-subject {
   color: var(--dim, #94a3b8);
-  background: rgba(255, 255, 255, 0.06);
-  padding: 2px 6px;
-  border-radius: 4px;
 }
 
-/* 2. Current Ongoing Class (Highlighted & Energetic) */
+/* 2. Active / Live Class (Emerald Green Neon Accent) */
 .fr-tl-item-current {
-  background: rgba(56, 189, 248, 0.12);
-  border: 1.5px solid #38bdf8;
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
-  border-radius: 12px;
-  padding: 12px 14px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid #10b981;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.fr-tl-item-current .fr-tl-subject {
+  color: #34d399;
 }
 
 .fr-tl-live-badge {
-  font-size: 9.5px;
-  font-weight: 900;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.2);
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  padding: 2px 7px;
-  border-radius: 4px;
-  letter-spacing: 0.5px;
-}
-
-/* 3. Future Upcoming Classes (Vibrant & Clean) */
-.fr-tl-item-future {
-  background: var(--card2, #111827);
-  border: 1px solid var(--border, #1f2937);
-  border-radius: 12px;
-  padding: 11px 14px;
-}
-
-.fr-tl-future-badge {
-  font-size: 9.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
   font-weight: 800;
-  color: #34d399;
+  color: #10b981;
   background: rgba(16, 185, 129, 0.15);
-  padding: 2px 7px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 2px 6px;
   border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* 3. Upcoming Classes */
+.fr-tl-item-upcoming {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border, #1f2937);
+  border-radius: 10px;
+  padding: 10px 12px;
 }
 
 .fr-tl-header {
@@ -355,14 +275,6 @@
   color: var(--dim, #94a3b8);
 }
 
-.fr-tl-type-pill {
-  font-size: 9px;
-  font-weight: 800;
-  padding: 1px 6px;
-  border-radius: 4px;
-  text-transform: uppercase;
-}
-
 .fr-tl-type-theory {
   background: rgba(99, 102, 241, 0.15);
   color: #818cf8;
@@ -375,9 +287,6 @@
 
 /* Mobile Viewport adjustments */
 @media (max-width: 520px) {
-  .free-rooms-fab {
-    padding: 7px 12px;
-  }
   .fr-modal-body {
     flex-direction: column;
     gap: 10px;

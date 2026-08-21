@@ -8,8 +8,7 @@
 import { FEATURES } from './features.js';
 import { DOM } from './core/dom.js';
 import { State } from './core/state.js';
-import { CONFIG, FULL_COURSE_NAMES } from './core/config.js';
-import { escapeHtml, toMinutes, parseTo24h, formatRoom } from './core/utils.js';
+import { CONFIG } from './core/config.js';
 import { openModal, closeModal, setParticlesRef } from './modals/modal.js';
 import { Particles } from './particles/particles.js';
 import { Notifications } from './notifications/notifications.js';
@@ -139,11 +138,6 @@ if (dockNoticesBtn) {
   dockNoticesBtn.addEventListener('click', () => switchAppView('announcements'));
 }
 
-const announcementsBtn = document.getElementById('announcementsBtn');
-if (announcementsBtn) {
-  announcementsBtn.addEventListener('click', () => switchAppView('announcements'));
-}
-
 const dockAppsBtn = document.getElementById('dockAppsBtn');
 if (dockAppsBtn) {
   dockAppsBtn.addEventListener('click', () => switchAppView('apps'));
@@ -157,9 +151,14 @@ if (appHubFaculty) {
 
 const appHubFreeRooms = document.getElementById('appHubFreeRooms');
 if (appHubFreeRooms) {
-  appHubFreeRooms.addEventListener('click', () => {
+  appHubFreeRooms.addEventListener('click', async () => {
     const freeRoomsModal = document.getElementById('freeRoomsModal');
-    if (freeRoomsModal) openModal(freeRoomsModal);
+    if (freeRoomsModal) {
+      const { loadMasterRoomData, renderFreeRoomsModal } = await import('./rooms/room-modal.js');
+      openModal(freeRoomsModal);
+      await loadMasterRoomData(true);
+      renderFreeRoomsModal();
+    }
   });
 }
 
@@ -234,7 +233,7 @@ await Promise.all([
 ].filter(Boolean));
 
 /* ── Close modals on backdrop click ──────────────────────────── */
-[DOM.viewModal, DOM.editModal, DOM.notifModal, DOM.notifHistoryModal, DOM.classDetailModal, DOM.confirmModal]
+[DOM.viewModal, DOM.editModal, DOM.notifModal, DOM.classDetailModal, DOM.confirmModal]
   .filter(Boolean)
   .forEach(modal => {
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(modal); });

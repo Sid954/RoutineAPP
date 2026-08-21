@@ -5,11 +5,8 @@
 /* 1. Dark Mode: Refined Charcoal & Luminescent Sky (Default) */
 html,
 html[data-theme="dark"],
-html[data-theme="midnight"],
-html[data-theme="amoled"],
 :root,
-:root[data-color="dark"],
-:root[data-color="pitch_black"] {
+:root[data-color="dark"] {
   --bg: #18191E;
   --canvas: #18191E;
   --card-bg: #23252C;
@@ -19,7 +16,6 @@ html[data-theme="amoled"],
   --text-main: #F8FAFC;
   --text-muted: #94A3B8;
   --text-sub: #71717A;
-  --text-dim: #71717A;
 
   --accent: #38BDF8;
   --accent-hover: #7DD3FC;
@@ -46,27 +42,12 @@ html[data-theme="amoled"],
   --resting-card-border: rgba(255, 255, 255, 0.07);
   --resting-card-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 
-  --break-strip-bg: rgba(250, 204, 21, 0.06);
-  --break-strip-border: rgba(250, 204, 21, 0.20);
-  --break-strip-text: #FEF08A;
-
   --tag-theory-bg: rgba(56, 189, 248, 0.12);
   --tag-theory-text: #7DD3FC;
   --tag-theory-border: rgba(56, 189, 248, 0.20);
   --tag-lab-bg: rgba(192, 132, 252, 0.12);
   --tag-lab-text: #D8B4FE;
   --tag-lab-border: rgba(192, 132, 252, 0.20);
-
-  --dock-solid-bg: #23252C;
-  --dock-solid-border: rgba(255, 255, 255, 0.08);
-  --dock-solid-shadow: 0 -4px 28px rgba(0, 0, 0, 0.6);
-  --dock-tab-inactive: #71717A;
-  --dock-hero-bg: #38BDF8;
-  --dock-hero-icon: #07090E;
-
-  --modal-bg: #23252C;
-  --modal-border: rgba(255, 255, 255, 0.12);
-  --modal-backdrop: rgba(0, 0, 0, 0.75);
 
   --sh-card: 0 2px 6px rgba(0, 0, 0, 0.35);
   --sh-dock: 0 -4px 28px rgba(0, 0, 0, 0.6);
@@ -83,12 +64,6 @@ html[data-theme="amoled"],
   --pink: var(--danger);
   --lime: var(--success);
   --amber: var(--warning);
-  --theory-bg: var(--tag-theory-bg);
-  --theory-text: var(--tag-theory-text);
-  --theory-border: var(--tag-theory-border);
-  --lab-bg: var(--tag-lab-bg);
-  --lab-text: var(--tag-lab-text);
-  --lab-border: var(--tag-lab-border);
 }
 
 body {
@@ -108,7 +83,6 @@ html[data-theme="light"],
   --text-main: #0B1220;
   --text-muted: #64748B;
   --text-sub: #475569;
-  --text-dim: #64748B;
 
   --accent: #2563EB;
   --accent-hover: #1D4ED8;
@@ -135,27 +109,12 @@ html[data-theme="light"],
   --resting-card-border: rgba(15, 23, 42, 0.08);
   --resting-card-shadow: 0 2px 6px rgba(11, 18, 32, 0.04);
 
-  --break-strip-bg: #FFFBEB;
-  --break-strip-border: #FDE68A;
-  --break-strip-text: #92400E;
-
   --tag-theory-bg: #EFF6FF;
   --tag-theory-text: #1D4ED8;
   --tag-theory-border: #DBEAFE;
   --tag-lab-bg: #FAF5FF;
   --tag-lab-text: #7E22CE;
   --tag-lab-border: #F3E8FF;
-
-  --dock-solid-bg: #FFFFFF;
-  --dock-solid-border: #E2E8F0;
-  --dock-solid-shadow: 0 -4px 20px rgba(15, 23, 42, 0.08);
-  --dock-tab-inactive: #64748B;
-  --dock-hero-bg: #2563EB;
-  --dock-hero-icon: #FFFFFF;
-
-  --modal-bg: #FFFFFF;
-  --modal-border: #E2E8F0;
-  --modal-backdrop: rgba(15, 23, 42, 0.60);
 
   --sh-card: 0 2px 6px rgba(11, 18, 32, 0.04);
   --sh-dock: 0 -4px 20px rgba(15, 23, 42, 0.08);
@@ -172,20 +131,6 @@ html[data-theme="light"],
   --pink: var(--danger);
   --lime: var(--success);
   --amber: var(--warning);
-  --theory-bg: var(--tag-theory-bg);
-  --theory-text: var(--tag-theory-text);
-  --theory-border: var(--tag-theory-border);
-  --lab-bg: var(--tag-lab-bg);
-  --lab-text: var(--tag-lab-text);
-  --lab-border: var(--tag-lab-border);
-}
-
-.theme-section-box {
-  background: var(--canvas);
-  border: 1px solid var(--card-border);
-  border-radius: var(--r-tile);
-  padding: 16px;
-  margin-bottom: 14px;
 }
 
 .theme-palette-grid {

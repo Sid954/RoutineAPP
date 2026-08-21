@@ -1,12 +1,11 @@
 import { CONFIG } from "../core/config.js";
 import { State } from "../core/state.js";
-import { DOM } from "../core/dom.js";
 import { Storage } from "../storage/storage.js";
 import { showToast } from "../toast/toast.js";
 import { escapeHtml } from "../core/utils.js";
-import { showConfirm, showLoadingScreen } from "../modals/modal.js";
+import { showConfirm } from "../modals/modal.js";
 import { Notifications } from "../notifications/notifications.js";
-import { ANNOUNCEMENT_LIMITS, formatAnnouncementTitle } from "./validation.js";
+import { formatAnnouncementTitle } from "./validation.js";
 
 export const Announcements = {
   list: [],
@@ -514,14 +513,10 @@ export const Announcements = {
       }
 
       State.sessionDeletePassword = pwd;
-      showToast("Announcement deleted successfully.", "success");
-      showLoadingScreen(
-        "Updating Schedule...",
-        "Applying announcement overrides & refreshing timetable",
-      );
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      this.list = this.list.filter((a) => String(a.id) !== String(id));
+      State.announcementsList = this.list;
+      this.renderFeed();
+      showToast("Announcement deleted.", "success");
     } catch (err) {
       showToast(`Error: ${err.message}`, "error");
     }
@@ -626,13 +621,7 @@ export const Announcements = {
       Notifications.showInstant(notifTitle, notifBody, notifType);
       Notifications.scheduleForToday();
 
-      showLoadingScreen(
-        "Updating Schedule...",
-        "Applying new announcement overrides & refreshing timetable",
-      );
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      await this.fetchAll();
       return true;
     } catch (err) {
       showToast(`Error: ${err.message}`, "error");
@@ -668,15 +657,16 @@ export const Announcements = {
         throw new Error(errData.error || "Failed to update announcement");
       }
 
+      const updated = await res.json();
       State.sessionDeletePassword = password;
-      showToast("Announcement updated successfully!", "success");
-      showLoadingScreen(
-        "Updating Schedule...",
-        "Applying edited announcement overrides & refreshing timetable",
-      );
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+
+      // Update the item in-place in the local list — no page reload needed
+      const idx = this.list.findIndex((a) => String(a.id) === String(id));
+      if (idx !== -1) {
+        this.list[idx] = { ...this.list[idx], ...updated };
+      }
+      this.renderFeed();
+      showToast("Announcement updated.", "success");
       return true;
     } catch (err) {
       showToast(`Error: ${err.message}`, "error");
@@ -873,7 +863,8 @@ export function initAnnouncementEvents() {
             showToast(err.message || "Invalid admin password.", "error");
           }
         },
-        true, // show password input
+        true,    // show password input
+        'unlock', // variant: blue lock icon + Unlock button
       );
     });
   }

@@ -188,7 +188,6 @@ export function openPostForm(existingAnnouncement = null) {
   const paOnlineDate = document.getElementById('paOnlineDate');
   const paOnlineSubjectSelect = document.getElementById('paOnlineSubjectSelect');
   const paOnlineStart = document.getElementById('paOnlineStart');
-  const paOnlineEnd = document.getElementById('paOnlineEnd');
   const paOnlineLink = document.getElementById('paOnlineLink');
 
   const paClassTestDate = document.getElementById('paClassTestDate');
@@ -353,10 +352,9 @@ export function initPostForm() {
   const paOnlineSubjectSelect = document.getElementById('paOnlineSubjectSelect');
   const paOnlineDate = document.getElementById('paOnlineDate');
   const paOnlineStart = document.getElementById('paOnlineStart');
-  const paOnlineEnd = document.getElementById('paOnlineEnd');
 
   function autoFillOnlineTimes() {
-    if (!paOnlineDate || !paOnlineSubjectSelect || !paOnlineStart || !paOnlineEnd) return;
+    if (!paOnlineDate || !paOnlineSubjectSelect || !paOnlineStart) return;
     const dateVal = paOnlineDate.value;
     const subjectVal = paOnlineSubjectSelect.value;
     if (!dateVal || !subjectVal) return;
@@ -368,7 +366,6 @@ export function initPostForm() {
     const match = classes.find(c => c.title && c.title.toUpperCase() === subjectVal.toUpperCase());
     if (match) {
       paOnlineStart.value = match.start;
-      paOnlineEnd.value = match.end;
     }
   }
 

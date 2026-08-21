@@ -267,9 +267,20 @@ module.exports = async (req, res) => {
 
       // 2. Fetch device tokens to send targeted FCM push notifications
       if (firebaseApp) {
+        const {
+          semester: targetSemester,
+          section: targetSection,
+          announcement: targetAnnouncement,
+          type: targetType,
+          title: targetTitle,
+          subject: targetSubject,
+          date_override: targetDateOverride,
+          subject_override: targetSubjectOverride
+        } = sanitizedPayload;
+
         let tokenQuery = supabase.from('fcm_tokens').select('token');
-        if (semester) tokenQuery = tokenQuery.eq('semester', semester);
-        if (section) tokenQuery = tokenQuery.eq('section', section);
+        if (targetSemester) tokenQuery = tokenQuery.eq('semester', targetSemester);
+        if (targetSection) tokenQuery = tokenQuery.eq('section', targetSection);
 
         const { data: tokenRows, error: tokenError } = await tokenQuery;
 
@@ -278,15 +289,15 @@ module.exports = async (req, res) => {
         } else if (tokenRows && tokenRows.length > 0) {
           const tokens = tokenRows.map(row => row.token).filter(Boolean);
 
-          let notificationBody = announcement;
-          if (type === 'online_class') {
+          let notificationBody = targetAnnouncement;
+          if (targetType === 'online_class') {
             try {
-              const parsed = JSON.parse(announcement);
+              const parsed = JSON.parse(targetAnnouncement);
               notificationBody = `Online class from ${parsed.start_time || '—'} to ${parsed.end_time || '—'}. Join: ${parsed.platform || 'Link'}`;
             } catch (e) {}
-          } else if (type === 'class_test') {
+          } else if (targetType === 'class_test') {
             try {
-              const parsed = JSON.parse(announcement);
+              const parsed = JSON.parse(targetAnnouncement);
               notificationBody = `Exam: ${parsed.exam_name || 'Class Test'}. Topics: ${parsed.topics || 'Not Specified'}`;
             } catch (e) {}
           }
@@ -299,16 +310,16 @@ module.exports = async (req, res) => {
             const message = {
               tokens: batchTokens,
               notification: {
-                title: `${type === 'cancellation' ? '🚫 ' : type === 'holiday' ? '🎉 ' : type === 'online_class' ? '📡 ' : type === 'class_test' ? '📝 ' : '📢 '}${title}`,
+                title: `${targetType === 'cancellation' ? '🚫 ' : targetType === 'holiday' ? '🎉 ' : targetType === 'online_class' ? '📡 ' : targetType === 'class_test' ? '📝 ' : '📢 '}${targetTitle}`,
                 body: notificationBody,
               },
               data: {
-                type: type || 'general',
-                subject: subject || '',
-                date_override: date_override || '',
-                subject_override: subject_override || '',
-                semester: semester || '',
-                section: section || '',
+                type: targetType || 'general',
+                subject: targetSubject || '',
+                date_override: targetDateOverride || '',
+                subject_override: targetSubjectOverride || '',
+                semester: targetSemester || '',
+                section: targetSection || '',
                 announcementId: String(newAnnouncement.id)
               },
               android: {

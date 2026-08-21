@@ -183,13 +183,6 @@ export function getAllFacultyKeys() {
 }
 
 /**
- * Returns all rich faculty entries
- */
-export function getAllFacultyEntries() {
-  return Object.values(_facultyInfoMap);
-}
-
-/**
  * Helper to get the teacher's full name (or returns the code itself if unknown)
  */
 export function getFullName(code) {

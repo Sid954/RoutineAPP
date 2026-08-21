@@ -22,7 +22,7 @@ export function applyTheme(style, color) {
   // Update canvas visibility
   const ptc = document.getElementById('ptc');
   if (ptc) {
-    ptc.style.display = (activeStyle === 'bento' || activeStyle === 'neumorphic') ? 'none' : 'block';
+    ptc.style.display = 'block';
   }
 
   // Sync Android OS status bar & browser meta theme-color
@@ -47,7 +47,6 @@ export function applyTheme(style, color) {
     } catch (e) {}
   }
 
-  renderThemeStyleTabs();
   renderThemePaletteGrid();
 
   // Re-render schedule elements to apply pastel/dark subject theme cards
@@ -59,22 +58,6 @@ export function applyTheme(style, color) {
   import('../widget/widget.js').then(({ updateNativeWidget }) => {
     updateNativeWidget();
   }).catch(() => {});
-}
-
-export function renderThemeStyleTabs() {
-  const container = document.getElementById('themeStyleSegmented');
-  if (!container) return;
-
-  const currentStyle = Storage.getThemeStyle();
-  container.innerHTML = Object.entries(THEME_STYLES).map(([k, v]) => {
-    const isActive = k === currentStyle;
-    return `
-      <div class="theme-style-pill ${isActive ? 'active' : ''}" data-style-id="${k}">
-        <span>${v.icon}</span>
-        <span>${v.name}</span>
-      </div>
-    `;
-  }).join('');
 }
 
 export function renderThemePaletteGrid() {
@@ -105,20 +88,7 @@ export function initThemeEngine() {
   const currentColor = Storage.getThemeColor();
   applyTheme(currentStyle, currentColor);
 
-  const styleTabs = document.getElementById('themeStyleSegmented');
   const paletteGrid = document.getElementById('themePaletteGrid');
-
-  if (styleTabs) {
-    styleTabs.addEventListener('click', (e) => {
-      const pill = e.target.closest('.theme-style-pill');
-      if (!pill) return;
-      const styleId = pill.dataset.styleId;
-      if (styleId && THEME_STYLES[styleId]) {
-        Storage.saveThemeStyle(styleId);
-        applyTheme(styleId, Storage.getThemeColor());
-      }
-    });
-  }
 
   if (paletteGrid) {
     paletteGrid.addEventListener('click', (e) => {
@@ -132,6 +102,5 @@ export function initThemeEngine() {
     });
   }
 
-  renderThemeStyleTabs();
   renderThemePaletteGrid();
 }

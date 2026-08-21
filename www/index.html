@@ -59,15 +59,14 @@
     <button class="install-dismiss" id="installDismiss">✕</button>
   </div>
 
-  <!-- Global Glassmorphism Loading Screen Overlay -->
+  <!-- Global Loading Screen Overlay -->
   <div id="globalLoadingOverlay" class="global-loading-overlay">
     <div class="global-loading-card">
-      <div class="global-loading-spinner-container">
+      <div class="global-loading-icon-wrap">
         <div class="global-loading-spinner-ring"></div>
-        <div class="global-loading-spinner-core">⚡</div>
       </div>
       <div id="globalLoadingTitle" class="global-loading-title">Loading Routine...</div>
-      <div id="globalLoadingSub" class="global-loading-sub">Fetching timetable schedule & section announcements</div>
+      <div id="globalLoadingSub" class="global-loading-sub">Fetching timetable schedule &amp; section announcements</div>
     </div>
   </div>
 
@@ -81,7 +80,7 @@
           <!-- Header: Clock, Date Badge Pill, Controls -->
           <header class="top-bar">
             <div class="top-date-time-col">
-              <div class="digital-clock" id="clockTrigger">
+              <div class="digital-clock">
                 <span class="clock-time" id="hD">12</span>:<span id="mD">30</span>
                 <span class="clock-period" id="apD">PM</span>
               </div>
@@ -91,16 +90,11 @@
                 <span id="dateD">Saturday, 19 August</span>
                 <svg class="cal-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
-              <span id="dayD" style="display:none;"></span>
             </div>
             <div class="top-actions">
               <button class="hd-btn" id="editBtn" title="Edit schedule & appearance">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
               </button>
-              <div style="display: none;" aria-hidden="true">
-                <button id="announcementsBtn"><span id="announceBadge"></span></button>
-                <button id="notifSettingsBtn"></button>
-              </div>
             </div>
           </header>
 
@@ -124,7 +118,7 @@
           </section>
 
           <!-- Unified Spacious Timeline Cards -->
-          <section class="cs" id="chS">
+          <section class="cs">
             <div class="timeline-header-row">
               <div class="timeline-title-text" id="timelineTitle">Today's Schedule</div>
               <div class="timeline-count-badge" id="timelineSubtitle">Loading...</div>
@@ -353,7 +347,7 @@
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
                       <span>Announcement Type</span>
                     </label>
-                    <div class="pa-type-picker-wrapper" id="paTypePickerWrapper">
+                    <div class="pa-type-picker-wrapper">
                       <select id="paType" class="clean-select" style="display: none;">
                         <option value="general">General</option>
                         <option value="cancellation">Class Cancellation</option>
@@ -363,10 +357,10 @@
                       </select>
 
                       <button type="button" class="pa-type-picker-btn" id="paTypePickerBtn" aria-expanded="false" aria-haspopup="listbox">
-                        <div class="pa-type-picker-current" id="paTypeCurrentDisplay">
+                        <div class="pa-type-picker-current">
                           <span class="pa-type-indicator-pill" id="paTypeIndicatorPill">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                            <span id="paTypeIndicatorLabel">General</span>
+                            <span>General</span>
                           </span>
                         </div>
                         <div class="pa-type-picker-chevron">
@@ -675,14 +669,6 @@
       <div style="padding: 0 24px; margin-top: 15px; margin-bottom: 18px;">
         <div style="font-size: 11px; font-weight: 800; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;">🎨 App Theme & Visual Style</div>
         
-        <!-- Design Interface Style Segmented Tabs -->
-        <div style="margin-bottom: 14px;">
-          <label style="display: block; font-size: 10px; font-weight: 700; color: var(--dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Design Interface Style</label>
-          <div class="theme-style-segmented" id="themeStyleSegmented">
-            <!-- Rendered dynamically -->
-          </div>
-        </div>
-
         <!-- Color Palette & AMOLED Mode Grid -->
         <div>
           <label style="display: block; font-size: 10px; font-weight: 700; color: var(--dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Color Palette & AMOLED Mode</label>
@@ -862,114 +848,11 @@
             </div>
           </div>
 
-          <!-- Group 2: Morning Briefing -->
-          <div class="notif-group-card">
-            <div class="notif-group-header">
-              <span>🌅 Morning Briefing</span>
-            </div>
-
-            <!-- Row: Daily Summary -->
-            <div class="notif-setting-row">
-              <div class="notif-row-left">
-                <div class="notif-icon-box amber">🌅</div>
-                <div class="notif-setting-info">
-                  <span class="notif-setting-title">Daily Summary</span>
-                  <span class="notif-setting-desc">Receive morning schedule briefing</span>
-                </div>
-              </div>
-              <label class="toggle-switch">
-                <input type="checkbox" id="notifBriefingToggle" checked>
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-
-            <!-- Row: Briefing Time -->
-            <div class="notif-setting-row" id="briefingTimeRow">
-              <div class="notif-row-left">
-                <div class="notif-icon-box amber">🕒</div>
-                <div class="notif-setting-info">
-                  <span class="notif-setting-title">Briefing Time</span>
-                  <span class="notif-setting-desc">Scheduled delivery time</span>
-                </div>
-              </div>
-              <select id="notifBriefingTime" class="clean-select notif-select">
-                <option value="420">7:00 AM</option>
-                <option value="450">7:30 AM</option>
-                <option value="480">8:00 AM</option>
-                <option value="510">8:30 AM</option>
-                <option value="525">8:45 AM</option>
-                <option value="540">9:00 AM</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Group 3: Class End & Day Complete Alerts -->
-          <div class="notif-group-card">
-            <div class="notif-group-header">
-              <span>🎉 Completion Alerts</span>
-            </div>
-
-            <!-- Row: Class End Alerts -->
-            <div class="notif-setting-row">
-              <div class="notif-row-left">
-                <div class="notif-icon-box pink">🏁</div>
-                <div class="notif-setting-info">
-                  <span class="notif-setting-title">Class End Alerts</span>
-                  <span class="notif-setting-desc">Notify 5 min before class ends</span>
-                </div>
-              </div>
-              <label class="toggle-switch">
-                <input type="checkbox" id="notifClassEndToggle">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-
-            <!-- Row: Day Complete Alert -->
-            <div class="notif-setting-row">
-              <div class="notif-row-left">
-                <div class="notif-icon-box emerald">🎉</div>
-                <div class="notif-setting-info">
-                  <span class="notif-setting-title">Day Complete Alert</span>
-                  <span class="notif-setting-desc">Celebrate when all classes are done</span>
-                </div>
-              </div>
-              <label class="toggle-switch">
-                <input type="checkbox" id="notifDayDoneToggle" checked>
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Quick Test Action -->
-          <div style="margin-top: 4px;">
-            <button class="notif-test-btn" id="testBriefingBtn">
-              <span>🧪 Send Test Morning Briefing</span>
-            </button>
-            <div style="text-align: center; font-size: 10px; color: var(--dim); margin-top: 8px;">
-              ⚡ Settings auto-save instantly on change
-            </div>
+          <div style="text-align: center; font-size: 10px; color: var(--dim); margin-top: 12px;">
+            ⚡ Settings auto-save instantly on change
           </div>
 
         </div>
-      </div>
-    </div>
-  </div>
-
-
-
-  <!-- Modal: Notification History -->
-  <div class="mo" id="notifHistoryModal">
-    <div class="md" style="max-width: 500px;">
-      <div class="md-h">
-        <h2>Notification History</h2>
-        <button class="cls" id="notifHistoryClose">✕</button>
-      </div>
-      <div class="md-sb" style="display: flex; justify-content: space-between; align-items: center;">
-        <span>Recent notifications & alerts</span>
-        <button class="bd" id="notifHistoryClear" style="font-size: 11px; padding: 4px 10px;">Clear All</button>
-      </div>
-      <div id="notifHistoryList" style="margin-top: 15px; max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;">
-        <div class="skeleton-card" style="height: 60px;"></div>
       </div>
     </div>
   </div>
@@ -994,7 +877,6 @@
               <span class="resting-tag lab" id="modalTypeBadge">★ LAB</span>
             </div>
             <div class="class-sheet-hero-title" id="modalFullTitle">Data Structures Laboratory</div>
-            <span id="cdTitle" style="display:none;">Class Details</span>
           </div>
         </div>
         <button class="class-sheet-close-btn" id="classDetailClose" title="Close sheet">&times;</button>
@@ -1065,21 +947,28 @@
     </div>
   </div>
 
-  <!-- Modal: Custom Confirm -->
-  <div class="mo" id="confirmModal" style="z-index: 1100;">
-    <div class="md" style="max-width: 320px; background: rgba(20, 24, 36, 0.95); backdrop-filter: blur(20px); border: 1.5px solid var(--border); box-shadow: var(--sh); text-align: center; padding: 24px;">
-      <span style="font-size: 32px; display: block; margin-bottom: 12px;">⚠️</span>
-      <h3 id="confirmTitle" style="font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 8px;">Confirm Action</h3>
-      <p id="confirmMessage" style="font-size: 13px; color: var(--dim); line-height: 1.4; margin-bottom: 16px;">Are you sure you want to proceed?</p>
-      
-      <!-- Password input for confirmations -->
-      <div id="confirmPasswordContainer" style="display: none; margin-bottom: 20px; text-align: left;">
-        <input type="password" id="confirmPassword" placeholder="Enter password" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--rx); color: #fff; font-size: 13px; outline: none; transition: border-color 0.2s;" />
+  <!-- Modal: Custom Confirm / Admin Unlock / Delete Confirm -->
+  <div class="mo" id="confirmModal" style="z-index: 1100; background: rgba(6, 8, 13, 0.82); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div class="confirm-modal-card">
+      <!-- Icon Badge -->
+      <div class="confirm-modal-icon-wrap" id="confirmIconWrap">
+        <svg id="confirmIconSvg" class="confirm-modal-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
       </div>
 
-      <div style="display: flex; gap: 10px; justify-content: center;">
-        <button class="bd" id="confirmCancelBtn" style="padding: 8px 16px; font-size: 12px;">Cancel</button>
-        <button class="bp" id="confirmOkBtn" style="padding: 8px 16px; font-size: 12px; background: var(--pink) !important; color: #fff !important; border-color: var(--pink) !important; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);">Delete</button>
+      <h3 id="confirmTitle" class="confirm-modal-title">Confirm Action</h3>
+      <p id="confirmMessage" class="confirm-modal-msg">Are you sure you want to proceed?</p>
+
+      <!-- Password input for Admin Unlock -->
+      <div id="confirmPasswordContainer" class="confirm-modal-pwd-wrap" style="display: none;">
+        <div class="confirm-modal-pwd-label">Admin Password</div>
+        <input type="password" id="confirmPassword" class="confirm-modal-pwd-input" placeholder="Enter password" autocomplete="current-password" />
+      </div>
+
+      <div class="confirm-modal-actions">
+        <button class="confirm-btn-cancel" id="confirmCancelBtn">Cancel</button>
+        <button class="confirm-btn-ok" id="confirmOkBtn">Confirm</button>
       </div>
     </div>
   </div>
@@ -1155,12 +1044,6 @@
         </button>
       </div>
     </div>
-  </div>
-
-  <!-- Hidden Compatibility FAB triggers for Free Rooms & Teacher Finder -->
-  <div style="display: none;" aria-hidden="true">
-    <button id="findTeacherFab" class="find-teacher-fab"></button>
-    <button id="freeRoomsFab" class="free-rooms-fab"><span id="freeRoomsBadge"></span></button>
   </div>
 
   <!-- Modal: Universal Calendar Month Picker (Jump to Any Date) -->

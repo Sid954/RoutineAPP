@@ -147,7 +147,6 @@
 }
 
 /* Secondary Action Buttons */
-.page-action-btn.secondary,
 .faculty-action-btn.secondary,
 .announcements-action-btn.secondary {
   background: var(--card-bg, #23252C);
@@ -155,14 +154,12 @@
   color: var(--text-muted, #94A3B8);
 }
 
-.page-action-btn.secondary:hover,
 .faculty-action-btn.secondary:hover,
 .announcements-action-btn.secondary:hover {
   border-color: rgba(255, 255, 255, 0.2);
   color: var(--text-main, #F8FAFC);
 }
 
-.page-action-btn:active,
 .faculty-action-btn:active,
 .announcements-action-btn:active {
   transform: scale(0.96);

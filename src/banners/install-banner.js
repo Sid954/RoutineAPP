@@ -2,7 +2,6 @@ import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
 import { Storage } from '../storage/storage.js';
 import { showToast } from '../toast/toast.js';
-import { Notifications } from '../notifications/notifications.js';
 
 export function initInstallBanner() {
   window.addEventListener('beforeinstallprompt', e => {

@@ -9,11 +9,10 @@ import { Particles } from '../particles/particles.js';
 import { Notifications } from '../notifications/notifications.js';
 import { updateClock } from '../clock/clock.js';
 import { updateGreeting } from '../dashboard/greeting.js';
-import { updateStats } from '../dashboard/stats.js';
 import { updateDashboard, forceUpdate } from '../dashboard/update.js';
 import { DOM } from '../core/dom.js';
 import { performUnifiedUpdateCheck } from '../updater/apk-updater.js';
-import { initThemeEngine, applyTheme } from '../core/theme.js';
+import { initThemeEngine } from '../core/theme.js';
 import { initTeacherNames } from '../teachers/teacher-names.js';
 import { loadMasterTeacherData } from '../teachers/teacher-finder.js';
 import { preloadScheduleImages } from '../core/image-cache.js';
@@ -61,7 +60,6 @@ export function initializeApp() {
   // ── STEP 3: Initial render (instant offline bootstrap)
   updateClock();
   updateGreeting();
-  updateStats();
   forceUpdate();
 
   // Asynchronously warm image cache in idle time
@@ -186,21 +184,11 @@ export async function saveAllSettings() {
       Storage.saveSemester(sem);
       Storage.saveSection(sec);
 
-      // Save Theme preferences if dropdowns exist
-      const styleSel = document.getElementById('themeStyleSelect');
-      const colorSel = document.getElementById('themeColorSelect');
-      if (styleSel) Storage.saveThemeStyle(styleSel.value);
-      if (colorSel) Storage.saveThemeColor(colorSel.value);
-
       // Save notification settings if elements exist
       if (DOM.notifToggle) {
         const notifSettings = Storage.getNotifSettings();
         notifSettings.enabled = DOM.notifToggle.checked;
         if (DOM.notifLeadTime) notifSettings.leadTime = parseInt(DOM.notifLeadTime.value, 10) || 15;
-        if (DOM.notifBriefingToggle) notifSettings.briefingEnabled = DOM.notifBriefingToggle.checked;
-        if (DOM.notifBriefingTime) notifSettings.briefingTime = parseInt(DOM.notifBriefingTime.value, 10) || 450;
-        if (DOM.notifClassEndToggle) notifSettings.classEndEnabled = DOM.notifClassEndToggle.checked;
-        if (DOM.notifDayDoneToggle) notifSettings.dayDoneEnabled = DOM.notifDayDoneToggle.checked;
         Storage.saveNotifSettings(notifSettings);
       }
 

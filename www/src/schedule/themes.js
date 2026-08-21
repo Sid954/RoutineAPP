@@ -16,7 +16,6 @@ export const LIGHT_SUBJECT_PALETTES = [
   { bg: 'linear-gradient(135deg, #ecfdf5, #a7f3d0)', border: '#059669', text: '#064e3b', badge: '#10b981' }  // 11: Dark Lime
 ];
 
-export const LIGHT_LAB_THEME = { bg: 'linear-gradient(135deg, #ffe4e6, #fecdd3)', border: '#e11d48', text: '#4c0519', badge: '#f43f5e', isLab: true };
 const DEFAULT_FALLBACK_THEME = { bg: 'linear-gradient(135deg, #1e1b4b, #312e81)', border: '#818cf8', text: '#e0e7ff', badge: 'rgba(129,140,248,0.35)' };
 
 let _cachedSubjectOrder = null;

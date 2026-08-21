@@ -13,7 +13,6 @@
   --text-main: #F8FAFC;
   --text-muted: #94A3B8;
   --text-sub: #71717A;
-  --text-dim: #71717A;
 
   /* Accent & Status Tokens */
   --accent: #38BDF8;
@@ -34,12 +33,6 @@
   --tag-lab-bg: rgba(192, 132, 252, 0.12);
   --tag-lab-text: #D8B4FE;
   --tag-lab-border: rgba(192, 132, 252, 0.20);
-  --theory-bg: var(--tag-theory-bg);
-  --theory-text: var(--tag-theory-text);
-  --theory-border: var(--tag-theory-border);
-  --lab-bg: var(--tag-lab-bg);
-  --lab-text: var(--tag-lab-text);
-  --lab-border: var(--tag-lab-border);
 
   /* Radius Tokens */
   --r-card: 20px;
@@ -56,7 +49,6 @@
 
   /* Motion Curves */
   --duration-fast: 0.15s;
-  --duration-base: 0.24s;
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
   --t: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -168,23 +160,6 @@ html, body {
   color: #0f172a !important;
 }
 
-/* All legacy theme selector aliases fallback to approved Dark system */
-:root[data-color="matcha"],
-:root[data-color="sunset"],
-:root[data-color="cyberpunk"],
-:root[data-color="oceanic"],
-:root[data-color="nordic"] {
-  --bg: #18191E;
-  --canvas: #18191E;
-  --card-bg: #23252C;
-  --card-border: rgba(255, 255, 255, 0.07);
-  --text-main: #F8FAFC;
-  --text-muted: #94A3B8;
-  --text-sub: #71717A;
-  --accent: #38BDF8;
-  --btn-text: #07090E;
-}
-
 /* Custom Dropdown Option Background & Text Contrast per Theme */
 select option {
   background: #0f172a;
@@ -192,24 +167,9 @@ select option {
   padding: 10px;
 }
 
-:root[data-color="pitch_black"] select option {
-  background: #121212 !important;
-  color: #ffffff !important;
-}
-
 :root[data-color="light"] select option {
   background: #ffffff !important;
   color: #0f172a !important;
-}
-
-:root[data-color="matcha"] select option {
-  background: #102019 !important;
-  color: #f0fdf4 !important;
-}
-
-:root[data-color="sunset"] select option {
-  background: #21101e !important;
-  color: #fff7ed !important;
 }
 
 :root[data-color="dark"] select option {
@@ -229,49 +189,6 @@ select option {
   font-weight: 800 !important;
   border: none !important;
   transition: transform 0.15s active, box-shadow var(--t) !important;
-}
-
-/* PC Download Android APK Button */
-.download-apk-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 99px;
-  background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink)));
-  color: var(--btn-text, #ffffff) !important;
-  font-size: 12px;
-  font-weight: 800;
-  text-decoration: none;
-  border: none;
-  box-shadow: 0 4px 14px var(--ag);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.download-apk-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px var(--ag);
-}
-
-/* Announcement Category Filter Pills */
-.announce-filter-pill {
-  padding: 5px 12px;
-  border-radius: 99px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border);
-  color: var(--dim);
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-  font-family: var(--f);
-}
-.announce-filter-pill:hover,
-.announce-filter-pill.active {
-  background: var(--accent) !important;
-  color: #000000 !important;
-  border-color: var(--accent) !important;
-  box-shadow: 0 2px 10px var(--ag) !important;
 }
 
 /* Clean Dropdown Select Inputs */
@@ -315,187 +232,6 @@ select.clean-select option,
 }
 .ptr-spin {
   animation: ptrSpin 0.7s linear infinite !important;
-}
-
-/* Unseen Announcements Red Blob Badge */
-.announce-badge-blob {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  min-width: 19px;
-  height: 19px;
-  padding: 0 5px;
-  border-radius: 99px;
-  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
-  color: #ffffff !important;
-  font-family: var(--m);
-  font-size: 9.5px;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--card);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.7), 0 0 10px rgba(239, 68, 68, 0.9);
-  animation: blobPulse 1.8s ease-in-out infinite;
-  z-index: 10;
-  white-space: nowrap;
-}
-@keyframes blobPulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.7), 0 0 10px rgba(239, 68, 68, 0.9); }
-  50% { transform: scale(1.15); box-shadow: 0 6px 16px rgba(239, 68, 68, 0.9), 0 0 16px rgba(239, 68, 68, 1); }
-}
-
-/* ==========================================================================
-   STYLE 1: GLASSMORPHISM CYBER (Default Translucent Glow)
-   ========================================================================== */
-:root[data-style="glassmorphism"] .w,
-:root[data-style="glassmorphism"] .card,
-:root[data-style="glassmorphism"] .md,
-:root[data-style="glassmorphism"] .chg-item {
-  border-radius: 24px;
-  background: var(--card);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--border);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 20px var(--ag);
-}
-:root[data-style="glassmorphism"] .chg-item:hover {
-  border-color: var(--accent);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7), 0 0 24px var(--ag);
-  transform: translateY(-3px);
-}
-
-/* ==========================================================================
-   STYLE 2: NEUMORPHIC 3D SOFT (Tactile Embossed Depth)
-   ========================================================================== */
-:root[data-style="neumorphic"] {
-  --r: 28px; --rs: 20px; --rx: 14px;
-}
-:root[data-style="neumorphic"] .w,
-:root[data-style="neumorphic"] .card,
-:root[data-style="neumorphic"] .md,
-:root[data-style="neumorphic"] .chg-item {
-  border-radius: 28px !important;
-  background: var(--card) !important;
-  border: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: 9px 9px 24px rgba(0,0,0,0.8), -9px -9px 24px rgba(255,255,255,0.03) !important;
-}
-:root[data-style="neumorphic"] .chg-item {
-  box-shadow: inset 4px 4px 10px rgba(0,0,0,0.7), inset -4px -4px 10px rgba(255,255,255,0.02) !important;
-}
-:root[data-style="neumorphic"] .chg-item:hover {
-  box-shadow: 6px 6px 18px rgba(0,0,0,0.8), -6px -6px 18px rgba(255,255,255,0.04) !important;
-  transform: translateY(-2px);
-}
-
-:root[data-style="neumorphic"] button:active {
-  box-shadow: inset 3px 3px 8px rgba(0,0,0,0.8), inset -3px -3px 8px rgba(255,255,255,0.03) !important;
-}
-
-/* Primary Action Buttons in Neumorphic Mode MUST keep Theme Gradient & Text */
-:root[data-style="neumorphic"] #saveAllSettingsBtn,
-:root[data-style="neumorphic"] #saveNotifSettingsBtn,
-:root[data-style="neumorphic"] #welcomeGetStartedBtn,
-:root[data-style="neumorphic"] #postAnnounceSubmit,
-:root[data-style="neumorphic"] #checkUpdateBtn,
-:root[data-style="neumorphic"] .bp,
-:root[data-style="neumorphic"] .vrb,
-:root[data-style="neumorphic"] .install-btn,
-:root[data-style="neumorphic"] #confirmOkBtn {
-  background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink))) !important;
-  color: var(--btn-text, #ffffff) !important;
-  box-shadow: 6px 6px 16px rgba(0,0,0,0.6), -4px -4px 12px rgba(255,255,255,0.05) !important;
-  border: none !important;
-}
-:root[data-style="neumorphic"] button {
-  border-radius: 10px !important;
-  border: 1px solid var(--border) !important;
-}
-/* ==========================================================================
-   STYLE 3: CYBERPUNK HUD (Sharp Tactical Wireframe & Scanlines)
-   ========================================================================== */
-:root[data-style="cyberpunk"] {
-  --r: 0px; --rs: 0px; --rx: 0px;
-  --f: 'Chakra Petch', 'Plus Jakarta Sans', monospace, sans-serif;
-  --m: 'Space Mono', monospace;
-}
-:root[data-style="cyberpunk"] body {
-  background-image: repeating-linear-gradient(0deg, rgba(0, 240, 255, 0.03) 0px, rgba(0, 240, 255, 0.03) 1px, transparent 1px, transparent 4px);
-}
-:root[data-style="cyberpunk"] .w,
-:root[data-style="cyberpunk"] .card,
-:root[data-style="cyberpunk"] .md,
-:root[data-style="cyberpunk"] .chg-item {
-  border-radius: 0px !important;
-  background: var(--card) !important;
-  border: 2px solid var(--accent) !important;
-  box-shadow: 0 0 18px var(--ag), inset 0 0 12px var(--ag) !important;
-  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px)) !important;
-}
-:root[data-style="cyberpunk"] .chg-item {
-  border-color: var(--pink) !important;
-  box-shadow: 0 0 14px var(--pg) !important;
-}
-:root[data-style="cyberpunk"] .chg-item:hover {
-  box-shadow: 0 0 24px var(--pink) !important;
-  transform: translateY(-2px);
-}
-:root[data-style="cyberpunk"] button {
-  border-radius: 0px !important;
-  border: 2px solid var(--accent) !important;
-  color: var(--text) !important;
-  font-family: var(--m) !important;
-  text-transform: uppercase !important;
-  letter-spacing: 1px !important;
-  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)) !important;
-}
-:root[data-style="cyberpunk"] .t-card.live,
-:root[data-style="cyberpunk"] .cc,
-:root[data-style="cyberpunk"] .ch.ca {
-    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px)) !important;
-}
-
-:root[data-style="cyberpunk"] #saveAllSettingsBtn,
-:root[data-style="cyberpunk"] #saveNotifSettingsBtn,
-:root[data-style="cyberpunk"] #welcomeGetStartedBtn,
-:root[data-style="cyberpunk"] #postAnnounceSubmit,
-:root[data-style="cyberpunk"] #checkUpdateBtn,
-:root[data-style="cyberpunk"] .bp,
-:root[data-style="cyberpunk"] .vrb,
-:root[data-style="cyberpunk"] .install-btn,
-:root[data-style="cyberpunk"] #confirmOkBtn {
-  background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink))) !important;
-  color: var(--btn-text, #ffffff) !important;
-  border: 2px solid var(--accent) !important;
-  box-shadow: 0 0 16px var(--ag) !important;
-}
-
-/* ==========================================================================
-   STYLE 4: BENTO MINIMALIST (Clean Apple/Notion Grid)
-   ========================================================================== */
-:root[data-style="bento"] {
-  --r: 14px; --rs: 10px; --rx: 8px;
-}
-:root[data-style="bento"] .w,
-:root[data-style="bento"] .card,
-:root[data-style="bento"] .md,
-:root[data-style="bento"] .chg-item {
-  border-radius: 14px !important;
-  background: var(--card) !important;
-  border: 1px solid var(--border) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
-}
-:root[data-style="bento"] .chg-item:hover {
-  border-color: var(--accent) !important;
-  transform: translateY(-2px);
-}
-:root[data-style="bento"] button {
-  border-radius: 10px !important;
-  border: 1px solid var(--border) !important;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
