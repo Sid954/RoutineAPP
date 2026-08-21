@@ -808,7 +808,7 @@ html[data-theme="dark"] .focal-day-card,
   opacity: 0.45;
 }
 
-/* Calendar Picker Override Highlights */
+/* Calendar Picker Override Highlights (Dark Mode Default) */
 .calendar-day-cell.cal-override-cancellation .cal-day-num {
   color: #FDA4AF !important;
   font-weight: 800;
@@ -824,6 +824,24 @@ html[data-theme="dark"] .focal-day-card,
 .calendar-day-cell.cal-override-online_class .cal-day-num {
   color: #6EE7B7 !important;
   font-weight: 800;
+}
+
+/* Light Mode High-Contrast Calendar Picker Override Numbers (WCAG AA >= 4.5:1) */
+:root[data-color="light"] .calendar-day-cell.cal-override-cancellation .cal-day-num,
+html[data-theme="light"] .calendar-day-cell.cal-override-cancellation .cal-day-num {
+  color: #BE123C !important;
+}
+:root[data-color="light"] .calendar-day-cell.cal-override-holiday .cal-day-num,
+html[data-theme="light"] .calendar-day-cell.cal-override-holiday .cal-day-num {
+  color: #B45309 !important;
+}
+:root[data-color="light"] .calendar-day-cell.cal-override-class_test .cal-day-num,
+html[data-theme="light"] .calendar-day-cell.cal-override-class_test .cal-day-num {
+  color: #C2410C !important;
+}
+:root[data-color="light"] .calendar-day-cell.cal-override-online_class .cal-day-num,
+html[data-theme="light"] .calendar-day-cell.cal-override-online_class .cal-day-num {
+  color: #047857 !important;
 }
 
 .calendar-day-cell.cal-override-cancellation {
