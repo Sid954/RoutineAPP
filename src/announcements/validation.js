@@ -88,6 +88,23 @@ export function formatAnnouncementTitle(item = {}) {
   }
 
   if (type === 'online_class') {
+    let isOnline = true;
+    if (typeof item.announcement === 'string') {
+      try {
+        const parsed = JSON.parse(item.announcement);
+        if (parsed.is_online === false) isOnline = false;
+      } catch (e) {}
+    } else if (typeof item.announcement === 'object' && item.announcement !== null) {
+      if (item.announcement.is_online === false) isOnline = false;
+    }
+    if (item.is_online === false) isOnline = false;
+
+    if (!isOnline) {
+      if (subject) return `${subject} Extra Class`;
+      const stripped = rawTitle.replace(/^(Extra Class|Offline Class|In-Person Class)\s*[:\-–—]\s*/i, '').trim();
+      return stripped ? `${stripped} Extra Class` : 'Extra Class';
+    }
+
     if (subject) return `${subject} Session`;
     const stripped = rawTitle.replace(/^(Online Class|Online Session|Online)\s*[:\-–—]\s*/i, '').trim();
     return stripped ? `${stripped} Session` : 'Online Session';
@@ -145,6 +162,27 @@ export function formatAnnouncementTitle(item = {}) {
       return `${subject} Assessment`;
     }
     return 'Class Assessment';
+  }
+
+  if (type === 'rescheduled') {
+    if (subject) return `Rescheduled: ${subject}`;
+    return rawTitle || 'Rescheduled Class';
+  }
+
+  if (type === 'assignment') {
+    let taskTitle = '';
+    if (typeof item.announcement === 'string') {
+      try {
+        const parsed = JSON.parse(item.announcement);
+        taskTitle = (parsed.task_title || '').trim();
+      } catch (e) {}
+    } else if (typeof item.announcement === 'object' && item.announcement !== null) {
+      taskTitle = (item.announcement.task_title || '').trim();
+    }
+    if (taskTitle) {
+      return subject ? `${taskTitle}: ${subject}` : taskTitle;
+    }
+    return subject ? `Due: ${subject}` : (rawTitle || 'Assignment Deadline');
   }
 
   return rawTitle;
@@ -207,11 +245,11 @@ export function validateAnnouncementPayload(rawData = {}) {
 
   } else if (type === 'online_class') {
     if (!cleanString(rawData.date_override)) {
-      return { valid: false, error: 'Online class Date is required.' };
+      return { valid: false, error: 'Class Date is required.' };
     }
     const subj = cleanString(rawData.subject_override || rawData.subject);
     if (!subj) {
-      return { valid: false, error: 'Online class Subject is required.' };
+      return { valid: false, error: 'Subject is required.' };
     }
 
     let parsedPayload = {};
@@ -229,16 +267,27 @@ export function validateAnnouncementPayload(rawData = {}) {
     const platformCheck = validateField(platformRaw, ANNOUNCEMENT_LIMITS.PLATFORM_LINK, 'Platform / Join Link', false);
     if (!platformCheck.valid) return { valid: false, error: platformCheck.error };
 
+    const isExtra = Boolean(parsedPayload.is_extra_class || rawData.is_extra_class);
+    const isOnline = parsedPayload.is_online !== undefined ? Boolean(parsedPayload.is_online) : (rawData.is_online !== undefined ? Boolean(rawData.is_online) : true);
+
     const structuredObj = {
+      is_extra_class: isExtra,
+      is_online: isOnline,
       platform: platformCheck.cleaned,
-      start_time: cleanString(parsedPayload.start_time || rawData.start_time || '09:45 AM')
+      start_time: cleanString(parsedPayload.start_time || rawData.start_time || '09:45 AM'),
+      end_time: cleanString(parsedPayload.end_time || rawData.end_time || '11:00 AM'),
+      room: cleanString(parsedPayload.room || rawData.room || ''),
+      teacher: cleanString(parsedPayload.teacher || rawData.teacher || '')
     };
-    if (parsedPayload.end_time && cleanString(parsedPayload.end_time)) {
-      structuredObj.end_time = cleanString(parsedPayload.end_time);
-    }
     const structuredAnnouncement = JSON.stringify(structuredObj);
 
-    sanitized.title = formatAnnouncementTitle({ type: 'online_class', subject_override: subj, title: rawData.title });
+    sanitized.title = formatAnnouncementTitle({
+      type: 'online_class',
+      subject_override: subj,
+      is_online: isOnline,
+      announcement: structuredObj,
+      title: rawData.title
+    });
     sanitized.announcement = structuredAnnouncement;
 
   } else if (type === 'class_test') {
@@ -281,6 +330,71 @@ export function validateAnnouncementPayload(rawData = {}) {
       title: rawData.title
     });
     sanitized.announcement = structuredAnnouncement;
+
+  } else if (type === 'rescheduled') {
+    if (!cleanString(rawData.date_override)) {
+      return { valid: false, error: 'Rescheduled Date is required.' };
+    }
+    const subj = cleanString(rawData.subject_override || rawData.subject);
+    if (!subj) {
+      return { valid: false, error: 'Subject to reschedule is required.' };
+    }
+
+    let parsedPayload = {};
+    if (typeof rawData.announcement === 'string') {
+      try { parsedPayload = JSON.parse(rawData.announcement); } catch (e) {}
+    } else if (typeof rawData.announcement === 'object' && rawData.announcement !== null) {
+      parsedPayload = rawData.announcement;
+    }
+
+    const newStart = cleanString(parsedPayload.new_start_time || rawData.new_start_time || '03:00 PM');
+    const newEnd = cleanString(parsedPayload.new_end_time || rawData.new_end_time || '04:15 PM');
+    const origStart = cleanString(parsedPayload.original_start_time || rawData.original_start_time || '');
+    const newRoom = cleanString(parsedPayload.new_room || rawData.new_room || '');
+    const reason = collapseNewlines(parsedPayload.reason || rawData.reason || '');
+
+    const structuredObj = {
+      target_subject: subj,
+      original_start_time: origStart,
+      new_start_time: newStart,
+      new_end_time: newEnd,
+      new_room: newRoom,
+      reason
+    };
+
+    sanitized.title = `Rescheduled: ${subj}`;
+    sanitized.announcement = JSON.stringify(structuredObj);
+
+  } else if (type === 'assignment') {
+    if (!cleanString(rawData.date_override)) {
+      return { valid: false, error: 'Due Date is required.' };
+    }
+    const subj = cleanString(rawData.subject_override || rawData.subject);
+    if (!subj) {
+      return { valid: false, error: 'Course / Subject is required.' };
+    }
+
+    let parsedPayload = {};
+    if (typeof rawData.announcement === 'string') {
+      try { parsedPayload = JSON.parse(rawData.announcement); } catch (e) {}
+    } else if (typeof rawData.announcement === 'object' && rawData.announcement !== null) {
+      parsedPayload = rawData.announcement;
+    }
+
+    const taskTitleRaw = parsedPayload.task_title || rawData.task_title || 'Assignment';
+    const dueTime = cleanString(parsedPayload.due_time || rawData.due_time || '11:59 PM');
+    const desc = collapseNewlines(parsedPayload.description || rawData.description || '');
+
+    const structuredObj = {
+      subject: subj,
+      task_title: taskTitleRaw,
+      due_date: cleanString(rawData.date_override),
+      due_time: dueTime,
+      description: desc
+    };
+
+    sanitized.title = `${taskTitleRaw}: ${subj}`;
+    sanitized.announcement = JSON.stringify(structuredObj);
   }
 
   return { valid: true, sanitized };

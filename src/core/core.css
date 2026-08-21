@@ -99,15 +99,8 @@ html, body {
   background: var(--canvas) !important;
 }
 :root[data-color="light"] .w {
-  background: rgba(255, 255, 255, 0.94) !important;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12), 0 0 30px rgba(2, 132, 199, 0.08) !important;
-  border: 1px solid rgba(203, 213, 225, 0.8) !important;
-}
-:root[data-color="light"] .c-cc,
-:root[data-color="light"] .n-cc {
-  background: #f8fafc !important;
-  border: 1px solid #cbd5e1 !important;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+  background: var(--canvas) !important;
+  border-color: var(--card-border) !important;
 }
 :root[data-color="light"] .hd-btn,
 :root[data-color="light"] .day-nav-btn {
@@ -123,21 +116,21 @@ html, body {
   border-color: #cbd5e1 !important;
 }
 :root[data-color="light"] .cc {
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%) !important;
-  border: 1.5px solid #38bdf8 !important;
-  color: #0f172a !important;
-  box-shadow: 0 10px 30px rgba(2, 132, 199, 0.12) !important;
+  background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%) !important;
+  border: 1.5px solid #2563EB !important;
+  color: #0B1220 !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.14), 0 8px 24px rgba(15, 23, 42, 0.07) !important;
 }
 :root[data-color="light"] .cc .tt {
-  color: #0f172a !important;
+  color: #0B1220 !important;
   text-shadow: none !important;
 }
 :root[data-color="light"] .cc .lb {
-  color: #0284c7 !important;
+  color: #2563EB !important;
 }
 :root[data-color="light"] .cc .lb-right {
   background: rgba(255, 255, 255, 0.8) !important;
-  color: #0f172a !important;
+  color: #0B1220 !important;
   border-color: #cbd5e1 !important;
 }
 :root[data-color="light"] .cc .rp {

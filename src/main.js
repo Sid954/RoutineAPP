@@ -43,12 +43,6 @@ export function switchAppView(viewId, payload) {
   const dockAppsBtn = document.getElementById('dockAppsBtn');
   const dockNoticesBtn = document.getElementById('dockNoticesBtn');
 
-  const prevViewId = window.__currentAppViewId || 'home';
-  if (prevViewId === 'announcements' && viewId !== 'announcements' && viewId !== 'post_announcement') {
-    if (window.__markAnnouncementsAsRead) {
-      window.__markAnnouncementsAsRead();
-    }
-  }
   window.__currentAppViewId = viewId;
 
   // Hide all view panels

@@ -56,14 +56,24 @@ const TYPE_THEMES = {
     sectionTitle: 'Holiday / Day Off Override'
   },
   online_class: {
-    label: 'Online Class',
+    label: 'Add a Class',
     icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>',
-    sectionTitle: 'Online Session Parameters'
+    sectionTitle: 'Add a Class Details'
   },
   class_test: {
     label: 'Class Test',
     icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>',
     sectionTitle: 'Class Test & Exam Parameters'
+  },
+  rescheduled: {
+    label: 'Rescheduled',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+    sectionTitle: 'Rescheduled Class Parameters'
+  },
+  assignment: {
+    label: 'Assignment',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>',
+    sectionTitle: 'Assignment / Deadline Details'
   }
 };
 
@@ -127,13 +137,37 @@ export function updateClassTestSubjectsList(selectedVal = '') {
   }
 }
 
-export function setSectionVisibility(type) {
-  const card = document.getElementById('paFormCard');
-  if (card) card.setAttribute('data-type', type || 'general');
+export function updateRescheduleSubjectsList(selectedVal = '') {
+  const paRescheduleDate = document.getElementById('paRescheduleDate');
+  const paRescheduleSubjectSelect = document.getElementById('paRescheduleSubjectSelect');
+  if (!paRescheduleDate || !paRescheduleSubjectSelect) return;
+  const dateVal = paRescheduleDate.value;
+  if (!dateVal) {
+    paRescheduleSubjectSelect.innerHTML = '<option value="">Select a date first</option>';
+    return;
+  }
+  const [y, m, d] = dateVal.split('-').map(Number);
+  const dayIdx = new Date(y, m - 1, d).getDay();
+  const classes = getClassesForDay(dayIdx);
+  const subjs = Array.from(new Set(classes.map(c => c.title).filter(Boolean)));
 
+  if (subjs.length === 0) {
+    paRescheduleSubjectSelect.innerHTML = '<option value="">No classes scheduled on this day</option>';
+  } else {
+    paRescheduleSubjectSelect.innerHTML = subjs
+      .sort()
+      .map(sub => `<option value="${escapeHtml(sub)}" ${sub === selectedVal ? 'selected' : ''}>${escapeHtml(sub)}</option>`)
+      .join('');
+  }
+}
+
+export function setSectionVisibility(type) {
   const theme = TYPE_THEMES[type] || TYPE_THEMES.general;
+
+  // Update type indicator pill in form header
   const pill = document.getElementById('paTypeIndicatorPill');
   if (pill) {
+    pill.className = `pa-type-indicator-pill ${type}`;
     pill.innerHTML = `${theme.icon}<span>${theme.label}</span>`;
   }
 
@@ -157,12 +191,31 @@ export function setSectionVisibility(type) {
   const paHolidaySection = document.getElementById('paHolidaySection');
   const paOnlineSection = document.getElementById('paOnlineSection');
   const paClassTestSection = document.getElementById('paClassTestSection');
+  const paRescheduledSection = document.getElementById('paRescheduledSection');
+  const paAssignmentSection = document.getElementById('paAssignmentSection');
 
   if (paGeneralSection) paGeneralSection.style.display = type === 'general' ? 'block' : 'none';
   if (paCancellationSection) paCancellationSection.style.display = type === 'cancellation' ? 'block' : 'none';
   if (paHolidaySection) paHolidaySection.style.display = type === 'holiday' ? 'block' : 'none';
   if (paOnlineSection) paOnlineSection.style.display = type === 'online_class' ? 'block' : 'none';
   if (paClassTestSection) paClassTestSection.style.display = type === 'class_test' ? 'block' : 'none';
+  if (paRescheduledSection) paRescheduledSection.style.display = type === 'rescheduled' ? 'block' : 'none';
+  if (paAssignmentSection) paAssignmentSection.style.display = type === 'assignment' ? 'block' : 'none';
+}
+
+let _currentClassMode = 'online'; // 'online' | 'offline'
+
+export function setClassMode(mode) {
+  _currentClassMode = mode === 'offline' ? 'offline' : 'online';
+  const onlineBtn = document.getElementById('paModeOnlineBtn');
+  const offlineBtn = document.getElementById('paModeOfflineBtn');
+  const onlinePlatformContainer = document.getElementById('paOnlinePlatformContainer');
+  const offlineRoomContainer = document.getElementById('paOfflineRoomContainer');
+
+  if (onlineBtn) onlineBtn.classList.toggle('active', _currentClassMode === 'online');
+  if (offlineBtn) offlineBtn.classList.toggle('active', _currentClassMode === 'offline');
+  if (onlinePlatformContainer) onlinePlatformContainer.style.display = _currentClassMode === 'online' ? 'block' : 'none';
+  if (offlineRoomContainer) offlineRoomContainer.style.display = _currentClassMode === 'offline' ? 'block' : 'none';
 }
 
 export function openPostForm(existingAnnouncement = null) {
@@ -241,9 +294,16 @@ export function openPostForm(existingAnnouncement = null) {
       if (paOnlineSubjectSelect) paOnlineSubjectSelect.value = item.subject_override || item.subject || '';
       try {
         const parsed = JSON.parse(item.announcement);
+        const isOnline = parsed.is_online !== false;
+        setClassMode(isOnline ? 'online' : 'offline');
         if (paOnlineLink) paOnlineLink.value = parsed.platform || '';
+        const paOnlineRoom = document.getElementById('paOnlineRoom');
+        if (paOnlineRoom) paOnlineRoom.value = parsed.room || '';
         if (paOnlineStart) paOnlineStart.value = parseTo24h(parsed.start_time) || '09:45';
-      } catch (e) {}
+      } catch (e) {
+        setClassMode('online');
+        if (paOnlineLink) paOnlineLink.value = item.announcement || '';
+      }
     } else if (type === 'class_test') {
       if (paClassTestDate) paClassTestDate.value = item.date_override || todayStr;
       updateClassTestSubjectsList(item.subject_override || item.subject || '');
@@ -251,6 +311,35 @@ export function openPostForm(existingAnnouncement = null) {
         const parsed = JSON.parse(item.announcement);
         if (paClassTestName) paClassTestName.value = parsed.exam_name || '';
         if (paClassTestTopics) paClassTestTopics.value = parsed.topics || '';
+      } catch (e) {}
+    } else if (type === 'rescheduled') {
+      const paRescheduleDate = document.getElementById('paRescheduleDate');
+      if (paRescheduleDate) paRescheduleDate.value = item.date_override || todayStr;
+      updateRescheduleSubjectsList(item.subject_override || item.subject || '');
+      try {
+        const parsed = JSON.parse(item.announcement);
+        const paRescheduleNewStart = document.getElementById('paRescheduleNewStart');
+        if (paRescheduleNewStart) paRescheduleNewStart.value = parseTo24h(parsed.new_start_time) || '15:00';
+        const paRescheduleNewEnd = document.getElementById('paRescheduleNewEnd');
+        if (paRescheduleNewEnd) paRescheduleNewEnd.value = parseTo24h(parsed.new_end_time) || '16:15';
+        const paRescheduleNewRoom = document.getElementById('paRescheduleNewRoom');
+        if (paRescheduleNewRoom) paRescheduleNewRoom.value = parsed.new_room || '';
+        const paRescheduleReason = document.getElementById('paRescheduleReason');
+        if (paRescheduleReason) paRescheduleReason.value = parsed.reason || '';
+      } catch (e) {}
+    } else if (type === 'assignment') {
+      const paAssignmentDueDate = document.getElementById('paAssignmentDueDate');
+      if (paAssignmentDueDate) paAssignmentDueDate.value = item.date_override || todayStr;
+      const paAssignmentSubject = document.getElementById('paAssignmentSubject');
+      if (paAssignmentSubject) paAssignmentSubject.value = item.subject_override || item.subject || '';
+      try {
+        const parsed = JSON.parse(item.announcement);
+        const paAssignmentTitle = document.getElementById('paAssignmentTitle');
+        if (paAssignmentTitle) paAssignmentTitle.value = parsed.task_title || '';
+        const paAssignmentDueTime = document.getElementById('paAssignmentDueTime');
+        if (paAssignmentDueTime) paAssignmentDueTime.value = parseTo24h(parsed.due_time) || '23:59';
+        const paAssignmentDescription = document.getElementById('paAssignmentDescription');
+        if (paAssignmentDescription) paAssignmentDescription.value = parsed.description || '';
       } catch (e) {}
     }
   } else {
@@ -275,8 +364,11 @@ export function openPostForm(existingAnnouncement = null) {
     if (paHolidayRangeType) paHolidayRangeType.value = 'single';
     if (paHolidayEndDateContainer) paHolidayEndDateContainer.style.display = 'none';
 
+    setClassMode('online');
     if (paOnlineDate) { paOnlineDate.value = todayStr; paOnlineDate.min = todayStr; }
     if (paOnlineLink) paOnlineLink.value = '';
+    const paOnlineRoom = document.getElementById('paOnlineRoom');
+    if (paOnlineRoom) paOnlineRoom.value = '';
     if (paOnlineStart) paOnlineStart.value = '09:45';
 
     if (paClassTestDate) { paClassTestDate.value = todayStr; paClassTestDate.min = todayStr; }
@@ -307,15 +399,23 @@ export function initPostForm() {
   const paTitle = document.getElementById('paTitle');
   const paHolidayDetails = document.getElementById('paHolidayDetails');
   const paOnlineLink = document.getElementById('paOnlineLink');
+  const paOnlineRoom = document.getElementById('paOnlineRoom');
   const paClassTestName = document.getElementById('paClassTestName');
   const paClassTestTopics = document.getElementById('paClassTestTopics');
   const paContent = document.getElementById('paContent');
+
+  // Mode Toggle Buttons
+  const modeOnlineBtn = document.getElementById('paModeOnlineBtn');
+  const modeOfflineBtn = document.getElementById('paModeOfflineBtn');
+  if (modeOnlineBtn) modeOnlineBtn.addEventListener('click', () => setClassMode('online'));
+  if (modeOfflineBtn) modeOfflineBtn.addEventListener('click', () => setClassMode('offline'));
 
   // Bind real-time character counters
   setupCharCounter(paName, document.getElementById('paNameCounter'), ANNOUNCEMENT_LIMITS.AUTHOR_NAME);
   setupCharCounter(paTitle, document.getElementById('paTitleCounter'), ANNOUNCEMENT_LIMITS.TITLE);
   setupCharCounter(paHolidayDetails, document.getElementById('paHolidayDetailsCounter'), ANNOUNCEMENT_LIMITS.HOLIDAY_NAME);
   setupCharCounter(paOnlineLink, document.getElementById('paOnlineLinkCounter'), ANNOUNCEMENT_LIMITS.PLATFORM_LINK);
+  setupCharCounter(paOnlineRoom, document.getElementById('paOnlineRoomCounter'), 20);
   setupCharCounter(paClassTestName, document.getElementById('paClassTestNameCounter'), ANNOUNCEMENT_LIMITS.EXAM_NAME);
   setupCharCounter(paClassTestTopics, document.getElementById('paClassTestTopicsCounter'), ANNOUNCEMENT_LIMITS.TOPICS);
 
@@ -692,18 +792,20 @@ export function initPostForm() {
       } else if (type === 'online_class') {
         const subject = document.getElementById('paOnlineSubjectSelect')?.value;
         const date = document.getElementById('paOnlineDate')?.value;
-        const platform = document.getElementById('paOnlineLink')?.value || '';
-        const startTime = document.getElementById('paOnlineStart')?.value;
+        const isOnline = _currentClassMode === 'online';
+        const platform = isOnline ? (document.getElementById('paOnlineLink')?.value || '') : '';
+        const room = !isOnline ? (document.getElementById('paOnlineRoom')?.value || '') : '';
+        const startTime = document.getElementById('paOnlineStart')?.value || '09:45';
 
         if (!subject || !date || !startTime) {
-          showToast('Please select Subject, Date, and Class Time.', 'warning');
+          showToast('Please select Subject, Date, and Start Time.', 'warning');
           submitBtn.disabled = false;
           submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
           return;
         }
 
         if (!isEdit && date < todayStr) {
-          showToast('Cannot schedule online classes for past dates.', 'warning');
+          showToast('Cannot schedule classes for past dates.', 'warning');
           submitBtn.disabled = false;
           submitBtn.textContent = 'Publish & Notify';
           return;
@@ -713,9 +815,12 @@ export function initPostForm() {
 
         const validation = validateAnnouncementPayload({
           name,
-          title: `${subject} Session`,
+          title: !isOnline ? `${subject} Extra Class` : `${subject} Online Class`,
           platform,
+          room,
           start_time: formattedStart,
+          is_extra_class: true,
+          is_online: isOnline,
           type: 'online_class',
           date_override: date,
           subject_override: subject
@@ -791,6 +896,108 @@ export function initPostForm() {
         } else {
           success = await Announcements.publish(s.name, s.title, s.announcement, password, {
             type: 'class_test',
+            date_override: s.date_override,
+            subject_override: s.subject_override
+          });
+        }
+
+      } else if (type === 'rescheduled') {
+        const subject = document.getElementById('paRescheduleSubjectSelect')?.value;
+        const date = document.getElementById('paRescheduleDate')?.value;
+        const newStart = document.getElementById('paRescheduleNewStart')?.value;
+        const newEnd = document.getElementById('paRescheduleNewEnd')?.value;
+        const newRoom = document.getElementById('paRescheduleNewRoom')?.value || '';
+        const reason = document.getElementById('paRescheduleReason')?.value || '';
+
+        if (!subject || !date || !newStart || !newEnd) {
+          showToast('Please select Subject, Date, New Start Time, and New End Time.', 'warning');
+          submitBtn.disabled = false;
+          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
+          return;
+        }
+
+        const formattedStart = format12h(newStart);
+        const formattedEnd = format12h(newEnd);
+
+        const validation = validateAnnouncementPayload({
+          name,
+          title: `Rescheduled: ${subject}`,
+          type: 'rescheduled',
+          date_override: date,
+          subject_override: subject,
+          new_start_time: formattedStart,
+          new_end_time: formattedEnd,
+          new_room: newRoom,
+          reason
+        });
+
+        if (!validation.valid) {
+          showToast(validation.error, 'warning');
+          submitBtn.disabled = false;
+          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
+          return;
+        }
+
+        const s = validation.sanitized;
+        if (isEdit) {
+          success = await Announcements.update(editId, s.name, s.title, s.announcement, password, {
+            type: 'rescheduled',
+            date_override: s.date_override,
+            subject_override: s.subject_override,
+            is_pinned: _editIsPinned
+          });
+        } else {
+          success = await Announcements.publish(s.name, s.title, s.announcement, password, {
+            type: 'rescheduled',
+            date_override: s.date_override,
+            subject_override: s.subject_override
+          });
+        }
+
+      } else if (type === 'assignment') {
+        const date = document.getElementById('paAssignmentDueDate')?.value;
+        const subject = document.getElementById('paAssignmentSubject')?.value || '';
+        const taskTitle = document.getElementById('paAssignmentTitle')?.value || 'Assignment';
+        const dueTime = document.getElementById('paAssignmentDueTime')?.value || '23:59';
+        const desc = document.getElementById('paAssignmentDescription')?.value || '';
+
+        if (!date || !subject || !taskTitle) {
+          showToast('Please enter Due Date, Subject, and Task Title.', 'warning');
+          submitBtn.disabled = false;
+          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
+          return;
+        }
+
+        const formattedDueTime = format12h(dueTime);
+
+        const validation = validateAnnouncementPayload({
+          name,
+          type: 'assignment',
+          date_override: date,
+          subject_override: subject,
+          task_title: taskTitle,
+          due_time: formattedDueTime,
+          description: desc
+        });
+
+        if (!validation.valid) {
+          showToast(validation.error, 'warning');
+          submitBtn.disabled = false;
+          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
+          return;
+        }
+
+        const s = validation.sanitized;
+        if (isEdit) {
+          success = await Announcements.update(editId, s.name, s.title, s.announcement, password, {
+            type: 'assignment',
+            date_override: s.date_override,
+            subject_override: s.subject_override,
+            is_pinned: _editIsPinned
+          });
+        } else {
+          success = await Announcements.publish(s.name, s.title, s.announcement, password, {
+            type: 'assignment',
             date_override: s.date_override,
             subject_override: s.subject_override
           });

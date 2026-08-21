@@ -2,7 +2,7 @@ import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
 import { DAY_NAMES, FULL_COURSE_NAMES } from '../core/config.js';
 import { getClassesForDay } from '../schedule/queries.js';
-import { getOverrideFor, getOverridesByDateMap, normalizeDate } from '../announcements/overrides.js';
+import { getOverrideFor, getOverridesByDateMap, normalizeDate, getDateForDayIndex, getExtraClassesForDate, getDeadlinesForDate } from '../announcements/overrides.js';
 import { toMinutes, format12h, toTimeString, getCurrentMinutes, escapeHtml, formatRoom } from '../core/utils.js';
 import { getFullName } from '../teachers/teacher-names.js';
 
@@ -111,6 +111,10 @@ window.__switchTimelineDay = function(dayIdx, timestamp) {
 
 export function renderTimeline(force = false) {
   window.renderTimeline = renderTimeline;
+  if (!DOM.timelineGrid) DOM.timelineGrid = document.getElementById('chG');
+  if (!DOM.timelineTitle) DOM.timelineTitle = document.getElementById('timelineTitle');
+  if (!DOM.timelineSubtitle) DOM.timelineSubtitle = document.getElementById('timelineSubtitle');
+
   renderWeekStrip();
 
   const classes = getClassesForDay(State.currentViewDayIdx);
@@ -154,7 +158,121 @@ export function renderTimeline(force = false) {
     }
   }
 
-  if (!classes.length) {
+  // Process extra classes, rescheduled classes, and deadlines for the current view day
+  const extraClassesList = getExtraClassesForDate(State.currentViewDayIdx);
+  const deadlinesList = getDeadlinesForDate(State.currentViewDayIdx);
+
+  // Clone classes array to avoid mutating global schedule
+  let allScheduleClasses = classes.map(c => ({ ...c }));
+
+  // Inject net-new extra classes
+  extraClassesList.forEach(item => {
+    let parsed = {};
+    try { parsed = JSON.parse(item.announcement); } catch (e) {}
+    const subj = item.subject_override || item.subject || 'Extra Class';
+    const startStr = parsed.start_time || '09:45 AM';
+    const endStr = parsed.end_time || '11:00 AM';
+    const isOnline = (parsed.is_online === false || /extra class/i.test(item.title || '')) 
+      ? false 
+      : (parsed.is_online !== undefined ? Boolean(parsed.is_online) : true);
+    const room = parsed.room || (isOnline ? 'Online' : 'TBA');
+    const teacher = parsed.teacher || item.name || '';
+    allScheduleClasses.push({
+      start: startStr,
+      end: endStr,
+      startM: toMinutes(startStr),
+      endM: toMinutes(endStr),
+      subject: subj,
+      title: subj,
+      room: room,
+      teacher: teacher,
+      instructor: teacher,
+      type: 'Theory',
+      isExtraClass: true,
+      isOnline: isOnline,
+      platform: parsed.platform || ''
+    });
+  });
+
+  // Process rescheduled classes & create ghost strips for original time slots
+  const ghostStrips = [];
+  if (State.announcementsList && State.announcementsList.length > 0) {
+    const targetDateStr = getDateForDayIndex(State.currentViewDayIdx);
+    State.announcementsList.forEach(item => {
+      if (item.type !== 'rescheduled') return;
+      if (normalizeDate(item.date_override) !== targetDateStr) return;
+
+      let parsed = {};
+      try { parsed = JSON.parse(item.announcement); } catch (e) {}
+      const targetSubj = (item.subject_override || item.subject || '').toUpperCase().trim();
+      const targetClass = allScheduleClasses.find(c => (c.title || '').toUpperCase().trim() === targetSubj);
+
+      if (targetClass) {
+        // Record ghost strip at original time
+        ghostStrips.push({
+          type: 'ghost_strip',
+          subject: targetClass.title,
+          origStart: targetClass.start,
+          sortM: toMinutes(targetClass.start),
+          newStart: parsed.new_start_time || '3:00 PM'
+        });
+
+        // Update class to new time & room
+        if (parsed.new_start_time) {
+          targetClass.start = parsed.new_start_time;
+          targetClass.startM = toMinutes(parsed.new_start_time);
+        }
+        if (parsed.new_end_time) {
+          targetClass.end = parsed.new_end_time;
+          targetClass.endM = toMinutes(parsed.new_end_time);
+        }
+        if (parsed.new_room) {
+          targetClass.room = parsed.new_room;
+        }
+        targetClass.isRescheduled = true;
+        targetClass.rescheduledReason = parsed.reason || '';
+      }
+    });
+  }
+
+  // Build items array to render chronologically
+  const renderItems = [];
+
+  allScheduleClasses.forEach(c => {
+    renderItems.push({
+      kind: 'class',
+      sortM: toMinutes(c.start),
+      data: c
+    });
+  });
+
+  ghostStrips.forEach(g => {
+    renderItems.push({
+      kind: 'ghost_strip',
+      sortM: g.sortM,
+      data: g
+    });
+  });
+
+  deadlinesList.forEach(d => {
+    let parsed = {};
+    try { parsed = JSON.parse(d.announcement); } catch (e) {}
+    renderItems.push({
+      kind: 'deadline',
+      sortM: toMinutes(parsed.due_time || '23:59'),
+      data: {
+        subject: d.subject_override || d.subject || parsed.subject || 'Assignment',
+        taskTitle: parsed.task_title || 'Assignment',
+        dueTime: parsed.due_time || '11:59 PM',
+        description: parsed.description || d.announcement || ''
+      }
+    });
+  });
+
+  // Sort all items chronologically
+  renderItems.sort((a, b) => a.sortM - b.sortM);
+
+  if (!renderItems.length) {
     if (DOM.timelineGrid) {
       DOM.timelineGrid.innerHTML = `
         <div class="off-day-card">
@@ -170,7 +288,36 @@ export function renderTimeline(force = false) {
   let html = '';
   let lastEndMins = null;
 
-  classes.forEach((c) => {
+  renderItems.forEach((item) => {
+    if (item.kind === 'ghost_strip') {
+      const g = item.data;
+      html += `
+        <div class="timeline-ghost-strip">
+          <div class="timeline-ghost-content">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>${escapeHtml(g.subject)} Class Rescheduled</span>
+          </div>
+          <span class="timeline-ghost-badge">Moved to ${escapeHtml(g.newStart)}</span>
+        </div>
+      `;
+      return;
+    }
+
+    if (item.kind === 'deadline') {
+      const d = item.data;
+      html += `
+        <div class="timeline-deadline-banner">
+          <div class="timeline-deadline-left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+            <span>${escapeHtml(d.taskTitle)}: ${escapeHtml(d.subject)}</span>
+          </div>
+          <span class="timeline-deadline-time">Due ${escapeHtml(d.dueTime)}</span>
+        </div>
+      `;
+      return;
+    }
+
+    const c = item.data;
     const startMins = toMinutes(c.start);
     const endMins = toMinutes(c.end);
     const durationMins = endMins - startMins;
@@ -180,7 +327,8 @@ export function renderTimeline(force = false) {
     const fullTiming = `${format12h(c.start)} – ${format12h(c.end)}`;
     const isLab = (c.type || '').toLowerCase() === 'lab';
 
-    // Insert break card between non-contiguous classes
+    // Insert break card between non-contiguous classes (only when startMins > lastEndMins)
+    const isOverlap = lastEndMins !== null && startMins < lastEndMins;
     if (lastEndMins !== null && startMins > lastEndMins) {
       const breakDuration = startMins - lastEndMins;
       const breakTiming = `${format12h(toTimeString(lastEndMins))} – ${format12h(toTimeString(startMins))}`;
@@ -194,19 +342,23 @@ export function renderTimeline(force = false) {
         </div>
       `;
     }
-    lastEndMins = endMins;
+    if (lastEndMins === null || endMins > lastEndMins) {
+      lastEndMins = endMins;
+    }
 
     // Check cancellation & active states
     const cancelOverride = getOverrideFor(State.currentViewDayIdx, c.title);
     const isCancelled = cancelOverride && cancelOverride.type === 'cancellation';
-    const isOnline = cancelOverride && cancelOverride.type === 'online_class';
+    const isOnline = c.isExtraClass
+      ? Boolean(c.isOnline)
+      : (Boolean(c.isOnline) || (cancelOverride && cancelOverride.type === 'online_class'));
     const isClassTest = Boolean(c.isExam) || (cancelOverride && cancelOverride.type === 'class_test');
     const isHolidayCancelled = !isOnline && !isCancelled && holidayOverride && holidayOverride.type === 'holiday';
     const effectiveCancelled = isCancelled || isHolidayCancelled;
 
     let examName = 'Exam';
     let examTopics = '';
-    let onlinePlatform = '';
+    let onlinePlatform = c.platform || '';
     let cancelReason = '';
 
     if (cancelOverride && cancelOverride.announcement) {
@@ -223,9 +375,9 @@ export function renderTimeline(force = false) {
       } else if (isOnline) {
         try {
           const parsed = JSON.parse(ann.announcement);
-          onlinePlatform = parsed.platform || '';
+          onlinePlatform = parsed.platform || onlinePlatform;
         } catch (e) {
-          onlinePlatform = ann.announcement || '';
+          onlinePlatform = ann.announcement || onlinePlatform;
         }
       } else if (isCancelled) {
         cancelReason = ann.announcement || 'Class cancelled for this date';
@@ -271,10 +423,21 @@ export function renderTimeline(force = false) {
     let tagHtml = `<span class="resting-tag ${isLab ? 'lab' : 'theory'}">${isLab ? '★ LAB' : 'THEORY'}</span>`;
     let subMetaHtml = '';
 
-    if (isClassTest) {
+    if (c.isRescheduled) {
+      cardModifierClass = 'is-rescheduled-override';
+      tagHtml = `<span class="resting-tag rescheduled">RESCHEDULED</span>`;
+    } else if (c.isExtraClass) {
+      if (isOnline) {
+        cardModifierClass = 'is-online-override';
+        tagHtml = `<span class="resting-tag online">ONLINE</span>`;
+      } else {
+        cardModifierClass = '';
+        tagHtml = `<span class="resting-tag extra">EXTRA</span>`;
+      }
+    } else if (isClassTest) {
       cardModifierClass = 'is-exam-override';
       titleHtml = `${escapeHtml(c.title)} <span class="override-indicator exam">(EXAM)</span>`;
-      tagHtml = `<span class="resting-tag exam">📝 ${escapeHtml(examName.toUpperCase())}</span>`;
+      tagHtml = `<span class="resting-tag exam">${escapeHtml(examName.toUpperCase())}</span>`;
       if (examTopics) {
         subMetaHtml = `
           <div class="meta-line-item exam-topics">
@@ -286,7 +449,6 @@ export function renderTimeline(force = false) {
     } else if (isOnline) {
       cardModifierClass = 'is-online-override';
       tagHtml = `<span class="resting-tag online">ONLINE</span>`;
- 
     } else if (effectiveCancelled) {
       cardModifierClass = 'is-cancelled-override';
     }
@@ -319,7 +481,7 @@ export function renderTimeline(force = false) {
                 </div>
                 <div class="meta-line-item instructor">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  <span>${escapeHtml(teacherCode || 'TBA')}</span>
+                  <span>${escapeHtml(teacherFullName)}</span>
                 </div>
                 ${subMetaHtml}
               </div>
@@ -333,16 +495,11 @@ export function renderTimeline(force = false) {
         </div>
       `;
     } else {
-      // 2. Solid Resting Card with Dotted Time Connector
+      // 2. Resting Class Row
       html += `
-        <div class="resting-class-row ${isPast ? 'is-finished' : ''} ${cardModifierClass}" onclick='window.openClassDetailSheet(${detailsJson})'>
+        <div class="resting-class-row ${cardModifierClass} ${effectiveCancelled ? 'cancelled' : ''}" onclick='window.openClassDetailSheet(${detailsJson})'>
           <div class="resting-left">
             <div class="resting-time-col">
-              <div class="time-connector-track">
-                <span class="time-node-dot start"></span>
-                <span class="time-connector-line"></span>
-                <span class="time-node-dot"></span>
-              </div>
               <span class="resting-time-start">${format12h(c.start)}</span>
               <span class="resting-time-end">${format12h(c.end)}</span>
             </div>
@@ -358,7 +515,7 @@ export function renderTimeline(force = false) {
                 </div>
                 <div class="meta-line-item instructor">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  <span>${escapeHtml(teacherCode || 'TBA')}</span>
+                  <span>${escapeHtml(teacherFullName)}</span>
                 </div>
                 ${subMetaHtml}
               </div>

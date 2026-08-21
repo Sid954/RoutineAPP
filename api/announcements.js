@@ -105,8 +105,17 @@ function sanitizeAndValidatePayload(body) {
       if (platform.length > LIMITS.PLATFORM_LINK) {
         return { error: `Platform link cannot exceed ${LIMITS.PLATFORM_LINK} characters.` };
       }
+      const isOnline = parsed?.is_online !== undefined ? Boolean(parsed.is_online) : true;
+      const isExtra = parsed?.is_extra_class !== undefined ? Boolean(parsed.is_extra_class) : false;
+      const room = (parsed?.room || '').trim();
+      const teacher = (parsed?.teacher || '').trim();
+
       const obj = {
-        platform,
+        is_extra_class: isExtra,
+        is_online: isOnline,
+        platform: isOnline ? platform : '',
+        room: !isOnline ? room : '',
+        teacher,
         start_time: (parsed?.start_time || '09:45 AM').trim()
       };
       if (parsed?.end_time && typeof parsed.end_time === 'string' && parsed.end_time.trim()) {
@@ -115,6 +124,32 @@ function sanitizeAndValidatePayload(body) {
       cleanAnnouncement = JSON.stringify(obj);
     } catch (e) {
       return { error: 'Invalid online_class payload structure.' };
+    }
+  } else if (itemType === 'rescheduled') {
+    try {
+      const parsed = typeof announcement === 'string' ? JSON.parse(announcement) : announcement;
+      const obj = {
+        original_start_time: (parsed?.original_start_time || '').trim(),
+        new_start_time: (parsed?.new_start_time || '').trim(),
+        new_end_time: (parsed?.new_end_time || '').trim(),
+        new_room: (parsed?.new_room || '').trim(),
+        reason: collapseNewlines(parsed?.reason || '')
+      };
+      cleanAnnouncement = JSON.stringify(obj);
+    } catch (e) {
+      cleanAnnouncement = collapseNewlines(typeof announcement === 'string' ? announcement : '');
+    }
+  } else if (itemType === 'assignment') {
+    try {
+      const parsed = typeof announcement === 'string' ? JSON.parse(announcement) : announcement;
+      const obj = {
+        task_title: (parsed?.task_title || '').trim(),
+        due_time: (parsed?.due_time || '').trim(),
+        description: collapseNewlines(parsed?.description || '')
+      };
+      cleanAnnouncement = JSON.stringify(obj);
+    } catch (e) {
+      cleanAnnouncement = collapseNewlines(typeof announcement === 'string' ? announcement : '');
     }
   } else {
     cleanAnnouncement = collapseNewlines(typeof announcement === 'string' ? announcement : '');

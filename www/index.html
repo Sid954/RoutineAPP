@@ -352,8 +352,10 @@
                         <option value="general">General</option>
                         <option value="cancellation">Class Cancellation</option>
                         <option value="holiday">Holiday</option>
-                        <option value="online_class">Online Class</option>
+                        <option value="online_class">Add a Class</option>
                         <option value="class_test">Class Test / Exam</option>
+                        <option value="rescheduled">Rescheduled Class</option>
+                        <option value="assignment">Assignment / Deadline</option>
                       </select>
 
                       <button type="button" class="pa-type-picker-btn" id="paTypePickerBtn" aria-expanded="false" aria-haspopup="listbox">
@@ -368,7 +370,7 @@
                         </div>
                       </button>
 
-                      <!-- Popover Menu with all 5 types -->
+                      <!-- Popover Menu with all 7 types -->
                       <div class="pa-type-dropdown-menu" id="paTypeDropdownMenu" style="display: none;">
                         <div class="pa-type-option-item active" data-type="general">
                           <div class="pa-type-option-pill general">
@@ -394,9 +396,9 @@
                         <div class="pa-type-option-item" data-type="online_class">
                           <div class="pa-type-option-pill online_class">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
-                            <span>Online</span>
+                            <span>Add a Class</span>
                           </div>
-                          <span class="pa-type-option-desc">Online class link & times</span>
+                          <span class="pa-type-option-desc">Schedule extra or online class</span>
                         </div>
                         <div class="pa-type-option-item" data-type="class_test">
                           <div class="pa-type-option-pill class_test">
@@ -404,6 +406,20 @@
                             <span>Class Test</span>
                           </div>
                           <span class="pa-type-option-desc">Exam, CT or quiz syllabus</span>
+                        </div>
+                        <div class="pa-type-option-item" data-type="rescheduled">
+                          <div class="pa-type-option-pill rescheduled">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span>Rescheduled</span>
+                          </div>
+                          <span class="pa-type-option-desc">Move class to new time</span>
+                        </div>
+                        <div class="pa-type-option-item" data-type="assignment">
+                          <div class="pa-type-option-pill assignment">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                            <span>Assignment</span>
+                          </div>
+                          <span class="pa-type-option-desc">Task or project due date</span>
                         </div>
                       </div>
                     </div>
@@ -502,15 +518,25 @@
                   </div>
                 </div>
 
-                <!-- Sub-Section: Online Class -->
+                <!-- Sub-Section: Add a Class (Online / Offline) -->
                 <div id="paOnlineSection" class="post-form-subpanel" style="display: none;">
-                  <div class="post-form-banner info" style="margin-bottom: 12px;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                    <span>This class will run <strong>online</strong> even during declared holidays.</span>
+                  <!-- Prominent Mode Toggle: Online vs In-Person -->
+                  <div class="pa-mode-toggle-wrap" style="margin-bottom: 14px;">
+                    <div class="pa-mode-toggle" id="paClassModeToggle">
+                      <button type="button" class="pa-mode-toggle-btn active" data-mode="online" id="paModeOnlineBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
+                        <span>Online</span>
+                      </button>
+                      <button type="button" class="pa-mode-toggle-btn" data-mode="offline" id="paModeOfflineBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        <span>In-Person (Offline)</span>
+                      </button>
+                    </div>
                   </div>
+
                   <div class="post-form-row">
                     <div class="post-form-group">
-                      <label>Date</label>
+                      <label>Class Date</label>
                       <input type="date" id="paOnlineDate" />
                     </div>
                     <div class="post-form-group">
@@ -518,16 +544,29 @@
                       <select id="paOnlineSubjectSelect" class="clean-select"></select>
                     </div>
                   </div>
-                  <div class="post-form-group" style="margin-top: 10px;">
-                    <label>Class Time / Start Time</label>
-                    <input type="time" id="paOnlineStart" value="09:45" />
+                  <div class="post-form-row" style="margin-top: 10px;">
+                    <div class="post-form-group" style="flex: 1;">
+                      <label>Start Time</label>
+                      <input type="time" id="paOnlineStart" value="09:45" />
+                    </div>
                   </div>
-                  <div class="post-form-group" style="margin-top: 10px;">
+
+                  <!-- Dynamic Field for Online Mode -->
+                  <div class="post-form-group" id="paOnlinePlatformContainer" style="margin-top: 10px;">
                     <label>
-                      <span>Platform / Join Link (Optional)</span>
+                      <span>Platform / Join Link</span>
                       <span class="char-counter" id="paOnlineLinkCounter">0/100</span>
                     </label>
-                    <input type="text" id="paOnlineLink" placeholder="e.g. Google Meet link, Zoom URL, etc." maxlength="100" />
+                    <input type="text" id="paOnlineLink" placeholder="e.g. Google Meet URL or Zoom link" maxlength="100" />
+                  </div>
+
+                  <!-- Dynamic Field for Offline Mode -->
+                  <div class="post-form-group" id="paOfflineRoomContainer" style="margin-top: 10px; display: none;">
+                    <label>
+                      <span>Room Number (Optional)</span>
+                      <span class="char-counter" id="paOnlineRoomCounter">0/20</span>
+                    </label>
+                    <input type="text" id="paOnlineRoom" placeholder="e.g. Room 404 (Optional)" maxlength="20" />
                   </div>
                 </div>
 
@@ -563,6 +602,78 @@
                       <span class="char-counter" id="paClassTestTopicsCounter">0/50</span>
                     </label>
                     <textarea id="paClassTestTopics" placeholder="e.g. Chapter 1-3, Clipper & Clamper, Diode Models..." maxlength="50"></textarea>
+                  </div>
+                </div>
+
+                <!-- Sub-Section: Rescheduled Class -->
+                <div id="paRescheduledSection" class="post-form-subpanel" style="display: none;">
+                  <div class="post-form-banner warning" style="margin-bottom: 12px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span>Moves a class to a different time slot on the same day. Leaves a ghost banner at the original time.</span>
+                  </div>
+                  <div class="post-form-row">
+                    <div class="post-form-group">
+                      <label>Date</label>
+                      <input type="date" id="paRescheduleDate" />
+                    </div>
+                    <div class="post-form-group">
+                      <label>Class to Reschedule</label>
+                      <select id="paRescheduleSubjectSelect" class="clean-select"><option value="">Select a date first</option></select>
+                    </div>
+                  </div>
+                  <div class="post-form-row" style="margin-top: 10px;">
+                    <div class="post-form-group">
+                      <label>New Start Time</label>
+                      <input type="time" id="paRescheduleNewStart" value="15:00" />
+                    </div>
+                    <div class="post-form-group">
+                      <label>New End Time</label>
+                      <input type="time" id="paRescheduleNewEnd" value="16:15" />
+                    </div>
+                  </div>
+                  <div id="paRescheduleOverlapWarning" class="post-form-banner warning" style="display: none; margin-top: 10px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span id="paRescheduleOverlapWarningText">Warning: Time slot overlaps with an existing class.</span>
+                  </div>
+                  <div class="post-form-group" style="margin-top: 10px;">
+                    <label>New Room (Optional)</label>
+                    <input type="text" id="paRescheduleNewRoom" placeholder="e.g. 502 (Leave blank for same room)" />
+                  </div>
+                  <div class="post-form-group" style="margin-top: 10px;">
+                    <label>Reason / Instructions (Optional)</label>
+                    <textarea id="paRescheduleReason" placeholder="e.g. Moving to afternoon slot due to lab maintenance"></textarea>
+                  </div>
+                </div>
+
+                <!-- Sub-Section: Assignment / Deadline -->
+                <div id="paAssignmentSection" class="post-form-subpanel" style="display: none;">
+                  <div class="post-form-banner info" style="margin-bottom: 12px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                    <span>Displays an inline deadline reminder banner on the timeline for that date.</span>
+                  </div>
+                  <div class="post-form-row">
+                    <div class="post-form-group">
+                      <label>Due Date</label>
+                      <input type="date" id="paAssignmentDueDate" />
+                    </div>
+                    <div class="post-form-group">
+                      <label>Course / Subject</label>
+                      <input type="text" id="paAssignmentSubject" placeholder="e.g. ICMP" />
+                    </div>
+                  </div>
+                  <div class="post-form-row" style="margin-top: 10px;">
+                    <div class="post-form-group">
+                      <label>Task Title</label>
+                      <input type="text" id="paAssignmentTitle" placeholder="e.g. Lab Report #3" />
+                    </div>
+                    <div class="post-form-group">
+                      <label>Due Time</label>
+                      <input type="time" id="paAssignmentDueTime" value="23:59" />
+                    </div>
+                  </div>
+                  <div class="post-form-group" style="margin-top: 10px;">
+                    <label>Notes / Submission Info (Optional)</label>
+                    <textarea id="paAssignmentDescription" placeholder="e.g. Submit PDF file to Google Classroom before midnight"></textarea>
                   </div>
                 </div>
 

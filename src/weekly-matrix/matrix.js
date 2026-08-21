@@ -203,12 +203,25 @@ export function renderWeeklyMatrix() {
         const isLive = (State.matrixSelectedDayIdx === todayIdx) && (currentMins >= startMins && currentMins < endMins) && !effectiveCancelled;
         const isPast = (State.matrixSelectedDayIdx === todayIdx) && (endMins <= currentMins) || effectiveCancelled;
 
-        const examTheme = { bg: 'linear-gradient(135deg, #2d1506, #3d1f0a)', border: '#f97316', text: '#fdba74', badge: 'rgba(249, 115, 22, 0.30)' };
+        const isLightMode = document.documentElement.getAttribute('data-color') === 'light';
+
+        const examTheme = isLightMode
+          ? { bg: 'linear-gradient(135deg, #FFF7ED, #FED7AA)', border: '#EA580C', text: '#7C2D12', badge: 'rgba(234, 88, 12, 0.20)' }
+          : { bg: 'linear-gradient(135deg, #2d1506, #3d1f0a)', border: '#f97316', text: '#fdba74', badge: 'rgba(249, 115, 22, 0.30)' };
+
+        const onlineTheme = isLightMode
+          ? { bg: 'linear-gradient(135deg, #ECFDF5, #A7F3D0)', border: '#059669', text: '#064E3B', badge: 'rgba(5, 150, 105, 0.20)' }
+          : { bg: 'linear-gradient(135deg, #052b1a, #073d26)', border: '#10b981', text: '#6ee7b7', badge: 'rgba(16, 185, 129, 0.25)' };
+
+        const cancelTheme = isLightMode
+          ? { bg: 'linear-gradient(135deg, #FFF1F2, #FECDD3)', border: '#E11D48', text: '#4C0519', badge: 'rgba(225, 29, 72, 0.20)' }
+          : { bg: 'linear-gradient(135deg, #1c0a0c, #3f0f13)', border: '#f43f5e', text: '#fca5a5', badge: 'rgba(244, 63, 94, 0.20)' };
+
         const theme = isClassTest ? examTheme
           : isOnline
-          ? { bg: 'linear-gradient(135deg, #052b1a, #073d26)', border: '#10b981', text: '#6ee7b7', badge: 'rgba(16, 185, 129, 0.25)' }
+          ? onlineTheme
           : effectiveCancelled
-            ? { bg: 'linear-gradient(135deg, #1c0a0c, #3f0f13)', border: '#f43f5e', text: '#fca5a5', badge: 'rgba(244, 63, 94, 0.2)' }
+            ? cancelTheme
             : getSubjectTheme(item.title, item.type);
 
         const detailsData = {
@@ -323,12 +336,25 @@ export function renderWeeklyMatrix() {
           const effectiveCancelled = isCancelled || isHolidayCancelled;
           const isLive = isToday && currentMins >= toMinutes(match.start) && currentMins < toMinutes(match.end) && !effectiveCancelled;
 
-          const examTheme = { bg: 'linear-gradient(135deg, #2d1506, #3d1f0a)', border: '#f97316', text: '#fdba74', badge: 'rgba(249, 115, 22, 0.30)' };
+          const isLightMode = document.documentElement.getAttribute('data-color') === 'light';
+
+          const examTheme = isLightMode
+            ? { bg: 'linear-gradient(135deg, #FFF7ED, #FED7AA)', border: '#EA580C', text: '#7C2D12', badge: 'rgba(234, 88, 12, 0.20)' }
+            : { bg: 'linear-gradient(135deg, #2d1506, #3d1f0a)', border: '#f97316', text: '#fdba74', badge: 'rgba(249, 115, 22, 0.30)' };
+
+          const onlineTheme = isLightMode
+            ? { bg: 'linear-gradient(135deg, #ECFDF5, #A7F3D0)', border: '#059669', text: '#064E3B', badge: 'rgba(5, 150, 105, 0.20)' }
+            : { bg: 'linear-gradient(135deg, #052b1a, #073d26)', border: '#10b981', text: '#6ee7b7', badge: 'rgba(16, 185, 129, 0.25)' }
+
+          const cancelTheme = isLightMode
+            ? { bg: 'linear-gradient(135deg, #FFF1F2, #FECDD3)', border: '#E11D48', text: '#4C0519', badge: 'rgba(225, 29, 72, 0.20)' }
+            : { bg: 'linear-gradient(135deg, #1c0a0c, #3f0f13)', border: '#f43f5e', text: '#fca5a5', badge: 'rgba(244, 63, 94, 0.20)' };
+
           const theme = isClassTest ? examTheme
             : isOnline
-            ? { bg: 'linear-gradient(135deg, #052b1a, #073d26)', border: '#10b981', text: '#6ee7b7', badge: 'rgba(16, 185, 129, 0.25)' }
+            ? onlineTheme
             : effectiveCancelled
-              ? { bg: 'linear-gradient(135deg, #1c0a0c, #3f0f13)', border: '#f43f5e', text: '#fca5a5', badge: 'rgba(244, 63, 94, 0.2)' }
+              ? cancelTheme
               : getSubjectTheme(match.title, match.type);
 
           let examName = match.examName || '';

@@ -15,3 +15,7 @@ export const State = {
   deferredInstallPrompt: null,
   resizeTimer: null,
 };
+if (typeof window !== 'undefined') {
+  window.State = State;
+}
+

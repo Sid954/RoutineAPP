@@ -2,7 +2,7 @@ import { Storage } from '../storage/storage.js';
 
 export const THEME_COLORS = {
   dark:  { name: 'Dark Mode',  desc: 'Refined Charcoal & Luminescent Sky', bg: '#18191E', card: '#23252C', accent: '#38BDF8', icon: '🌙' },
-  light: { name: 'Light Mode', desc: 'Alabaster Ivory & Cobalt Ultramarine', bg: '#F4F6F9', card: '#FFFFFF', accent: '#2563EB', icon: '☀️' },
+  light: { name: 'Light Mode', desc: 'Warm Cream Linen & Cobalt Ultramarine', bg: '#F7F4EB', card: '#FFFFFF', accent: '#2563EB', icon: '☀️' },
 };
 
 export const THEME_STYLES = {

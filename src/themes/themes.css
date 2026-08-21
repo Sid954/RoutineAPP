@@ -74,15 +74,15 @@ body {
 /* 2. Light Mode: Alabaster Ivory & Cobalt Ultramarine */
 html[data-theme="light"],
 :root[data-color="light"] {
-  --bg: #F4F6F9;
-  --canvas: #F4F6F9;
-  --card-bg: #FFFFFF;
-  --card-border: rgba(15, 23, 42, 0.09);
-  --card-border-subtle: rgba(15, 23, 42, 0.04);
+  --bg: #F7F4EB;
+  --canvas: #F7F4EB;
+  --card-bg: #FAF7F0;
+  --card-border: rgba(45, 35, 25, 0.09);
+  --card-border-subtle: rgba(45, 35, 25, 0.04);
 
-  --text-main: #0B1220;
-  --text-muted: #64748B;
-  --text-sub: #475569;
+  --text-main: #1C1917;
+  --text-muted: #78716C;
+  --text-sub: #57534E;
 
   --accent: #2563EB;
   --accent-hover: #1D4ED8;
@@ -93,7 +93,7 @@ html[data-theme="light"],
   --warning: #F59E0B;
   --danger: #EF4444;
 
-  --chip-bg: #F4F6F9;
+  --chip-bg: #EFEBE0;
 
   --btn-bg: #EFF6FF;
   --btn-border: #DBEAFE;
@@ -101,13 +101,13 @@ html[data-theme="light"],
 
   --live-card-bg: #FFFFFF;
   --live-card-border: #2563EB;
-  --live-card-shadow: 0 2px 6px rgba(37, 99, 235, 0.08), 0 8px 24px rgba(15, 23, 42, 0.09);
-  --live-ring-track: #E2E8F0;
+  --live-card-shadow: 0 2px 6px rgba(37, 99, 235, 0.08), 0 8px 24px rgba(45, 35, 25, 0.09);
+  --live-ring-track: #E7E2D6;
   --live-ring-fill: #2563EB;
 
-  --resting-card-bg: #FFFFFF;
-  --resting-card-border: rgba(15, 23, 42, 0.08);
-  --resting-card-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.05);
+  --resting-card-bg: #FAF7F0;
+  --resting-card-border: rgba(45, 35, 25, 0.08);
+  --resting-card-shadow: 0 1px 3px rgba(45, 35, 25, 0.06), 0 4px 12px rgba(45, 35, 25, 0.05);
 
   --tag-theory-bg: #EFF6FF;
   --tag-theory-text: #1D4ED8;
@@ -116,9 +116,9 @@ html[data-theme="light"],
   --tag-lab-text: #7E22CE;
   --tag-lab-border: #F3E8FF;
 
-  --sh-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.05);
-  --sh-dock: 0 -2px 8px rgba(15, 23, 42, 0.04), 0 -8px 24px rgba(15, 23, 42, 0.09);
-  --sh-modal: 0 4px 16px rgba(15, 23, 42, 0.08), 0 16px 48px rgba(15, 23, 42, 0.16);
+  --sh-card: 0 1px 3px rgba(45, 35, 25, 0.06), 0 4px 12px rgba(45, 35, 25, 0.05);
+  --sh-dock: 0 -2px 8px rgba(45, 35, 25, 0.04), 0 -8px 24px rgba(45, 35, 25, 0.09);
+  --sh-modal: 0 4px 16px rgba(45, 35, 25, 0.08), 0 16px 48px rgba(45, 35, 25, 0.16);
 
   /* Legacy mappings */
   --card: var(--card-bg);

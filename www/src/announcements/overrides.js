@@ -74,13 +74,18 @@ export function getOverrideFor(dayOrDate, subjectCode, explicitAnchor) {
     return cleanItem === targetSubj || targetSubj.includes(cleanItem) || cleanItem.includes(targetSubj);
   };
 
-  // 1. Online Class for specific subject (beats holiday for that subject)
+  // 1. Online Class for specific subject (beats holiday for that subject, but only if online)
   if (targetSubj) {
     const onlineClass = State.announcementsList.find(item => {
       if (item.type !== 'online_class') return false;
       const itemDate = normalizeDate(item.date_override);
       const itemSubj = item.subject_override || item.subject || '';
-      return itemDate === targetDateStr && isSubjMatch(itemSubj);
+      if (itemDate !== targetDateStr || !isSubjMatch(itemSubj)) return false;
+
+      let parsed = {};
+      try { parsed = JSON.parse(item.announcement); } catch (e) {}
+      const isOnline = (parsed.is_online === false || /extra class/i.test(item.title || '')) ? false : true;
+      return isOnline;
     });
     if (onlineClass) return { type: 'online_class', announcement: onlineClass };
   }
@@ -115,18 +120,65 @@ export function getOverrideFor(dayOrDate, subjectCode, explicitAnchor) {
     if (cancellation) return { type: 'cancellation', announcement: cancellation };
   }
 
+  // 5. Rescheduled Class for a subject
+  if (targetSubj) {
+    const rescheduled = State.announcementsList.find(item => {
+      if (item.type !== 'rescheduled') return false;
+      const itemDate = normalizeDate(item.date_override);
+      const itemSubj = item.subject_override || item.subject || '';
+      return itemDate === targetDateStr && isSubjMatch(itemSubj);
+    });
+    if (rescheduled) return { type: 'rescheduled', announcement: rescheduled };
+  }
+
   return null;
 }
 
 /**
+ * Returns all net-new extra classes (online or offline) posted for a specific date.
+ */
+export function getExtraClassesForDate(dayOrDate, explicitAnchor) {
+  if (!State.announcementsList || State.announcementsList.length === 0) return [];
+  const targetDateStr = getDateForDayIndex(dayOrDate, explicitAnchor);
+
+  return State.announcementsList.filter(item => {
+    if (item.type !== 'online_class') return false;
+    const itemDate = normalizeDate(item.date_override);
+    if (itemDate !== targetDateStr) return false;
+
+    let parsed = {};
+    if (typeof item.announcement === 'string') {
+      try { parsed = JSON.parse(item.announcement); } catch (e) {}
+    } else if (typeof item.announcement === 'object' && item.announcement !== null) {
+      parsed = item.announcement;
+    }
+    return Boolean(parsed.is_extra_class) || parsed.is_online === false || /extra class/i.test(item.title || '');
+  });
+}
+
+/**
+ * Returns all assignment/deadline reminders for a specific date.
+ */
+export function getDeadlinesForDate(dayOrDate, explicitAnchor) {
+  if (!State.announcementsList || State.announcementsList.length === 0) return [];
+  const targetDateStr = getDateForDayIndex(dayOrDate, explicitAnchor);
+
+  return State.announcementsList.filter(item => {
+    if (item.type !== 'assignment') return false;
+    const itemDate = normalizeDate(item.date_override);
+    return itemDate === targetDateStr;
+  });
+}
+
+/**
  * Pre-builds a Map of YYYY-MM-DD -> { type, count, announcement }
- * with resolved multi-override priority: holiday > cancellation > class_test > online_class.
+ * with resolved multi-override priority: holiday > cancellation > class_test > rescheduled > online_class > assignment.
  */
 export function getOverridesByDateMap() {
   const map = new Map();
   if (!State.announcementsList || State.announcementsList.length === 0) return map;
 
-  const PRIORITY = { holiday: 1, cancellation: 2, class_test: 3, online_class: 4 };
+  const PRIORITY = { holiday: 1, cancellation: 2, class_test: 3, rescheduled: 4, online_class: 5, assignment: 6 };
 
   State.announcementsList.forEach(item => {
     if (!item.date_override) return;

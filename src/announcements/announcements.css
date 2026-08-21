@@ -237,6 +237,24 @@
   border: 1px solid rgba(249, 115, 22, 0.20);
 }
 
+.announce-semantic-pill.rescheduled {
+  background-color: rgba(148, 163, 184, 0.15);
+  color: #94A3B8;
+  border: 1px solid rgba(148, 163, 184, 0.30);
+}
+
+.announce-semantic-pill.assignment {
+  background-color: rgba(168, 85, 247, 0.15);
+  color: #E9D5FF;
+  border: 1px solid rgba(216, 180, 254, 0.30);
+}
+
+.announce-semantic-pill.extra {
+  background-color: rgba(56, 189, 248, 0.12);
+  color: #7DD3FC;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
 /* Light Mode High-Contrast Semantic Type Badges (WCAG AA >= 4.5:1) */
 :root[data-color="light"] .announce-semantic-pill.general,
 html[data-theme="light"] .announce-semantic-pill.general {
@@ -266,11 +284,159 @@ html[data-theme="light"] .announce-semantic-pill.online_class {
   border-color: #A7F3D0;
 }
 
+:root[data-color="light"] .announce-semantic-pill.extra,
+html[data-theme="light"] .announce-semantic-pill.extra {
+  background-color: #F0F9FF;
+  color: #0284C7;
+  border-color: #BAE6FD;
+}
+
 :root[data-color="light"] .announce-semantic-pill.class_test,
 html[data-theme="light"] .announce-semantic-pill.class_test {
   background-color: #FFF7ED;
   color: #C2410C;
   border-color: #FED7AA;
+}
+
+:root[data-color="light"] .announce-semantic-pill.rescheduled,
+html[data-theme="light"] .announce-semantic-pill.rescheduled {
+  background-color: #F1F5F9;
+  color: #1E293B;
+  border-color: #CBD5E1;
+}
+
+:root[data-color="light"] .announce-semantic-pill.assignment,
+html[data-theme="light"] .announce-semantic-pill.assignment {
+  background-color: #F3E8FF;
+  color: #6B21A8;
+  border-color: #E9D5FF;
+}
+
+/* ── Timeline Special Cards (Ghost Strip, Deadline Banner, Overlap Warning) ── */
+.timeline-ghost-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: var(--r-card, 14px);
+  background-color: rgba(148, 163, 184, 0.08);
+  border: 1px dashed rgba(148, 163, 184, 0.30);
+  margin-bottom: 12px;
+}
+
+.timeline-ghost-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted, #94A3B8);
+}
+
+.timeline-ghost-content svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+
+.timeline-ghost-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background-color: rgba(148, 163, 184, 0.15);
+  color: var(--text-main, #F8FAFC);
+}
+
+.timeline-deadline-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: var(--r-card, 14px);
+  background-color: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(216, 180, 254, 0.30);
+  margin-bottom: 12px;
+}
+
+.timeline-deadline-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #E9D5FF;
+}
+
+.timeline-deadline-left svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.2;
+  flex-shrink: 0;
+}
+
+.timeline-deadline-time {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background-color: rgba(168, 85, 247, 0.20);
+  color: #E9D5FF;
+}
+
+.timeline-overlap-warning-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background-color: rgba(245, 158, 11, 0.14);
+  color: #FCD34D;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  margin-top: 4px;
+}
+
+.timeline-overlap-warning-pill svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 2.2;
+}
+
+:root[data-color="light"] .timeline-ghost-strip {
+  background-color: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
+:root[data-color="light"] .timeline-ghost-content {
+  color: #475569;
+}
+
+:root[data-color="light"] .timeline-ghost-badge {
+  background-color: #E2E8F0;
+  color: #1E293B;
+}
+
+:root[data-color="light"] .timeline-deadline-banner {
+  background-color: #F3E8FF;
+  border-color: #E9D5FF;
+}
+
+:root[data-color="light"] .timeline-deadline-left {
+  color: #6B21A8;
+}
+
+:root[data-color="light"] .timeline-deadline-time {
+  background-color: #E9D5FF;
+  color: #581C87;
+}
+
+:root[data-color="light"] .timeline-overlap-warning-pill {
+  background-color: #FFFBEB;
+  color: #B45309;
+  border-color: #FDE68A;
 }
 
 :root[data-color="light"] .announce-date-pill,
@@ -529,11 +695,11 @@ html[data-theme="light"] .announce-date-pill svg {
 
 /* Light mode: fade matches light canvas */
 :root[data-color="light"] .announce-subcard-fade {
-  background: linear-gradient(to bottom, transparent, #F1F5F9);
+  background: linear-gradient(to bottom, transparent, var(--canvas, #F7F4EB));
 }
 
 :root[data-color="light"] .announce-subcard {
-  background-color: #F1F5F9;
+  background-color: var(--canvas, #F7F4EB);
 }
 
 .announce-join-btn {
@@ -1119,6 +1285,59 @@ html[data-theme="light"] .announce-date-pill svg {
   height: clamp(13px, 3.5vw, 15px);
   stroke-width: 2.5;
 }
+
+/* ── Post Form Mode Segmented Toggle (Online vs In-Person) ── */
+.pa-mode-toggle-wrap {
+  width: 100%;
+}
+
+.pa-mode-toggle {
+  display: flex;
+  background-color: var(--canvas, #18191E);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.08));
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.pa-mode-toggle-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted, #94A3B8);
+  font-size: clamp(12.5px, 3.4vw, 14px);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--duration-fast, 0.15s) ease;
+}
+
+.pa-mode-toggle-btn svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.2;
+}
+
+.pa-mode-toggle-btn.active {
+  background-color: var(--card-bg, #23252C);
+  color: var(--form-type-accent, #38BDF8);
+  border-color: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+:root[data-color="light"] .pa-mode-toggle-btn.active,
+html[data-theme="light"] .pa-mode-toggle-btn.active {
+  background-color: #FFFFFF;
+  color: #0284C7;
+  border-color: rgba(2, 132, 199, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
 
 
 

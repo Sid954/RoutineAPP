@@ -928,14 +928,14 @@ html[data-theme="light"] .calendar-day-cell.cal-override-online_class .cal-day-n
 }
 
 .resting-class-row.is-exam-override {
-  border: 1.5px solid #F97316 !important;
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(35, 37, 44, 1) 100%) !important;
-  box-shadow: 0 4px 18px rgba(249, 115, 22, 0.12) !important;
+  border: 1.5px solid #F97316;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(35, 37, 44, 1) 100%);
+  box-shadow: 0 4px 18px rgba(249, 115, 22, 0.12);
 }
 
 .resting-class-row.is-cancelled-override {
   opacity: 0.55;
-  border: 1px dashed rgba(244, 63, 94, 0.4) !important;
+  border: 1px dashed rgba(244, 63, 94, 0.4);
 }
 
 .resting-class-row.is-cancelled-override .resting-code {
@@ -944,9 +944,28 @@ html[data-theme="light"] .calendar-day-cell.cal-override-online_class .cal-day-n
 }
 
 .resting-class-row.is-online-override {
-  border: 1.5px solid #10B981 !important;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(35, 37, 44, 1) 100%) !important;
-  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.12) !important;
+  border: 1.5px solid #10B981;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(35, 37, 44, 1) 100%);
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.12);
+}
+
+/* Light Mode Recalibrated Gradients & Card Highlighting */
+:root[data-color="light"] .resting-class-row.is-online-override {
+  background: linear-gradient(135deg, #ECFDF5 0%, #FFFFFF 100%);
+  border-color: #059669;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.10), 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+:root[data-color="light"] .resting-class-row.is-exam-override {
+  background: linear-gradient(135deg, #FFF7ED 0%, #FFFFFF 100%);
+  border-color: #EA580C;
+  box-shadow: 0 2px 6px rgba(249, 115, 22, 0.10), 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+:root[data-color="light"] .resting-class-row.is-live-card {
+  background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 100%) !important;
+  border-color: #2563EB !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.12), 0 8px 22px rgba(15, 23, 42, 0.08);
 }
 
 .override-indicator {
