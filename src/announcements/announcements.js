@@ -2,7 +2,7 @@ import { CONFIG } from "../core/config.js";
 import { State } from "../core/state.js";
 import { Storage } from "../storage/storage.js";
 import { showToast } from "../toast/toast.js";
-import { escapeHtml } from "../core/utils.js";
+import { escapeHtml, format12h } from "../core/utils.js";
 import { showConfirm } from "../modals/modal.js";
 import { Notifications } from "../notifications/notifications.js";
 import { formatAnnouncementTitle } from "./validation.js";
@@ -466,12 +466,23 @@ export const Announcements = {
       } else if (item.type === "rescheduled") {
         let parsed = {};
         try { parsed = JSON.parse(rawContent); } catch (e) {}
-        const newStart = parsed.new_start_time || "";
-        const origStart = parsed.original_start_time || "";
+        const newStart = parsed.new_start_time ? format12h(parsed.new_start_time) : "";
+        const origStart = parsed.original_start_time ? format12h(parsed.original_start_time) : "";
         const origDate = parsed.original_date || item.date_override || "";
         const newDate = parsed.new_date || origDate;
-        const newRoom = parsed.new_room || "";
-        const reason = parsed.reason || "";
+        const newRoom = (parsed.new_room || "").trim();
+        const reason = (parsed.reason || "").trim();
+
+        let dateFormatted = "";
+        if (newDate) {
+          const [ny, nm, nd] = newDate.split('-').map(Number);
+          if (ny && nm && nd) {
+            const dObj = new Date(ny, nm - 1, nd);
+            const fullMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const fullDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            dateFormatted = `${fullMonths[dObj.getMonth()]} ${nd} (${fullDays[dObj.getDay()]})`;
+          }
+        }
 
         let origSlotLabel = '';
         if (origDate) {
@@ -484,29 +495,17 @@ export const Announcements = {
           }
         }
 
-        let newSlotLabel = newStart ? `Starts at ${newStart}` : 'New Slot';
-        if (newDate && newDate !== origDate) {
-          const [ny, nm, nd] = newDate.split('-').map(Number);
-          if (ny && nm && nd) {
-            const dObj = new Date(ny, nm - 1, nd);
-            const dNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const mNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            newSlotLabel = `${dNames[dObj.getDay()]}, ${mNames[dObj.getMonth()]} ${nd} at ${newStart}`;
-          }
-        }
-
-        let timingTitle = newSlotLabel;
-        if (newRoom) timingTitle += ` · Room ${newRoom}`;
-
         cardBodyHtml = `
           <div class="announce-subcard">
             <div class="announce-subcard-header">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               <span>RESCHEDULED CLASS</span>
             </div>
-            <div class="announce-subcard-body">
-              <div class="announce-subcard-title">${escapeHtml(timingTitle)}</div>
-              ${origSlotLabel ? `<div class="announce-subcard-text" style="color: var(--text-muted); font-size: 11.5px; margin-top: 2px;">Moved from: ${escapeHtml(origSlotLabel)}</div>` : ''}
+            <div class="announce-subcard-rescheduled-body">
+              ${newStart ? `<div class="announce-subcard-time">${escapeHtml(newStart)}</div>` : ''}
+              ${dateFormatted ? `<div class="announce-subcard-date">${escapeHtml(dateFormatted)}</div>` : ''}
+              ${newRoom ? `<div class="announce-subcard-room">Room ${escapeHtml(newRoom)}</div>` : ''}
+              ${origSlotLabel ? `<div class="announce-subcard-orig">Moved from: ${escapeHtml(origSlotLabel)}</div>` : ''}
               ${reason ? `
                 <div class="announce-subcard-scroll-wrap" style="margin-top: 4px;">
                   <div class="announce-subcard-text">${escapeHtml(reason)}</div>

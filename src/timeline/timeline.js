@@ -222,7 +222,7 @@ function findInstructorForSubject(subj) {
       parsed = item.announcement;
     }
     const subj = parsed.target_subject || item.subject_override || item.subject || 'Rescheduled Class';
-    const startStr = parsed.new_start_time || '03:00 PM';
+    const startStr = format12h(parsed.new_start_time || '03:00 PM');
     const startM = toMinutes(startStr);
     const endM = startM >= 0 ? startM + 75 : -1;
     const room = parsed.new_room || parsed.original_room || 'TBA';
@@ -242,7 +242,7 @@ function findInstructorForSubject(subj) {
       isRescheduled: true,
       rescheduledReason: parsed.reason || '',
       origDate: parsed.original_date || item.date_override || '',
-      origStart: parsed.original_start_time || ''
+      origStart: parsed.original_start_time ? format12h(parsed.original_start_time) : ''
     });
   });
 
@@ -270,7 +270,9 @@ function findInstructorForSubject(subj) {
         allScheduleClasses.splice(targetClassIdx, 1);
       }
 
-      const origStart = parsed.original_start_time || targetClass?.start || '09:45 AM';
+      const rawOrigStart = parsed.original_start_time || targetClass?.start || '09:45 AM';
+      const origStart = format12h(rawOrigStart);
+      const newStart = format12h(parsed.new_start_time || '03:00 PM');
       const newDateStr = parsed.new_date || '';
       let formattedNewDate = newDateStr;
       if (newDateStr) {
@@ -290,7 +292,7 @@ function findInstructorForSubject(subj) {
         sortM: toMinutes(origStart),
         newDate: newDateStr,
         formattedNewDate: formattedNewDate,
-        newStart: parsed.new_start_time || '03:00 PM'
+        newStart: newStart
       });
     });
   }

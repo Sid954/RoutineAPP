@@ -157,8 +157,8 @@ export function updateRescheduleSubjectsList(selectedVal = '') {
     paRescheduleSubjectSelect.innerHTML = classes
       .map(c => {
         const title = c.title || c.subject || 'Class';
-        const start = c.start || '';
-        const end = c.end || '';
+        const start = c.start ? format12h(c.start) : '';
+        const end = c.end ? format12h(c.end) : '';
         const room = c.room || '';
         const timeLabel = start && end ? `${start} – ${end}` : (start ? `Starts at ${start}` : '');
         const label = `${title} (${timeLabel}${room ? ` · Room ${room}` : ''})`;
@@ -1027,7 +1027,7 @@ export function initPostForm() {
           date_override: origDate,
           subject_override: subject,
           original_date: origDate,
-          original_start_time: origStart,
+          original_start_time: origStart ? format12h(origStart) : '',
           original_room: origRoom,
           new_date: newDate,
           new_start_time: formattedStart,

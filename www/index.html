@@ -609,39 +609,45 @@
                 <div id="paRescheduledSection" class="post-form-subpanel" style="display: none;">
                   <div class="post-form-banner warning" style="margin-bottom: 12px;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span>Moves a class to a different time slot on the same day. Leaves a ghost banner at the original time.</span>
+                    <span>Moves a scheduled class to a different date or time slot. Leaves a tappable ghost banner at the original slot.</span>
                   </div>
                   <div class="post-form-row">
                     <div class="post-form-group">
-                      <label>Date</label>
-                      <input type="date" id="paRescheduleDate" />
+                      <label>Original Date</label>
+                      <input type="date" id="paRescheduleOrigDate" />
                     </div>
                     <div class="post-form-group">
                       <label>Class to Reschedule</label>
-                      <select id="paRescheduleSubjectSelect" class="clean-select"><option value="">Select a date first</option></select>
+                      <select id="paRescheduleSubjectSelect" class="clean-select"><option value="">Select an original date first</option></select>
                     </div>
                   </div>
                   <div class="post-form-row" style="margin-top: 10px;">
                     <div class="post-form-group">
-                      <label>New Start Time</label>
-                      <input type="time" id="paRescheduleNewStart" value="15:00" />
+                      <label>New Date</label>
+                      <input type="date" id="paRescheduleNewDate" />
                     </div>
                     <div class="post-form-group">
-                      <label>New End Time</label>
-                      <input type="time" id="paRescheduleNewEnd" value="16:15" />
+                      <label>New Start Time</label>
+                      <input type="time" id="paRescheduleNewStart" value="15:00" />
                     </div>
                   </div>
                   <div id="paRescheduleOverlapWarning" class="post-form-banner warning" style="display: none; margin-top: 10px;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    <span id="paRescheduleOverlapWarningText">Warning: Time slot overlaps with an existing class.</span>
+                    <span id="paRescheduleOverlapWarningText">Warning: Time slot overlaps with an existing class on the new date.</span>
                   </div>
                   <div class="post-form-group" style="margin-top: 10px;">
-                    <label>New Room (Optional)</label>
-                    <input type="text" id="paRescheduleNewRoom" placeholder="e.g. 502 (Leave blank for same room)" />
+                    <label>
+                      <span>New Room Number (Optional)</span>
+                      <span class="char-counter" id="paRescheduleRoomCounter">0/20</span>
+                    </label>
+                    <input type="text" id="paRescheduleNewRoom" placeholder="e.g. Room 502 (Leave blank for same room)" maxlength="20" />
                   </div>
                   <div class="post-form-group" style="margin-top: 10px;">
-                    <label>Reason / Instructions (Optional)</label>
-                    <textarea id="paRescheduleReason" placeholder="e.g. Moving to afternoon slot due to lab maintenance"></textarea>
+                    <label>
+                      <span>Reason / Instructions (Optional)</span>
+                      <span class="char-counter" id="paRescheduleReasonCounter">0/50</span>
+                    </label>
+                    <textarea id="paRescheduleReason" placeholder="e.g. Lab equipment maintenance / Moved to afternoon" maxlength="50"></textarea>
                   </div>
                 </div>
 

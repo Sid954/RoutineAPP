@@ -114,7 +114,7 @@ export function showClassDetails(data) {
     desigEl.textContent = desigText;
   }
 
-  // Handle Override Context (Exam Topics / Online Link / Cancellation)
+  // Active / Override banner inside modal
   const overrideBox = document.getElementById('modalOverrideDetails');
   if (overrideBox) {
     if (data.isExam) {
@@ -122,7 +122,7 @@ export function showClassDetails(data) {
       overrideBox.innerHTML = `
         <div class="class-detail-override-card exam">
           <div class="cd-override-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             <span>${escapeHtml(data.examName || 'Class Test / Exam')}</span>
           </div>
           <div class="cd-override-body">
@@ -136,7 +136,7 @@ export function showClassDetails(data) {
       overrideBox.innerHTML = `
         <div class="class-detail-override-card online">
           <div class="cd-override-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
             <span>Virtual Online Session</span>
           </div>
           <div class="cd-override-body">
@@ -169,7 +169,7 @@ export function showClassDetails(data) {
       overrideBox.innerHTML = `
         <div class="class-detail-override-card cancellation">
           <div class="cd-override-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
             <span>Class Cancelled</span>
           </div>
           <div class="cd-override-body">
@@ -187,13 +187,13 @@ export function showClassDetails(data) {
           const dObj = new Date(oy, om - 1, od);
           const dNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
           const mNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-          origSlotText = `${dNames[dObj.getDay()]}, ${mNames[dObj.getMonth()]} ${od}${data.origStart ? ` at ${data.origStart}` : ''}`;
+          origSlotText = `${dNames[dObj.getDay()]}, ${mNames[dObj.getMonth()]} ${od}${data.origStart ? ` at ${format12h(data.origStart)}` : ''}`;
         }
       }
       overrideBox.innerHTML = `
         <div class="class-detail-override-card rescheduled">
           <div class="cd-override-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             <span>Rescheduled Session</span>
           </div>
           <div class="cd-override-body">
@@ -216,7 +216,7 @@ export function showClassDetails(data) {
       overrideBox.innerHTML = `
         <div class="class-detail-override-card extra">
           <div class="cd-override-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
             <span>In-Person Extra Class</span>
           </div>
           <div class="cd-override-body">

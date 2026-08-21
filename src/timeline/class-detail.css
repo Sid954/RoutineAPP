@@ -487,6 +487,12 @@ html[data-theme="light"] .faculty-avatar-mini,
 .class-detail-override-card.cancellation {
   background: rgba(244, 63, 94, 0.08);
   border: 1.5px solid rgba(244, 63, 94, 0.35);
+}
+
+.class-detail-override-card.cancellation .cd-override-header {
+  color: #FDA4AF;
+}
+
 .class-detail-override-card.cancellation .cd-override-header svg {
   color: #F43F5E;
 }
