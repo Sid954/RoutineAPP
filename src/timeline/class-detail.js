@@ -72,7 +72,6 @@ export function showClassDetails(data) {
   const teacherEl = document.getElementById('modalInstructor');
   const formatEl = document.getElementById('modalFormat');
   const badgeEl = document.getElementById('modalTypeBadge');
-  const countEl = document.getElementById('modalRecurrenceCount');
   const listEl = document.getElementById('modalRecurrenceList');
   const avatarEl = document.getElementById('modalInstructorAvatar');
   const desigEl = document.getElementById('modalInstructorDesig');
@@ -168,11 +167,6 @@ export function showClassDetails(data) {
       badgeEl.textContent = isLab ? '★ LAB' : 'THEORY';
       badgeEl.className = `resting-tag ${isLab ? 'lab' : 'theory'}`;
     }
-  }
-
-  if (countEl) {
-    const totalCount = recurrences.length || 1;
-    countEl.textContent = `${totalCount} ${totalCount === 1 ? 'SESSION' : 'SESSIONS'} / WEEK`;
   }
 
   if (listEl) {

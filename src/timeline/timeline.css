@@ -47,7 +47,8 @@
   cursor: pointer;
   transition: transform var(--duration-fast) var(--ease-spring);
   box-sizing: border-box;
-  overflow: hidden;
+  position: relative;
+  overflow: visible;
   border: none;
 }
 .focal-day-card:active {
@@ -161,6 +162,110 @@ html[data-theme="dark"] .focal-day-card,
 
 .satellite-pill.off-day {
   opacity: 0.35;
+}
+
+/* ==========================================================================
+   Schedule Override Badges & Visual Hierarchy (Week Strip)
+   ========================================================================== */
+
+/* TIER 1: Full Box Color + Glow (Holiday & Class Test) */
+.satellite-pill.override-holiday {
+  border-color: rgba(245, 158, 11, 0.75) !important;
+  background: rgba(245, 158, 11, 0.12) !important;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+.satellite-pill.override-class_test {
+  border-color: rgba(249, 115, 22, 0.75) !important;
+  background: rgba(249, 115, 22, 0.12) !important;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.2);
+}
+
+/* TIER 2: Normal Box Styling (Cancellation & Online Class) — Badge Icon Only */
+.satellite-pill.override-cancellation,
+.satellite-pill.override-online_class {
+  /* Default box styling preserved — no background tint, no colored border */
+}
+
+/* Pop-Out Micro Badge (Overlapping Corner Pattern for Satellite & Focal cards) */
+.satellite-override-badge,
+.focal-override-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  border: 2px solid var(--card-bg, #23252C);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  box-sizing: border-box;
+}
+
+.satellite-override-badge svg,
+.focal-override-badge svg {
+  width: 9px;
+  height: 9px;
+  stroke-width: 2.6;
+}
+
+.satellite-override-badge.holiday,
+.focal-override-badge.holiday {
+  background: #F59E0B;
+  color: #07090E;
+}
+.satellite-override-badge.class_test,
+.focal-override-badge.class_test {
+  background: #F97316;
+  color: #FFFFFF;
+}
+.satellite-override-badge.cancellation,
+.focal-override-badge.cancellation {
+  background: #F43F5E;
+  color: #FFFFFF;
+}
+.satellite-override-badge.online_class,
+.focal-override-badge.online_class {
+  background: #10B981;
+  color: #FFFFFF;
+}
+
+.focal-day-card.override-holiday {
+  border: 1.5px solid rgba(245, 158, 11, 0.7);
+}
+.focal-day-card.override-class_test {
+  border: 1.5px solid rgba(249, 115, 22, 0.7);
+}
+
+.focal-override-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 8.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-top: 1px;
+}
+.focal-override-chip.holiday {
+  background: rgba(245, 158, 11, 0.25);
+  color: #FCD34D;
+}
+.focal-override-chip.cancellation {
+  background: rgba(244, 63, 94, 0.25);
+  color: #FDA4AF;
+}
+.focal-override-chip.class_test {
+  background: rgba(249, 115, 22, 0.25);
+  color: #FDBA74;
+}
+.focal-override-chip.online_class {
+  background: rgba(16, 185, 129, 0.25);
+  color: #6EE7B7;
 }
 
 /* ==========================================================================
@@ -702,6 +807,78 @@ html[data-theme="dark"] .focal-day-card,
 .calendar-day-cell.is-offday {
   opacity: 0.45;
 }
+
+/* Calendar Picker Override Highlights (Dark Mode Default) */
+.calendar-day-cell.cal-override-cancellation .cal-day-num {
+  color: #FDA4AF !important;
+  font-weight: 800;
+}
+.calendar-day-cell.cal-override-holiday .cal-day-num {
+  color: #FCD34D !important;
+  font-weight: 800;
+}
+.calendar-day-cell.cal-override-class_test .cal-day-num {
+  color: #FDBA74 !important;
+  font-weight: 800;
+}
+.calendar-day-cell.cal-override-online_class .cal-day-num {
+  color: #6EE7B7 !important;
+  font-weight: 800;
+}
+
+/* Light Mode High-Contrast Calendar Picker Override Numbers (WCAG AA >= 4.5:1) */
+:root[data-color="light"] .calendar-day-cell.cal-override-cancellation .cal-day-num,
+html[data-theme="light"] .calendar-day-cell.cal-override-cancellation .cal-day-num {
+  color: #BE123C !important;
+}
+:root[data-color="light"] .calendar-day-cell.cal-override-holiday .cal-day-num,
+html[data-theme="light"] .calendar-day-cell.cal-override-holiday .cal-day-num {
+  color: #B45309 !important;
+}
+:root[data-color="light"] .calendar-day-cell.cal-override-class_test .cal-day-num,
+html[data-theme="light"] .calendar-day-cell.cal-override-class_test .cal-day-num {
+  color: #C2410C !important;
+}
+:root[data-color="light"] .calendar-day-cell.cal-override-online_class .cal-day-num,
+html[data-theme="light"] .calendar-day-cell.cal-override-online_class .cal-day-num {
+  color: #047857 !important;
+}
+
+.calendar-day-cell.cal-override-cancellation {
+  border-color: rgba(244, 63, 94, 0.45) !important;
+  background: rgba(244, 63, 94, 0.08);
+}
+.calendar-day-cell.cal-override-holiday {
+  border-color: rgba(245, 158, 11, 0.45) !important;
+  background: rgba(245, 158, 11, 0.08);
+}
+.calendar-day-cell.cal-override-class_test {
+  border-color: rgba(249, 115, 22, 0.45) !important;
+  background: rgba(249, 115, 22, 0.08);
+}
+.calendar-day-cell.cal-override-online_class {
+  border-color: rgba(16, 185, 129, 0.45) !important;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.cal-indicators-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 5px;
+  margin-top: 2px;
+}
+
+.cal-override-dot {
+  width: 4.5px;
+  height: 4.5px;
+  border-radius: 50%;
+}
+.cal-override-dot.cancellation { background: #F43F5E; box-shadow: 0 0 4px rgba(244, 63, 94, 0.6); }
+.cal-override-dot.holiday { background: #F59E0B; box-shadow: 0 0 4px rgba(245, 158, 11, 0.6); }
+.cal-override-dot.class_test { background: #F97316; box-shadow: 0 0 4px rgba(249, 115, 22, 0.6); }
+.cal-override-dot.online_class { background: #10B981; box-shadow: 0 0 4px rgba(16, 185, 129, 0.6); }
 
 .calendar-quick-actions {
   display: flex;

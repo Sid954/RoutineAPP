@@ -343,10 +343,7 @@
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
     "photo": "src/assets/faculty/st.jpg",
     "status": "Active",
-    "emails": [
-      "sabrina.tarannum@puc.ac.bd",
-      "sabrincse@gmail.com"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=sabrina_cse",
     "socialLinks": {}
@@ -358,10 +355,7 @@
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
     "photo": "src/assets/faculty/st.jpg",
     "status": "Active",
-    "emails": [
-      "sabrina.tarannum@puc.ac.bd",
-      "sabrincse@gmail.com"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=sabrina_cse",
     "socialLinks": {}
@@ -401,9 +395,7 @@
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
     "photo": "src/assets/faculty/shreyashi_cse.jpg",
     "status": "Study Leave",
-    "emails": [
-      "shreyashicox@gmail.com"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=Shreyashi_cse",
     "socialLinks": {}
@@ -415,10 +407,7 @@
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "photo": "https://admin.puc.ac.bd/ProfilePictures/abrar_cse_1042200215.JPG",
     "status": "Active",
-    "emails": [
-      "abrar.yeaser@puc.ac.bd",
-      "yeaser41@gmail.com"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=abrar_cse",
     "socialLinks": {}
@@ -430,10 +419,7 @@
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "photo": "https://admin.puc.ac.bd/ProfilePictures/abrar_cse_1042200215.JPG",
     "status": "Active",
-    "emails": [
-      "abrar.yeaser@puc.ac.bd",
-      "yeaser41@gmail.com"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=abrar_cse",
     "socialLinks": {}
@@ -515,9 +501,7 @@
     "designation": "Lecturer & Academic Coordinator of B.Sc in CSE · Department of Computer Science and Engineering",
     "photo": "src/assets/faculty/mrrc.jpg",
     "status": "Active",
-    "emails": [
-      "mrrchy999@gmail.com"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=Rezaur_cse",
     "socialLinks": {}
@@ -529,9 +513,7 @@
     "designation": "Lecturer & Academic Coordinator of B.Sc in CSE · Department of Computer Science and Engineering",
     "photo": "src/assets/faculty/mrrc.jpg",
     "status": "Active",
-    "emails": [
-      "mrrchy999@gmail.com"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=Rezaur_cse",
     "socialLinks": {}
@@ -711,9 +693,7 @@
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "photo": "src/assets/faculty/nbh.jpeg",
     "status": "Active",
-    "emails": [
-      "nadim.cse@puc.ac.bd"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nadim_cse",
     "socialLinks": {}
@@ -725,9 +705,7 @@
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "photo": "src/assets/faculty/nbh.jpeg",
     "status": "Active",
-    "emails": [
-      "nadim.cse@puc.ac.bd"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nadim_cse",
     "socialLinks": {}
@@ -739,9 +717,7 @@
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "photo": "src/assets/faculty/th.jpg",
     "status": "Active",
-    "emails": [
-      "tashin.hossain.cu@gmail.com"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tashin_hossain_cse",
     "socialLinks": {}
@@ -753,9 +729,7 @@
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "photo": "src/assets/faculty/th.jpg",
     "status": "Active",
-    "emails": [
-      "tashin.hossain.cu@gmail.com"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tashin_hossain_cse",
     "socialLinks": {}

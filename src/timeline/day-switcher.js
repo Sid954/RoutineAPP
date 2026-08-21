@@ -23,13 +23,13 @@ function getPrevActiveDay(currentDay) {
 function calculateTargetDate(targetDayIdx) {
   const anchorDate = State.viewDate || new Date();
   const anchorDayIdx = anchorDate.getDay();
-  const satOffset = (anchorDayIdx === 6) ? 0 : (anchorDayIdx + 1);
-  const weekStartSat = new Date(anchorDate);
-  weekStartSat.setDate(anchorDate.getDate() - satOffset);
+  const thuOffset = (anchorDayIdx - 4 + 7) % 7;
+  const weekStartThu = new Date(anchorDate);
+  weekStartThu.setDate(anchorDate.getDate() - thuOffset);
 
-  const dayOffset = (targetDayIdx === 6) ? 0 : (targetDayIdx + 1);
-  const targetDate = new Date(weekStartSat);
-  targetDate.setDate(weekStartSat.getDate() + dayOffset);
+  const targetOffset = (targetDayIdx - 4 + 7) % 7;
+  const targetDate = new Date(weekStartThu);
+  targetDate.setDate(weekStartThu.getDate() + targetOffset);
   return targetDate;
 }
 

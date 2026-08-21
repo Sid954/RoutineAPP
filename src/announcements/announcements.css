@@ -237,6 +237,54 @@
   border: 1px solid rgba(249, 115, 22, 0.20);
 }
 
+/* Light Mode High-Contrast Semantic Type Badges (WCAG AA >= 4.5:1) */
+:root[data-color="light"] .announce-semantic-pill.general,
+html[data-theme="light"] .announce-semantic-pill.general {
+  background-color: #F0F9FF;
+  color: #0369A1;
+  border-color: #BAE6FD;
+}
+
+:root[data-color="light"] .announce-semantic-pill.cancellation,
+html[data-theme="light"] .announce-semantic-pill.cancellation {
+  background-color: #FFF1F2;
+  color: #BE123C;
+  border-color: #FECDD3;
+}
+
+:root[data-color="light"] .announce-semantic-pill.holiday,
+html[data-theme="light"] .announce-semantic-pill.holiday {
+  background-color: #FFFBEB;
+  color: #B45309;
+  border-color: #FDE68A;
+}
+
+:root[data-color="light"] .announce-semantic-pill.online_class,
+html[data-theme="light"] .announce-semantic-pill.online_class {
+  background-color: #ECFDF5;
+  color: #047857;
+  border-color: #A7F3D0;
+}
+
+:root[data-color="light"] .announce-semantic-pill.class_test,
+html[data-theme="light"] .announce-semantic-pill.class_test {
+  background-color: #FFF7ED;
+  color: #C2410C;
+  border-color: #FED7AA;
+}
+
+:root[data-color="light"] .announce-date-pill,
+html[data-theme="light"] .announce-date-pill {
+  background-color: #F8FAFC;
+  border-color: rgba(15, 23, 42, 0.08);
+  color: #475569;
+}
+
+:root[data-color="light"] .announce-date-pill svg,
+html[data-theme="light"] .announce-date-pill svg {
+  color: #64748B;
+}
+
 .announce-date-pill {
   font-family: var(--font-mono, monospace);
   font-size: clamp(10px, 2.8vw, 11.5px);

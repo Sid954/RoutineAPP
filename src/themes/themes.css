@@ -101,13 +101,13 @@ html[data-theme="light"],
 
   --live-card-bg: #FFFFFF;
   --live-card-border: #2563EB;
-  --live-card-shadow: 0 4px 16px rgba(11, 18, 32, 0.08);
+  --live-card-shadow: 0 2px 6px rgba(37, 99, 235, 0.08), 0 8px 24px rgba(15, 23, 42, 0.09);
   --live-ring-track: #E2E8F0;
   --live-ring-fill: #2563EB;
 
   --resting-card-bg: #FFFFFF;
   --resting-card-border: rgba(15, 23, 42, 0.08);
-  --resting-card-shadow: 0 2px 6px rgba(11, 18, 32, 0.04);
+  --resting-card-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.05);
 
   --tag-theory-bg: #EFF6FF;
   --tag-theory-text: #1D4ED8;
@@ -116,9 +116,9 @@ html[data-theme="light"],
   --tag-lab-text: #7E22CE;
   --tag-lab-border: #F3E8FF;
 
-  --sh-card: 0 2px 6px rgba(11, 18, 32, 0.04);
-  --sh-dock: 0 -4px 20px rgba(15, 23, 42, 0.08);
-  --sh-modal: 0 -12px 40px rgba(11, 18, 32, 0.18);
+  --sh-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.05);
+  --sh-dock: 0 -2px 8px rgba(15, 23, 42, 0.04), 0 -8px 24px rgba(15, 23, 42, 0.09);
+  --sh-modal: 0 4px 16px rgba(15, 23, 42, 0.08), 0 16px 48px rgba(15, 23, 42, 0.16);
 
   /* Legacy mappings */
   --card: var(--card-bg);

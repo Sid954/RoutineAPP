@@ -2,11 +2,18 @@ import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
 import { DAY_NAMES, FULL_COURSE_NAMES } from '../core/config.js';
 import { getClassesForDay } from '../schedule/queries.js';
-import { getOverrideFor } from '../announcements/overrides.js';
+import { getOverrideFor, getOverridesByDateMap, normalizeDate } from '../announcements/overrides.js';
 import { toMinutes, format12h, toTimeString, getCurrentMinutes, escapeHtml, formatRoom } from '../core/utils.js';
 import { getFullName } from '../teachers/teacher-names.js';
 
 let _lastRenderHash = '';
+
+const OVERRIDE_ICONS = {
+  cancellation: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>',
+  holiday: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  class_test: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+  online_class: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>'
+};
 
 export function renderWeekStrip() {
   const container = document.getElementById('focalStripContainer');
@@ -18,49 +25,71 @@ export function renderWeekStrip() {
   const anchorDate = State.viewDate || realToday;
   const anchorDayIdx = anchorDate.getDay();
 
-  // Academic week starts on Saturday (Sat=6, Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5)
-  const academicDaysOrder = [6, 0, 1, 2, 3, 4, 5];
-  let satOffset;
-  if (anchorDayIdx === 6) {
-    satOffset = 0;
-  } else if ((anchorDate === realToday || (anchorDate.getFullYear() === realToday.getFullYear() && anchorDate.getMonth() === realToday.getMonth() && anchorDate.getDate() === realToday.getDate())) && (anchorDayIdx === 4 || anchorDayIdx === 5)) {
-    // On Thursday/Friday off-days, look ahead to the upcoming academic week starting Saturday
-    satOffset = (anchorDayIdx === 4) ? -2 : -1;
-  } else {
-    satOffset = anchorDayIdx + 1;
-  }
-  const weekStartSat = new Date(anchorDate);
-  weekStartSat.setDate(anchorDate.getDate() - satOffset);
+  // Academic week rolls over on Thursday (Thu=4, Fri=5, Sat=6, Sun=0, Mon=1, Tue=2, Wed=3)
+  const academicDaysOrder = [4, 5, 6, 0, 1, 2, 3];
+  const thuOffset = (anchorDayIdx - 4 + 7) % 7;
+  const weekStartThu = new Date(anchorDate);
+  weekStartThu.setDate(anchorDate.getDate() - thuOffset);
 
   const short3 = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-  const short2 = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  const overridesMap = getOverridesByDateMap();
 
   let html = '';
-  academicDaysOrder.forEach(dow => {
-    const d = new Date(weekStartSat);
-    const dayOffset = (dow === 6) ? 0 : (dow + 1);
-    d.setDate(weekStartSat.getDate() + dayOffset);
+  academicDaysOrder.forEach((dow, index) => {
+    const d = new Date(weekStartThu);
+    d.setDate(weekStartThu.getDate() + index);
 
     const isSelected = (dow === State.currentViewDayIdx);
     const isToday = (dow === realTodayIdx && d.getFullYear() === realToday.getFullYear() && d.getMonth() === realToday.getMonth() && d.getDate() === realToday.getDate());
     const isOffDay = (dow === 4 || dow === 5);
+
+    const dateStr = normalizeDate(d);
+    const override = overridesMap.get(dateStr);
+    const isHoliday = override && override.type === 'holiday';
+    const isOnlineClass = override && override.type === 'online_class';
+
+    // Calculate actual non-cancelled class count for this specific date
     const classes = getClassesForDay(dow);
-    const classCount = classes.length;
+    const activeClasses = isHoliday ? [] : classes.filter(c => {
+      const cancelOv = getOverrideFor(dateStr, c.title);
+      return !cancelOv || cancelOv.type !== 'cancellation';
+    });
+    const classCount = activeClasses.length;
+
+    // Subtext label logic
+    let subText = '';
+    if (isHoliday) {
+      subText = ''; // No class count and no "Holiday" text label (icon + box color communicates status)
+    } else if (isOffDay) {
+      if (isOnlineClass && classCount > 0) {
+        subText = `${classCount} ${classCount === 1 ? 'class' : 'classes'}`; // Suppress 'Off Day' if online class exists
+      } else {
+        subText = 'Off Day';
+      }
+    } else {
+      subText = `${classCount} ${classCount === 1 ? 'class' : 'classes'}`;
+    }
+
+    const overrideClass = override ? `override-${override.type}` : '';
+    const isEffectiveOffDay = isOffDay && !isOnlineClass;
 
     if (isSelected) {
-      const subText = isOffDay ? 'Off Day' : `${classCount} ${classCount === 1 ? 'class' : 'classes'}`;
+      const focalBadge = override ? `<span class="focal-override-badge ${override.type}" title="${override.type.replace('_', ' ')}">${OVERRIDE_ICONS[override.type] || ''}</span>` : '';
       html += `
-        <div class="focal-day-card" onclick="if(window.openCalendarPicker) window.openCalendarPicker();" title="${DAY_NAMES[dow]} (Tap to change date)">
+        <div class="focal-day-card ${overrideClass}" onclick="if(window.openCalendarPicker) window.openCalendarPicker();" title="${DAY_NAMES[dow]} (Tap to change date)">
+          ${focalBadge}
           <span class="focal-num-large">${d.getDate()}</span>
           <div class="focal-meta">
             <span class="focal-day-label">${DAY_NAMES[dow]}</span>
-            <span class="focal-day-sub">${subText}</span>
+            ${subText ? `<span class="focal-day-sub">${subText}</span>` : ''}
           </div>
         </div>
       `;
     } else {
+      const satelliteBadge = override ? `<span class="satellite-override-badge ${override.type}" title="${override.type.replace('_', ' ')}">${OVERRIDE_ICONS[override.type] || ''}</span>` : '';
       html += `
-        <div class="satellite-pill ${isOffDay ? 'off-day' : ''} ${isToday ? 'is-real-today' : ''}" onclick="window.__switchTimelineDay(${dow}, ${d.getTime()})" title="${DAY_NAMES[dow]}">
+        <div class="satellite-pill ${overrideClass} ${isEffectiveOffDay ? 'off-day' : ''} ${isToday ? 'is-real-today' : ''}" onclick="window.__switchTimelineDay(${dow}, ${d.getTime()})" title="${DAY_NAMES[dow]}${override ? ` (${override.type.replace('_', ' ')})` : ''}">
+          ${satelliteBadge}
           <span class="satellite-name">${short3[dow]}</span>
           <span class="satellite-num">${d.getDate()}</span>
           ${isToday ? '<span class="today-subtle-dot" title="Today"></span>' : ''}

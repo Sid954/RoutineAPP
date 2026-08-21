@@ -41,24 +41,14 @@ export function getDateForDayIndex(targetDayOrDate, explicitAnchorDate) {
     return normalizeDate(anchor);
   }
 
-  // Academic week starts on Saturday (Sat=6, Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5)
-  // If anchor is on Thursday (4) or Friday (5) and we are viewing a real school day (Sat..Wed: 6,0,1,2,3),
-  // and explicitAnchorDate was NOT passed, the user is looking ahead to the upcoming academic week.
-  let satOffset;
-  if (anchorDayIdx === 6) {
-    satOffset = 0;
-  } else if (!explicitAnchorDate && (anchorDayIdx === 4 || anchorDayIdx === 5) && (targetDayIdx === 6 || targetDayIdx <= 3)) {
-    satOffset = (anchorDayIdx === 4) ? -2 : -1;
-  } else {
-    satOffset = anchorDayIdx + 1;
-  }
+  // Academic week rolls over on Thursday (Thu=4, Fri=5, Sat=6, Sun=0, Mon=1, Tue=2, Wed=3)
+  const thuOffset = (anchorDayIdx - 4 + 7) % 7;
+  const weekStartThu = new Date(anchor);
+  weekStartThu.setDate(anchor.getDate() - thuOffset);
 
-  const weekStartSat = new Date(anchor);
-  weekStartSat.setDate(anchor.getDate() - satOffset);
-
-  const dayOffset = (targetDayIdx === 6) ? 0 : (targetDayIdx + 1);
-  const targetDate = new Date(weekStartSat);
-  targetDate.setDate(weekStartSat.getDate() + dayOffset);
+  const targetOffset = (targetDayIdx - 4 + 7) % 7;
+  const targetDate = new Date(weekStartThu);
+  targetDate.setDate(weekStartThu.getDate() + targetOffset);
 
   return normalizeDate(targetDate);
 }
@@ -126,4 +116,38 @@ export function getOverrideFor(dayOrDate, subjectCode, explicitAnchor) {
   }
 
   return null;
+}
+
+/**
+ * Pre-builds a Map of YYYY-MM-DD -> { type, count, announcement }
+ * with resolved multi-override priority: holiday > cancellation > class_test > online_class.
+ */
+export function getOverridesByDateMap() {
+  const map = new Map();
+  if (!State.announcementsList || State.announcementsList.length === 0) return map;
+
+  const PRIORITY = { holiday: 1, cancellation: 2, class_test: 3, online_class: 4 };
+
+  State.announcementsList.forEach(item => {
+    if (!item.date_override) return;
+    const dateStr = normalizeDate(item.date_override);
+    if (!dateStr) return;
+
+    const itemType = item.type || 'general';
+    if (!PRIORITY[itemType]) return; // Skip general announcements without schedule override
+
+    const existing = map.get(dateStr);
+    if (!existing) {
+      map.set(dateStr, { type: itemType, count: 1, announcement: item });
+    } else {
+      existing.count++;
+      // If new item has higher priority (lower priority number), it wins the visual badge
+      if (PRIORITY[itemType] < PRIORITY[existing.type]) {
+        existing.type = itemType;
+        existing.announcement = item;
+      }
+    }
+  });
+
+  return map;
 }

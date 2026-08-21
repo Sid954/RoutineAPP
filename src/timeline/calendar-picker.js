@@ -7,6 +7,7 @@
 import { State } from '../core/state.js';
 import { DAY_NAMES, MONTHS, FULL_MONTHS } from '../core/config.js';
 import { renderTimeline } from './timeline.js';
+import { getOverridesByDateMap, normalizeDate } from '../announcements/overrides.js';
 
 let _calendarViewMonth = new Date().getMonth();
 let _calendarViewYear = new Date().getFullYear();
@@ -64,6 +65,7 @@ export function renderCalendarMonthGrid() {
   const firstDay = new Date(_calendarViewYear, _calendarViewMonth, 1);
   const lastDay = new Date(_calendarViewYear, _calendarViewMonth + 1, 0);
   const realToday = new Date();
+  const overridesMap = getOverridesByDateMap();
 
   // Academic week starts on Saturday (Sat=6 => index 0, Sun=0 => 1, Mon=1 => 2, ..., Fri=5 => 6)
   const firstDaySatIndex = (firstDay.getDay() === 6) ? 0 : (firstDay.getDay() + 1);
@@ -81,12 +83,20 @@ export function renderCalendarMonthGrid() {
     const isSelected = isSameCalendarDay(thisDate, _selectedDate);
     const isToday = isSameCalendarDay(thisDate, realToday);
 
+    const dateStr = normalizeDate(thisDate);
+    const override = overridesMap.get(dateStr);
+    const overrideClass = override ? `cal-override-${override.type}` : '';
+    const overrideDot = override ? `<span class="cal-override-dot ${override.type}"></span>` : '';
+
     gridHtml += `
-      <div class="calendar-day-cell ${isSelected ? 'is-selected' : ''} ${isToday ? 'is-today' : ''} ${isOff ? 'is-offday' : ''}" 
+      <div class="calendar-day-cell ${isSelected ? 'is-selected' : ''} ${isToday ? 'is-today' : ''} ${isOff ? 'is-offday' : ''} ${overrideClass}" 
            onclick="window.__pickCalendarDate(${_calendarViewYear}, ${_calendarViewMonth}, ${day})"
-           title="${DAY_NAMES[dow]} ${day} ${isToday ? '(Today)' : ''} ${isOff ? '(Off-day)' : ''}">
-        ${day}
-        ${isToday && !isSelected ? '<span class="today-subtle-dot"></span>' : ''}
+           title="${DAY_NAMES[dow]} ${day} ${isToday ? '(Today)' : ''} ${override ? `(${override.type.replace('_', ' ')})` : ''}">
+        <span class="cal-day-num">${day}</span>
+        <div class="cal-indicators-row">
+          ${isToday && !isSelected ? '<span class="today-subtle-dot"></span>' : ''}
+          ${overrideDot}
+        </div>
       </div>
     `;
   }
