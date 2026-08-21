@@ -147,7 +147,7 @@ function sanitizeAndValidatePayload(body) {
         room: !isOnline ? room : '',
         teacher,
         start_time: (parsed?.start_time || '09:45 AM').trim(),
-        end_time: calculateEndTime(parsed?.start_time || '09:45 AM', parsed?.end_time || '')
+        end_time: (parsed?.end_time || '').trim()
       };
       cleanAnnouncement = JSON.stringify(obj);
     } catch (e) {

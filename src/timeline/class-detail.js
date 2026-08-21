@@ -79,11 +79,26 @@ export function showClassDetails(data) {
   if (iconEl) iconEl.innerHTML = iconSvg;
   if (codeEl) codeEl.textContent = code;
   if (titleEl) titleEl.textContent = fullTitle;
-  if (timingEl) timingEl.textContent = data.timing || `${data.start} – ${data.end}`;
-  if (durationEl) durationEl.textContent = `${data.duration || '1h 15m'} session`;
+  if (timingEl) {
+    timingEl.textContent = data.timing || (data.hasExplicitEndTime && data.end ? `${data.start} – ${data.end}` : `Starts at ${data.start}`);
+  }
+  if (durationEl) {
+    if (data.duration && data.hasExplicitEndTime !== false) {
+      durationEl.style.display = 'block';
+      durationEl.textContent = `${data.duration} session`;
+    } else {
+      durationEl.style.display = 'none';
+    }
+  }
   if (roomEl) roomEl.textContent = `Room ${cleanRoom}`;
   if (teacherEl) teacherEl.textContent = teacherName;
-  if (formatEl) formatEl.textContent = isLab ? 'Laboratory Session' : 'Theory Lecture';
+  if (formatEl) {
+    if (data.isExtraClass) {
+      formatEl.textContent = data.isOnline ? 'Extra Online Class' : 'Extra In-Person Class';
+    } else {
+      formatEl.textContent = isLab ? 'Laboratory Session' : 'Theory Lecture';
+    }
+  }
 
   if (avatarEl) {
     if (info.photo) {
@@ -161,6 +176,24 @@ export function showClassDetails(data) {
           </div>
         </div>
       `;
+    } else if (data.isExtraClass && !data.isOnline) {
+      overrideBox.style.display = 'block';
+      overrideBox.innerHTML = `
+        <div class="class-detail-override-card extra">
+          <div class="cd-override-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+            <span>In-Person Extra Class</span>
+          </div>
+          <div class="cd-override-body">
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 4px;">This is an additional in-person class scheduled for this date.</div>
+            ${cleanRoom && cleanRoom !== 'TBA' ? `
+              <div style="font-size: 12px; font-weight: 600; color: var(--text); margin-top: 4px;">
+                Room: <span style="font-weight: 400;">${escapeHtml(cleanRoom)}</span>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
     } else {
       overrideBox.style.display = 'none';
       overrideBox.innerHTML = '';
@@ -169,14 +202,17 @@ export function showClassDetails(data) {
 
   if (badgeEl) {
     if (data.isExam) {
-      badgeEl.textContent = `📝 ${data.examName || 'EXAM'}`.toUpperCase();
+      badgeEl.textContent = (data.examName || 'EXAM').toUpperCase();
       badgeEl.className = 'resting-tag exam';
     } else if (data.isOnline) {
-      badgeEl.textContent = '📡 ONLINE';
+      badgeEl.textContent = 'ONLINE';
       badgeEl.className = 'resting-tag online';
     } else if (data.isCancelled) {
-      badgeEl.textContent = '🚫 CANCELLED';
+      badgeEl.textContent = 'CANCELLED';
       badgeEl.className = 'resting-tag cancelled';
+    } else if (data.isExtraClass) {
+      badgeEl.textContent = 'EXTRA CLASS';
+      badgeEl.className = 'resting-tag extra';
     } else {
       badgeEl.textContent = isLab ? '★ LAB' : 'THEORY';
       badgeEl.className = `resting-tag ${isLab ? 'lab' : 'theory'}`;

@@ -186,16 +186,8 @@ function findInstructorForSubject(subj) {
     try { parsed = JSON.parse(item.announcement); } catch (e) {}
     const subj = item.subject_override || item.subject || 'Extra Class';
     const startStr = parsed.start_time || '09:45 AM';
-    let endStr = parsed.end_time || '';
     const startM = toMinutes(startStr);
-    const endM = toMinutes(endStr);
-    if (!endStr || endM <= startM) {
-      if (startM >= 0) {
-        endStr = format12h(toTimeString(Math.min(1439, startM + 75)));
-      } else {
-        endStr = '11:00 AM';
-      }
-    }
+    const endM = startM >= 0 ? startM + 75 : -1;
     const isOnline = (parsed.is_online === false || /extra class/i.test(item.title || '')) 
       ? false 
       : (parsed.is_online !== undefined ? Boolean(parsed.is_online) : true);
@@ -203,9 +195,10 @@ function findInstructorForSubject(subj) {
     const teacher = (parsed.teacher || '').trim() || findInstructorForSubject(subj);
     allScheduleClasses.push({
       start: startStr,
-      end: endStr,
-      startM: toMinutes(startStr),
-      endM: toMinutes(endStr),
+      end: '',
+      startM: startM,
+      endM: endM,
+      hasExplicitEndTime: false,
       subject: subj,
       title: subj,
       room: room,
@@ -342,13 +335,14 @@ function findInstructorForSubject(subj) {
     }
 
     const c = item.data;
+    const hasExplicitEndTime = Boolean(c.hasExplicitEndTime) || (Boolean(c.end) && !c.isExtraClass);
     const startMins = toMinutes(c.start);
-    const endMins = toMinutes(c.end);
-    const durationMins = endMins - startMins;
+    const endMins = hasExplicitEndTime ? toMinutes(c.end) : (startMins >= 0 ? startMins + 75 : -1);
+    const durationMins = hasExplicitEndTime ? Math.max(0, endMins - startMins) : 0;
     const durHours = Math.floor(durationMins / 60);
     const durMinsRemainder = durationMins % 60;
-    const durationLabel = durHours > 0 ? (durMinsRemainder > 0 ? `${durHours}h ${durMinsRemainder}m` : `${durHours}h`) : `${durMinsRemainder}m`;
-    const fullTiming = `${format12h(c.start)} – ${format12h(c.end)}`;
+    const durationLabel = hasExplicitEndTime ? (durHours > 0 ? (durMinsRemainder > 0 ? `${durHours}h ${durMinsRemainder}m` : `${durHours}h`) : `${durMinsRemainder}m`) : '';
+    const fullTiming = hasExplicitEndTime ? `${format12h(c.start)} – ${format12h(c.end)}` : `Starts at ${format12h(c.start)}`;
     const isLab = (c.type || '').toLowerCase() === 'lab';
 
     // Insert break card between non-contiguous classes (only when startMins > lastEndMins)
@@ -420,7 +414,8 @@ function findInstructorForSubject(subj) {
       code: c.title,
       name: FULL_COURSE_NAMES[c.title] || c.title,
       start: format12h(c.start),
-      end: format12h(c.end),
+      end: hasExplicitEndTime ? format12h(c.end) : '',
+      hasExplicitEndTime: hasExplicitEndTime,
       timing: fullTiming,
       duration: durationLabel,
       type: isLab ? 'Lab' : 'Theory',
@@ -455,8 +450,8 @@ function findInstructorForSubject(subj) {
         cardModifierClass = 'is-online-override';
         tagHtml = `<span class="resting-tag online">ONLINE</span>`;
       } else {
-        cardModifierClass = '';
-        tagHtml = `<span class="resting-tag extra">EXTRA</span>`;
+        cardModifierClass = 'is-extra-override';
+        tagHtml = `<span class="resting-tag extra">EXTRA CLASS</span>`;
       }
     } else if (isClassTest) {
       cardModifierClass = 'is-exam-override';
@@ -484,14 +479,16 @@ function findInstructorForSubject(subj) {
       html += `
         <div class="resting-class-row is-live-card ${cardModifierClass}" onclick='window.openClassDetailSheet(${detailsJson})' style="border-color: var(--accent); background: var(--card-bg);">
           <div class="resting-left">
-            <div class="resting-time-col">
-              <div class="time-connector-track">
-                <span class="time-node-dot start"></span>
-                <span class="time-connector-line"></span>
-                <span class="time-node-dot"></span>
-              </div>
+            <div class="resting-time-col ${hasExplicitEndTime ? '' : 'single-time'}">
+              ${hasExplicitEndTime ? `
+                <div class="time-connector-track">
+                  <span class="time-node-dot start"></span>
+                  <span class="time-connector-line"></span>
+                  <span class="time-node-dot"></span>
+                </div>
+              ` : ''}
               <span class="resting-time-start" style="color: var(--accent);">${format12h(c.start)}</span>
-              <span class="resting-time-end">${format12h(c.end)}</span>
+              ${hasExplicitEndTime ? `<span class="resting-time-end">${format12h(c.end)}</span>` : ''}
             </div>
             <div class="resting-info-col">
               <div class="resting-title-row">
@@ -512,9 +509,11 @@ function findInstructorForSubject(subj) {
             </div>
           </div>
           <div class="resting-right-meta">
-            <span class="finished-check-badge" style="background: var(--accent-subtle); color: var(--accent); border-color: var(--accent-border);">
-              ${remaining}m left
-            </span>
+            ${hasExplicitEndTime ? `
+              <span class="finished-check-badge" style="background: var(--accent-subtle); color: var(--accent); border-color: var(--accent-border);">
+                ${remaining}m left
+              </span>
+            ` : ''}
           </div>
         </div>
       `;
@@ -523,9 +522,16 @@ function findInstructorForSubject(subj) {
       html += `
         <div class="resting-class-row ${cardModifierClass} ${effectiveCancelled ? 'cancelled' : ''}" onclick='window.openClassDetailSheet(${detailsJson})'>
           <div class="resting-left">
-            <div class="resting-time-col">
+            <div class="resting-time-col ${hasExplicitEndTime ? '' : 'single-time'}">
+              ${hasExplicitEndTime ? `
+                <div class="time-connector-track">
+                  <span class="time-node-dot start"></span>
+                  <span class="time-connector-line"></span>
+                  <span class="time-node-dot"></span>
+                </div>
+              ` : ''}
               <span class="resting-time-start">${format12h(c.start)}</span>
-              <span class="resting-time-end">${format12h(c.end)}</span>
+              ${hasExplicitEndTime ? `<span class="resting-time-end">${format12h(c.end)}</span>` : ''}
             </div>
             <div class="resting-info-col">
               <div class="resting-title-row">
@@ -555,9 +561,9 @@ function findInstructorForSubject(subj) {
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                 DONE
               </span>
-            ` : `
+            ` : durationLabel ? `
               <span class="duration-chip">${durationLabel}</span>
-            `}
+            ` : ''}
           </div>
         </div>
       `;

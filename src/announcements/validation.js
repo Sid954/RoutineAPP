@@ -268,16 +268,7 @@ export function validateAnnouncementPayload(rawData = {}) {
     const isOnline = parsedPayload.is_online !== undefined ? Boolean(parsedPayload.is_online) : (rawData.is_online !== undefined ? Boolean(rawData.is_online) : true);
 
     const startTimeStr = cleanString(parsedPayload.start_time || rawData.start_time || '09:45 AM');
-    let endTimeStr = cleanString(parsedPayload.end_time || rawData.end_time || '');
-    const startM = toMinutes(startTimeStr);
-    const endM = toMinutes(endTimeStr);
-    if (!endTimeStr || endM <= startM) {
-      if (startM >= 0) {
-        endTimeStr = format12h(toTimeString(Math.min(1439, startM + 75)));
-      } else {
-        endTimeStr = '11:00 AM';
-      }
-    }
+    const endTimeStr = cleanString(parsedPayload.end_time || rawData.end_time || '');
 
     const structuredObj = {
       is_extra_class: isExtra,

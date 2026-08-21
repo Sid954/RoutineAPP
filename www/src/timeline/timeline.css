@@ -421,6 +421,14 @@ html[data-theme="dark"] .focal-day-card,
   flex-shrink: 0;
 }
 
+.resting-time-col.single-time {
+  justify-content: center;
+  align-items: flex-start;
+  min-height: unset;
+  align-self: center;
+  padding-left: 0;
+}
+
 .time-connector-track {
   position: absolute;
   left: 1px;
@@ -927,6 +935,19 @@ html[data-theme="light"] .calendar-day-cell.cal-override-online_class .cal-day-n
   border: 1px solid rgba(16, 185, 129, 0.35) !important;
 }
 
+.resting-tag.extra {
+  background: rgba(99, 102, 241, 0.16) !important;
+  color: #A5B4FC !important;
+  border: 1px solid rgba(99, 102, 241, 0.35) !important;
+}
+
+:root[data-color="light"] .resting-tag.extra,
+html[data-theme="light"] .resting-tag.extra {
+  background: #EEF2FF !important;
+  color: #4F46E5 !important;
+  border: 1px solid #C7D2FE !important;
+}
+
 .resting-class-row.is-exam-override {
   border: 1.5px solid #F97316;
   background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(35, 37, 44, 1) 100%);
@@ -949,7 +970,19 @@ html[data-theme="light"] .calendar-day-cell.cal-override-online_class .cal-day-n
   box-shadow: 0 4px 18px rgba(16, 185, 129, 0.12);
 }
 
+.resting-class-row.is-extra-override {
+  border: 1.5px solid #6366F1;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(35, 37, 44, 1) 100%);
+  box-shadow: 0 4px 18px rgba(99, 102, 241, 0.12);
+}
+
 /* Light Mode Recalibrated Gradients & Card Highlighting */
+:root[data-color="light"] .resting-class-row.is-extra-override {
+  background: linear-gradient(135deg, #EEF2FF 0%, #FFFFFF 100%);
+  border-color: #4F46E5;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.10), 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
 :root[data-color="light"] .resting-class-row.is-online-override {
   background: linear-gradient(135deg, #ECFDF5 0%, #FFFFFF 100%);
   border-color: #059669;

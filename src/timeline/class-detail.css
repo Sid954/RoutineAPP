@@ -471,6 +471,19 @@ html[data-theme="light"] .faculty-avatar-mini,
   color: #10B981;
 }
 
+.class-detail-override-card.extra {
+  background: rgba(99, 102, 241, 0.08);
+  border: 1.5px solid rgba(99, 102, 241, 0.35);
+}
+
+.class-detail-override-card.extra .cd-override-header {
+  color: #A5B4FC;
+}
+
+.class-detail-override-card.extra .cd-override-header svg {
+  color: #6366F1;
+}
+
 .class-detail-override-card.cancellation {
   background: rgba(244, 63, 94, 0.08);
   border: 1.5px solid rgba(244, 63, 94, 0.35);
