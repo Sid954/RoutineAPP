@@ -8,13 +8,18 @@ export function initKeyboard() {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
 
     if (e.key === 'Escape') {
-      // Close the topmost open modal
-      if (DOM.announceModal && DOM.announceModal.classList.contains('open')) {
-        closeModal(DOM.announceModal);
-        if (window.Announcements && window.Announcements.markAsRead) window.Announcements.markAsRead();
-      } else if (DOM.notifModal.classList.contains('open')) closeModal(DOM.notifModal);
-      else if (DOM.editModal.classList.contains('open')) closeModal(DOM.editModal);
-      else if (DOM.viewModal.classList.contains('open')) closeModal(DOM.viewModal);
+      if (DOM.notifModal && DOM.notifModal.classList.contains('open')) closeModal(DOM.notifModal);
+      else if (DOM.editModal && DOM.editModal.classList.contains('open')) closeModal(DOM.editModal);
+      else if (DOM.viewModal && DOM.viewModal.classList.contains('open')) closeModal(DOM.viewModal);
+      else if (DOM.classDetailModal && DOM.classDetailModal.classList.contains('open')) closeModal(DOM.classDetailModal);
+      else if (DOM.confirmModal && DOM.confirmModal.classList.contains('open')) closeModal(DOM.confirmModal);
+      else if (window.__currentAppViewId && window.__currentAppViewId !== 'home') {
+        if (window.__currentAppViewId === 'post_announcement') {
+          if (window.switchAppView) window.switchAppView('announcements');
+        } else {
+          if (window.switchAppView) window.switchAppView('home');
+        }
+      }
     }
     if (e.key === 'e' || e.key === 'E') {
       if (!State.isModalOpen) document.getElementById('editBtn').click();

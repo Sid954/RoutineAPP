@@ -99,9 +99,76 @@ export function showClassDetails(data) {
     desigEl.textContent = desigText;
   }
 
+  // Handle Override Context (Exam Topics / Online Link / Cancellation)
+  const overrideBox = document.getElementById('modalOverrideDetails');
+  if (overrideBox) {
+    if (data.isExam) {
+      overrideBox.style.display = 'block';
+      overrideBox.innerHTML = `
+        <div class="class-detail-override-card exam">
+          <div class="cd-override-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <span>${escapeHtml(data.examName || 'Class Test / Exam')}</span>
+          </div>
+          <div class="cd-override-body">
+            <div class="cd-override-topics-label">Syllabus / Topics:</div>
+            <div class="cd-override-topics-text">${escapeHtml(data.examTopics || 'Topics not specified.')}</div>
+          </div>
+        </div>
+      `;
+    } else if (data.isOnline) {
+      overrideBox.style.display = 'block';
+      overrideBox.innerHTML = `
+        <div class="class-detail-override-card online">
+          <div class="cd-override-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
+            <span>Virtual Online Session</span>
+          </div>
+          <div class="cd-override-body">
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 4px;">This class will be conducted online for this date.</div>
+            ${data.onlinePlatform ? `
+              <a href="${escapeHtml(data.onlinePlatform)}" target="_blank" rel="noopener noreferrer" class="announce-join-btn" style="margin-top: 6px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <span>Join Online Session</span>
+              </a>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    } else if (data.isCancelled) {
+      overrideBox.style.display = 'block';
+      overrideBox.innerHTML = `
+        <div class="class-detail-override-card cancellation">
+          <div class="cd-override-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+            <span>Class Cancelled</span>
+          </div>
+          <div class="cd-override-body">
+            <span>This lecture is officially cancelled by the faculty for this scheduled date.</span>
+            ${data.cancelReason ? `<div style="margin-top: 4px; font-size: 11.5px; color: var(--text-muted);">${escapeHtml(data.cancelReason)}</div>` : ''}
+          </div>
+        </div>
+      `;
+    } else {
+      overrideBox.style.display = 'none';
+      overrideBox.innerHTML = '';
+    }
+  }
+
   if (badgeEl) {
-    badgeEl.textContent = isLab ? '★ LAB' : 'THEORY';
-    badgeEl.className = `resting-tag ${isLab ? 'lab' : 'theory'}`;
+    if (data.isExam) {
+      badgeEl.textContent = `📝 ${data.examName || 'EXAM'}`.toUpperCase();
+      badgeEl.className = 'resting-tag exam';
+    } else if (data.isOnline) {
+      badgeEl.textContent = '📡 ONLINE';
+      badgeEl.className = 'resting-tag online';
+    } else if (data.isCancelled) {
+      badgeEl.textContent = '🚫 CANCELLED';
+      badgeEl.className = 'resting-tag cancelled';
+    } else {
+      badgeEl.textContent = isLab ? '★ LAB' : 'THEORY';
+      badgeEl.className = `resting-tag ${isLab ? 'lab' : 'theory'}`;
+    }
   }
 
   if (countEl) {

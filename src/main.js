@@ -32,6 +32,85 @@ setParticlesRef(Particles);
 document.getElementById('vrB').addEventListener('click', () => openModal(DOM.viewModal, renderWeeklyMatrix));
 document.getElementById('vcC').addEventListener('click', () => closeModal(DOM.viewModal));
 
+/* ── Main View Switching & Dock State Manager ───────────────── */
+export function switchAppView(viewId, payload) {
+  const dashboardView = document.getElementById('dashboardView');
+  const appsHubView = document.getElementById('appsHubView');
+  const facultyAppView = document.getElementById('facultyAppView');
+  const announcementsAppView = document.getElementById('announcementsAppView');
+  const postAnnounceAppView = document.getElementById('postAnnounceAppView');
+
+  const dockHomeBtn = document.getElementById('dockHomeBtn');
+  const dockAppsBtn = document.getElementById('dockAppsBtn');
+  const dockNoticesBtn = document.getElementById('dockNoticesBtn');
+
+  const prevViewId = window.__currentAppViewId || 'home';
+  if (prevViewId === 'announcements' && viewId !== 'announcements' && viewId !== 'post_announcement') {
+    if (window.__markAnnouncementsAsRead) {
+      window.__markAnnouncementsAsRead();
+    }
+  }
+  window.__currentAppViewId = viewId;
+
+  // Hide all view panels
+  if (dashboardView) dashboardView.style.display = 'none';
+  if (appsHubView) appsHubView.style.display = 'none';
+  if (facultyAppView) facultyAppView.style.display = 'none';
+  if (announcementsAppView) announcementsAppView.style.display = 'none';
+  if (postAnnounceAppView) postAnnounceAppView.style.display = 'none';
+
+  // Clear dock active classes
+  if (dockHomeBtn) dockHomeBtn.classList.remove('active');
+  if (dockAppsBtn) dockAppsBtn.classList.remove('active');
+  if (dockNoticesBtn) dockNoticesBtn.classList.remove('active');
+
+  if (viewId === 'home') {
+    if (dashboardView) dashboardView.style.display = 'flex';
+    if (dockHomeBtn) dockHomeBtn.classList.add('active');
+  } else if (viewId === 'apps') {
+    if (appsHubView) {
+      appsHubView.style.display = 'flex';
+      appsHubView.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    if (dockAppsBtn) dockAppsBtn.classList.add('active');
+  } else if (viewId === 'faculty') {
+    if (facultyAppView) {
+      facultyAppView.style.display = 'flex';
+      facultyAppView.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    if (dockAppsBtn) dockAppsBtn.classList.add('active');
+    if (window.__renderFacultyDirectory) {
+      window.__renderFacultyDirectory();
+    }
+  } else if (viewId === 'announcements') {
+    if (announcementsAppView) {
+      announcementsAppView.style.display = 'flex';
+      announcementsAppView.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    if (dockNoticesBtn) dockNoticesBtn.classList.add('active');
+    if (window.__fetchAndRenderAnnouncements) {
+      window.__fetchAndRenderAnnouncements();
+    }
+  } else if (viewId === 'post_announcement') {
+    if (postAnnounceAppView) {
+      postAnnounceAppView.style.display = 'flex';
+      postAnnounceAppView.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    if (dockNoticesBtn) dockNoticesBtn.classList.add('active');
+    if (window.__openPostAnnounceForm) {
+      window.__openPostAnnounceForm(payload);
+    }
+  }
+}
+window.switchAppView = switchAppView;
+
+// Set default active tab
+const dockHomeBtn = document.getElementById('dockHomeBtn');
+if (dockHomeBtn) {
+  dockHomeBtn.classList.add('active');
+  dockHomeBtn.addEventListener('click', () => switchAppView('home'));
+}
+
 const dockRoutineBtn = document.getElementById('dockRoutineBtn');
 if (dockRoutineBtn) {
   dockRoutineBtn.addEventListener('click', () => openModal(DOM.viewModal, renderWeeklyMatrix));
@@ -42,6 +121,7 @@ if (dockCenterFab) {
   dockCenterFab.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
+    switchAppView('home');
     const today = new Date();
     State.viewDate = today;
     State.currentViewDayIdx = today.getDay();
@@ -56,46 +136,36 @@ if (dockCenterFab) {
 
 const dockNoticesBtn = document.getElementById('dockNoticesBtn');
 if (dockNoticesBtn) {
-  dockNoticesBtn.addEventListener('click', () => {
-    const announceBtn = document.getElementById('announcementsBtn');
-    if (announceBtn) announceBtn.click();
-  });
+  dockNoticesBtn.addEventListener('click', () => switchAppView('announcements'));
 }
 
-/* ── Campus Apps Hub modal ────────────────────────────────────── */
-const appsModal = document.getElementById('appsModal');
+const announcementsBtn = document.getElementById('announcementsBtn');
+if (announcementsBtn) {
+  announcementsBtn.addEventListener('click', () => switchAppView('announcements'));
+}
+
 const dockAppsBtn = document.getElementById('dockAppsBtn');
-const appsModalClose = document.getElementById('appsModalClose');
-
-if (dockAppsBtn && appsModal) {
-  dockAppsBtn.addEventListener('click', () => openModal(appsModal));
+if (dockAppsBtn) {
+  dockAppsBtn.addEventListener('click', () => switchAppView('apps'));
 }
-if (appsModalClose && appsModal) {
-  appsModalClose.addEventListener('click', () => closeModal(appsModal));
+
+/* ── Campus Apps Hub Actions ─────────────────────────────────── */
+const appHubFaculty = document.getElementById('appHubFaculty');
+if (appHubFaculty) {
+  appHubFaculty.addEventListener('click', () => switchAppView('faculty'));
 }
 
 const appHubFreeRooms = document.getElementById('appHubFreeRooms');
 if (appHubFreeRooms) {
   appHubFreeRooms.addEventListener('click', () => {
-    if (appsModal) closeModal(appsModal);
     const freeRoomsModal = document.getElementById('freeRoomsModal');
     if (freeRoomsModal) openModal(freeRoomsModal);
-  });
-}
-
-const appHubFaculty = document.getElementById('appHubFaculty');
-if (appHubFaculty) {
-  appHubFaculty.addEventListener('click', () => {
-    if (appsModal) closeModal(appsModal);
-    const teacherFinderModal = document.getElementById('teacherFinderModal');
-    if (teacherFinderModal) openModal(teacherFinderModal);
   });
 }
 
 const appHubRoutineMatrix = document.getElementById('appHubRoutineMatrix');
 if (appHubRoutineMatrix) {
   appHubRoutineMatrix.addEventListener('click', () => {
-    if (appsModal) closeModal(appsModal);
     openModal(DOM.viewModal, renderWeeklyMatrix);
   });
 }
@@ -103,7 +173,6 @@ if (appHubRoutineMatrix) {
 const appHubSettings = document.getElementById('appHubSettings');
 if (appHubSettings) {
   appHubSettings.addEventListener('click', () => {
-    if (appsModal) closeModal(appsModal);
     const editBtn = document.getElementById('editBtn');
     if (editBtn) editBtn.click();
   });
@@ -165,7 +234,7 @@ await Promise.all([
 ].filter(Boolean));
 
 /* ── Close modals on backdrop click ──────────────────────────── */
-[DOM.viewModal, DOM.editModal, DOM.notifModal, DOM.announceModal, DOM.postAnnounceModal, DOM.notifHistoryModal, DOM.classDetailModal, DOM.confirmModal]
+[DOM.viewModal, DOM.editModal, DOM.notifModal, DOM.notifHistoryModal, DOM.classDetailModal, DOM.confirmModal]
   .filter(Boolean)
   .forEach(modal => {
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(modal); });

@@ -74,6 +74,7 @@ window.__switchTimelineDay = function(dayIdx, timestamp) {
 };
 
 export function renderTimeline(force = false) {
+  window.renderTimeline = renderTimeline;
   renderWeekStrip();
 
   const classes = getClassesForDay(State.currentViewDayIdx);
@@ -163,16 +164,44 @@ export function renderTimeline(force = false) {
     const cancelOverride = getOverrideFor(State.currentViewDayIdx, c.title);
     const isCancelled = cancelOverride && cancelOverride.type === 'cancellation';
     const isOnline = cancelOverride && cancelOverride.type === 'online_class';
-    const isClassTest = c.isExam || (cancelOverride && cancelOverride.type === 'class_test');
+    const isClassTest = Boolean(c.isExam) || (cancelOverride && cancelOverride.type === 'class_test');
     const isHolidayCancelled = !isOnline && !isCancelled && holidayOverride && holidayOverride.type === 'holiday';
     const effectiveCancelled = isCancelled || isHolidayCancelled;
+
+    let examName = 'Exam';
+    let examTopics = '';
+    let onlinePlatform = '';
+    let cancelReason = '';
+
+    if (cancelOverride && cancelOverride.announcement) {
+      const ann = cancelOverride.announcement;
+      if (isClassTest) {
+        try {
+          const parsed = JSON.parse(ann.announcement);
+          examName = parsed.exam_name || 'Class Test';
+          examTopics = parsed.topics || '';
+        } catch (e) {
+          examName = ann.title ? ann.title.split(':')[0] : 'Class Test';
+          examTopics = ann.announcement || '';
+        }
+      } else if (isOnline) {
+        try {
+          const parsed = JSON.parse(ann.announcement);
+          onlinePlatform = parsed.platform || '';
+        } catch (e) {
+          onlinePlatform = ann.announcement || '';
+        }
+      } else if (isCancelled) {
+        cancelReason = ann.announcement || 'Class cancelled for this date';
+      }
+    }
 
     const isActive = isToday && currentMins >= startMins && currentMins < endMins && !effectiveCancelled;
     const isPast = isToday && endMins <= currentMins;
 
     const teacherCode = (c.teacher || c.instructor || '').trim();
     const teacherFullName = getFullName(teacherCode) || teacherCode || 'TBA';
-    const cleanRoom = formatRoom(c.room);
+    const cleanRoom = isOnline ? 'Online' : formatRoom(c.room);
 
     const detailsData = {
       title: c.title,
@@ -188,20 +217,58 @@ export function renderTimeline(force = false) {
       teacher: teacherCode || 'TBA',
       instructorName: teacherFullName,
       isExam: isClassTest,
+      examName: examName,
+      examTopics: examTopics,
       isOnline: isOnline,
+      onlinePlatform: onlinePlatform,
       isCancelled: effectiveCancelled,
+      cancelReason: cancelReason,
       isLive: isActive,
       isPast: isPast
     };
 
     const detailsJson = escapeHtml(JSON.stringify(detailsData));
 
+    // Dynamic Card Styling Classes & Badges
+    let cardModifierClass = '';
+    let titleHtml = escapeHtml(c.title);
+    let tagHtml = `<span class="resting-tag ${isLab ? 'lab' : 'theory'}">${isLab ? '★ LAB' : 'THEORY'}</span>`;
+    let subMetaHtml = '';
+
+    if (isClassTest) {
+      cardModifierClass = 'is-exam-override';
+      titleHtml = `${escapeHtml(c.title)} <span class="override-indicator exam">(EXAM)</span>`;
+      tagHtml = `<span class="resting-tag exam">📝 ${escapeHtml(examName.toUpperCase())}</span>`;
+      if (examTopics) {
+        subMetaHtml = `
+          <div class="meta-line-item exam-topics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>${escapeHtml(examTopics)}</span>
+          </div>
+        `;
+      }
+    } else if (isOnline) {
+      cardModifierClass = 'is-online-override';
+      titleHtml = `${escapeHtml(c.title)} <span class="override-indicator online">(ONLINE)</span>`;
+      tagHtml = `<span class="resting-tag online">📡 ONLINE</span>`;
+      subMetaHtml = `
+        <div class="meta-line-item online-session">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49"/></svg>
+          <span>Virtual Class Session</span>
+        </div>
+      `;
+    } else if (effectiveCancelled) {
+      cardModifierClass = 'is-cancelled-override';
+      titleHtml = `${escapeHtml(c.title)} <span class="override-indicator cancelled">(CANCELLED)</span>`;
+      tagHtml = `<span class="resting-tag cancelled">🚫 CANCELLED</span>`;
+    }
+
     // 1. Live Hero Card
     if (isActive) {
       const elapsed = currentMins - startMins;
       const remaining = Math.max(0, durationMins - elapsed);
       html += `
-        <div class="resting-class-row is-live-card" onclick='window.openClassDetailSheet(${detailsJson})' style="border-color: var(--accent); background: var(--card-bg);">
+        <div class="resting-class-row is-live-card ${cardModifierClass}" onclick='window.openClassDetailSheet(${detailsJson})' style="border-color: var(--accent); background: var(--card-bg);">
           <div class="resting-left">
             <div class="resting-time-col">
               <div class="time-connector-track">
@@ -214,8 +281,8 @@ export function renderTimeline(force = false) {
             </div>
             <div class="resting-info-col">
               <div class="resting-title-row">
-                <span class="resting-code">${escapeHtml(c.title)}</span>
-                <span class="resting-tag ${isLab ? 'lab' : 'theory'}">${isLab ? '★ LAB' : 'THEORY'}</span>
+                <span class="resting-code">${titleHtml}</span>
+                ${tagHtml}
               </div>
               <div class="card-meta-stacked">
                 <div class="meta-line-item room">
@@ -226,6 +293,7 @@ export function renderTimeline(force = false) {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   <span>${escapeHtml(teacherCode || 'TBA')}</span>
                 </div>
+                ${subMetaHtml}
               </div>
             </div>
           </div>
@@ -239,7 +307,7 @@ export function renderTimeline(force = false) {
     } else {
       // 2. Solid Resting Card with Dotted Time Connector
       html += `
-        <div class="resting-class-row ${isPast ? 'is-finished' : ''}" onclick='window.openClassDetailSheet(${detailsJson})'>
+        <div class="resting-class-row ${isPast ? 'is-finished' : ''} ${cardModifierClass}" onclick='window.openClassDetailSheet(${detailsJson})'>
           <div class="resting-left">
             <div class="resting-time-col">
               <div class="time-connector-track">
@@ -252,8 +320,8 @@ export function renderTimeline(force = false) {
             </div>
             <div class="resting-info-col">
               <div class="resting-title-row">
-                <span class="resting-code">${escapeHtml(c.title)}</span>
-                <span class="resting-tag ${isLab ? 'lab' : 'theory'}">${isLab ? '★ LAB' : 'THEORY'}</span>
+                <span class="resting-code">${titleHtml}</span>
+                ${tagHtml}
               </div>
               <div class="card-meta-stacked">
                 <div class="meta-line-item room">
@@ -264,11 +332,16 @@ export function renderTimeline(force = false) {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   <span>${escapeHtml(teacherCode || 'TBA')}</span>
                 </div>
+                ${subMetaHtml}
               </div>
             </div>
           </div>
           <div class="resting-right-meta">
-            ${isPast ? `
+            ${effectiveCancelled ? `
+              <span class="finished-check-badge cancelled" style="background: rgba(244, 63, 94, 0.12); color: #FDA4AF; border: 1px solid rgba(244, 63, 94, 0.3);">
+                CANCELLED
+              </span>
+            ` : isPast ? `
               <span class="finished-check-badge">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                 DONE

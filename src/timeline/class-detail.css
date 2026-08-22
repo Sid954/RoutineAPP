@@ -442,3 +442,97 @@ html[data-theme="light"] .faculty-avatar-mini,
   padding: 2px 6px;
   border-radius: 5px;
 }
+
+/* ==========================================================================
+   Dynamic Override Cards inside Class Detail Sheet
+   ========================================================================== */
+.class-detail-override-card {
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.class-detail-override-card.exam {
+  background: rgba(249, 115, 22, 0.08);
+  border: 1.5px solid rgba(249, 115, 22, 0.35);
+}
+
+.class-detail-override-card.exam .cd-override-header {
+  color: #FDBA74;
+}
+
+.class-detail-override-card.exam .cd-override-header svg {
+  color: #F97316;
+}
+
+.class-detail-override-card.online {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1.5px solid rgba(16, 185, 129, 0.35);
+}
+
+.class-detail-override-card.online .cd-override-header {
+  color: #6EE7B7;
+}
+
+.class-detail-override-card.online .cd-override-header svg {
+  color: #10B981;
+}
+
+.class-detail-override-card.cancellation {
+  background: rgba(244, 63, 94, 0.08);
+  border: 1.5px solid rgba(244, 63, 94, 0.35);
+}
+
+.class-detail-override-card.cancellation .cd-override-header {
+  color: #FDA4AF;
+}
+
+.class-detail-override-card.cancellation .cd-override-header svg {
+  color: #F43F5E;
+}
+
+.cd-override-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.cd-override-header svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.2;
+}
+
+.cd-override-body {
+  font-size: 12px;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.cd-override-topics-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 3px;
+}
+
+.cd-override-topics-text {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: pre-wrap;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+

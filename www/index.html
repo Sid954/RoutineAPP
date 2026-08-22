@@ -76,69 +76,517 @@
     <div class="w" id="app">
       <div class="wi">
 
-        <!-- Header: Clock, Date Badge Pill, Controls -->
-        <header class="top-bar">
-          <div class="top-date-time-col">
-            <div class="digital-clock" id="clockTrigger">
-              <span class="clock-time" id="hD">12</span>:<span id="mD">30</span>
-              <span class="clock-period" id="apD">PM</span>
+        <!-- 1. Full-Page View: Schedule Dashboard (Home) -->
+        <div id="dashboardView" class="app-page-view active">
+          <!-- Header: Clock, Date Badge Pill, Controls -->
+          <header class="top-bar">
+            <div class="top-date-time-col">
+              <div class="digital-clock" id="clockTrigger">
+                <span class="clock-time" id="hD">12</span>:<span id="mD">30</span>
+                <span class="clock-period" id="apD">PM</span>
+              </div>
+              <!-- Sleek Interactive Date Button (Line 2 under Clock) -->
+              <button class="date-badge-pill" id="dateBadgeBtn" title="Current Academic Date">
+                <svg class="cal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span id="dateD">Saturday, 19 August</span>
+                <svg class="cal-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <span id="dayD" style="display:none;"></span>
             </div>
-            <!-- Sleek Interactive Date Button (Line 2 under Clock) -->
-            <button class="date-badge-pill" id="dateBadgeBtn" title="Current Academic Date">
-              <svg class="cal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <span id="dateD">Saturday, 19 August</span>
-              <svg class="cal-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <span id="dayD" style="display:none;"></span>
-          </div>
-          <div class="top-actions">
-            <button class="hd-btn" id="editBtn" title="Edit schedule & appearance">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            </button>
-            <div style="display: none;" aria-hidden="true">
-              <button id="announcementsBtn"><span id="announceBadge"></span></button>
-              <button id="notifSettingsBtn"></button>
+            <div class="top-actions">
+              <button class="hd-btn" id="editBtn" title="Edit schedule & appearance">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </button>
+              <div style="display: none;" aria-hidden="true">
+                <button id="announcementsBtn"><span id="announceBadge"></span></button>
+                <button id="notifSettingsBtn"></button>
+              </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <!-- 2. Headline Greeting (Line 1: Salutation with Sun SVG, Line 2: Sid, Line 3: Caption) -->
-        <div class="greeting-headline-row" id="greeting">
-          <div class="greeting-text-group">
-            <div class="greeting-salutation-line">
-              <span id="greetSalutation">Good afternoon</span>
-              <svg class="salutation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <!-- 2. Headline Greeting (Line 1: Salutation with Sun SVG, Line 2: Sid, Line 3: Caption) -->
+          <div class="greeting-headline-row" id="greeting">
+            <div class="greeting-text-group">
+              <div class="greeting-salutation-line">
+                <span id="greetSalutation">Good afternoon</span>
+                <svg class="salutation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              </div>
+              <h1 class="greeting-user-name" id="greetText">Sid</h1>
+              <span class="greeting-caption" id="greetSub">2 sessions scheduled</span>
             </div>
-            <h1 class="greeting-user-name" id="greetText">Sid</h1>
-            <span class="greeting-caption" id="greetSub">2 sessions scheduled</span>
+          </div>
+
+          <!-- Direction B: Focal Day Anchor Strip -->
+          <section class="strip-direction-container">
+            <div class="strip-dir-b-row" id="focalStripContainer">
+              <!-- Rendered dynamically -->
+            </div>
+          </section>
+
+          <!-- Unified Spacious Timeline Cards -->
+          <section class="cs" id="chS">
+            <div class="timeline-header-row">
+              <div class="timeline-title-text" id="timelineTitle">Today's Schedule</div>
+              <div class="timeline-count-badge" id="timelineSubtitle">Loading...</div>
+            </div>
+            <div class="chg" id="chG">
+              <!-- Timeline Cards injected via renderTimeline() -->
+            </div>
+          </section>
+
+          <!-- Compatibility Hidden Containers for Background Updates -->
+          <div style="display: none;" aria-hidden="true">
+            <div id="prevDayBtn"></div>
+            <div id="nextDayBtn"></div>
+            <div id="vrB"></div>
+            <div id="cc"><span id="cTR"></span><span id="cT"></span><div class="mr"><span id="cR"></span></div><div class="ps"><div class="pi"><span id="cEl"></span></div><div class="pt"><div id="cBar"></div></div><div id="cRm"></div></div></div>
+            <div id="nc"><span id="nT"></span><span id="nE"></span><span id="nR"></span><span id="nTR"></span></div>
           </div>
         </div>
 
-        <!-- Direction B: Focal Day Anchor Strip -->
-        <section class="strip-direction-container">
-          <div class="strip-dir-b-row" id="focalStripContainer">
-            <!-- Rendered dynamically -->
-          </div>
-        </section>
+        <!-- 2. Full-Page View: Campus Apps Hub -->
+        <div id="appsHubView" class="app-page-view" style="display: none;">
+          <div class="apps-hub-container">
+            <div class="apps-hub-header">
+              <h1 class="apps-hub-title">Campus Hub</h1>
+              <span class="apps-hub-subtitle">Academic utilities & department services</span>
+            </div>
 
-        <!-- Unified Spacious Timeline Cards -->
-        <section class="cs" id="chS">
-          <div class="timeline-header-row">
-            <div class="timeline-title-text" id="timelineTitle">Today's Schedule</div>
-            <div class="timeline-count-badge" id="timelineSubtitle">Loading...</div>
-          </div>
-          <div class="chg" id="chG">
-            <!-- Timeline Cards injected via renderTimeline() -->
-          </div>
-        </section>
+            <div class="apps-hub-grid">
+              <!-- Faculty Directory Card -->
+              <div class="apps-hub-card" id="appHubFaculty">
+                <div class="apps-hub-card-icon-squircle purple">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                </div>
+                <div class="apps-hub-card-content">
+                  <div class="apps-hub-card-title-row">
+                    <span class="apps-hub-card-title">Faculty Directory</span>
+                  </div>
+                  <p class="apps-hub-card-desc">Search instructors, class routines, contacts & course distributions</p>
+                </div>
+                <div class="apps-hub-card-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+              </div>
 
-        <!-- Compatibility Hidden Containers for Background Updates -->
-        <div style="display: none;" aria-hidden="true">
-          <div id="prevDayBtn"></div>
-          <div id="nextDayBtn"></div>
-          <div id="vrB"></div>
-          <div id="cc"><span id="cTR"></span><span id="cT"></span><div class="mr"><span id="cR"></span></div><div class="ps"><div class="pi"><span id="cEl"></span></div><div class="pt"><div id="cBar"></div></div><div id="cRm"></div></div></div>
-          <div id="nc"><span id="nT"></span><span id="nE"></span><span id="nR"></span><span id="nTR"></span></div>
+              <!-- Free Rooms Finder Card -->
+              <div class="apps-hub-card" id="appHubFreeRooms">
+                <div class="apps-hub-card-icon-squircle emerald">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                </div>
+                <div class="apps-hub-card-content">
+                  <div class="apps-hub-card-title-row">
+                    <span class="apps-hub-card-title">Free Rooms</span>
+                  </div>
+                  <p class="apps-hub-card-desc">Find empty classrooms, upcoming free slots & floor maps</p>
+                </div>
+                <div class="apps-hub-card-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+              </div>
+
+              <!-- Weekly Routine Matrix Card -->
+              <div class="apps-hub-card" id="appHubRoutineMatrix">
+                <div class="apps-hub-card-icon-squircle cyan">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                </div>
+                <div class="apps-hub-card-content">
+                  <div class="apps-hub-card-title-row">
+                    <span class="apps-hub-card-title">Routine Matrix</span>
+                  </div>
+                  <p class="apps-hub-card-desc">View full weekly department timetable grid</p>
+                </div>
+                <div class="apps-hub-card-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+              </div>
+
+              <!-- Routine Settings Card -->
+              <div class="apps-hub-card" id="appHubSettings">
+                <div class="apps-hub-card-icon-squircle amber">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </div>
+                <div class="apps-hub-card-content">
+                  <div class="apps-hub-card-title-row">
+                    <span class="apps-hub-card-title">Schedule Settings</span>
+                  </div>
+                  <p class="apps-hub-card-desc">Change active semester, section & visual theme</p>
+                </div>
+                <div class="apps-hub-card-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Full-Page View: Faculty Directory -->
+        <div id="facultyAppView" class="app-page-view" style="display: none;">
+          <div class="faculty-page-container">
+            <div class="faculty-page-header">
+              <div class="faculty-page-header-top">
+                <button class="faculty-page-back-btn" id="facultyPageBackBtn" title="Back to Apps Hub">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  <span>Apps</span>
+                </button>
+                <div class="faculty-page-actions">
+                  <button id="suggestTeacherNameBtn" class="faculty-action-btn primary" title="Suggest or edit faculty info">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span>Add / Edit</span>
+                  </button>
+                  <button id="teacherAdminBtn" class="faculty-action-btn secondary" title="Verify & approve updates">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    <span>Pending</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="faculty-page-title-group">
+                <h1 class="faculty-page-title">Faculty Directory</h1>
+                <span class="faculty-page-subtitle">Department of Computer Science and Engineering</span>
+              </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="faculty-page-search-container">
+              <div class="faculty-page-search-input-wrap">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="teacherFinderSearchInput" placeholder="Search name, code, designation, subject..." autocomplete="off" />
+                <button id="teacherFinderSearchClear" class="search-clear-btn" style="display: none;">✕</button>
+              </div>
+              <div class="faculty-page-stats-row">
+                <span id="teacherFinderSummary" class="faculty-count-text">Loading faculty directory...</span>
+              </div>
+            </div>
+
+            <!-- Scrollable Faculty Grid -->
+            <div id="teacherFinderGrid" class="faculty-full-grid">
+              <!-- Populated dynamically by teacher-modal.js -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Full-Page View: Notices & Announcements -->
+        <div id="announcementsAppView" class="app-page-view" style="display: none;">
+          <div class="announcements-page-container">
+            <div class="announcements-page-header">
+              <div class="announcements-page-header-top">
+                <button class="announcements-page-back-btn" id="announcePageBackBtn" title="Back to Home">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  <span>Home</span>
+                </button>
+                <div class="announcements-page-actions">
+                  <button id="adminNoticeModeBtn" class="announcements-action-btn secondary" title="Unlock Admin Edit Mode">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <span id="adminNoticeModeLabel">Edit</span>
+                  </button>
+                  <button id="newAnnounceBtn" class="announcements-action-btn primary" title="Post new announcement">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span>Post Notice</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="announcements-page-title-group">
+                <h1 class="announcements-page-title">Notices & Updates</h1>
+                <span class="announcements-page-subtitle" id="announceSubtitle">Class announcements & timetable overrides</span>
+              </div>
+
+              <!-- Category Filter Pills Bar (6 pills) -->
+              <div id="announceFilterBar" class="announce-filter-bar">
+                <button class="announce-filter-pill active" data-filter="all">All</button>
+                <button class="announce-filter-pill" data-filter="general">General</button>
+                <button class="announce-filter-pill" data-filter="cancellation">Cancelled</button>
+                <button class="announce-filter-pill" data-filter="holiday">Holiday</button>
+                <button class="announce-filter-pill" data-filter="online_class">Online</button>
+                <button class="announce-filter-pill" data-filter="class_test">Exams</button>
+              </div>
+            </div>
+
+            <!-- Scrollable Announcements Feed -->
+            <div class="announce-full-feed" id="announceList">
+              <div class="skeleton-card" style="height: 80px;"></div>
+              <div class="skeleton-card" style="height: 80px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Full-Page View: Post / Edit Announcement -->
+        <div id="postAnnounceAppView" class="app-page-view" style="display: none;">
+          <div class="post-announce-page-container">
+            <div class="post-announce-page-header">
+              <div class="post-announce-page-header-top">
+                <button class="post-announce-back-btn" id="postAnnounceBackBtn" title="Back to Notices">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  <span>Notices</span>
+                </button>
+              </div>
+
+              <div class="post-announce-title-group">
+                <h1 class="post-announce-title" id="postAnnounceFormTitle">Post Announcement</h1>
+                <span class="post-announce-subtitle" id="postAnnounceFormSubtitle">Publish notice & notify your section</span>
+              </div>
+            </div>
+
+            <!-- Form Content -->
+            <div class="post-announce-form-scroll">
+              <input type="hidden" id="paEditId" value="" />
+
+              <div class="post-form-unified-card" id="paFormCard">
+                <!-- Section 1: Author & Category -->
+                <div class="post-form-section-header">
+                  <div class="post-form-section-num">1</div>
+                  <div class="post-form-section-title">Author & Category</div>
+                </div>
+
+                <div class="post-form-row">
+                  <div class="post-form-group">
+                    <label>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      <span>Your Name</span>
+                    </label>
+                    <input type="text" id="paName" placeholder="e.g. Dr. John Doe" required />
+                  </div>
+                  <div class="post-form-group">
+                    <label>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+                      <span>Announcement Type</span>
+                    </label>
+                    <div class="pa-type-picker-wrapper" id="paTypePickerWrapper">
+                      <select id="paType" class="clean-select" style="display: none;">
+                        <option value="general">General</option>
+                        <option value="cancellation">Class Cancellation</option>
+                        <option value="holiday">Holiday</option>
+                        <option value="online_class">Online Class</option>
+                        <option value="class_test">Class Test / Exam</option>
+                      </select>
+
+                      <button type="button" class="pa-type-picker-btn" id="paTypePickerBtn" aria-expanded="false" aria-haspopup="listbox">
+                        <div class="pa-type-picker-current" id="paTypeCurrentDisplay">
+                          <span class="pa-type-indicator-pill" id="paTypeIndicatorPill">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                            <span id="paTypeIndicatorLabel">General</span>
+                          </span>
+                        </div>
+                        <div class="pa-type-picker-chevron">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                      </button>
+
+                      <!-- Popover Menu with all 5 types -->
+                      <div class="pa-type-dropdown-menu" id="paTypeDropdownMenu" style="display: none;">
+                        <div class="pa-type-option-item active" data-type="general">
+                          <div class="pa-type-option-pill general">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                            <span>General</span>
+                          </div>
+                          <span class="pa-type-option-desc">Broadcast or routine update</span>
+                        </div>
+                        <div class="pa-type-option-item" data-type="cancellation">
+                          <div class="pa-type-option-pill cancellation">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                            <span>Cancelled</span>
+                          </div>
+                          <span class="pa-type-option-desc">Cancel scheduled class</span>
+                        </div>
+                        <div class="pa-type-option-item" data-type="holiday">
+                          <div class="pa-type-option-pill holiday">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <span>Holiday</span>
+                          </div>
+                          <span class="pa-type-option-desc">University day off</span>
+                        </div>
+                        <div class="pa-type-option-item" data-type="online_class">
+                          <div class="pa-type-option-pill online_class">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
+                            <span>Online</span>
+                          </div>
+                          <span class="pa-type-option-desc">Online class link & times</span>
+                        </div>
+                        <div class="pa-type-option-item" data-type="class_test">
+                          <div class="pa-type-option-pill class_test">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            <span>Class Test</span>
+                          </div>
+                          <span class="pa-type-option-desc">Exam, CT or quiz syllabus</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="post-form-section-divider"></div>
+
+                <!-- Section 2: Details & Dynamic Overrides -->
+                <div class="post-form-section-header">
+                  <div class="post-form-section-num">2</div>
+                  <div class="post-form-section-title" id="paDetailsSectionHeader">Notice Details & Overrides</div>
+                </div>
+
+                <!-- Sub-Section: General -->
+                <div id="paGeneralSection" class="post-form-subpanel">
+                  <div class="post-form-row">
+                    <div class="post-form-group">
+                      <label>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        <span>Title</span>
+                      </label>
+                      <input type="text" id="paTitle" placeholder="e.g. Special Guest Lecture" />
+                    </div>
+                    <div class="post-form-group">
+                      <label>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        <span>Subject (Optional)</span>
+                      </label>
+                      <input type="text" id="paSubject" placeholder="e.g. EDC" />
+                    </div>
+                  </div>
+                  <div class="post-form-group" style="margin-top: 10px;">
+                    <label>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
+                      <span>Announcement Content</span>
+                    </label>
+                    <textarea id="paContent" placeholder="Write notice details and instructions here..."></textarea>
+                  </div>
+                </div>
+
+                <!-- Sub-Section: Cancellation -->
+                <div id="paCancellationSection" class="post-form-subpanel" style="display: none;">
+                  <div class="post-form-banner warning" style="margin-bottom: 12px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                    <span>Marks this specific class as cancelled on the timeline routine for that day.</span>
+                  </div>
+                  <div class="post-form-row">
+                    <div class="post-form-group">
+                      <label>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <span>Cancel Date</span>
+                      </label>
+                      <input type="date" id="paCancelDate" />
+                    </div>
+                    <div class="post-form-group">
+                      <label>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        <span>Subject to Cancel</span>
+                      </label>
+                      <select id="paCancelSubjectSelect" class="clean-select"></select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Sub-Section: Holiday -->
+                <div id="paHolidaySection" class="post-form-subpanel" style="display: none;">
+                  <div class="post-form-banner info" style="margin-bottom: 12px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span>Declares a university holiday or day off. All physical classes will be marked suspended.</span>
+                  </div>
+                  <div class="post-form-row">
+                    <div class="post-form-group">
+                      <label>Duration</label>
+                      <select id="paHolidayRangeType" class="clean-select">
+                        <option value="single">Single Day</option>
+                        <option value="multiple">Multiple Days</option>
+                      </select>
+                    </div>
+                    <div class="post-form-group">
+                      <label>Start Date</label>
+                      <input type="date" id="paHolidayStartDate" />
+                    </div>
+                  </div>
+                  <div class="post-form-group" id="paHolidayEndDateContainer" style="display: none; margin-top: 10px;">
+                    <label>End Date (Inclusive)</label>
+                    <input type="date" id="paHolidayEndDate" />
+                  </div>
+                  <div class="post-form-group" style="margin-top: 10px;">
+                    <label>Holiday Name / Reason</label>
+                    <input type="text" id="paHolidayDetails" placeholder="e.g. Eid Vacation / University Foundation Day" />
+                  </div>
+                </div>
+
+                <!-- Sub-Section: Online Class -->
+                <div id="paOnlineSection" class="post-form-subpanel" style="display: none;">
+                  <div class="post-form-banner info" style="margin-bottom: 12px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <span>This class will run <strong>online</strong> even during declared holidays.</span>
+                  </div>
+                  <div class="post-form-row">
+                    <div class="post-form-group">
+                      <label>Date</label>
+                      <input type="date" id="paOnlineDate" />
+                    </div>
+                    <div class="post-form-group">
+                      <label>Subject</label>
+                      <select id="paOnlineSubjectSelect" class="clean-select"></select>
+                    </div>
+                  </div>
+                  <div class="post-form-row" style="margin-top: 10px;">
+                    <div class="post-form-group">
+                      <label>Start Time</label>
+                      <input type="time" id="paOnlineStart" value="09:45" />
+                    </div>
+                    <div class="post-form-group">
+                      <label>End Time</label>
+                      <input type="time" id="paOnlineEnd" value="11:00" />
+                    </div>
+                  </div>
+                  <div class="post-form-group" style="margin-top: 10px;">
+                    <label>Platform / Join Link (Optional)</label>
+                    <input type="text" id="paOnlineLink" placeholder="e.g. Google Meet link, Zoom URL, etc." />
+                  </div>
+                </div>
+
+                <!-- Sub-Section: Class Test -->
+                <div id="paClassTestSection" class="post-form-subpanel" style="display: none;">
+                  <div class="post-form-banner warning" style="margin-bottom: 12px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span>Schedules a test or exam. The timeline routine card will display exam styling.</span>
+                  </div>
+                  <div class="post-form-row">
+                    <div class="post-form-group">
+                      <label>Test Date</label>
+                      <input type="date" id="paClassTestDate" />
+                    </div>
+                    <div class="post-form-group">
+                      <label>Subject</label>
+                      <select id="paClassTestSubjectSelect" class="clean-select"><option value="">Select a date first</option></select>
+                      <label class="post-form-checkbox-label">
+                        <input type="checkbox" id="paClassTestShowAllSubjects" /> <span>Subject not in this day's routine</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="post-form-group" style="margin-top: 10px;">
+                    <label>Exam / Test Name</label>
+                    <input type="text" id="paClassTestName" placeholder="e.g. CT-1 (Diode Circuits)" />
+                  </div>
+                  <div class="post-form-group" style="margin-top: 10px;">
+                    <label>Syllabus / Topics (Optional)</label>
+                    <textarea id="paClassTestTopics" placeholder="e.g. Chapter 1-3, Clipper & Clamper, Diode Models..."></textarea>
+                  </div>
+                </div>
+
+                <div class="post-form-section-divider"></div>
+
+                <!-- Section 3: Integrated Authorization & Action Bar -->
+                <div class="post-form-integrated-footer">
+                  <div class="post-form-auth-row">
+                    <label class="post-form-auth-label">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      <span>Admin Password</span>
+                    </label>
+                    <input type="password" id="paPassword" class="post-form-auth-input" placeholder="Required to authorize" required />
+                  </div>
+                  <div class="post-form-actions-row">
+                    <button type="button" class="post-form-btn secondary" id="postAnnounceCancel">Cancel</button>
+                    <button type="button" class="post-form-btn primary" id="postAnnounceSubmit">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                      <span id="postAnnounceSubmitLabel">Publish & Notify</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -499,193 +947,7 @@
     </div>
   </div>
 
-  <!-- Modal: Announcements -->
-  <div class="mo" id="announceModal">
-    <div class="md" style="max-width: 520px; max-height: 88vh; max-height: 88dvh; display: flex; flex-direction: column; padding: 20px 0 0; overflow: hidden;">
-      <div class="md-h" style="padding: 0 24px; margin-bottom: 4px;">
-        <h2>Announcements</h2>
-        <button class="cls" id="announceModalClose">✕</button>
-      </div>
-      <div class="md-sb" style="display: flex; justify-content: space-between; align-items: center; padding: 0 24px; margin-bottom: 10px;">
-        <span style="font-size: 12px; color: var(--dim);">Class announcements & schedule updates</span>
-        <button class="day-nav-btn" id="newAnnounceBtn" style="background: var(--btn-grad, linear-gradient(135deg, var(--accent), var(--pink))); color: var(--btn-text, #fff); font-weight: 800; border: none; font-size: 11.5px; padding: 6px 14px; border-radius: 99px; cursor: pointer; box-shadow: 0 4px 12px var(--ag); display: inline-flex; align-items: center; gap: 4px;">
-          <span>＋ Post Announcement</span>
-        </button>
-      </div>
-      
-      <!-- Category Filter Pills Bar -->
-      <div id="announceFilterBar" style="display: flex; gap: 6px; overflow-x: auto; padding: 0 24px 12px; scrollbar-width: none; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;">
-        <button class="announce-filter-pill active" data-filter="all">All</button>
-        <button class="announce-filter-pill" data-filter="general">General</button>
-        <button class="announce-filter-pill" data-filter="cancellation">Cancelled</button>
-        <button class="announce-filter-pill" data-filter="holiday">Holiday</button>
-        <button class="announce-filter-pill" data-filter="online_class">Online</button>
-        <button class="announce-filter-pill" data-filter="class_test">Exams</button>
-      </div>
 
-      <div class="announce-list" id="announceList" style="flex: 1; min-height: 0; overflow-y: auto; padding: 12px 24px 30px; display: flex; flex-direction: column; gap: 12px;">
-        <!-- Loaded dynamically -->
-        <div class="skeleton-card" style="height: 80px;"></div>
-        <div class="skeleton-card" style="height: 80px;"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Post Announcement -->
-  <div class="mo" id="postAnnounceModal">
-    <div class="md" style="max-width: 450px;">
-      <div class="md-h">
-        <h2>Post Announcement</h2>
-        <button class="cls" id="postAnnounceClose">✕</button>
-      </div>
-      <div class="md-sb">Submit an announcement to send notifications to everyone.</div>
-      <div class="mf" style="border-top:none; padding-top:15px;">
-        <div class="fr">
-          <div class="fg">
-            <label>Your Name</label>
-            <input type="text" id="paName" placeholder="e.g. Dr. John Doe" required />
-          </div>
-          <div class="fg">
-            <label>Announcement Type</label>
-            <select id="paType" class="clean-select">
-              <option value="general">General</option>
-              <option value="cancellation">Class Cancellation</option>
-              <option value="holiday">Holiday</option>
-              <option value="online_class">Online Class</option>
-              <option value="class_test">Class Test / Exam</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Section: General -->
-        <div id="paGeneralSection">
-          <div class="fr">
-            <div class="fg">
-              <label>Title</label>
-              <input type="text" id="paTitle" placeholder="e.g. Special Guest Lecture" />
-            </div>
-            <div class="fg">
-              <label>Subject (Optional)</label>
-              <input type="text" id="paSubject" placeholder="e.g. EDC" />
-            </div>
-          </div>
-          <div class="fg">
-            <label>Announcement Details</label>
-            <textarea id="paContent" placeholder="Write details here..." style="width: 100%; min-height: 100px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: var(--rx); color: var(--text); padding: 10px; font-family: var(--f); font-size: 13px; resize: vertical;"></textarea>
-          </div>
-        </div>
-
-        <!-- Section: Cancellation -->
-        <div id="paCancellationSection" style="display: none;">
-          <div class="fr">
-            <div class="fg">
-              <label>Subject to Cancel</label>
-              <select id="paCancelSubjectSelect" class="clean-select"></select>
-            </div>
-            <div class="fg">
-              <label>Cancel Date</label>
-              <input type="date" id="paCancelDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Section: Holiday -->
-        <div id="paHolidaySection" style="display: none;">
-          <div class="fr">
-            <div class="fg">
-              <label>Holiday Duration</label>
-              <select id="paHolidayRangeType" class="clean-select">
-                <option value="single">One Day</option>
-                <option value="multiple">Multiple Days</option>
-              </select>
-            </div>
-            <div class="fg">
-              <label>Start Date</label>
-              <input type="date" id="paHolidayStartDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
-            </div>
-          </div>
-          <div class="fg" id="paHolidayEndDateContainer" style="display: none;">
-            <label>End Date (Inclusive)</label>
-            <input type="date" id="paHolidayEndDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
-          </div>
-          <div class="fg">
-            <label>Holiday Name / Reason</label>
-            <input type="text" id="paHolidayDetails" placeholder="e.g. Eid Vacation / Winter Break" />
-          </div>
-        </div>
-
-        <!-- Section: Online Class -->
-        <div id="paOnlineSection" style="display: none;">
-          <div style="background: rgba(16, 185, 129, 0.06); border: 1px dashed rgba(16, 185, 129, 0.35); border-radius: var(--rx); padding: 10px 12px; margin-bottom: 10px; font-size: 11.5px; color: #6ee7b7;">
-            📡 This class will run <strong>online</strong> even if a holiday is declared. All other physical classes on that day remain cancelled.
-          </div>
-          <div class="fr">
-            <div class="fg">
-              <label>Subject (Online)</label>
-              <select id="paOnlineSubjectSelect" class="clean-select"></select>
-            </div>
-            <div class="fg">
-              <label>Date</label>
-              <input type="date" id="paOnlineDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
-            </div>
-          </div>
-          <div class="fr">
-            <div class="fg">
-              <label>Start Time</label>
-              <input type="time" id="paOnlineStart" value="09:45" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
-            </div>
-            <div class="fg">
-              <label>End Time</label>
-              <input type="time" id="paOnlineEnd" value="11:00" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
-            </div>
-          </div>
-          <div class="fg">
-            <label>Platform / Link (Optional)</label>
-            <input type="text" id="paOnlineLink" placeholder="e.g. Google Meet, Zoom link, or just Google Meet" style="width:100%;" />
-          </div>
-        </div>
-
-        <!-- Section: Class Test -->
-        <div id="paClassTestSection" style="display: none;">
-          <div style="background: rgba(251, 146, 60, 0.06); border: 1px dashed rgba(251, 146, 60, 0.35); border-radius: var(--rx); padding: 10px 12px; margin-bottom: 10px; font-size: 11.5px; color: #fdba74;">
-            📝 Schedule a <strong>class test or exam</strong> for a specific subject on a specific date. The routine card will show a distinct exam design.
-          </div>
-          <div class="fr">
-            <div class="fg">
-              <label>Test Date</label>
-              <input type="date" id="paClassTestDate" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--rx); color:var(--text); padding:8px 10px; font-family:var(--f); font-size:13px;" />
-            </div>
-            <div class="fg">
-              <label>Subject</label>
-              <select id="paClassTestSubjectSelect" class="clean-select"><option value="">Select a date first</option></select>
-              <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 6px; cursor: pointer; color: var(--dim); user-select: none;">
-                <input type="checkbox" id="paClassTestShowAllSubjects" style="width: auto; height: auto; margin: 0;" /> Out-of-schedule subject
-              </label>
-            </div>
-          </div>
-          <div class="fr">
-            <div class="fg">
-              <label>Exam Name</label>
-              <input type="text" id="paClassTestName" placeholder="e.g. CT-1, Quiz-2, Mid" style="width:100%;" />
-            </div>
-          </div>
-          <div class="fg">
-            <label>Topics (Optional)</label>
-            <textarea id="paClassTestTopics" placeholder="e.g. Chapter 1-3, Arrays, Linked Lists..." style="width: 100%; min-height: 70px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: var(--rx); color: var(--text); padding: 10px; font-family: var(--f); font-size: 13px; resize: vertical;"></textarea>
-          </div>
-        </div>
-
-        <div class="fg" style="margin-top: 10px;">
-          <label>Password</label>
-          <input type="password" id="paPassword" placeholder="Enter password to publish" required />
-        </div>
-        <div class="ma" style="justify-content: flex-end; gap: 10px; margin-top: 15px;">
-          <button class="bd" id="postAnnounceCancel">Cancel</button>
-          <button class="bp" id="postAnnounceSubmit">Publish & Notify</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Modal: Notification History -->
   <div class="mo" id="notifHistoryModal">
@@ -729,6 +991,9 @@
         </div>
         <button class="class-sheet-close-btn" id="classDetailClose" title="Close sheet">&times;</button>
       </div>
+
+      <!-- Contextual Override Banner (Exam Topics / Online Join Link / Cancellation Notice) -->
+      <div id="modalOverrideDetails" style="display: none;"></div>
 
       <!-- Core Parameters Grid -->
       <div class="class-sheet-params-grid">
@@ -890,45 +1155,6 @@
     <button id="freeRoomsFab" class="free-rooms-fab"><span id="freeRoomsBadge"></span></button>
   </div>
 
-  <!-- Modal: Campus Apps & Utilities Hub -->
-  <div class="mo" id="appsModal" style="z-index: 100020;">
-    <div class="md" style="max-width: 460px; padding: 20px; border-radius: var(--r-card);">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 20px;">⚡</span>
-          <h2 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin: 0;">Campus Apps & Hub</h2>
-        </div>
-        <button class="cls" id="appsModalClose" style="background: var(--canvas); border: 1px solid var(--card-border); color: var(--text-muted); border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">✕</button>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <div id="appHubFreeRooms" style="background: var(--canvas); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 6px;">
-          <div style="font-size: 24px;">🚪</div>
-          <div style="font-size: 13px; font-weight: 800; color: var(--text-main);">Free Rooms</div>
-          <div style="font-size: 11px; color: var(--text-muted);">Live vacancy across campus</div>
-        </div>
-
-        <div id="appHubFaculty" style="background: var(--canvas); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 6px;">
-          <div style="font-size: 24px;">👨‍🏫</div>
-          <div style="font-size: 13px; font-weight: 800; color: var(--text-main);">Faculty Directory</div>
-          <div style="font-size: 11px; color: var(--text-muted);">130+ faculty routines & info</div>
-        </div>
-
-        <div id="appHubRoutineMatrix" style="background: var(--canvas); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 6px;">
-          <div style="font-size: 24px;">📅</div>
-          <div style="font-size: 13px; font-weight: 800; color: var(--text-main);">Routine Matrix</div>
-          <div style="font-size: 11px; color: var(--text-muted);">Full weekly timetable grid</div>
-        </div>
-
-        <div id="appHubSettings" style="background: var(--canvas); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 6px;">
-          <div style="font-size: 24px;">⚙️</div>
-          <div style="font-size: 13px; font-weight: 800; color: var(--text-main);">Routine Settings</div>
-          <div style="font-size: 11px; color: var(--text-muted);">Change theme & section</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Modal: Universal Calendar Month Picker (Jump to Any Date) -->
   <div class="modal-overlay" id="calendarPickerModal" style="z-index: 100030;">
     <div class="bottom-sheet" onclick="event.stopPropagation()">
@@ -972,122 +1198,229 @@
     </div>
   </div>
 
-  <!-- Modal: Free Rooms Finder -->
-  <div class="mo" id="freeRoomsModal">
-    <div class="md md-wide" style="max-width: 640px; padding: 22px; position: relative;">
-      <button class="cls" id="freeRoomsCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
+  <!-- Modal: Campus Radar — Free Rooms Finder -->
+  <div class="mo campus-radar-modal" id="freeRoomsModal" style="z-index: 100020;">
+    <div class="md md-wide radar-modal-container" style="max-width: 680px; padding: 0; position: relative; overflow: hidden; border-radius: 24px;">
       
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
-        <span style="font-size: 24px;">🚪</span>
-        <h2 style="font-size: 19px; font-weight: 800; color: var(--text); margin: 0;">Room Availability</h2>
-      </div>
-      
-      <div id="freeRoomsSummary" style="font-size: 12px; color: var(--dim); margin-bottom: 14px;">
-        Searching across all semesters and sections...
+      <!-- Top Live Radar Telemetry Header -->
+      <div class="radar-telemetry-header">
+        <div class="radar-header-left">
+          <div class="radar-pulse-icon-box">
+            <svg class="radar-sweep-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" stroke-width="1.8" stroke-dasharray="2 3"/>
+              <circle cx="12" cy="12" r="6" stroke-width="1.8"/>
+              <circle cx="12" cy="12" r="2" fill="currentColor"/>
+              <path d="M12 12L20 7" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span class="radar-live-beacon"></span>
+          </div>
+          <div class="radar-title-stack">
+            <div class="radar-main-title-row">
+              <h2 class="radar-main-title">Campus Radar</h2>
+              <span class="radar-live-badge" id="frLiveBeaconBadge">
+                <span class="radar-dot-pulse"></span>
+                <span>LIVE PULSE</span>
+              </span>
+            </div>
+            <div class="radar-sub-telemetry" id="freeRoomsSummary">
+              Scanning real-time room availability...
+            </div>
+          </div>
+        </div>
+        <button class="radar-close-btn" id="freeRoomsCloseBtn" title="Close Campus Radar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
       </div>
 
-      <!-- 2-Column Body Container -->
-      <div class="fr-modal-body">
+      <!-- Mode Switcher & Plan-Ahead Controller -->
+      <div class="radar-control-panel">
+        <div class="radar-mode-toggle-row">
+          <div class="radar-mode-toggle-bar">
+            <button class="radar-mode-btn active" id="frModeInstant" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              <span>Right Now</span>
+            </button>
+            <button class="radar-mode-btn" id="frModePlanAhead" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <span>Plan Ahead</span>
+            </button>
+          </div>
 
-        <!-- Left Sidebar: Floor Selection -->
-        <div class="fr-floor-sidebar">
-          <div class="fr-sidebar-title">FLOORS</div>
-          <div id="freeRoomsFloorList" class="fr-floor-btn-list">
-            <button class="fr-floor-btn active" data-floor="ALL">All Floors</button>
-            <button class="fr-floor-btn" data-floor="4th">4th Floor</button>
-            <button class="fr-floor-btn" data-floor="5th">5th Floor</button>
-            <button class="fr-floor-btn" data-floor="6th">6th Floor</button>
-            <button class="fr-floor-btn" data-floor="9th">9th Floor</button>
-            <button class="fr-floor-btn" data-floor="10th">10th Floor</button>
+          <div class="radar-search-sort-group">
+            <div class="radar-search-box">
+              <svg class="radar-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="freeRoomsSearchInput" placeholder="Search room (e.g. 602, Lab)..." autocomplete="off" />
+            </div>
+            <select id="freeRoomsSortSelect" class="radar-sort-select" title="Sort rooms">
+              <option value="availability">⚡ Free First</option>
+              <option value="duration">⏳ Longest Free</option>
+              <option value="floor">🏢 By Floor</option>
+              <option value="room_asc">🔢 Room (Asc)</option>
+            </select>
           </div>
         </div>
 
-        <!-- Right Main Content: Search, Status Filters, Cards Grid -->
-        <div class="fr-main-content">
-          <!-- Search & Sort Row -->
-          <div style="margin-bottom: 10px;">
-            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-              <input type="text" id="freeRoomsSearchInput" placeholder="🔍 Search room..." style="flex: 1; height: 36px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 12.5px; outline: none;" />
-              <select id="freeRoomsSortSelect" class="fr-sort-select" title="Sort rooms">
-                <option value="availability">⚡ Free First</option>
-                <option value="room_asc">🔢 Room (Low-High)</option>
-                <option value="room_desc">🔢 Room (High-Low)</option>
-                <option value="floor">🏢 By Floor</option>
-              </select>
+        <!-- Plan-Ahead Interactive Controls (Expandable) -->
+        <div class="radar-plan-ahead-drawer" id="frPlanAheadDrawer" style="display: none;">
+          <div class="plan-ahead-inner">
+            <div class="plan-ahead-section">
+              <span class="plan-ahead-label">DAY:</span>
+              <div class="plan-ahead-days-pills" id="frPlanAheadDayPills">
+                <button class="plan-day-chip active" data-day="6">Sat</button>
+                <button class="plan-day-chip" data-day="0">Sun</button>
+                <button class="plan-day-chip" data-day="1">Mon</button>
+                <button class="plan-day-chip" data-day="2">Tue</button>
+                <button class="plan-day-chip" data-day="3">Wed</button>
+              </div>
             </div>
-            
-            <div id="freeRoomsStatusTabs" style="display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;">
-              <button class="fr-filter-pill" data-filter="ALL">All</button>
-              <button class="fr-filter-pill active" data-filter="FREE_NOW">Free Right Now</button>
-              <button class="fr-filter-pill" data-filter="FREE_SOON">Free in 30m</button>
-              <button class="fr-filter-pill" data-filter="OCCUPIED">Occupied</button>
-            </div>
-          </div>
 
-          <!-- Free Rooms Cards Grid -->
-          <div id="freeRoomsGrid" class="fr-grid" style="max-height: 340px; overflow-y: auto; padding-right: 2px;">
-            <!-- Populated dynamically by room-modal.js -->
+            <div class="plan-ahead-section">
+              <span class="plan-ahead-label">TIME SLOT:</span>
+              <div class="plan-ahead-slots-scroller" id="frPlanAheadTimeSlots">
+                <button class="plan-slot-chip active" data-mins="510">08:30 AM</button>
+                <button class="plan-slot-chip" data-mins="585">09:45 AM</button>
+                <button class="plan-slot-chip" data-mins="660">11:00 AM</button>
+                <button class="plan-slot-chip" data-mins="735">12:15 PM</button>
+                <button class="plan-slot-chip" data-mins="810">01:30 PM</button>
+                <button class="plan-slot-chip" data-mins="885">02:45 PM</button>
+                <button class="plan-slot-chip" data-mins="960">04:00 PM</button>
+              </div>
+            </div>
           </div>
         </div>
 
+        <!-- Frictionless Horizontal Filter Ribbon -->
+        <div class="radar-filter-ribbon">
+          <!-- Floor Chips -->
+          <div class="radar-floor-chips-scroll" id="freeRoomsFloorList">
+            <button class="radar-ribbon-chip active" data-floor="ALL">
+              <span>All Floors</span>
+              <span class="chip-counter-badge" id="frFloorBadgeAll">0</span>
+            </button>
+            <button class="radar-ribbon-chip" data-floor="4th">
+              <span>4th Fl</span>
+              <span class="chip-counter-badge" id="frFloorBadge4">0</span>
+            </button>
+            <button class="radar-ribbon-chip" data-floor="5th">
+              <span>5th Fl</span>
+              <span class="chip-counter-badge" id="frFloorBadge5">0</span>
+            </button>
+            <button class="radar-ribbon-chip" data-floor="6th">
+              <span>6th Fl</span>
+              <span class="chip-counter-badge" id="frFloorBadge6">0</span>
+            </button>
+            <button class="radar-ribbon-chip" data-floor="9th">
+              <span>9th Fl</span>
+              <span class="chip-counter-badge" id="frFloorBadge9">0</span>
+            </button>
+            <button class="radar-ribbon-chip" data-floor="10th">
+              <span>10th Fl</span>
+              <span class="chip-counter-badge" id="frFloorBadge10">0</span>
+            </button>
+          </div>
+
+          <!-- Status / Type Sub-Filters -->
+          <div class="radar-status-chips-scroll" id="freeRoomsStatusTabs">
+            <button class="radar-sub-chip active" data-filter="FREE_NOW">
+              <span class="status-indicator-dot emerald"></span>
+              <span>Free Now</span>
+            </button>
+            <button class="radar-sub-chip" data-filter="FREE_SOON">
+              <span class="status-indicator-dot amber"></span>
+              <span>Free in &lt;30m</span>
+            </button>
+            <button class="radar-sub-chip" data-filter="OCCUPIED">
+              <span class="status-indicator-dot rose"></span>
+              <span>Occupied</span>
+            </button>
+            <button class="radar-sub-chip" data-filter="ALL">
+              <span>All Rooms</span>
+            </button>
+            <button class="radar-sub-chip type-filter" id="frTypeFilterBtn" data-type="ALL">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              <span id="frTypeFilterLabel">All Types</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modular Bento Room Cards Grid -->
+      <div class="radar-cards-viewport">
+        <div id="freeRoomsGrid" class="radar-bento-grid">
+          <!-- Rendered dynamically by room-modal.js -->
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Modal: Room Daily Schedule Detail View -->
-  <div class="mo" id="roomDetailModal" style="z-index: 100010;">
-    <div class="md" style="max-width: 460px; padding: 22px; position: relative;">
-      <button class="cls" id="roomDetailCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
+  <!-- Modal: Room 360 Daily Schedule Bottom Sheet -->
+  <div class="mo room-360-overlay" id="roomDetailModal" style="z-index: 100040;">
+    <div class="md room-360-sheet" style="max-width: 520px; padding: 0; position: relative; border-radius: 28px 28px 0 0; overflow: hidden;">
       
-      <!-- Room Header -->
-      <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
-        <h2 id="roomDetailTitle" style="font-size: 22px; font-weight: 900; color: #fff; margin: 0;">Room 404</h2>
-        <span id="roomDetailFloor" style="font-size: 12px; font-weight: 700; color: var(--dim);">4th Floor</span>
+      <!-- Drag Handle -->
+      <div class="room-360-handle-bar">
+        <div class="room-360-handle"></div>
       </div>
 
-      <div id="roomDetailLiveBanner" style="margin-bottom: 16px;">
-        <!-- Dynamic Live Status Banner -->
-      </div>
-
-      <!-- Schedule Timeline Container -->
-      <div style="font-size: 11px; font-weight: 800; color: var(--dim); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;">
-        Today's Class Schedule
-      </div>
-
-      <div id="roomTimelineList" style="display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow-y: auto; padding-right: 2px;">
-        <!-- Populated dynamically: Finished (greyed out) -> Current (highlighted) -> Future (colored) -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Faculty Directory (Faculty Tracker & Profiles) -->
-  <div class="mo" id="teacherFinderModal">
-    <div class="md md-wide" style="max-width: 580px; padding: 22px; position: relative;">
-      <button class="cls" id="teacherFinderCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
-      
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; flex-wrap: wrap; gap: 6px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 24px;">👨‍🏫</span>
-          <h2 style="font-size: 19px; font-weight: 800; color: var(--text); margin: 0;">Faculty</h2>
+      <!-- Hero Header -->
+      <div class="room-360-hero-header">
+        <div class="room-360-hero-left">
+          <div class="room-360-icon-squircle" id="roomDetailIconSquircle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M14 9h4"/><path d="M14 15h4"/></svg>
+          </div>
+          <div class="room-360-hero-stack">
+            <div class="room-360-code-row">
+              <h2 id="roomDetailTitle" class="room-360-title">Room 602</h2>
+              <span id="roomDetailTypeBadge" class="resting-tag theory">THEORY</span>
+            </div>
+            <div class="room-360-sub-specs">
+              <span id="roomDetailFloor">6th Floor</span>
+              <span>&bull;</span>
+              <span id="roomDetailCapacity">60 Seats</span>
+              <span>&bull;</span>
+              <span>Academic Building</span>
+            </div>
+          </div>
         </div>
-        <div style="display: flex; gap: 6px; margin-right: 36px;">
-          <button id="suggestTeacherNameBtn" class="fr-filter-pill" style="font-size: 11px; padding: 4px 10px;" title="Suggest or edit faculty info">➕ Add / Edit Info</button>
-          <button id="teacherAdminBtn" class="fr-filter-pill" style="font-size: 11px; padding: 4px 10px; border-color: rgba(168, 85, 247, 0.4);" title="Verify & approve suggested updates">🛡️ Pending</button>
+        <button class="room-360-close-btn" id="roomDetailCloseBtn" title="Close sheet">&times;</button>
+      </div>
+
+      <div class="room-360-content-scroll">
+        <!-- Live Status Callout Card -->
+        <div id="roomDetailLiveBanner" class="room-360-live-banner">
+          <!-- Injected dynamically -->
         </div>
-      </div>
-      
-      <div id="teacherFinderSummary" style="font-size: 12px; color: var(--dim); margin-bottom: 14px;">
-        Department of Computer Science and Engineering
-      </div>
 
-      <!-- Search Bar -->
-      <div style="margin-bottom: 12px;">
-        <input type="text" id="teacherFinderSearchInput" placeholder="🔍 Search faculty name, code, designation, subject..." style="width: 100%; height: 38px; padding: 0 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; outline: none;" />
-      </div>
+        <!-- Room Specs Quick Pills -->
+        <div class="room-360-specs-bar">
+          <div class="spec-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span id="roomDetailSessionCount">4 Sessions Today</span>
+          </div>
+          <div class="spec-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <span>Projector Equipped</span>
+          </div>
+          <div class="spec-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+            <span>Air Conditioned</span>
+          </div>
+        </div>
 
-      <!-- Faculty List Container -->
-      <div id="teacherFinderGrid" class="ft-list" style="max-height: 400px; overflow-y: auto; padding-right: 2px;">
-        <!-- Populated dynamically by teacher-modal.js -->
+        <!-- Full Daily Timeline Matrix -->
+        <div class="room-360-timeline-section">
+          <div class="room-360-timeline-header">
+            <div class="r360-tl-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Daily Class Progression</span>
+            </div>
+            <span class="r360-day-tag" id="roomDetailDayName">SATURDAY</span>
+          </div>
+
+          <div id="roomTimelineList" class="room-360-timeline-track">
+            <!-- Populated dynamically with past/live/upcoming slots -->
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1120,7 +1453,6 @@
               <span class="faculty-code-tag" id="suggestTeacherCodeLockedBadge">MHE</span>
               <span style="font-size: 13px; font-weight: 700; color: var(--text);" id="suggestTeacherNameLockedLabel">Mahmudul Hasan Emon</span>
             </div>
-            <span style="font-size: 10px; font-weight: 800; color: var(--dim); text-transform: uppercase; letter-spacing: 0.4px;">🔒 Locked</span>
           </div>
 
           <!-- Select dropdown when opened from general context -->

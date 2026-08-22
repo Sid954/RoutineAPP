@@ -1312,5 +1312,340 @@
   gap: 8px;
 }
 
+/* ==========================================================================
+   Faculty Full-Page App View Styles
+   ========================================================================== */
+.faculty-page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.faculty-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.faculty-page-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.faculty-page-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: var(--card-bg, #1e2028);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
+  border-radius: 20px;
+  color: var(--text-main);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--duration-fast, 0.15s) ease;
+}
+.faculty-page-back-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
+}
+.faculty-page-back-btn:hover, .faculty-page-back-btn:active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.faculty-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.faculty-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--duration-fast, 0.15s) ease;
+  border: 1px solid transparent;
+}
+.faculty-action-btn svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2.2;
+}
+
+.faculty-action-btn.primary {
+  background: rgba(168, 85, 247, 0.14);
+  border-color: rgba(168, 85, 247, 0.3);
+  color: #c084fc;
+}
+.faculty-action-btn.primary:hover {
+  background: rgba(168, 85, 247, 0.25);
+  color: #d8b4fe;
+}
+
+.faculty-action-btn.secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--card-border, rgba(255, 255, 255, 0.1));
+  color: var(--text-main);
+}
+.faculty-action-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.faculty-page-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.faculty-page-title {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.faculty-page-subtitle {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.faculty-page-search-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.faculty-page-search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.faculty-page-search-input-wrap .search-icon {
+  position: absolute;
+  left: 12px;
+  width: 15px;
+  height: 15px;
+  color: var(--text-muted);
+  pointer-events: none;
+  stroke-width: 2.2;
+}
+
+.faculty-page-search-input-wrap input {
+  width: 100%;
+  height: 40px;
+  padding: 0 34px 0 36px;
+  background: var(--card-bg, #1e2028);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.08));
+  border-radius: 12px;
+  color: var(--text-main);
+  font-size: 12.5px;
+  font-weight: 600;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color var(--duration-fast, 0.15s) ease;
+}
+.faculty-page-search-input-wrap input:focus {
+  border-color: #a855f7;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.faculty-page-stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2px;
+}
+
+.faculty-count-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.faculty-full-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 96px;
+  overflow-y: auto;
+}
+
+/* Section Dividers for Two-Group Layout */
+.faculty-section-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 4px 4px 4px;
+  user-select: none;
+}
+
+.faculty-section-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.faculty-section-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.08));
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+.faculty-section-badge.purple {
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.25);
+}
+
+/* Modern Full-Page Faculty Card */
+.faculty-app-card {
+  background: var(--card-bg, #1e2028);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.08));
+  border-radius: 16px;
+  padding: 13px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform var(--duration-fast, 0.15s) ease, border-color var(--duration-fast, 0.15s) ease, background var(--duration-fast, 0.15s) ease;
+  user-select: none;
+}
+
+.faculty-app-card:hover {
+  border-color: rgba(168, 85, 247, 0.35);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.faculty-app-card:active {
+  transform: scale(0.98);
+}
+
+.faculty-app-card.in-class {
+  border-left: 3.5px solid #10b981;
+}
+
+.faculty-app-avatar-squircle {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
+  background: rgba(255, 255, 255, 0.04);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  color: #c084fc;
+}
+
+.faculty-app-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5px;
+  min-width: 0;
+  flex: 1;
+}
+
+.faculty-app-card-top-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.faculty-app-card-name {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.faculty-app-card-code {
+  font-size: 10px;
+  font-weight: 800;
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.14);
+  border: 1px solid rgba(168, 85, 247, 0.28);
+  padding: 1.5px 6px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.faculty-app-card-desig {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.faculty-app-live-tag {
+  font-size: 11px;
+  font-weight: 800;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  padding: 3px 9px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.faculty-app-arrow {
+  color: var(--dim, #64748b);
+  display: flex;
+  align-items: center;
+}
+.faculty-app-arrow svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.2;
+}
+
+
+
 
 

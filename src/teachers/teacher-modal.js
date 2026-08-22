@@ -3,7 +3,7 @@ import { format12h, toTimeString, getCurrentMinutes, truncateText } from '../cor
 import { openModal, closeModal } from '../modals/modal.js';
 import { showToast } from '../toast/toast.js';
 import { loadMasterTeacherData, searchTeachers, getTeacherClassesForDay, getTeacherWeeklySubjects } from './teacher-finder.js';
-import { initTeacherNames, getTeacherInfo, getFullName, resolveTeacherCode, submitNameSuggestion, fetchPendingSubmissions, reviewSubmission, uploadFacultyPhoto, getAllFacultyKeys } from './teacher-names.js';
+import { initTeacherNames, getTeacherInfo, getFullName, resolveTeacherCode, submitNameSuggestion, fetchPendingSubmissions, reviewSubmission, uploadFacultyPhoto, getAllFacultyKeys, isGuestTeacher } from './teacher-names.js';
 
 let _searchQuery = '';
 let _lastTeacherResults = [];
@@ -13,9 +13,42 @@ let _selectedTeacherDetailDay = new Date().getDay();
 
 export function initTeacherFinderUI() {
   const fab = document.getElementById('findTeacherFab');
-  const modal = document.getElementById('teacherFinderModal');
-  const closeBtn = document.getElementById('teacherFinderCloseBtn');
+  const backBtn = document.getElementById('facultyPageBackBtn');
   const searchInput = document.getElementById('teacherFinderSearchInput');
+  const searchClear = document.getElementById('teacherFinderSearchClear');
+
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      if (window.switchAppView) window.switchAppView('apps');
+    });
+  }
+
+  if (fab) {
+    fab.addEventListener('click', () => {
+      if (window.switchAppView) window.switchAppView('faculty');
+    });
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      _searchQuery = e.target.value.trim();
+      if (searchClear) searchClear.style.display = _searchQuery ? 'block' : 'none';
+      renderTeacherFinderModal();
+    });
+  }
+
+  if (searchClear) {
+    searchClear.addEventListener('click', () => {
+      if (searchInput) {
+        searchInput.value = '';
+        _searchQuery = '';
+      }
+      searchClear.style.display = 'none';
+      renderTeacherFinderModal();
+    });
+  }
+
+  window.__renderFacultyDirectory = renderTeacherFinderModal;
 
   // Suggest / Edit modal
   const suggestBtn = document.getElementById('suggestTeacherNameBtn');
@@ -56,26 +89,6 @@ export function initTeacherFinderUI() {
   const detailCloseBtn = document.getElementById('teacherDetailCloseBtn');
   const dayNav = document.getElementById('teacherDetailDayNav');
 
-  if (!fab || !modal) return;
-
-  // 1. Open Faculty Finder
-  const handleFabClick = (e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    renderTeacherFinderModal();
-    modal.style.display = '';
-    openModal(modal);
-
-    Promise.all([loadMasterTeacherData(), initTeacherNames()]).then(() => {
-      renderTeacherFinderModal();
-    }).catch(() => {});
-  };
-
-  fab.addEventListener('click', handleFabClick);
-
-  if (closeBtn) closeBtn.addEventListener('click', () => closeModal(modal));
   if (detailCloseBtn && detailModal) detailCloseBtn.addEventListener('click', () => closeModal(detailModal));
   if (detailModal) {
     detailModal.addEventListener('click', (e) => {
@@ -91,13 +104,6 @@ export function initTeacherFinderUI() {
       _selectedTeacherDetailDay = dayIdx;
       dayNav.querySelectorAll('.ft-day-btn').forEach(b => b.classList.toggle('active', b === btn));
       renderTeacherTimelineForDay(_currentOpenTeacherData.teacher, _selectedTeacherDetailDay);
-    });
-  }
-
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      _searchQuery = e.target.value.toLowerCase().trim();
-      renderTeacherFinderModal();
     });
   }
 
@@ -532,7 +538,7 @@ export function initTeacherFinderUI() {
   const listContainer = document.getElementById('teacherFinderGrid');
   if (listContainer) {
     listContainer.addEventListener('click', (e) => {
-      const card = e.target.closest('.ft-list-item');
+      const card = e.target.closest('.faculty-app-card, .ft-list-item');
       if (!card) return;
       const teacherCode = card.dataset.teacher;
       if (teacherCode && _lastTeacherResults.length > 0) {
@@ -730,14 +736,12 @@ export function renderTeacherFinderModal() {
 
   const inClassCount = allTeachers.filter(t => t.status === 'IN_CLASS').length;
 
-  if (summaryEl) {
-    summaryEl.innerHTML = inClassCount > 0
-      ? `<span style="color:#34d399; font-weight:800;">${inClassCount} faculty currently teaching in class</span>`
-      : `<span style="color:var(--dim); font-weight:600;">Premier University Department of Computer Science & Engineering</span>`;
-  }
-
   // Apply intelligent search query (matching full names, codes, and acronyms)
   let filtered = allTeachers.filter(t => matchesTeacherQuery(t, _searchQuery));
+
+  if (summaryEl) {
+    summaryEl.innerHTML = `Showing <strong>${filtered.length}</strong> of ${allTeachers.length} faculty ${inClassCount > 0 ? `· <span style="color:#34d399; font-weight:800;">🟢 ${inClassCount} in class now</span>` : ''}`;
+  }
 
   if (filtered.length === 0) {
     container.innerHTML = `
@@ -750,61 +754,103 @@ export function renderTeacherFinderModal() {
     return;
   }
 
-  let html = '';
+  const namedGroup = [];
+  const unlistedGroup = [];
+
   filtered.forEach(item => {
-    const isInClass = item.status === 'IN_CLASS';
     const info = getTeacherInfo(item.teacher);
-    const hasFullName = info.name && info.name.toLowerCase() !== item.teacher.toLowerCase();
-    const displayName = hasFullName ? info.name : item.teacher;
+    const hasFullName = !!(info.name && info.name.trim().toUpperCase() !== item.teacher.trim().toUpperCase());
+    if (hasFullName) {
+      namedGroup.push({ item, info, displayName: info.name, sortKey: info.name.toLowerCase() });
+    } else {
+      unlistedGroup.push({ item, info, displayName: item.teacher, sortKey: item.teacher.toLowerCase() });
+    }
+  });
+
+  // Sort each group alphabetically within itself
+  namedGroup.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+  unlistedGroup.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+
+  function renderCard(entry, isNamed) {
+    const { item, info, displayName } = entry;
+    const isInClass = item.status === 'IN_CLASS';
     const initials = (displayName || item.teacher).split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
     const photoHtml = info.photo
-      ? `<img class="ft-avatar" src="${escapeHtml(info.photo)}" alt="${escapeHtml(item.teacher)}" onerror="this.outerHTML='<div class=\\'ft-avatar\\'>${initials}</div>'" />`
-      : `<div class="ft-avatar">${initials}</div>`;
+      ? `<img class="faculty-app-avatar-squircle" src="${escapeHtml(info.photo)}" alt="${escapeHtml(item.teacher)}" onerror="this.outerHTML='<div class=\\'faculty-app-avatar-squircle\\'>${initials}</div>'" />`
+      : `<div class="faculty-app-avatar-squircle">${initials}</div>`;
 
-    const desigText = info.designation && info.designation !== 'Faculty Member'
+    const desigText = info.designation && info.designation !== 'Faculty Member' && info.designation !== 'Guest Faculty'
       ? escapeHtml(info.designation.split('·')[0].trim())
       : 'Faculty Member';
+
+    const codePillHtml = isNamed && item.teacher && item.teacher.toLowerCase() !== displayName.toLowerCase()
+      ? `<span class="faculty-app-card-code">${escapeHtml(item.teacher)}</span>`
+      : '';
 
     if (isInClass) {
       const cur = item.currentClass;
       const roomStr = cur.room ? `Room ${escapeHtml(cur.room)}` : escapeHtml(cur.subject);
 
-      html += `
-        <div class="ft-list-item ft-item-in-class" data-teacher="${escapeHtml(item.teacher)}" title="Click to view full profile and routine">
-          <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+      return `
+        <div class="faculty-app-card in-class" data-teacher="${escapeHtml(item.teacher)}" title="Click to view full profile and routine">
+          <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
             ${photoHtml}
-            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span class="ft-item-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(displayName)}</span>
-                <span style="font-size: 10px; font-weight: 800; color: #a855f7; background: rgba(168,85,247,0.15); padding: 1px 6px; border-radius: 4px; flex-shrink: 0;">${escapeHtml(item.teacher)}</span>
+            <div class="faculty-app-card-body">
+              <div class="faculty-app-card-top-row">
+                <span class="faculty-app-card-name">${escapeHtml(displayName)}</span>
+                ${codePillHtml}
               </div>
-              <div style="font-size: 11.5px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${desigText}</div>
+              <div class="faculty-app-card-desig">${desigText}</div>
             </div>
           </div>
-          <div class="ft-item-in-class-tag">
+          <div class="faculty-app-live-tag">
             <span>🟢 ${roomStr}</span>
           </div>
         </div>
       `;
     } else {
-      html += `
-        <div class="ft-list-item ft-item-free" data-teacher="${escapeHtml(item.teacher)}" title="Click to view full profile and routine">
-          <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+      return `
+        <div class="faculty-app-card" data-teacher="${escapeHtml(item.teacher)}" title="Click to view full profile and routine">
+          <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
             ${photoHtml}
-            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span class="ft-item-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(displayName)}</span>
-                <span style="font-size: 10px; font-weight: 800; color: #a855f7; background: rgba(168,85,247,0.15); padding: 1px 6px; border-radius: 4px; flex-shrink: 0;">${escapeHtml(item.teacher)}</span>
+            <div class="faculty-app-card-body">
+              <div class="faculty-app-card-top-row">
+                <span class="faculty-app-card-name">${escapeHtml(displayName)}</span>
+                ${codePillHtml}
               </div>
-              <div style="font-size: 11.5px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${desigText}</div>
+              <div class="faculty-app-card-desig">${desigText}</div>
             </div>
           </div>
-          <div style="font-size: 13px; color: var(--dim); padding-right: 4px;">›</div>
+          <div class="faculty-app-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </div>
         </div>
       `;
     }
-  });
+  }
+
+  let html = '';
+
+  if (namedGroup.length > 0) {
+    html += `
+      <div class="faculty-section-divider">
+        <span class="faculty-section-title">Faculty Members</span>
+        <span class="faculty-section-badge purple">${namedGroup.length}</span>
+      </div>
+    `;
+    html += namedGroup.map(e => renderCard(e, true)).join('');
+  }
+
+  if (unlistedGroup.length > 0) {
+    html += `
+      <div class="faculty-section-divider" style="${namedGroup.length > 0 ? 'margin-top: 10px;' : ''}">
+        <span class="faculty-section-title">Other Instructors</span>
+        <span class="faculty-section-badge">${unlistedGroup.length}</span>
+      </div>
+    `;
+    html += unlistedGroup.map(e => renderCard(e, false)).join('');
+  }
 
   container.innerHTML = html;
 }

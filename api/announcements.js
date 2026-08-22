@@ -67,9 +67,9 @@ module.exports = async (req, res) => {
     }
   }
 
-  // POST: Publish a new announcement OR check password
-  if (req.method === 'POST') {
-    const { name, title, announcement, password, subject, type, date_override, subject_override, semester, section, checkPasswordOnly } = req.body || {};
+  // POST: Publish a new announcement OR update existing OR check password
+  if (req.method === 'POST' || req.method === 'PATCH' || req.method === 'PUT') {
+    const { id, isUpdate, action, name, title, announcement, password, subject, type, date_override, subject_override, semester, section, checkPasswordOnly } = req.body || {};
 
     if (!process.env.ANNOUNCEMENT_PASSWORD) {
       return res.status(503).json({ error: 'Announcement password is not configured on the server.' });
@@ -83,6 +83,46 @@ module.exports = async (req, res) => {
       return res.status(200).json({ success: true, valid: true });
     }
 
+    // UPDATE Handler (triggered by PATCH, PUT, or POST with id / isUpdate / action: 'update')
+    if (req.method === 'PATCH' || req.method === 'PUT' || isUpdate || action === 'update' || (id && req.method === 'POST')) {
+      if (!id) {
+        return res.status(400).json({ error: 'Missing announcement ID.' });
+      }
+      if (!name || !title || !announcement) {
+        return res.status(400).json({ error: 'Missing name, title, or announcement content.' });
+      }
+
+      try {
+        const updatePayload = {
+          name,
+          title,
+          announcement,
+          subject: subject || null,
+          type: type || 'general',
+          date_override: date_override || null,
+          subject_override: subject_override || null,
+          semester: semester || null,
+          section: section || null
+        };
+
+        const { data, error } = await supabase
+          .from('announcements')
+          .update(updatePayload)
+          .eq('id', id)
+          .select();
+
+        if (error) throw error;
+        if (!data || data.length === 0) {
+          return res.status(404).json({ error: 'Announcement not found.' });
+        }
+
+        return res.status(200).json(data[0]);
+      } catch (err) {
+        return res.status(500).json({ error: err.message });
+      }
+    }
+
+    // INSERT Handler (new announcement)
     if (!name || !title || !announcement) {
       return res.status(400).json({ error: 'Missing name, title, or announcement content.' });
     }
@@ -108,46 +148,62 @@ module.exports = async (req, res) => {
       const newAnnouncement = data[0];
 
       // 2. Fetch device tokens to send targeted FCM push notifications
-      const { data: tokensData, error: tokensError } = await supabase
-        .from('device_tokens')
-        .select('token, semester, section');
+      if (firebaseApp) {
+        let tokenQuery = supabase.from('fcm_tokens').select('token');
+        if (semester) tokenQuery = tokenQuery.eq('semester', semester);
+        if (section) tokenQuery = tokenQuery.eq('section', section);
 
-      if (!tokensError && tokensData && tokensData.length > 0 && firebaseApp) {
-        const targetSem = (semester || '').toString().toLowerCase();
-        const targetSec = (section || '').toString().toLowerCase();
+        const { data: tokenRows, error: tokenError } = await tokenQuery;
 
-        // Filter tokens so only students in target semester & section receive notification
-        const tokens = tokensData.filter(t => {
-          const semMatch = !targetSem || !t.semester || t.semester.toString().toLowerCase() === targetSem;
-          const secMatch = !targetSec || !t.section || t.section.toString().toLowerCase() === targetSec;
-          return semMatch && secMatch;
-        }).map(t => t.token);
+        if (tokenError) {
+          console.error('Error fetching section FCM tokens:', tokenError);
+        } else if (tokenRows && tokenRows.length > 0) {
+          const tokens = tokenRows.map(row => row.token).filter(Boolean);
 
-        if (tokens.length > 0) {
-          // FCM limit for multicast is 500 tokens per batch
-          const batchSize = 500;
+          let notificationBody = announcement;
+          if (type === 'online_class') {
+            try {
+              const parsed = JSON.parse(announcement);
+              notificationBody = `Online class from ${parsed.start_time || '—'} to ${parsed.end_time || '—'}. Join: ${parsed.platform || 'Link'}`;
+            } catch (e) {}
+          } else if (type === 'class_test') {
+            try {
+              const parsed = JSON.parse(announcement);
+              notificationBody = `Exam: ${parsed.exam_name || 'Class Test'}. Topics: ${parsed.topics || 'Not Specified'}`;
+            } catch (e) {}
+          }
+
+          const BATCH_SIZE = 500;
           const messagePayloads = [];
 
-          for (let i = 0; i < tokens.length; i += batchSize) {
-            const batch = tokens.slice(i, i + batchSize);
+          for (let i = 0; i < tokens.length; i += BATCH_SIZE) {
+            const batchTokens = tokens.slice(i, i + BATCH_SIZE);
             const message = {
+              tokens: batchTokens,
               notification: {
-                title: `${name}: ${title}`,
-                body: announcement.length > 100 ? announcement.substring(0, 97) + '...' : announcement
+                title: `${type === 'cancellation' ? '🚫 ' : type === 'holiday' ? '🎉 ' : type === 'online_class' ? '📡 ' : type === 'class_test' ? '📝 ' : '📢 '}${title}`,
+                body: notificationBody,
               },
               data: {
-                type: 'announcement',
-                announcement_type: type || 'general',
-                id: String(newAnnouncement.id),
-                semester: String(semester || ''),
-                section: String(section || '')
+                type: type || 'general',
+                subject: subject || '',
+                date_override: date_override || '',
+                subject_override: subject_override || '',
+                semester: semester || '',
+                section: section || '',
+                announcementId: String(newAnnouncement.id)
               },
-              tokens: batch
+              android: {
+                priority: 'high',
+                notification: {
+                  channelId: 'announcements_channel',
+                  sound: 'default'
+                }
+              }
             };
             messagePayloads.push(admin.messaging().sendEachForMulticast(message));
           }
 
-          // Run sending in parallel without blocking the response
           Promise.all(messagePayloads)
             .then(responses => {
               let successCount = 0;

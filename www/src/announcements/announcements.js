@@ -4,13 +4,13 @@ import { DOM } from '../core/dom.js';
 import { Storage } from '../storage/storage.js';
 import { showToast } from '../toast/toast.js';
 import { escapeHtml } from '../core/utils.js';
-import { NotificationLog } from '../notifications/notification-log.js';
-import { openModal, closeModal, showConfirm, showLoadingScreen } from '../modals/modal.js';
+import { showConfirm, showLoadingScreen } from '../modals/modal.js';
 import { Notifications } from '../notifications/notifications.js';
 
 export const Announcements = {
   list: [],
   activeFilter: 'all',
+  isAdminMode: false,
   CACHE_KEY: 'routine_announcements_cache',
 
   loadCached() {
@@ -58,6 +58,23 @@ export const Announcements = {
       });
       State.announcementsList = this.list;
 
+    function getOrdinalSuffix(num) {
+      const n = Number(num);
+      if (n === 1) return `${n}st`;
+      if (n === 2) return `${n}nd`;
+      if (n === 3) return `${n}rd`;
+      return `${n}th`;
+    }
+
+    const subEl = document.getElementById('announceSubtitle');
+    if (subEl) {
+      const rawSemester = Storage.getSemester();
+      const formattedSemester = `${getOrdinalSuffix(rawSemester)} Semester`;
+      const sectionText = `Section ${Storage.getSection().toUpperCase()}`;
+      
+      subEl.innerHTML = `<span class="highlight-section">${formattedSemester} - ${sectionText}</span>`;
+    }
+
       // Persist filtered list to localStorage
       try { localStorage.setItem(this.CACHE_KEY, JSON.stringify(this.list)); } catch (e) {}
 
@@ -83,30 +100,57 @@ export const Announcements = {
 
       this.renderFeed();
       this.checkBadge();
+      if (typeof window.renderTimeline === 'function') {
+        window.renderTimeline(true);
+      }
       return true;
     } catch (err) {
       console.error('Error fetching announcements:', err);
-      if (!this.list.length) {
-        DOM.announceList.innerHTML = `<div class="announce-empty">Failed to load announcements. Check your connection.</div>`;
+      const feed = document.getElementById('announceList');
+      if (feed && !this.list.length) {
+        feed.innerHTML = `<div class="announce-empty">Failed to load announcements. Check your internet connection.</div>`;
       }
       return false;
     }
   },
 
   renderFeed() {
+    const feed = document.getElementById('announceList');
+    if (!feed) return;
+
     if (!this.list || this.list.length === 0) {
-      DOM.announceList.innerHTML = `<div class="announce-empty">No announcements yet for Section ${Storage.getSection().toUpperCase()}.</div>`;
+      feed.innerHTML = `<div class="announce-empty">No announcements yet for Section ${Storage.getSection().toUpperCase()}.</div>`;
       return;
     }
 
     const lastViewedId = parseInt(localStorage.getItem('last_viewed_announcement_id') || '0', 10);
 
     const typeMeta = {
-      general:      { label: '📢 General',    color: '#6366f1', bg: 'rgba(99,102,241,0.15)' },
-      cancellation: { label: '🚫 Cancelled',  color: '#f43f5e', bg: 'rgba(244,63,94,0.15)'  },
-      holiday:      { label: '🎉 Holiday',    color: '#fb923c', bg: 'rgba(251,146,60,0.15)'  },
-      online_class: { label: '📡 Online',     color: '#10b981', bg: 'rgba(16,185,129,0.15)'  },
-      class_test:   { label: '📝 Class Test', color: '#f97316', bg: 'rgba(249,115,22,0.18)'  },
+      general: {
+        label: 'General',
+        cssClass: 'general',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'
+      },
+      cancellation: {
+        label: 'Cancelled',
+        cssClass: 'cancellation',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>'
+      },
+      holiday: {
+        label: 'Holiday',
+        cssClass: 'holiday',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+      },
+      online_class: {
+        label: 'Online Class',
+        cssClass: 'online_class',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>'
+      },
+      class_test: {
+        label: 'Class Test',
+        cssClass: 'class_test',
+        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>'
+      }
     };
 
     // Filter list if category filter is active
@@ -116,30 +160,30 @@ export const Announcements = {
     }
 
     if (filteredList.length === 0) {
-      DOM.announceList.innerHTML = `<div class="announce-empty">No announcements under this category.</div>`;
+      feed.innerHTML = `<div class="announce-empty">No announcements under this category.</div>`;
       return;
     }
 
-    // Group items into categories
+    // Group items chronologically
     const groups = {};
 
     filteredList.forEach(item => {
       const isUnread = lastViewedId > 0 ? parseInt(item.id, 10) > lastViewedId : false;
       const createdDate = new Date(item.created_at);
 
-      let category = '🆕 New Announcements';
+      let category = 'New Announcements';
       if (!isUnread) {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const itemDate = new Date(createdDate.getFullYear(), createdDate.getMonth(), createdDate.getDate());
         const diffDays = Math.floor((today - itemDate) / (1000 * 60 * 60 * 24));
 
-        if (diffDays <= 0) category = '📅 Today';
-        else if (diffDays === 1) category = '⏮️ Yesterday';
-        else if (diffDays <= 7) category = '🗓️ This Week';
-        else if (diffDays <= 14) category = '🗓️ Past Week';
-        else if (diffDays <= 30) category = '📁 Past Month';
-        else category = '📦 Older';
+        if (diffDays <= 0) category = 'Today';
+        else if (diffDays === 1) category = 'Yesterday';
+        else if (diffDays <= 7) category = 'This Week';
+        else if (diffDays <= 14) category = 'Past Week';
+        else if (diffDays <= 30) category = 'Past Month';
+        else category = 'Older';
       }
 
       if (!groups[category]) groups[category] = [];
@@ -147,13 +191,13 @@ export const Announcements = {
     });
 
     const categoryOrder = [
-      '🆕 New Announcements',
-      '📅 Today',
-      '⏮️ Yesterday',
-      '🗓️ This Week',
-      '🗓️ Past Week',
-      '📁 Past Month',
-      '📦 Older'
+      'New Announcements',
+      'Today',
+      'Yesterday',
+      'This Week',
+      'Past Week',
+      'Past Month',
+      'Older'
     ];
 
     let html = '';
@@ -172,9 +216,9 @@ export const Announcements = {
         const dateObj = new Date(item.created_at);
         const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' · ' + dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         const meta = typeMeta[item.type] || typeMeta.general;
-        
-        // Default: show raw announcement text. Special types override below.
-        let cardBodyHtml = `<div class="announce-card-body" style="font-size: 12.5px; line-height: 1.5; color: var(--text); white-space: pre-wrap; margin-top: 6px;">${escapeHtml(item.announcement || '')}</div>`;
+
+        // Default: show raw announcement text. Special types override with restrained solid sub-card.
+        let cardBodyHtml = `<div class="announce-card-body">${escapeHtml(item.announcement || '')}</div>`;
 
         if (item.type === 'online_class') {
           try {
@@ -183,13 +227,20 @@ export const Announcements = {
             const isUrl = platformStr.startsWith('http://') || platformStr.startsWith('https://');
 
             cardBodyHtml = `
-              <div style="margin-top: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-left: 4px solid #10b981; border-radius: 10px; padding: 10px 14px;">
-                <div style="font-size: 13px; font-weight: 800; color: #34d399; margin-bottom: 4px;">🕒 ${parsed.start_time || '—'} – ${parsed.end_time || '—'}</div>
-                ${platformStr ? `<div style="font-size: 11.5px; color: var(--dim); word-break: break-all;">📡 ${escapeHtml(platformStr)}</div>` : ''}
-                ${isUrl ? `
-                <a href="${platformStr}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 6px 14px; border-radius: 8px; background: #10b981; color: #000; font-weight: 800; font-size: 11.5px; text-decoration: none; box-shadow: 0 2px 10px rgba(16,185,129,0.3);">
-                  🚀 Join Online Class
-                </a>` : ''}
+              <div class="announce-subcard">
+                <div class="announce-subcard-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span>ONLINE SESSION</span>
+                </div>
+                <div class="announce-subcard-body">
+                  <div class="announce-subcard-title">${escapeHtml(parsed.start_time || '—')} – ${escapeHtml(parsed.end_time || '—')}</div>
+                  ${platformStr ? `<div class="announce-subcard-text">${escapeHtml(platformStr)}</div>` : ''}
+                  ${isUrl ? `
+                  <a href="${escapeHtml(platformStr)}" target="_blank" rel="noopener noreferrer" class="announce-join-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    <span>Join Class</span>
+                  </a>` : ''}
+                </div>
               </div>
             `;
           } catch (e) {}
@@ -197,9 +248,15 @@ export const Announcements = {
           try {
             const parsed = JSON.parse(item.announcement);
             cardBodyHtml = `
-              <div style="margin-top: 8px; background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.25); border-left: 4px solid #f97316; border-radius: 10px; padding: 10px 14px;">
-                <div style="font-size: 13px; font-weight: 800; color: #fb923c; margin-bottom: 4px;">📝 ${escapeHtml(parsed.exam_name || 'Class Test')}</div>
-                <div style="font-size: 12px; color: var(--text); line-height: 1.5; white-space: pre-wrap;">📚 Syllabus: ${escapeHtml(parsed.topics || 'Not Specified')}</div>
+              <div class="announce-subcard">
+                <div class="announce-subcard-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  <span>EXAM TOPICS & SYLLABUS</span>
+                </div>
+                <div class="announce-subcard-body">
+                  <div class="announce-subcard-title">${escapeHtml(parsed.exam_name || 'Class Test')}</div>
+                  <div class="announce-subcard-text">${escapeHtml(parsed.topics || 'Not Specified')}</div>
+                </div>
               </div>
             `;
           } catch (e) {}
@@ -210,18 +267,37 @@ export const Announcements = {
             <div class="announce-card-h">
               <div style="flex: 1; min-width: 0;">
                 <div class="announce-badges-row">
-                  ${isUnread ? `<span class="announce-type-tag" style="background: rgba(244,63,94,0.15); color: var(--pink);">✨ NEW</span>` : ''}
-                  <span class="announce-type-tag" style="background: ${meta.bg}; color: ${meta.color};">${meta.label}</span>
-                  ${item.date_override ? `<span class="announce-date-pill">📅 ${item.date_override}</span>` : ''}
+                  ${isUnread ? `<span class="announce-semantic-pill general">NEW</span>` : ''}
+                  <span class="announce-semantic-pill ${meta.cssClass}">
+                    ${meta.icon}
+                    <span>${meta.label}</span>
+                  </span>
+                  ${item.date_override ? `
+                    <span class="announce-date-pill">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                      <span>${escapeHtml(item.date_override)}</span>
+                    </span>
+                  ` : ''}
                 </div>
                 <div class="announce-card-title">${escapeHtml(item.title)}</div>
                 <div class="announce-author-row">
-                  <span class="announce-author-name">👤 ${escapeHtml(item.name)}</span>
+                  <span class="announce-author-name">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>${escapeHtml(item.name)}</span>
+                  </span>
                   <span>·</span>
                   <span>${dateStr}</span>
                 </div>
               </div>
-              <button class="delete-announce-btn" data-id="${item.id}" title="Delete Announcement">✕</button>
+              ${this.isAdminMode ? `
+              <div class="announce-card-actions">
+                <button type="button" class="announce-card-action-btn edit" data-id="${item.id}" title="Edit Announcement">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button type="button" class="announce-card-action-btn delete" data-id="${item.id}" title="Delete Announcement">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                </button>
+              </div>` : ''}
             </div>
             ${cardBodyHtml}
           </div>
@@ -229,7 +305,7 @@ export const Announcements = {
       });
     });
 
-    DOM.announceList.innerHTML = html;
+    feed.innerHTML = html;
   },
 
   async delete(id, pwd) {
@@ -251,7 +327,7 @@ export const Announcements = {
       }
 
       State.sessionDeletePassword = pwd;
-      showToast('Announcement deleted.', 'success');
+      showToast('Announcement deleted successfully.', 'success');
       showLoadingScreen('Updating Schedule...', 'Applying announcement overrides & refreshing timetable');
       setTimeout(() => {
         window.location.reload();
@@ -262,20 +338,28 @@ export const Announcements = {
   },
 
   checkBadge() {
+    const badge = document.getElementById('announceBadge');
+    const dot = document.getElementById('dockAnnounceDot');
+
     if (!this.list || this.list.length === 0) {
-      if (DOM.announceBadge) DOM.announceBadge.style.display = 'none';
+      if (badge) badge.style.display = 'none';
+      if (dot) dot.style.display = 'none';
       return;
     }
     const lastViewedId = parseInt(localStorage.getItem('last_viewed_announcement_id') || '0', 10);
     const unreadCount = this.list.filter(item => parseInt(item.id, 10) > lastViewedId).length;
 
-    if (DOM.announceBadge) {
+    if (badge) {
       if (unreadCount > 0) {
-        DOM.announceBadge.style.display = 'flex';
-        DOM.announceBadge.textContent = unreadCount > 9 ? '9+' : String(unreadCount);
+        badge.style.display = 'flex';
+        badge.textContent = unreadCount > 9 ? '9+' : String(unreadCount);
       } else {
-        DOM.announceBadge.style.display = 'none';
+        badge.style.display = 'none';
       }
+    }
+
+    if (dot) {
+      dot.style.display = unreadCount > 0 ? 'block' : 'none';
     }
   },
 
@@ -283,7 +367,7 @@ export const Announcements = {
     if (!this.list || this.list.length === 0) return;
     const latestId = parseInt(this.list[0].id, 10);
     localStorage.setItem('last_viewed_announcement_id', latestId.toString());
-    if (DOM.announceBadge) DOM.announceBadge.style.display = 'none';
+    this.checkBadge();
   },
 
   async publish(name, title, announcement, password, extras = {}) {
@@ -310,9 +394,10 @@ export const Announcements = {
         throw new Error(errData.error || 'Failed to post');
       }
 
+      State.sessionDeletePassword = password;
       showToast('Announcement published successfully!', 'success');
 
-      // Fire cancellation/holiday/online/exam/general notification immediately
+      // Fire push notification / alert
       let notifTitle = '📢 New Announcement';
       let notifBody = `${name}: ${title}`;
       let notifType = extras.type || 'general';
@@ -354,29 +439,149 @@ export const Announcements = {
       showToast(`Error: ${err.message}`, 'error');
       return false;
     }
+  },
+
+  async update(id, name, title, announcement, password, extras = {}) {
+    try {
+      const res = await fetch(`${CONFIG.apiBase || ''}/api/announcements`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id,
+          isUpdate: true,
+          action: 'update',
+          name,
+          title,
+          announcement,
+          password,
+          subject: extras.subject || '',
+          type: extras.type || 'general',
+          date_override: extras.date_override || '',
+          subject_override: extras.subject_override || '',
+          semester: Storage.getSemester(),
+          section: Storage.getSection()
+        })
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to update announcement');
+      }
+
+      State.sessionDeletePassword = password;
+      showToast('Announcement updated successfully!', 'success');
+      showLoadingScreen('Updating Schedule...', 'Applying edited announcement overrides & refreshing timetable');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+      return true;
+    } catch (err) {
+      showToast(`Error: ${err.message}`, 'error');
+      return false;
+    }
   }
 };
 
-/** Register announcements modal event listeners */
+/** Register announcements full-page event listeners */
 export function initAnnouncementEvents() {
-  DOM.announcementsBtn.addEventListener('click', () => {
-    openModal(DOM.announceModal, async () => {
-      await Announcements.fetchAll();
-    });
-  });
+  window.__fetchAndRenderAnnouncements = () => {
+    Announcements.fetchAll();
+  };
 
-  const handleCloseAnnouncements = () => {
-    closeModal(DOM.announceModal);
+  window.__markAnnouncementsAsRead = () => {
     Announcements.markAsRead();
   };
 
-  DOM.announceModalClose.addEventListener('click', handleCloseAnnouncements);
+  // Back button: return to Home
+  const backBtn = document.getElementById('announcePageBackBtn');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      if (window.switchAppView) window.switchAppView('home');
+    });
+  }
 
-  DOM.announceModal.addEventListener('click', e => {
-    if (e.target === DOM.announceModal) {
-      handleCloseAnnouncements();
+  // "+ Post Notice" button: open full-page post form
+  const newPostBtn = document.getElementById('newAnnounceBtn');
+  if (newPostBtn) {
+    newPostBtn.addEventListener('click', () => {
+      if (window.switchAppView) window.switchAppView('post_announcement');
+    });
+  }
+
+  // Admin Mode Unlock / Toggle Button
+  const adminBtn = document.getElementById('adminNoticeModeBtn');
+  const adminLabel = document.getElementById('adminNoticeModeLabel');
+
+  const updateAdminBtnUI = () => {
+    if (!adminBtn) return;
+    if (Announcements.isAdminMode) {
+      adminBtn.classList.add('active');
+      if (adminLabel) adminLabel.textContent = 'Done';
+      adminBtn.title = 'Exit Admin Edit Mode';
+    } else {
+      adminBtn.classList.remove('active');
+      if (adminLabel) adminLabel.textContent = 'Edit';
+      adminBtn.title = 'Unlock Admin Edit Mode';
     }
-  });
+  };
+
+  if (adminBtn) {
+    adminBtn.addEventListener('click', () => {
+      // If currently active, toggle off admin mode
+      if (Announcements.isAdminMode) {
+        Announcements.isAdminMode = false;
+        updateAdminBtnUI();
+        Announcements.renderFeed();
+        showToast('Admin edit mode locked.', 'info');
+        return;
+      }
+
+      // If password already stored in session
+      if (State.sessionDeletePassword) {
+        Announcements.isAdminMode = true;
+        updateAdminBtnUI();
+        Announcements.renderFeed();
+        showToast('Admin edit mode unlocked.', 'success');
+        return;
+      }
+
+      // Prompt for password using showConfirm modal
+      showConfirm(
+        'Admin Unlock',
+        'Enter admin password to unlock editing and deletion options on all notices:',
+        async (pwdVal) => {
+          if (!pwdVal) {
+            showToast('Password is required.', 'warning');
+            return;
+          }
+          try {
+            const res = await fetch(`${CONFIG.apiBase || ''}/api/announcements`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                password: pwdVal,
+                checkPasswordOnly: true
+              })
+            });
+
+            if (!res.ok) {
+              const err = await res.json();
+              throw new Error(err.error || 'Invalid admin password');
+            }
+
+            State.sessionDeletePassword = pwdVal;
+            Announcements.isAdminMode = true;
+            updateAdminBtnUI();
+            Announcements.renderFeed();
+            showToast('Admin edit mode unlocked!', 'success');
+          } catch (err) {
+            showToast(err.message || 'Invalid admin password.', 'error');
+          }
+        },
+        true // show password input
+      );
+    });
+  }
 
   // Filter Bar Pills Binding
   const filterBar = document.getElementById('announceFilterBar');
@@ -391,22 +596,42 @@ export function initAnnouncementEvents() {
     });
   }
 
-  DOM.announceList.addEventListener('click', async e => {
-    const btn = e.target.closest('.delete-announce-btn');
-    if (!btn) return;
-    const id = btn.getAttribute('data-id');
-    if (!id) return;
+  // Feed Click Delegation for Edit & Delete
+  const feed = document.getElementById('announceList');
+  if (feed) {
+    feed.addEventListener('click', async e => {
+      // 1. Edit Action
+      const editBtn = e.target.closest('.announce-card-action-btn.edit');
+      if (editBtn) {
+        const id = editBtn.getAttribute('data-id');
+        const announcement = Announcements.list.find(a => String(a.id) === String(id));
+        if (announcement) {
+          if (window.switchAppView) {
+            window.switchAppView('post_announcement', announcement);
+          }
+        }
+        return;
+      }
 
-    const needsPassword = !State.sessionDeletePassword;
+      // 2. Delete Action
+      const deleteBtn = e.target.closest('.announce-card-action-btn.delete');
+      if (deleteBtn) {
+        const id = deleteBtn.getAttribute('data-id');
+        if (!id) return;
 
-    showConfirm(
-      'Delete Announcement',
-      'Are you sure you want to delete this announcement? This action cannot be undone.',
-      async (pwdVal) => {
-        const activePwd = State.sessionDeletePassword || pwdVal;
-        await Announcements.delete(id, activePwd);
-      },
-      needsPassword
-    );
-  });
+        const needsPassword = !State.sessionDeletePassword;
+
+        showConfirm(
+          'Delete Announcement',
+          'Are you sure you want to delete this announcement? This will remove any associated schedule overrides.',
+          async (pwdVal) => {
+            const activePwd = State.sessionDeletePassword || pwdVal;
+            await Announcements.delete(id, activePwd);
+          },
+          needsPassword
+        );
+      }
+    });
+  }
 }
+

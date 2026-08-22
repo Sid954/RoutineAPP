@@ -326,6 +326,7 @@ async function updateFacultyDirectoryFromWeb() {
       "AD": { name: "Avisheak Das", username: "Avisheak-cse" },
       "AHK": { name: "Adnan Hossain Khan", username: "adnan_cse" },
       "AIB": { name: "Md. Ariful Islam Bhuyan", username: "arif_cse" },
+      "AIR": { name: "Arif Istiaq", username: "arif_istiaq", designation: "Lecturer · Department of Computer Science and Engineering" },
       "AJT": { name: "Ms. Asma Joshita Trisha", username: "asma_cse" },
       "AKK": { name: "N.U.M Akramul Kabir Khan", username: "akram_cse" },
       "AMS": { name: "Asif Mohammed Saad", username: "asif_saad_cse" },
@@ -335,7 +336,7 @@ async function updateFacultyDirectoryFromWeb() {
       "CFK": { name: "Chowdhury Fariha Kamrul", username: "fariha_cse" },
       "EAS": { name: "Estiak Ahamed Sazid", username: "estiaksazid" },
       "FSC": { name: "Ms. Farhana Shirin Chowdhury", username: "shirin_cse" },
-      "IFTEKAR MIA": { name: "Iftekar Mia", username: "" },
+      "IFTEKAR MIA": { name: "Iftekar Mia", username: "iftekar_cse", designation: "Assistant Professor · Department of Computer Science and Engineering" },
       "JTC": { name: "Jannat Tohfa Chowdhury", username: "jannattohfa" },
       "KD": { name: "Kingshuk Dhar", username: "kingshuk_cse" },
       "KMAY": { name: "Kazi Md. Abrar Yeaser", username: "abrar_cse" },
@@ -350,9 +351,11 @@ async function updateFacultyDirectoryFromWeb() {
       "NAK": { name: "Nazma Akther", username: "nazma_fbs" },
       "NBH": { name: "Nadim Bin Hossain", username: "nadim_cse" },
       "NJS": { name: "Ms. Nusrat Jahan Shirin", username: "nusrat_cse" },
+      "NME": { name: "Noor Mohammad Erfan", username: "erfan_cse", designation: "Assistant Professor · Department of Computer Science and Engineering" },
       "NR": { name: "Noortaz Rezoana", username: "noortaz_cse" },
       "RA": { name: "Rowshon Akter", username: "roshni" },
       "RM": { name: "Rashed Miah", username: "rashed_cse" },
+      "RSN": { name: "Ms. Rehnuma Shahrin", username: "rehnuma_cse", designation: "Assistant Professor · Department of Computer Science and Engineering" },
       "SMAI": { name: "Dr. Shahid Md. Asif Iqbal", username: "asif_cse" },
       "ST": { name: "Ms. Sabrina Tarannum", username: "sabrina_cse" },
       "TDM": { name: "Ms. Tanni Dhoom", username: "tanni_cse" },
@@ -373,12 +376,13 @@ async function updateFacultyDirectoryFromWeb() {
       const matchingCodes = Object.keys(exactFacultyMap).filter(code => exactFacultyMap[code].username && exactFacultyMap[code].username.toLowerCase() === f.username.toLowerCase());
       const primaryCode = matchingCodes[0] || '';
       const customName = (exactFacultyMap[primaryCode] && exactFacultyMap[primaryCode].name) || f.name;
+      const customDesig = (exactFacultyMap[primaryCode] && exactFacultyMap[primaryCode].designation) || f.designation;
 
       const profileObj = {
         code: primaryCode,
         officialUsername: f.username,
         name: customName,
-        designation: f.designation || 'Faculty Member',
+        designation: customDesig || 'Faculty Member',
         photo: f.photo || '',
         status: f.status || 'Active',
         emails: f.emails || [],
@@ -399,6 +403,7 @@ async function updateFacultyDirectoryFromWeb() {
       if (!richFacultyData[code]) {
         const mapEntry = exactFacultyMap[code];
         let defaultName = (mapEntry && mapEntry.name) || code;
+        let defaultDesig = (mapEntry && mapEntry.designation) || 'Faculty Member';
         if (code === 'AZMAIN') defaultName = 'Azmain Yakin Srizon';
         if (code === 'IFTEKAR MIA') defaultName = 'Iftekar Mia';
 
@@ -406,7 +411,7 @@ async function updateFacultyDirectoryFromWeb() {
           code: code,
           officialUsername: (mapEntry && mapEntry.username) || '',
           name: defaultName,
-          designation: 'Faculty Member',
+          designation: defaultDesig,
           photo: '',
           status: 'Active',
           emails: [],

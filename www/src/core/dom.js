@@ -87,17 +87,19 @@ export const DOM = {
   // Canvas
   canvas: $id('ptc'),
 
-  // Announcements
+  // Announcements & App Views
+  announcementsAppView: $id('announcementsAppView'),
+  postAnnounceAppView: $id('postAnnounceAppView'),
   announcementsBtn: $id('announcementsBtn'),
   announceBadge: $id('announceBadge'),
-  announceModal: $id('announceModal'),
-  announceModalClose: $id('announceModalClose'),
+  dockAnnounceDot: $id('dockAnnounceDot'),
+  announcePageBackBtn: $id('announcePageBackBtn'),
+  postAnnounceBackBtn: $id('postAnnounceBackBtn'),
   newAnnounceBtn: $id('newAnnounceBtn'),
   announceList: $id('announceList'),
-  postAnnounceModal: $id('postAnnounceModal'),
-  postAnnounceClose: $id('postAnnounceClose'),
   postAnnounceCancel: $id('postAnnounceCancel'),
   postAnnounceSubmit: $id('postAnnounceSubmit'),
+  paEditId: $id('paEditId'),
   paName: $id('paName'),
   paType: $id('paType'),
   paGeneralSection: $id('paGeneralSection'),

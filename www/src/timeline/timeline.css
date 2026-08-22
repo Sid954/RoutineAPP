@@ -895,3 +895,87 @@ html[data-theme="dark"] .live-radar-dot,
   color: var(--accent);
 }
 
+/* ==========================================================================
+   Schedule Override Indicators & Visual Styling on Timeline Cards
+   ========================================================================== */
+.resting-tag.exam {
+  background: rgba(249, 115, 22, 0.16) !important;
+  color: #FDBA74 !important;
+  border: 1px solid rgba(249, 115, 22, 0.35) !important;
+}
+
+.resting-tag.cancelled {
+  background: rgba(244, 63, 94, 0.16) !important;
+  color: #FDA4AF !important;
+  border: 1px solid rgba(244, 63, 94, 0.35) !important;
+}
+
+.resting-tag.online {
+  background: rgba(16, 185, 129, 0.16) !important;
+  color: #6EE7B7 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+
+.resting-class-row.is-exam-override {
+  border: 1.5px solid #F97316 !important;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(35, 37, 44, 1) 100%) !important;
+  box-shadow: 0 4px 18px rgba(249, 115, 22, 0.12) !important;
+}
+
+.resting-class-row.is-cancelled-override {
+  opacity: 0.55;
+  border: 1px dashed rgba(244, 63, 94, 0.4) !important;
+}
+
+.resting-class-row.is-cancelled-override .resting-code {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.resting-class-row.is-online-override {
+  border: 1.5px solid #10B981 !important;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(35, 37, 44, 1) 100%) !important;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.12) !important;
+}
+
+.override-indicator {
+  font-size: 11px;
+  font-weight: 800;
+  margin-left: 4px;
+}
+
+.override-indicator.exam {
+  color: #F97316;
+}
+
+.override-indicator.cancelled {
+  color: #F43F5E;
+  text-decoration: none !important;
+  display: inline-block;
+}
+
+.override-indicator.online {
+  color: #10B981;
+}
+
+.meta-line-item.exam-topics {
+  color: #FDBA74;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.meta-line-item.exam-topics svg {
+  color: #F97316;
+}
+
+.meta-line-item.online-session {
+  color: #6EE7B7;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.meta-line-item.online-session svg {
+  color: #10B981;
+}
+
+

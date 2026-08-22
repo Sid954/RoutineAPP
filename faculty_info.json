@@ -208,7 +208,11 @@
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
     "photo": "src/assets/faculty/anik_cse.jpg",
     "status": "Study Leave",
-    "emails": [],
+    "emails": [
+      "aniksen.cuet09@gmail.com",
+      "anik.sen@puc.ac.bd",
+      "as5867@drexel.edu"
+    ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=anik_cse",
     "socialLinks": {}
@@ -1130,9 +1134,9 @@
   },
   "AIR": {
     "code": "AIR",
-    "officialUsername": "",
-    "name": "AIR",
-    "designation": "Faculty Member",
+    "officialUsername": "arif_istiaq",
+    "name": "Arif Istiaq",
+    "designation": "Lecturer · Department of Computer Science and Engineering",
     "photo": "",
     "status": "Active",
     "emails": [],
@@ -1334,9 +1338,9 @@
   },
   "IFTEKAR MIA": {
     "code": "IFTEKAR MIA",
-    "officialUsername": "",
+    "officialUsername": "iftekar_cse",
     "name": "Iftekar Mia",
-    "designation": "Faculty Member",
+    "designation": "Assistant Professor · Department of Computer Science and Engineering",
     "photo": "",
     "status": "Active",
     "emails": [],
@@ -1526,9 +1530,9 @@
   },
   "NME": {
     "code": "NME",
-    "officialUsername": "",
-    "name": "NME",
-    "designation": "Faculty Member",
+    "officialUsername": "erfan_cse",
+    "name": "Noor Mohammad Erfan",
+    "designation": "Assistant Professor · Department of Computer Science and Engineering",
     "photo": "",
     "status": "Active",
     "emails": [],
@@ -1574,9 +1578,9 @@
   },
   "RSN": {
     "code": "RSN",
-    "officialUsername": "",
-    "name": "RSN",
-    "designation": "Faculty Member",
+    "officialUsername": "rehnuma_cse",
+    "name": "Ms. Rehnuma Shahrin",
+    "designation": "Assistant Professor · Department of Computer Science and Engineering",
     "photo": "",
     "status": "Active",
     "emails": [],

@@ -218,33 +218,43 @@ module.exports = async (req, res) => {
         if (profileUrl !== undefined) updatePayload.profile_url = profileUrl ? profileUrl.trim() : '';
 
         if (id) {
-          const { data, error } = await supabase
+          let updateRes = await supabase
             .from(tableName)
             .update(updatePayload)
             .eq('id', id)
             .select();
 
-          if (error) throw error;
-          return res.status(200).json({ success: true, action, data: data[0] });
+          if (updateRes.error && (updateRes.error.message?.includes('photo') || updateRes.error.message?.includes('profile_url'))) {
+            delete updatePayload.photo;
+            delete updatePayload.profile_url;
+            updateRes = await supabase.from(tableName).update(updatePayload).eq('id', id).select();
+          }
+
+          if (updateRes.error) throw updateRes.error;
+          return res.status(200).json({ success: true, action, data: updateRes.data[0] });
         } else {
           // Direct insert approved override by admin
-          const { data, error } = await supabase
-            .from(tableName)
-            .insert([{
-              teacher_code: (code || '').trim().toUpperCase(),
-              full_name: (name || '').trim(),
-              email: (email || '').trim(),
-              phone: (phone || '').trim(),
-              designation: (designation || '').trim(),
-              photo: (photo || '').trim(),
-              profile_url: (profileUrl || '').trim(),
-              status: 'approved',
-              reviewed_at: new Date().toISOString()
-            }])
-            .select();
+          const insertRow = {
+            teacher_code: (code || '').trim().toUpperCase(),
+            full_name: (name || '').trim(),
+            email: (email || '').trim(),
+            phone: (phone || '').trim(),
+            designation: (designation || '').trim(),
+            photo: (photo || '').trim(),
+            profile_url: (profileUrl || '').trim(),
+            status: 'approved',
+            reviewed_at: new Date().toISOString()
+          };
 
-          if (error) throw error;
-          return res.status(200).json({ success: true, action: 'approved', data: data[0] });
+          let insertRes = await supabase.from(tableName).insert([insertRow]).select();
+          if (insertRes.error && (insertRes.error.message?.includes('photo') || insertRes.error.message?.includes('profile_url'))) {
+            delete insertRow.photo;
+            delete insertRow.profile_url;
+            insertRes = await supabase.from(tableName).insert([insertRow]).select();
+          }
+
+          if (insertRes.error) throw insertRes.error;
+          return res.status(200).json({ success: true, action: 'approved', data: insertRes.data[0] });
         }
       } catch (err) {
         return res.status(500).json({ error: err.message });
@@ -367,6 +377,11 @@ module.exports = async (req, res) => {
 
     // Insert pending suggestion
     try {
+      let parsedOld = null;
+      if (oldData) {
+        try { parsedOld = typeof oldData === 'string' ? JSON.parse(oldData) : oldData; } catch (e) { parsedOld = oldData; }
+      }
+
       const submissionRow = {
         teacher_code: cleanCode,
         full_name: cleanName,
@@ -375,17 +390,29 @@ module.exports = async (req, res) => {
         designation: cleanDesig,
         photo: cleanPhoto,
         profile_url: cleanProfile,
-        old_data: oldData ? JSON.stringify(oldData) : null,
+        old_data: parsedOld,
         status: 'pending',
         ip_address: clientIp,
         submitted_at: new Date().toISOString()
       };
 
-      // Attempt insert with ip_address, fallback without if column is missing
+      // Resilient insert: handle schema cache mismatches gracefully
       let insertRes = await supabase.from(tableName).insert([submissionRow]).select();
-      if (insertRes.error && insertRes.error.message?.includes('ip_address')) {
-        delete submissionRow.ip_address;
-        insertRes = await supabase.from(tableName).insert([submissionRow]).select();
+      if (insertRes.error) {
+        const errMsg = insertRes.error.message || '';
+        if (errMsg.includes('old_data')) {
+          delete submissionRow.old_data;
+          insertRes = await supabase.from(tableName).insert([submissionRow]).select();
+        }
+        if (insertRes.error && insertRes.error.message?.includes('ip_address')) {
+          delete submissionRow.ip_address;
+          insertRes = await supabase.from(tableName).insert([submissionRow]).select();
+        }
+        if (insertRes.error && (insertRes.error.message?.includes('photo') || insertRes.error.message?.includes('profile_url'))) {
+          delete submissionRow.photo;
+          delete submissionRow.profile_url;
+          insertRes = await supabase.from(tableName).insert([submissionRow]).select();
+        }
       }
 
       if (insertRes.error) throw insertRes.error;

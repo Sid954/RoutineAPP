@@ -78,9 +78,16 @@ export function cleanDesignation(desigStr) {
   return cleaned || 'Faculty Member';
 }
 
-export function isGuestTeacher(info, code) {
+export function isGuestTeacher(target, codeParam) {
+  let info = target;
+  let code = codeParam;
+  if (typeof target === 'string') {
+    code = target;
+    info = getTeacherInfo(target);
+    return !!info.isGuest;
+  }
   if (!info) return true;
-  const upper = String(code || '').trim().toUpperCase();
+  const upper = String(code || info.code || '').trim().toUpperCase();
   const hasCustomName = info.name && info.name.trim().toUpperCase() !== upper && info.name.trim() !== '';
   const hasEmail = (info.emails && info.emails.length > 0) || (info.email && info.email.trim());
   const hasPhone = info.phone && info.phone.trim();
@@ -144,7 +151,7 @@ export function getTeacherInfo(code) {
     base = {
       code: code,
       name: code,
-      designation: 'Guest Faculty',
+      designation: 'Faculty Member',
       emails: [],
       photo: '',
       profileUrl: ''
@@ -156,8 +163,8 @@ export function getTeacherInfo(code) {
   const finalName = (typeof remoteApproved === 'string' ? remoteApproved : remoteApproved?.name) || base.name || code;
 
   const isGuest = isGuestTeacher(base, code) && (!remoteApproved || remoteApproved === code);
-  const defaultDesig = isGuest ? 'Guest Faculty' : 'Faculty Member';
-  const finalDesig = cleanDesignation((base.designation && base.designation !== 'Faculty Member') ? base.designation : defaultDesig);
+  const defaultDesig = 'Faculty Member';
+  const finalDesig = cleanDesignation((base.designation && base.designation !== 'Faculty Member' && base.designation !== 'Guest Faculty') ? base.designation : defaultDesig);
 
   return {
     ...base,
