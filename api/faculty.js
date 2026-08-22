@@ -1,14 +1,12 @@
 const { createClient } = require('@supabase/supabase-js');
 
+// Initialize Supabase Client
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 let supabase = null;
-function getSupabase() {
-  if (supabase) return supabase;
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (url && key) {
-    supabase = createClient(url, key);
-  }
-  return supabase;
+
+if (supabaseUrl && supabaseServiceKey) {
+  supabase = createClient(supabaseUrl, supabaseServiceKey);
 }
 
 module.exports = async (req, res) => {
@@ -31,13 +29,12 @@ module.exports = async (req, res) => {
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
-  const db = getSupabase();
-  if (!db) {
+  if (!supabase) {
     return res.status(500).json({ error: 'Supabase credentials are not configured on the server.' });
   }
 
   try {
-    const { data, error } = await db
+    const { data, error } = await supabase
       .from('faculty_members')
       .select('*')
       .order('name', { ascending: true });

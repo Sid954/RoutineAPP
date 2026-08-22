@@ -1,15 +1,32 @@
 /**
  * Standalone seed script for Supabase faculty_members table.
- * Usage: node scripts/seed_faculty_supabase.js
+ * 
+ * Usage options:
+ *   Option A (CLI Arguments - easiest on Windows PowerShell / cmd):
+ *     node scripts/seed_faculty_supabase.js "https://xyz.supabase.co" "eyJhbGciOi..."
+ * 
+ *   Option B (PowerShell Environment Variables):
+ *     $env:SUPABASE_URL="https://xyz.supabase.co"
+ *     $env:SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOi..."
+ *     node scripts/seed_faculty_supabase.js
  */
 const { createClient } = require('@supabase/supabase-js');
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+// Support CLI arguments OR environment variables
+const supabaseUrl = (process.argv[2] || process.env.SUPABASE_URL || '').trim();
+const supabaseServiceKey = (process.argv[3] || process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in environment.');
-  console.error('Run: SUPABASE_URL="..." SUPABASE_SERVICE_ROLE_KEY="..." node scripts/seed_faculty_supabase.js');
+if (!supabaseUrl || !supabaseServiceKey || supabaseUrl.includes('your-supabase-url') || supabaseServiceKey.includes('your-service-role-key')) {
+  console.error('\n❌ ERROR: Missing or placeholder Supabase credentials.\n');
+  console.error('Please run the script with your real Supabase URL and service_role key:');
+  console.error('  node scripts/seed_faculty_supabase.js "<YOUR_SUPABASE_URL>" "<YOUR_SERVICE_ROLE_KEY>"\n');
+  console.error('Example:');
+  console.error('  node scripts/seed_faculty_supabase.js "https://abcdefghijklmno.supabase.co" "eyJhbGciOi..."\n');
+  process.exit(1);
+}
+
+if (!supabaseUrl.startsWith('https://')) {
+  console.error('\n❌ ERROR: SUPABASE_URL must start with https:// (e.g. https://xyz.supabase.co)\n');
   process.exit(1);
 }
 
@@ -793,8 +810,37 @@ const seedList = [
 ];
 
 async function seed() {
-  console.log('Seeding 42 verified faculty members with local bundled photos to Supabase faculty_members table...');
+  console.log('\n======================================================');
+  console.log('🚀 Premier University - Faculty Directory Seeder');
+  console.log(`Target Supabase: ${supabaseUrl}`);
+  console.log(`Total Members to Seed: ${seedList.length}`);
+  console.log('======================================================\n');
+
+  // Pre-flight check: verify database connection and table existence
+  console.log('Performing pre-flight connection test...');
+  const { error: pingError } = await supabase.from('faculty_members').select('id').limit(1);
+
+  if (pingError) {
+    console.error('\n❌ PRE-FLIGHT TEST FAILED!');
+    console.error(`Message: ${pingError.message}`);
+    if (pingError.details) console.error(`Details: ${pingError.details}`);
+    if (pingError.hint) console.error(`Hint: ${pingError.hint}`);
+    if (pingError.code) console.error(`Code: ${pingError.code}`);
+    if (pingError.cause) console.error(`Cause: ${pingError.cause}`);
+    
+    if (pingError.message?.includes('fetch failed')) {
+      console.error('\n👉 Diagnostic: Node could not connect to the Supabase URL. Please verify your internet connection and ensure the URL is typed correctly.');
+    } else if (pingError.message?.includes('relation "faculty_members" does not exist') || pingError.code === '42P01') {
+      console.error('\n👉 Diagnostic: The "faculty_members" table does not exist in Supabase yet. Please run supabase_faculty_members.sql in your Supabase SQL Editor first.');
+    } else if (pingError.message?.includes('JWT') || pingError.code === '401' || pingError.message?.includes('apikey')) {
+      console.error('\n👉 Diagnostic: Authentication failed. Please ensure you are passing the "service_role" secret key (not the anon key).');
+    }
+    process.exit(1);
+  }
+
+  console.log('✅ Connection test successful! Seeding faculty members...\n');
   let successCount = 0;
+  let failCount = 0;
 
   for (const item of seedList) {
     const { data, error } = await supabase
@@ -803,17 +849,23 @@ async function seed() {
       .select();
 
     if (error) {
-      console.error(`Failed to seed ${item.teacher_code} (${item.name}):`, error.message);
+      failCount++;
+      console.error(`❌ Failed to seed ${item.teacher_code} (${item.name}): ${error.message}`);
+      if (error.details) console.error(`   Details: ${error.details}`);
+      if (error.hint) console.error(`   Hint: ${error.hint}`);
     } else {
       successCount++;
-      console.log(`✅ [${successCount}/42] Seeded ${item.teacher_code}: ${item.name} -> ${item.photo}`);
+      console.log(`✅ [${successCount}/42] Seeded ${item.teacher_code}: ${item.name} (${item.emails.length} emails, photo: ${item.photo})`);
     }
   }
 
-  console.log(`Finished! Successfully seeded ${successCount} of ${seedList.length} faculty members.`);
+  console.log('\n======================================================');
+  console.log(`🎉 Finished! Successfully seeded ${successCount} of ${seedList.length} members (${failCount} errors).`);
+  console.log('======================================================\n');
 }
 
 seed().catch(err => {
-  console.error('Fatal seeding error:', err);
+  console.error('\n❌ Fatal script error:', err);
+  if (err.cause) console.error('Underlying cause:', err.cause);
   process.exit(1);
 });
