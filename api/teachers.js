@@ -32,11 +32,9 @@ function isGarbageString(str) {
   return false;
 }
 
-// Table helper with fallback
+// Table helper for edit suggestions
 async function getActiveTable() {
-  if (!supabase) return 'teacher_names';
-  const { error } = await supabase.from('instructor_edit_suggestions').select('id').limit(1);
-  return error ? 'teacher_names' : 'instructor_edit_suggestions';
+  return 'instructor_edit_suggestions';
 }
 
 module.exports = async (req, res) => {
