@@ -225,182 +225,25 @@ function compileMasterTeacherSchedule() {
 
 const https = require('https');
 
-function fetchUrl(url, timeoutMs = 8000) {
-  return new Promise((resolve, reject) => {
-    const req = https.get(url, (res) => {
-      if (res.statusCode < 200 || res.statusCode >= 300) {
-        return reject(new Error(`HTTP ${res.statusCode}`));
-      }
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => resolve(data));
-    });
-    req.on('error', reject);
-    req.setTimeout(timeoutMs, () => {
-      req.destroy();
-      reject(new Error('Request timeout'));
-    });
-  });
-}
-
-
-function downloadFile(url, destPath) {
-  return new Promise((resolve) => {
-    if (!url) return resolve(false);
-    const client = url.startsWith('https') ? https : http;
-    const req = client.get(url, (res) => {
-      if (res.statusCode === 200) {
-        const fileStream = fs.createWriteStream(destPath);
-        res.pipe(fileStream);
-        fileStream.on('finish', () => {
-          fileStream.close();
-          resolve(true);
-        });
-      } else {
-        resolve(false);
-      }
-    });
-    req.on('error', () => resolve(false));
-    req.setTimeout(15000, () => {
-      req.destroy();
-      resolve(false);
-    });
-  });
-}
-
-function cleanText(str) {
-  if (!str) return '';
-  return str.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
-}
-
-async function updateFacultyDirectoryFromWeb() {
-  console.log('Checking faculty updates from https://cse.puc.ac.bd/Home/FacultyMembers ...');
-
-  try {
-    const mainHtml = await fetchUrl('https://cse.puc.ac.bd/Home/FacultyMembers', 15000);
-    const memberCards = mainHtml.split('<div class="card border-0 shadow-lg').slice(1);
-    if (!memberCards.length) throw new Error('No faculty cards found');
-
-    const scrapedList = [];
-    for (const card of memberCards) {
-      const imgMatch = card.match(/src="([^"]+)"/i);
-      const photo = imgMatch ? imgMatch[1].trim() : '';
-
-      const statusMatch = card.match(/title="([^"]+)"/i);
-      const status = statusMatch ? statusMatch[1].trim() : 'Active';
-
-      const nameMatch = card.match(/<h5 class="member-name[^>]*>([\s\S]*?)<\/h5>/i);
-      const name = nameMatch ? cleanText(nameMatch[1]) : '';
-
-      const descMatch = card.match(/<div class="mb-3 text-center"[^>]*>([\s\S]*?)<\/div>/i);
-      let designation = '';
-      if (descMatch) {
-        designation = descMatch[1].replace(/<br\s*\/?>/gi, ' · ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
-      }
-
-      const profileMatch = card.match(/href="([^"]*Profile\?userName=([^"&]+))"/i);
-      const profilePath = profileMatch ? profileMatch[1] : '';
-      const username = profileMatch ? profileMatch[2] : '';
-      const profileUrl = profilePath ? `https://cse.puc.ac.bd${profilePath}` : '';
-
-      if (name) {
-        scrapedList.push({ name, username, designation, status, photo, profileUrl });
-      }
-    }
-
-    // Connect to Supabase if configured to log pending suggestions for any website changes
+// Optional manual faculty sync when invoked with --scrape-faculty flag
+async function handleOptionalFacultyScrape() {
+  if (process.argv.includes('--scrape-faculty')) {
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
     if (supabaseUrl && supabaseServiceKey) {
-      const { createClient } = require('@supabase/supabase-js');
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-      const { data: currentDbFaculty } = await supabase.from('faculty_members').select('*');
-      const dbMap = {};
-      (currentDbFaculty || []).forEach(row => {
-        if (row.official_username) dbMap[row.official_username.toLowerCase()] = row;
-      });
-
-      let newSuggestionsCount = 0;
-      const assetsDir = path.join(__dirname, 'src', 'assets', 'faculty');
-
-      for (const f of scrapedList) {
-        const existing = dbMap[f.username.toLowerCase()];
-        if (!existing) {
-          // New faculty member found on university site
-          let localAssetPath = f.photo;
-          if (f.photo) {
-            const extMatch = f.photo.match(/\.(jpe?g|png|webp)/i);
-            const ext = extMatch ? extMatch[1].toLowerCase().replace('jpeg', 'jpg') : 'jpg';
-            const filename = `${f.username.toLowerCase()}.${ext}`;
-            const destPath = path.join(assetsDir, filename);
-            const downloaded = await downloadFile(f.photo, destPath);
-            if (downloaded) localAssetPath = `src/assets/faculty/${filename}`;
-          }
-
-          await supabase.from('instructor_edit_suggestions').insert([{
-            teacher_code: f.username.toUpperCase(),
-            full_name: f.name,
-            designation: f.designation,
-            photo: localAssetPath,
-            source_photo_url: f.photo,
-            profile_url: f.profileUrl,
-            status: 'pending',
-            source: 'build_scraper',
-            submitted_at: new Date().toISOString()
-          }]);
-          newSuggestionsCount++;
-        } else {
-          // Check for changed designation or changed remote university photo URL
-          const desigChanged = f.designation && f.designation !== existing.designation;
-          const photoChanged = f.photo && f.photo !== existing.source_photo_url;
-
-          if (desigChanged || photoChanged) {
-            let localAssetPath = existing.photo;
-            if (photoChanged && f.photo) {
-              const extMatch = f.photo.match(/\.(jpe?g|png|webp)/i);
-              const ext = extMatch ? extMatch[1].toLowerCase().replace('jpeg', 'jpg') : 'jpg';
-              const codeLower = (existing.teacher_code || f.username).toLowerCase().replace(/[^a-z0-9_]/g, '_');
-              const filename = `${codeLower}.${ext}`;
-              const destPath = path.join(assetsDir, filename);
-              const downloaded = await downloadFile(f.photo, destPath);
-              if (downloaded) localAssetPath = `src/assets/faculty/${filename}`;
-            }
-
-            await supabase.from('instructor_edit_suggestions').insert([{
-              teacher_code: existing.teacher_code,
-              full_name: f.name,
-              designation: f.designation,
-              photo: localAssetPath,
-              source_photo_url: f.photo,
-              profile_url: f.profileUrl,
-              old_data: {
-                name: existing.name,
-                designation: existing.designation,
-                photo: existing.photo,
-                source_photo_url: existing.source_photo_url,
-                profileUrl: existing.profile_url
-              },
-              status: 'pending',
-              source: 'build_scraper',
-              submitted_at: new Date().toISOString()
-            }]);
-            newSuggestionsCount++;
-          }
-        }
-      }
-
-      if (newSuggestionsCount > 0) {
-        console.log(`ℹ️ Build Scraper: Submitted ${newSuggestionsCount} pending suggestion(s) to Admin Review Panel.`);
-      } else {
-        console.log(`✅ Build Scraper: Verified ${scrapedList.length} faculty members against Supabase (Directory up to date).`);
+      try {
+        console.log('Running manual faculty directory sync (--scrape-faculty)...');
+        const { createClient } = require('@supabase/supabase-js');
+        const { syncFacultyWithSupabase } = require('./api/_lib/faculty-scraper.js');
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        const result = await syncFacultyWithSupabase(supabase);
+        console.log(`✅ Faculty sync finished: ${result.scrapedCount} checked, ${result.newSuggestionsCount} new suggestions created.`);
+      } catch (e) {
+        console.warn('⚠️ Manual faculty sync notice:', e.message);
       }
     } else {
-      console.log(`✅ Build Scraper: Verified ${scrapedList.length} official faculty members on PUC website.`);
+      console.log('ℹ️ Skipped --scrape-faculty: missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in env.');
     }
-  } catch (err) {
-    console.warn(`ℹ️ Could not check live faculty site (${err.message}). Using current directory.`);
   }
 }
 
@@ -411,8 +254,8 @@ async function build() {
   compileMasterRoomSchedule();
   compileMasterTeacherSchedule();
 
-  // Fetch and update latest faculty data from university website
-  await updateFacultyDirectoryFromWeb();
+  // Run faculty scraper only if explicitly requested
+  await handleOptionalFacultyScrape();
 
   // Create or clean dist directory
   if (fs.existsSync(DIST_DIR)) {
