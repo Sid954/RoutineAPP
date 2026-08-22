@@ -224,9 +224,7 @@
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
     "photo": "https://admin.puc.ac.bd/ProfilePictures/faisal_cse_1041700179.JPG",
     "status": "Study Leave",
-    "emails": [
-      "faisalcsecubd@gmail.com"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=faisal_cse",
     "socialLinks": {}
@@ -238,11 +236,7 @@
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
     "photo": "src/assets/faculty/nak.jpg",
     "status": "Active",
-    "emails": [
-      "nazmacse2013@gmail.com",
-      "nazma.akther@puc.ac.bd",
-      "nazma.akther@uts.edu.au"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nazma_fbs",
     "socialLinks": {}
@@ -254,11 +248,7 @@
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
     "photo": "src/assets/faculty/nak.jpg",
     "status": "Active",
-    "emails": [
-      "nazmacse2013@gmail.com",
-      "nazma.akther@puc.ac.bd",
-      "nazma.akther@uts.edu.au"
-    ],
+    "emails": [],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nazma_fbs",
     "socialLinks": {}

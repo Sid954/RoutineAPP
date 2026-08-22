@@ -324,6 +324,31 @@ export const Announcements = {
       "Older",
     ];
 
+    function formatSubcardDate(dateStr) {
+      if (!dateStr || typeof dateStr !== 'string') return '';
+      const clean = dateStr.trim();
+      if (clean.includes(' to ') || clean.includes(' – ') || clean.includes(' - ')) {
+        const parts = clean.split(/\s*(?:to|–|-)\s*/i).filter(Boolean);
+        if (parts.length === 2 && /^\d{4}-\d{2}-\d{2}$/.test(parts[0]) && /^\d{4}-\d{2}-\d{2}$/.test(parts[1])) {
+          const [y1, m1, d1] = parts[0].split('-').map(Number);
+          const [y2, m2, d2] = parts[1].split('-').map(Number);
+          const mNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          return `${mNames[m1 - 1]} ${d1} – ${mNames[m2 - 1]} ${d2}, ${y2}`;
+        }
+      }
+      const match = clean.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (match) {
+        const y = parseInt(match[1], 10);
+        const m = parseInt(match[2], 10);
+        const d = parseInt(match[3], 10);
+        const dObj = new Date(y, m - 1, d);
+        const fullMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const fullDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        return `${fullMonths[dObj.getMonth()]} ${d} (${fullDays[dObj.getDay()]})`;
+      }
+      return clean;
+    }
+
     function buildCardHtml(item, isUnread) {
       const meta = typeMeta[item.type] || typeMeta.general;
       const rawContent = item.announcement || "";
@@ -353,15 +378,9 @@ export const Announcements = {
           badgeCss = "extra";
           badgeIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>';
         }
-        const startTime = (parsed.start_time || "").trim();
-        const endTime = (parsed.end_time || "").trim();
-
-        let timeTitle = isOnline ? "Online Session" : "In-Person Class";
-        if (startTime && endTime && startTime !== endTime && endTime !== "—") {
-          timeTitle = `${startTime} – ${endTime}`;
-        } else if (startTime) {
-          timeTitle = `Starts at ${startTime}`;
-        }
+        const rawStart = (parsed.start_time || "").trim();
+        const startTime = rawStart ? format12h(rawStart) : "";
+        const formattedDate = formatSubcardDate(item.date_override);
 
         if (isOnline) {
           const platformStr = (parsed.platform || "").trim();
@@ -371,44 +390,48 @@ export const Announcements = {
           if (isUrl) {
             linkOrTextHtml = `
               <a href="${escapeHtml(platformStr)}" target="_blank" rel="noopener noreferrer" class="announce-join-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                 <span>Join Class</span>
               </a>
             `;
           } else if (platformStr) {
             linkOrTextHtml = `
-              <div class="announce-subcard-scroll-wrap">
+              <div class="announce-subcard-scroll-wrap" style="margin-top: 2px;">
                 <div class="announce-subcard-text">${escapeHtml(platformStr)}</div>
                 <div class="announce-subcard-fade"></div>
               </div>
             `;
           } else {
-            linkOrTextHtml = `<div class="announce-subcard-text" style="color: var(--text-muted, #94A3B8); font-style: italic;">Check class group for link</div>`;
+            linkOrTextHtml = `<div class="announce-subcard-meta" style="font-style: italic;">Check class group for link</div>`;
           }
 
           cardBodyHtml = `
             <div class="announce-subcard">
               <div class="announce-subcard-header">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 <span>ONLINE SESSION</span>
               </div>
               <div class="announce-subcard-body">
-                <div class="announce-subcard-title">${escapeHtml(timeTitle)}</div>
+                ${startTime ? `<div class="announce-subcard-time">${escapeHtml(startTime)}</div>` : ''}
+                ${formattedDate ? `<div class="announce-subcard-date">${escapeHtml(formattedDate)}</div>` : ''}
                 ${linkOrTextHtml}
               </div>
             </div>
           `;
         } else {
           const roomStr = (parsed.room || "").trim();
+          const teacherStr = (parsed.teacher || "").trim();
           cardBodyHtml = `
             <div class="announce-subcard">
               <div class="announce-subcard-header">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 <span>IN-PERSON EXTRA CLASS</span>
               </div>
               <div class="announce-subcard-body">
-                <div class="announce-subcard-title">${escapeHtml(timeTitle)}</div>
-                ${roomStr ? `<div class="announce-subcard-text" style="margin-top: 4px; font-weight: 600; color: var(--text-main, #F8FAFC);">Room: ${escapeHtml(roomStr)}</div>` : ""}
+                ${startTime ? `<div class="announce-subcard-time">${escapeHtml(startTime)}</div>` : ''}
+                ${formattedDate ? `<div class="announce-subcard-date">${escapeHtml(formattedDate)}</div>` : ''}
+                ${roomStr ? `<div class="announce-subcard-room">Room ${escapeHtml(roomStr)}</div>` : ''}
+                ${teacherStr ? `<div class="announce-subcard-meta">Instructor: ${escapeHtml(teacherStr)}</div>` : ''}
               </div>
             </div>
           `;
@@ -416,48 +439,65 @@ export const Announcements = {
       } else if (item.type === "class_test") {
         let parsed = {};
         try { parsed = JSON.parse(rawContent); } catch (e) { parsed = { exam_name: "Class Test", topics: rawContent }; }
+        const examName = (parsed.exam_name || "Class Test").trim();
+        const topics = (parsed.topics || "").trim();
+        const formattedDate = formatSubcardDate(item.date_override);
+
         cardBodyHtml = `
           <div class="announce-subcard">
             <div class="announce-subcard-header">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-              <span>EXAM TOPICS &amp; SYLLABUS</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              <span>EXAM &amp; SYLLABUS</span>
             </div>
             <div class="announce-subcard-body">
-              <div class="announce-subcard-title">${escapeHtml(parsed.exam_name || "Class Test")}</div>
+              <div class="announce-subcard-title-lg">${escapeHtml(examName)}</div>
+              ${formattedDate ? `<div class="announce-subcard-date">${escapeHtml(formattedDate)}</div>` : ''}
+              <div class="announce-subcard-section-label">Syllabus / Topics</div>
               <div class="announce-subcard-scroll-wrap">
-                <div class="announce-subcard-text">${escapeHtml(parsed.topics || "Not Specified")}</div>
+                <div class="announce-subcard-text">${escapeHtml(topics || "Not Specified")}</div>
                 <div class="announce-subcard-fade"></div>
               </div>
             </div>
           </div>
         `;
       } else if (item.type === "cancellation") {
+        const subjTitle = item.subject_override ? `${item.subject_override} Class Cancelled` : (item.title || "Class Cancelled");
+        const formattedDate = formatSubcardDate(item.date_override);
+        const reasonText = (rawContent || "Scheduled session has been cancelled.").trim();
+
         cardBodyHtml = `
           <div class="announce-subcard">
             <div class="announce-subcard-header">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-              <span>CANCELLATION REASON</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              <span>CLASS CANCELLED</span>
             </div>
             <div class="announce-subcard-body">
-              ${item.subject_override ? `<div class="announce-subcard-title">${escapeHtml(item.subject_override)} Class Cancelled</div>` : ""}
+              <div class="announce-subcard-title-lg">${escapeHtml(subjTitle)}</div>
+              ${formattedDate ? `<div class="announce-subcard-date">${escapeHtml(formattedDate)}</div>` : ''}
+              <div class="announce-subcard-section-label">Reason</div>
               <div class="announce-subcard-scroll-wrap">
-                <div class="announce-subcard-text">${escapeHtml(rawContent || "Scheduled session has been cancelled.")}</div>
+                <div class="announce-subcard-text">${escapeHtml(reasonText)}</div>
                 <div class="announce-subcard-fade"></div>
               </div>
             </div>
           </div>
         `;
       } else if (item.type === "holiday") {
+        const holidayTitle = item.title || "University Holiday";
+        const formattedDate = formatSubcardDate(item.date_override);
+        const holidayDesc = (rawContent || "University holiday declared.").trim();
+
         cardBodyHtml = `
           <div class="announce-subcard">
             <div class="announce-subcard-header">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <span>HOLIDAY DETAILS</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span>UNIVERSITY HOLIDAY</span>
             </div>
             <div class="announce-subcard-body">
-              ${item.date_override ? `<div class="announce-subcard-title">${escapeHtml(item.date_override)}</div>` : ""}
-              <div class="announce-subcard-scroll-wrap">
-                <div class="announce-subcard-text">${escapeHtml(rawContent || "University holiday declared.")}</div>
+              <div class="announce-subcard-title-lg">${escapeHtml(holidayTitle)}</div>
+              ${formattedDate ? `<div class="announce-subcard-date">${escapeHtml(formattedDate)}</div>` : ''}
+              <div class="announce-subcard-scroll-wrap" style="margin-top: 2px;">
+                <div class="announce-subcard-text">${escapeHtml(holidayDesc)}</div>
                 <div class="announce-subcard-fade"></div>
               </div>
             </div>
@@ -473,16 +513,7 @@ export const Announcements = {
         const newRoom = (parsed.new_room || "").trim();
         const reason = (parsed.reason || "").trim();
 
-        let dateFormatted = "";
-        if (newDate) {
-          const [ny, nm, nd] = newDate.split('-').map(Number);
-          if (ny && nm && nd) {
-            const dObj = new Date(ny, nm - 1, nd);
-            const fullMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            const fullDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            dateFormatted = `${fullMonths[dObj.getMonth()]} ${nd} (${fullDays[dObj.getDay()]})`;
-          }
-        }
+        const dateFormatted = formatSubcardDate(newDate);
 
         let origSlotLabel = '';
         if (origDate) {
@@ -501,7 +532,7 @@ export const Announcements = {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               <span>RESCHEDULED CLASS</span>
             </div>
-            <div class="announce-subcard-rescheduled-body">
+            <div class="announce-subcard-body">
               ${newStart ? `<div class="announce-subcard-time">${escapeHtml(newStart)}</div>` : ''}
               ${dateFormatted ? `<div class="announce-subcard-date">${escapeHtml(dateFormatted)}</div>` : ''}
               ${newRoom ? `<div class="announce-subcard-room">Room ${escapeHtml(newRoom)}</div>` : ''}
@@ -517,38 +548,46 @@ export const Announcements = {
       } else if (item.type === "assignment") {
         let parsed = {};
         try { parsed = JSON.parse(rawContent); } catch (e) {}
-        const taskTitle = parsed.task_title || "Assignment";
-        const dueTime = parsed.due_time || "";
-        const desc = parsed.description || "";
-        const dueTitle = dueTime ? `Due at ${dueTime}` : "Assignment Deadline";
+        const taskTitle = (parsed.task_title || "Assignment").trim();
+        const rawDueTime = (parsed.due_time || "").trim();
+        const dueTime = rawDueTime ? format12h(rawDueTime) : "";
+        const formattedDate = formatSubcardDate(item.date_override);
+        const desc = (parsed.description || "").trim();
 
         cardBodyHtml = `
           <div class="announce-subcard">
             <div class="announce-subcard-header">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-              <span>ASSIGNMENT DETAILS</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+              <span>ASSIGNMENT DEADLINE</span>
             </div>
             <div class="announce-subcard-body">
-              <div class="announce-subcard-title">${escapeHtml(taskTitle)} &bull; ${escapeHtml(dueTitle)}</div>
+              <div class="announce-subcard-title-lg">${escapeHtml(taskTitle)}</div>
+              ${dueTime ? `<div class="announce-subcard-time">Due: ${escapeHtml(dueTime)}</div>` : ''}
+              ${formattedDate ? `<div class="announce-subcard-date">${escapeHtml(formattedDate)}</div>` : ''}
               ${desc ? `
+                <div class="announce-subcard-section-label">Instructions / Details</div>
                 <div class="announce-subcard-scroll-wrap">
                   <div class="announce-subcard-text">${escapeHtml(desc)}</div>
                   <div class="announce-subcard-fade"></div>
-                </div>` : ""}
+                </div>` : ''}
             </div>
           </div>
         `;
       } else {
+        const formattedDate = formatSubcardDate(item.date_override);
+        const detailText = (rawContent || "No additional details provided.").trim();
+
         cardBodyHtml = `
           <div class="announce-subcard">
             <div class="announce-subcard-header">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
               <span>ANNOUNCEMENT DETAILS</span>
             </div>
             <div class="announce-subcard-body">
-              ${item.subject_override ? `<div class="announce-subcard-title">${escapeHtml(item.subject_override)}</div>` : ""}
-              <div class="announce-subcard-scroll-wrap">
-                <div class="announce-subcard-text">${escapeHtml(rawContent || "No additional details provided.")}</div>
+              ${item.subject_override ? `<div class="announce-subcard-title-lg">${escapeHtml(item.subject_override)}</div>` : ''}
+              ${formattedDate ? `<div class="announce-subcard-date">${escapeHtml(formattedDate)}</div>` : ''}
+              <div class="announce-subcard-scroll-wrap" style="margin-top: 2px;">
+                <div class="announce-subcard-text">${escapeHtml(detailText)}</div>
                 <div class="announce-subcard-fade"></div>
               </div>
             </div>
