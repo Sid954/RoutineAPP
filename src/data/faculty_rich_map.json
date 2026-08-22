@@ -224,7 +224,9 @@
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
     "photo": "https://admin.puc.ac.bd/ProfilePictures/faisal_cse_1041700179.JPG",
     "status": "Study Leave",
-    "emails": [],
+    "emails": [
+      "faisalcsecubd@gmail.com"
+    ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=faisal_cse",
     "socialLinks": {}
@@ -236,7 +238,11 @@
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
     "photo": "src/assets/faculty/nak.jpg",
     "status": "Active",
-    "emails": [],
+    "emails": [
+      "nazmacse2013@gmail.com",
+      "nazma.akther@puc.ac.bd",
+      "nazma.akther@uts.edu.au"
+    ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nazma_fbs",
     "socialLinks": {}
@@ -248,7 +254,11 @@
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
     "photo": "src/assets/faculty/nak.jpg",
     "status": "Active",
-    "emails": [],
+    "emails": [
+      "nazmacse2013@gmail.com",
+      "nazma.akther@puc.ac.bd",
+      "nazma.akther@uts.edu.au"
+    ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nazma_fbs",
     "socialLinks": {}
@@ -1412,14 +1422,18 @@
   },
   "KLD": {
     "code": "KLD",
-    "officialUsername": "",
+    "officialUsername": "kingshuk_cse",
     "name": "KLD",
     "designation": "Faculty Member",
-    "photo": "",
+    "photo": "src/assets/faculty/kd.JPG",
     "status": "Active",
-    "emails": [],
+    "emails": [
+      "kingshuk2006@yahoo.com",
+      "kingshuk2018@gmail.com",
+      "kingshukdhar@puc.ac.bd"
+    ],
     "phone": "",
-    "profileUrl": "",
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=kingshuk_cse",
     "socialLinks": {}
   },
   "MA": {

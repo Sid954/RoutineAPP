@@ -250,8 +250,18 @@ function cleanText(str) {
 
 async function updateFacultyDirectoryFromWeb() {
   console.log('Fetching latest faculty info from https://cse.puc.ac.bd/Home/FacultyMembers ...');
+
+  // Load existing faculty data as fallback baseline to prevent silent data loss
+  let existingData = {};
+  const existingPath = path.join(__dirname, 'faculty_info.json');
+  if (fs.existsSync(existingPath)) {
+    try {
+      existingData = JSON.parse(fs.readFileSync(existingPath, 'utf8'));
+    } catch (e) {}
+  }
+
   try {
-    const mainHtml = await fetchUrl('https://cse.puc.ac.bd/Home/FacultyMembers', 10000);
+    const mainHtml = await fetchUrl('https://cse.puc.ac.bd/Home/FacultyMembers', 15000);
     const memberCards = mainHtml.split('<div class="card border-0 shadow-lg').slice(1);
     if (!memberCards.length) throw new Error('No faculty cards found');
 
@@ -287,22 +297,25 @@ async function updateFacultyDirectoryFromWeb() {
       '09610828282', '01335084717', '8809610828282', '8801313044515'
     ];
 
-    // Fast parallel profile detail fetching
-    const batchSize = 10;
+    // Reduced concurrency (batchSize 5) and increased timeout (12s) for reliability
+    const batchSize = 5;
     for (let i = 0; i < scrapedList.length; i += batchSize) {
       const batch = scrapedList.slice(i, i + batchSize);
       await Promise.all(batch.map(async f => {
         if (!f.profileUrl) return;
         try {
-          const pHtml = await fetchUrl(f.profileUrl, 6000);
+          const pHtml = await fetchUrl(f.profileUrl, 12000);
           
           // Authentic Teacher Emails
           const emailMatches = pHtml.match(/fa-envelope[^<]*<\/i>\s*([\s\S]*?)<\/span>/i);
           if (emailMatches) {
-            f.emails = cleanText(emailMatches[1])
+            const fetchedEmails = cleanText(emailMatches[1])
               .split(/[,;\s]+/)
               .map(e => e.trim())
               .filter(e => e.includes('@') && !e.toLowerCase().includes('info@puc.ac.bd') && !e.toLowerCase().includes('controller@puc.ac.bd'));
+            if (fetchedEmails.length > 0) {
+              f.emails = fetchedEmails;
+            }
           }
 
           // Filter out generic university hotline phone numbers
@@ -312,9 +325,7 @@ async function updateFacultyDirectoryFromWeb() {
             const isGeneric = GENERIC_PHONES.some(p => rawPhone.replace(/\D/g, '').includes(p)) || rawPhone.toLowerCase().includes('puc.ac.bd') || rawPhone.toLowerCase().includes('student login');
             if (!isGeneric) {
               const phoneMatch = rawPhone.match(/(\+?\d[\d\s-]{7,})/);
-              if (phoneMatch) f.phone = phoneMatch[1].trim();
-            } else {
-              f.phone = '';
+              if (phoneMatch && phoneMatch[1].trim()) f.phone = phoneMatch[1].trim();
             }
           }
         } catch (e) {}
@@ -371,24 +382,31 @@ async function updateFacultyDirectoryFromWeb() {
     const teacherMaster = fs.existsSync(teacherMasterPath) ? JSON.parse(fs.readFileSync(teacherMasterPath, 'utf8')) : { teachers: [] };
     const richFacultyData = {};
 
-    // 1. Insert all 42 scraped official faculty members from the website
+    // 1. Insert all 42 scraped official faculty members from the website with fallback-merge safety
     scrapedList.forEach(f => {
       const matchingCodes = Object.keys(exactFacultyMap).filter(code => exactFacultyMap[code].username && exactFacultyMap[code].username.toLowerCase() === f.username.toLowerCase());
       const primaryCode = matchingCodes[0] || '';
       const customName = (exactFacultyMap[primaryCode] && exactFacultyMap[primaryCode].name) || f.name;
       const customDesig = (exactFacultyMap[primaryCode] && exactFacultyMap[primaryCode].designation) || f.designation;
 
+      const existingProf = existingData[f.username] || (primaryCode && existingData[primaryCode]) || {};
+
+      const mergedEmails = (f.emails && f.emails.length > 0) ? f.emails : (existingProf.emails || []);
+      const mergedPhone = (f.phone && f.phone.trim()) ? f.phone : (existingProf.phone || '');
+      const mergedPhoto = (f.photo && f.photo.trim()) ? f.photo : (existingProf.photo || '');
+      const mergedProfileUrl = (f.profileUrl && f.profileUrl.trim()) ? f.profileUrl : (existingProf.profileUrl || '');
+
       const profileObj = {
         code: primaryCode,
         officialUsername: f.username,
         name: customName,
         designation: customDesig || 'Faculty Member',
-        photo: f.photo || '',
+        photo: mergedPhoto,
         status: f.status || 'Active',
-        emails: f.emails || [],
-        phone: f.phone || '',
-        profileUrl: f.profileUrl || '',
-        socialLinks: f.socialLinks || {}
+        emails: mergedEmails,
+        phone: mergedPhone,
+        profileUrl: mergedProfileUrl,
+        socialLinks: f.socialLinks && Object.keys(f.socialLinks).length > 0 ? f.socialLinks : (existingProf.socialLinks || {})
       };
 
       richFacultyData[f.username] = profileObj;
@@ -407,17 +425,19 @@ async function updateFacultyDirectoryFromWeb() {
         if (code === 'AZMAIN') defaultName = 'Azmain Yakin Srizon';
         if (code === 'IFTEKAR MIA') defaultName = 'Iftekar Mia';
 
+        const existingProf = existingData[code] || {};
+
         richFacultyData[code] = {
           code: code,
-          officialUsername: (mapEntry && mapEntry.username) || '',
+          officialUsername: (mapEntry && mapEntry.username) || existingProf.officialUsername || '',
           name: defaultName,
           designation: defaultDesig,
-          photo: '',
-          status: 'Active',
-          emails: [],
-          phone: '',
-          profileUrl: '',
-          socialLinks: {}
+          photo: existingProf.photo || '',
+          status: existingProf.status || 'Active',
+          emails: existingProf.emails || [],
+          phone: existingProf.phone || '',
+          profileUrl: existingProf.profileUrl || '',
+          socialLinks: existingProf.socialLinks || {}
         };
       }
     });
