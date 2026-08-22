@@ -60,7 +60,7 @@ module.exports = async (req, res) => {
 
   const tableName = await getActiveTable();
 
-  // GET: Fetch approved instructor overrides map OR pending submissions (admin)
+  // GET: Fetch live faculty directory OR pending submissions (admin)
   if (req.method === 'GET') {
     const { pending, password } = req.query || {};
 
@@ -84,17 +84,60 @@ module.exports = async (req, res) => {
       }
     }
 
-    // Default public GET: return rich approved faculty overrides
+    // Default public GET: Return full faculty directory from faculty_members table
     try {
       const { data, error } = await supabase
+        .from('faculty_members')
+        .select('*')
+        .order('name', { ascending: true });
+
+      if (!error && Array.isArray(data) && data.length > 0) {
+        const approvedMap = {};
+        data.forEach(row => {
+          const code = (row.teacher_code || '').trim().toUpperCase();
+          if (code) {
+            const profileObj = {
+              code,
+              officialUsername: row.official_username || '',
+              name: (row.name || '').trim(),
+              designation: (row.designation || '').trim() || 'Faculty Member',
+              department: (row.department || 'CSE').trim(),
+              photo: (row.photo || '').trim(),
+              status: (row.status || 'Active').trim(),
+              emails: Array.isArray(row.emails) ? row.emails : (row.email ? [row.email] : []),
+              phone: (row.phone || '').trim(),
+              profileUrl: (row.profile_url || '').trim(),
+              socialLinks: row.social_links || {},
+              aliases: Array.isArray(row.aliases) ? row.aliases : [],
+              source: row.source || 'db',
+              updatedAt: row.updated_at || null
+            };
+            approvedMap[code] = profileObj;
+            if (profileObj.officialUsername) approvedMap[profileObj.officialUsername] = profileObj;
+            if (Array.isArray(profileObj.aliases)) {
+              profileObj.aliases.forEach(alias => {
+                const upperAlias = String(alias).trim().toUpperCase();
+                if (upperAlias && !approvedMap[upperAlias]) {
+                  approvedMap[upperAlias] = { ...profileObj, code: upperAlias };
+                }
+              });
+            }
+          }
+        });
+        res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
+        return res.status(200).json(approvedMap);
+      }
+
+      // Fallback if faculty_members not yet seeded: query approved overrides from tableName
+      const { data: legacyData, error: legacyError } = await supabase
         .from(tableName)
         .select('*')
         .eq('status', 'approved')
         .order('id', { ascending: true });
 
-      if (error) throw error;
+      if (legacyError) throw legacyError;
       const approvedMap = {};
-      (data || []).forEach(row => {
+      (legacyData || []).forEach(row => {
         const code = (row.teacher_code || row.code || '').trim().toUpperCase();
         if (code) {
           approvedMap[code] = {
@@ -116,7 +159,7 @@ module.exports = async (req, res) => {
     }
   }
 
-  // POST: Submit a suggestion (public) OR Approve / Reject (admin) OR Upload Photo
+  // POST: Submit a suggestion (public) OR Approve / Reject / Seed (admin) OR Upload Photo
   if (req.method === 'POST') {
     const {
       action,
@@ -129,10 +172,63 @@ module.exports = async (req, res) => {
       photo,
       profileUrl,
       oldData,
-      password
+      source,
+      password,
+      seedList
     } = req.body || {};
 
-    // 0. Photo Upload Action
+    const adminPassword = process.env.ADMIN_PASSWORD || process.env.ANNOUNCEMENT_PASSWORD || 'secret123';
+
+    // 0. Seed Faculty Ground Truth Action (Admin only)
+    if (action === 'seed') {
+      if (!password || password !== adminPassword) {
+        return res.status(401).json({ error: 'Unauthorized: Invalid admin password.' });
+      }
+
+      const listToSeed = Array.isArray(seedList) ? seedList : [];
+      if (listToSeed.length === 0) {
+        return res.status(400).json({ error: 'No faculty items provided to seed.' });
+      }
+
+      try {
+        const results = [];
+        for (const item of listToSeed) {
+          const teacherCode = (item.teacher_code || item.code || '').trim().toUpperCase();
+          if (!teacherCode) continue;
+
+          const row = {
+            teacher_code: teacherCode,
+            official_username: (item.official_username || item.officialUsername || '').trim(),
+            name: (item.name || '').trim(),
+            designation: (item.designation || 'Faculty Member').trim(),
+            department: (item.department || 'CSE').trim(),
+            photo: (item.photo || '').trim(),
+            status: (item.status || 'Active').trim(),
+            emails: Array.isArray(item.emails) ? item.emails : (item.email ? [item.email.trim()] : []),
+            phone: (item.phone || '').trim(),
+            profile_url: (item.profile_url || item.profileUrl || '').trim(),
+            social_links: item.social_links || item.socialLinks || {},
+            aliases: Array.isArray(item.aliases) ? item.aliases : [],
+            source: 'seed',
+            updated_at: new Date().toISOString()
+          };
+
+          const { data: upsertData, error: upsertErr } = await supabase
+            .from('faculty_members')
+            .upsert(row, { onConflict: 'teacher_code' })
+            .select();
+
+          if (upsertErr) throw upsertErr;
+          results.push(upsertData[0]);
+        }
+
+        return res.status(200).json({ success: true, count: results.length, data: results });
+      } catch (seedErr) {
+        return res.status(500).json({ error: seedErr.message });
+      }
+    }
+
+    // 1. Photo Upload Action
     if (action === 'upload_photo') {
       const { imageBase64, teacherCode, mimeType } = req.body || {};
       if (!imageBase64) {
@@ -193,9 +289,8 @@ module.exports = async (req, res) => {
       });
     }
 
-    // 1. Admin Moderation Action (Approve / Reject)
+    // 2. Admin Moderation Action (Approve / Reject)
     if (action === 'approve' || action === 'reject') {
-      const adminPassword = process.env.ADMIN_PASSWORD || process.env.ANNOUNCEMENT_PASSWORD || 'secret123';
       if (!password || password !== adminPassword) {
         return res.status(401).json({ error: 'Unauthorized: Invalid admin password.' });
       }
@@ -217,6 +312,8 @@ module.exports = async (req, res) => {
         if (photo !== undefined) updatePayload.photo = photo ? photo.trim() : '';
         if (profileUrl !== undefined) updatePayload.profile_url = profileUrl ? profileUrl.trim() : '';
 
+        let updatedRow = null;
+
         if (id) {
           let updateRes = await supabase
             .from(tableName)
@@ -231,37 +328,46 @@ module.exports = async (req, res) => {
           }
 
           if (updateRes.error) throw updateRes.error;
-          return res.status(200).json({ success: true, action, data: updateRes.data[0] });
-        } else {
-          // Direct insert approved override by admin
-          const insertRow = {
-            teacher_code: (code || '').trim().toUpperCase(),
-            full_name: (name || '').trim(),
-            email: (email || '').trim(),
-            phone: (phone || '').trim(),
-            designation: (designation || '').trim(),
-            photo: (photo || '').trim(),
-            profile_url: (profileUrl || '').trim(),
-            status: 'approved',
-            reviewed_at: new Date().toISOString()
-          };
-
-          let insertRes = await supabase.from(tableName).insert([insertRow]).select();
-          if (insertRes.error && (insertRes.error.message?.includes('photo') || insertRes.error.message?.includes('profile_url'))) {
-            delete insertRow.photo;
-            delete insertRow.profile_url;
-            insertRes = await supabase.from(tableName).insert([insertRow]).select();
-          }
-
-          if (insertRes.error) throw insertRes.error;
-          return res.status(200).json({ success: true, action: 'approved', data: insertRes.data[0] });
+          updatedRow = updateRes.data[0];
         }
+
+        // When approved: write directly into the live faculty_members table!
+        if (action === 'approve') {
+          const finalCode = ((updatedRow && (updatedRow.teacher_code || updatedRow.code)) || code || '').trim().toUpperCase();
+          if (finalCode) {
+            const facultyUpsert = {
+              teacher_code: finalCode,
+              name: (name || (updatedRow && (updatedRow.full_name || updatedRow.name)) || '').trim(),
+              designation: (designation || (updatedRow && updatedRow.designation) || '').trim() || 'Faculty Member',
+              phone: (phone || (updatedRow && updatedRow.phone) || '').trim(),
+              photo: (photo || (updatedRow && updatedRow.photo) || '').trim(),
+              profile_url: (profileUrl || (updatedRow && (updatedRow.profile_url || updatedRow.profileUrl)) || '').trim(),
+              source: (updatedRow && updatedRow.source) || 'admin_approved',
+              updated_at: new Date().toISOString()
+            };
+
+            const finalEmail = (email || (updatedRow && updatedRow.email) || '').trim();
+            if (finalEmail) {
+              facultyUpsert.emails = [finalEmail];
+            }
+
+            try {
+              await supabase
+                .from('faculty_members')
+                .upsert(facultyUpsert, { onConflict: 'teacher_code' });
+            } catch (facErr) {
+              console.warn('Upsert into faculty_members notice:', facErr.message);
+            }
+          }
+        }
+
+        return res.status(200).json({ success: true, action, data: updatedRow });
       } catch (err) {
         return res.status(500).json({ error: err.message });
       }
     }
 
-    // 2. Public Submission (Suggest Edit for Instructor)
+    // 3. Public Submission (Suggest Edit for Instructor / Build Scraper Finding)
     // -------------------------------------------------------------
     // PROTECTION 5: Teacher Code Whitelist Validation
     // -------------------------------------------------------------
@@ -334,45 +440,27 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'At least one updated field is required to submit a suggestion.' });
     }
 
-    // -------------------------------------------------------------
-    // PROTECTION 4: No-Op (Identical Value) Detection
-    // -------------------------------------------------------------
-    let parsedOldData = {};
-    if (oldData) {
-      try { parsedOldData = typeof oldData === 'string' ? JSON.parse(oldData) : oldData; } catch (e) {}
-    }
-
-    const isSameName = cleanName === (parsedOldData.name || '');
-    const isSameEmail = cleanEmail === (parsedOldData.email || '').toLowerCase();
-    const isSamePhone = cleanPhone === (parsedOldData.phone || '');
-    const isSameDesig = cleanDesig === (parsedOldData.designation || '');
-    const isSamePhoto = cleanPhoto === (parsedOldData.photo || '');
-    const isSameProfile = cleanProfile === (parsedOldData.profileUrl || '');
-
-    if (isSameName && isSameEmail && isSamePhone && isSameDesig && isSamePhoto && isSameProfile) {
-      return res.status(400).json({ error: 'No changes detected. The submitted values are identical to the existing faculty info.' });
-    }
-
-    // -------------------------------------------------------------
-    // PROTECTION 2: Server-Side IP Rate Limiting (Max 5/hr per IP)
-    // -------------------------------------------------------------
+    // Rate Limiting for public submissions (exempt build_scraper)
+    const cleanSource = (source || 'user_suggestion').trim();
     const clientIp = getClientIp(req);
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
-    try {
-      const { data: recentSubmissions, error: rlError } = await supabase
-        .from(tableName)
-        .select('id, submitted_at, ip_address')
-        .gte('submitted_at', oneHourAgo);
+    if (cleanSource !== 'build_scraper') {
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      try {
+        const { data: recentSubmissions, error: rlError } = await supabase
+          .from(tableName)
+          .select('id, submitted_at, ip_address')
+          .gte('submitted_at', oneHourAgo);
 
-      if (!rlError && Array.isArray(recentSubmissions)) {
-        const ipMatches = recentSubmissions.filter(s => s.ip_address === clientIp);
-        if (ipMatches.length >= 5) {
-          return res.status(429).json({ error: 'Rate limit exceeded: You can submit at most 5 suggestions per hour. Please wait before submitting again.' });
+        if (!rlError && Array.isArray(recentSubmissions)) {
+          const ipMatches = recentSubmissions.filter(s => s.ip_address === clientIp);
+          if (ipMatches.length >= 5) {
+            return res.status(429).json({ error: 'Rate limit exceeded: You can submit at most 5 suggestions per hour. Please wait before submitting again.' });
+          }
         }
+      } catch (rlEx) {
+        console.warn('Rate limiter notice:', rlEx.message);
       }
-    } catch (rlEx) {
-      console.warn('Rate limiter notice:', rlEx.message);
     }
 
     // Insert pending suggestion
@@ -391,26 +479,25 @@ module.exports = async (req, res) => {
         photo: cleanPhoto,
         profile_url: cleanProfile,
         old_data: parsedOld,
+        source: cleanSource,
         status: 'pending',
         ip_address: clientIp,
         submitted_at: new Date().toISOString()
       };
 
-      // Resilient insert: handle schema cache mismatches gracefully
       let insertRes = await supabase.from(tableName).insert([submissionRow]).select();
       if (insertRes.error) {
         const errMsg = insertRes.error.message || '';
-        if (errMsg.includes('old_data')) {
+        if (errMsg.includes('source')) {
+          delete submissionRow.source;
+          insertRes = await supabase.from(tableName).insert([submissionRow]).select();
+        }
+        if (insertRes.error && insertRes.error.message?.includes('old_data')) {
           delete submissionRow.old_data;
           insertRes = await supabase.from(tableName).insert([submissionRow]).select();
         }
         if (insertRes.error && insertRes.error.message?.includes('ip_address')) {
           delete submissionRow.ip_address;
-          insertRes = await supabase.from(tableName).insert([submissionRow]).select();
-        }
-        if (insertRes.error && (insertRes.error.message?.includes('photo') || insertRes.error.message?.includes('profile_url'))) {
-          delete submissionRow.photo;
-          delete submissionRow.profile_url;
           insertRes = await supabase.from(tableName).insert([submissionRow]).select();
         }
       }
@@ -425,4 +512,3 @@ module.exports = async (req, res) => {
   res.setHeader('Allow', ['GET', 'POST', 'OPTIONS']);
   return res.status(405).end(`Method ${req.method} Not Allowed`);
 };
-

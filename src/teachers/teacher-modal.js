@@ -683,11 +683,17 @@ async function loadAdminPendingList(password) {
       `;
     }).join('');
 
+    const isScraper = item.source === 'build_scraper';
+    const sourceBadge = isScraper
+      ? `<span class="faculty-code-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px; font-weight: 700;">🤖 Scraper Finding</span>`
+      : '';
+
     html += `
       <div class="ft-admin-pending-card" data-id="${item.id}" data-code="${escapeHtml(code)}" data-old-data="${escapeHtml(JSON.stringify(oldData))}">
         <div class="ft-admin-pending-header">
-          <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <span class="faculty-code-tag">${escapeHtml(code)}</span>
+            ${sourceBadge}
             <span style="font-size: 14px; font-weight: 800; color: var(--text-main);">${escapeHtml(suggestedName || oldData.name || code)}</span>
           </div>
           <span style="font-size: 11px; color: var(--dim); font-family: var(--font-mono);">${escapeHtml(timeStr)}</span>

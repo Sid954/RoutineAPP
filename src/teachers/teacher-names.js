@@ -6,7 +6,7 @@ const CACHE_KEY = 'routine_faculty_info_cache';
 const REMOTE_NAMES_CACHE_KEY = 'routine_approved_teacher_names';
 
 export async function initTeacherNames() {
-  // 1. Load bundled static faculty info
+  // 1. Instant 0ms render from localStorage cache
   try {
     const saved = localStorage.getItem(CACHE_KEY);
     if (saved) {
@@ -14,53 +14,43 @@ export async function initTeacherNames() {
     }
   } catch (e) {}
 
-  try {
-    const res = await fetch('faculty_info.json?v=' + Date.now());
-    if (res.ok) {
-      _facultyInfoMap = await res.json();
-      try { localStorage.setItem(CACHE_KEY, JSON.stringify(_facultyInfoMap)); } catch (e) {}
-    }
-  } catch (e) {}
-
-  // 2. Load approved remote overrides from Supabase/API backend
-  try {
-    const savedRemote = localStorage.getItem(REMOTE_NAMES_CACHE_KEY);
-    if (savedRemote) {
-      _approvedRemoteNames = JSON.parse(savedRemote);
-    }
-  } catch (e) {}
-
-  if (CONFIG.apiBase) {
+  // 2. Fallback to bundled faculty_info.json if cache is empty
+  if (Object.keys(_facultyInfoMap).length === 0) {
     try {
-      const res = await fetch(`${CONFIG.apiBase}/api/teachers`, { mode: 'cors' }).catch(() => null);
+      const res = await fetch('faculty_info.json?v=' + Date.now()).catch(() => null);
       if (res && res.ok) {
-        const rawOverrides = await res.json();
-        if (rawOverrides && typeof rawOverrides === 'object') {
-          _approvedRemoteNames = {};
-          Object.entries(rawOverrides).forEach(([code, val]) => {
-            const upper = code.trim().toUpperCase();
-            if (typeof val === 'string') {
-              _approvedRemoteNames[upper] = val;
-              if (_facultyInfoMap[upper]) {
-                _facultyInfoMap[upper].name = val;
-              }
-            } else if (val && typeof val === 'object') {
-              _approvedRemoteNames[upper] = val.name || upper;
-              _facultyInfoMap[upper] = {
-                ...(_facultyInfoMap[upper] || {}),
-                ...val,
-                code: upper,
-                emails: val.emails || (val.email ? [val.email] : (_facultyInfoMap[upper]?.emails || []))
-              };
-            }
-          });
-          try {
-            localStorage.setItem(REMOTE_NAMES_CACHE_KEY, JSON.stringify(_approvedRemoteNames));
-            localStorage.setItem(CACHE_KEY, JSON.stringify(_facultyInfoMap));
-          } catch (e) {}
-        }
+        _facultyInfoMap = await res.json();
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(_facultyInfoMap)); } catch (e) {}
       }
     } catch (e) {}
+  }
+
+  // 3. Live Supabase Background Sync (Stale-While-Revalidate)
+  if (CONFIG.apiBase) {
+    try {
+      // Try dedicated /api/faculty endpoint first, fallback to /api/teachers
+      let res = await fetch(`${CONFIG.apiBase}/api/faculty`, { mode: 'cors' }).catch(() => null);
+      if (!res || !res.ok) {
+        res = await fetch(`${CONFIG.apiBase}/api/teachers`, { mode: 'cors' }).catch(() => null);
+      }
+
+      if (res && res.ok) {
+        const liveFacultyMap = await res.json();
+        if (liveFacultyMap && typeof liveFacultyMap === 'object' && Object.keys(liveFacultyMap).length > 0) {
+          _facultyInfoMap = liveFacultyMap;
+          try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify(_facultyInfoMap));
+          } catch (e) {}
+
+          // If the faculty directory view is currently open, dynamically re-render it
+          if (typeof window.__renderFacultyDirectory === 'function') {
+            try { window.__renderFacultyDirectory(); } catch (e) {}
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Faculty live sync notice:', e.message);
+    }
   }
 }
 

@@ -249,16 +249,7 @@ function cleanText(str) {
 }
 
 async function updateFacultyDirectoryFromWeb() {
-  console.log('Fetching latest faculty info from https://cse.puc.ac.bd/Home/FacultyMembers ...');
-
-  // Load existing faculty data as fallback baseline to prevent silent data loss
-  let existingData = {};
-  const existingPath = path.join(__dirname, 'faculty_info.json');
-  if (fs.existsSync(existingPath)) {
-    try {
-      existingData = JSON.parse(fs.readFileSync(existingPath, 'utf8'));
-    } catch (e) {}
-  }
+  console.log('Checking faculty updates from https://cse.puc.ac.bd/Home/FacultyMembers ...');
 
   try {
     const mainHtml = await fetchUrl('https://cse.puc.ac.bd/Home/FacultyMembers', 15000);
@@ -288,185 +279,76 @@ async function updateFacultyDirectoryFromWeb() {
       const profileUrl = profilePath ? `https://cse.puc.ac.bd${profilePath}` : '';
 
       if (name) {
-        scrapedList.push({ name, username, designation, status, photo, profileUrl, emails: [], phone: '', socialLinks: {} });
+        scrapedList.push({ name, username, designation, status, photo, profileUrl });
       }
     }
 
-    const GENERIC_PHONES = [
-      '01313044515', '01313044516', '01313044517', '01313044518', '01313044519',
-      '09610828282', '01335084717', '8809610828282', '8801313044515'
-    ];
+    // Connect to Supabase if configured to log pending suggestions for any website changes
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    // Reduced concurrency (batchSize 5) and increased timeout (12s) for reliability
-    const batchSize = 5;
-    for (let i = 0; i < scrapedList.length; i += batchSize) {
-      const batch = scrapedList.slice(i, i + batchSize);
-      await Promise.all(batch.map(async f => {
-        if (!f.profileUrl) return;
-        try {
-          const pHtml = await fetchUrl(f.profileUrl, 12000);
-          
-          // Authentic Teacher Emails
-          const emailMatches = pHtml.match(/fa-envelope[^<]*<\/i>\s*([\s\S]*?)<\/span>/i);
-          if (emailMatches) {
-            const fetchedEmails = cleanText(emailMatches[1])
-              .split(/[,;\s]+/)
-              .map(e => e.trim())
-              .filter(e => e.includes('@') && !e.toLowerCase().includes('info@puc.ac.bd') && !e.toLowerCase().includes('controller@puc.ac.bd'));
-            if (fetchedEmails.length > 0) {
-              f.emails = fetchedEmails;
-            }
-          }
+    if (supabaseUrl && supabaseServiceKey) {
+      const { createClient } = require('@supabase/supabase-js');
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-          // Filter out generic university hotline phone numbers
-          const phoneMatches = pHtml.match(/fa-phone[^<]*<\/i>\s*([\s\S]*?)<\/span>/i);
-          if (phoneMatches) {
-            const rawPhone = cleanText(phoneMatches[1]);
-            const isGeneric = GENERIC_PHONES.some(p => rawPhone.replace(/\D/g, '').includes(p)) || rawPhone.toLowerCase().includes('puc.ac.bd') || rawPhone.toLowerCase().includes('student login');
-            if (!isGeneric) {
-              const phoneMatch = rawPhone.match(/(\+?\d[\d\s-]{7,})/);
-              if (phoneMatch && phoneMatch[1].trim()) f.phone = phoneMatch[1].trim();
-            }
-          }
-        } catch (e) {}
-      }));
-    }
-
-    // 100% strict, unambiguous verified 1-to-1 letter matches ONLY.
-    const exactFacultyMap = {
-      "AD": { name: "Avisheak Das", username: "Avisheak-cse" },
-      "AHK": { name: "Adnan Hossain Khan", username: "adnan_cse" },
-      "AIB": { name: "Md. Ariful Islam Bhuyan", username: "arif_cse" },
-      "AIR": { name: "Arif Istiaq", username: "arif_istiaq", designation: "Lecturer · Department of Computer Science and Engineering" },
-      "AJT": { name: "Ms. Asma Joshita Trisha", username: "asma_cse" },
-      "AKK": { name: "N.U.M Akramul Kabir Khan", username: "akram_cse" },
-      "AMS": { name: "Asif Mohammed Saad", username: "asif_saad_cse" },
-      "AU": { name: "Afsar Uddin", username: "afsar_cse" },
-      "Ataur": { name: "Md. Ataur Rahman", username: "ataur_cse" },
-      "AZMAIN": { name: "Azmain Yakin Srizon", username: "" },
-      "CFK": { name: "Chowdhury Fariha Kamrul", username: "fariha_cse" },
-      "EAS": { name: "Estiak Ahamed Sazid", username: "estiaksazid" },
-      "FSC": { name: "Ms. Farhana Shirin Chowdhury", username: "shirin_cse" },
-      "IFTEKAR MIA": { name: "Iftekar Mia", username: "iftekar_cse", designation: "Assistant Professor · Department of Computer Science and Engineering" },
-      "JTC": { name: "Jannat Tohfa Chowdhury", username: "jannattohfa" },
-      "KD": { name: "Kingshuk Dhar", username: "kingshuk_cse" },
-      "KMAY": { name: "Kazi Md. Abrar Yeaser", username: "abrar_cse" },
-      "KMN": { name: "Kafayet Monoar Nahin", username: "kafayet_cse" },
-      "MFF": { name: "Mohammd Fahim Foisal", username: "fahim_csecu_gt" },
-      "MH": { name: "Mohammad Hasan", username: "hasan_cse" },
-      "MHE": { name: "Mahmudul Hasan Emon", username: "mahmudul_hasan_cse" },
-      "MHN": { name: "Md. Hasan", username: "mdhasan_cse" },
-      "MRI": { name: "Md. Raisul Islam", username: "raisulislam_cse" },
-      "MRRC": { name: "Mohammed Rezaur Rahman Chowdhury", username: "Rezaur_cse" },
-      "MTS": { name: "Md Toukir Shah", username: "mdtoukirshah_cse" },
-      "NAK": { name: "Nazma Akther", username: "nazma_fbs" },
-      "NBH": { name: "Nadim Bin Hossain", username: "nadim_cse" },
-      "NJS": { name: "Ms. Nusrat Jahan Shirin", username: "nusrat_cse" },
-      "NME": { name: "Noor Mohammad Erfan", username: "erfan_cse", designation: "Assistant Professor · Department of Computer Science and Engineering" },
-      "NR": { name: "Noortaz Rezoana", username: "noortaz_cse" },
-      "RA": { name: "Rowshon Akter", username: "roshni" },
-      "RM": { name: "Rashed Miah", username: "rashed_cse" },
-      "RSN": { name: "Ms. Rehnuma Shahrin", username: "rehnuma_cse", designation: "Assistant Professor · Department of Computer Science and Engineering" },
-      "SMAI": { name: "Dr. Shahid Md. Asif Iqbal", username: "asif_cse" },
-      "ST": { name: "Ms. Sabrina Tarannum", username: "sabrina_cse" },
-      "TDM": { name: "Ms. Tanni Dhoom", username: "tanni_cse" },
-      "TH": { name: "Ms. Tashin Hossain", username: "tashin_hossain_cse" },
-      "THA": { name: "Tanvir Hassan Ananta", username: "tanvirhassan_cse" },
-      "TMC": { name: "Tahiat Mahabub Chowdhury", username: "tahiatmahabub_cse" },
-      "TMH": { name: "MD Tamim Hossain", username: "tamim_hossain" },
-      "WMN": { name: "Wong May Nu", username: "wong_cse" },
-      "YR": { name: "Yakinur Rahman", username: "yakinur_cse" }
-    };
-
-    const teacherMasterPath = path.join(__dirname, 'master_teachers_schedule.json');
-    const teacherMaster = fs.existsSync(teacherMasterPath) ? JSON.parse(fs.readFileSync(teacherMasterPath, 'utf8')) : { teachers: [] };
-    const richFacultyData = {};
-
-    // 1. Insert all 42 scraped official faculty members from the website with fallback-merge safety
-    scrapedList.forEach(f => {
-      const matchingCodes = Object.keys(exactFacultyMap).filter(code => exactFacultyMap[code].username && exactFacultyMap[code].username.toLowerCase() === f.username.toLowerCase());
-      const primaryCode = matchingCodes[0] || '';
-      const customName = (exactFacultyMap[primaryCode] && exactFacultyMap[primaryCode].name) || f.name;
-      const customDesig = (exactFacultyMap[primaryCode] && exactFacultyMap[primaryCode].designation) || f.designation;
-
-      const existingProf = existingData[f.username] || (primaryCode && existingData[primaryCode]) || {};
-
-      const mergedEmails = (f.emails && f.emails.length > 0) ? f.emails : (existingProf.emails || []);
-      const mergedPhone = (f.phone && f.phone.trim()) ? f.phone : (existingProf.phone || '');
-      const mergedPhoto = (f.photo && f.photo.trim()) ? f.photo : (existingProf.photo || '');
-      const mergedProfileUrl = (f.profileUrl && f.profileUrl.trim()) ? f.profileUrl : (existingProf.profileUrl || '');
-
-      const profileObj = {
-        code: primaryCode,
-        officialUsername: f.username,
-        name: customName,
-        designation: customDesig || 'Faculty Member',
-        photo: mergedPhoto,
-        status: f.status || 'Active',
-        emails: mergedEmails,
-        phone: mergedPhone,
-        profileUrl: mergedProfileUrl,
-        socialLinks: f.socialLinks && Object.keys(f.socialLinks).length > 0 ? f.socialLinks : (existingProf.socialLinks || {})
-      };
-
-      richFacultyData[f.username] = profileObj;
-      if (primaryCode) richFacultyData[primaryCode] = profileObj;
-      matchingCodes.forEach(c => {
-        richFacultyData[c] = { ...profileObj, code: c };
+      const { data: currentDbFaculty } = await supabase.from('faculty_members').select('*');
+      const dbMap = {};
+      (currentDbFaculty || []).forEach(row => {
+        if (row.official_username) dbMap[row.official_username.toLowerCase()] = row;
       });
-    });
 
-    // 2. Insert all routine teacher codes that are not already listed
-    teacherMaster.teachers.forEach(code => {
-      if (!richFacultyData[code]) {
-        const mapEntry = exactFacultyMap[code];
-        let defaultName = (mapEntry && mapEntry.name) || code;
-        let defaultDesig = (mapEntry && mapEntry.designation) || 'Faculty Member';
-        if (code === 'AZMAIN') defaultName = 'Azmain Yakin Srizon';
-        if (code === 'IFTEKAR MIA') defaultName = 'Iftekar Mia';
-
-        const existingProf = existingData[code] || {};
-
-        richFacultyData[code] = {
-          code: code,
-          officialUsername: (mapEntry && mapEntry.username) || existingProf.officialUsername || '',
-          name: defaultName,
-          designation: defaultDesig,
-          photo: existingProf.photo || '',
-          status: existingProf.status || 'Active',
-          emails: existingProf.emails || [],
-          phone: existingProf.phone || '',
-          profileUrl: existingProf.profileUrl || '',
-          socialLinks: existingProf.socialLinks || {}
-        };
-      }
-    });
-
-    // Link local bundled faculty photo assets if present
-    const assetsDir = path.join(__dirname, 'src', 'assets', 'faculty');
-    if (fs.existsSync(assetsDir)) {
-      const localFiles = fs.readdirSync(assetsDir);
-      for (const [key, info] of Object.entries(richFacultyData)) {
-        const cleanKey = (info.code || info.officialUsername || key).toLowerCase().replace(/[^a-z0-9_]/g, '_');
-        const matchedFile = localFiles.find(f => {
-          const base = path.basename(f, path.extname(f)).toLowerCase();
-          return base === cleanKey || base === key.toLowerCase();
-        });
-        if (matchedFile) {
-          info.photo = `src/assets/faculty/${matchedFile}`;
+      let newSuggestionsCount = 0;
+      for (const f of scrapedList) {
+        const existing = dbMap[f.username.toLowerCase()];
+        if (!existing) {
+          // New faculty member found on university site
+          await supabase.from('instructor_edit_suggestions').insert([{
+            teacher_code: f.username.toUpperCase(),
+            full_name: f.name,
+            designation: f.designation,
+            photo: f.photo,
+            profile_url: f.profileUrl,
+            status: 'pending',
+            source: 'build_scraper',
+            submitted_at: new Date().toISOString()
+          }]);
+          newSuggestionsCount++;
+        } else {
+          // Check for changed designation or photo
+          const desigChanged = f.designation && f.designation !== existing.designation;
+          const photoChanged = f.photo && f.photo !== existing.photo && !existing.photo.includes('supabase');
+          if (desigChanged || photoChanged) {
+            await supabase.from('instructor_edit_suggestions').insert([{
+              teacher_code: existing.teacher_code,
+              full_name: f.name,
+              designation: f.designation,
+              photo: f.photo,
+              profile_url: f.profileUrl,
+              old_data: {
+                name: existing.name,
+                designation: existing.designation,
+                photo: existing.photo,
+                profileUrl: existing.profile_url
+              },
+              status: 'pending',
+              source: 'build_scraper',
+              submitted_at: new Date().toISOString()
+            }]);
+            newSuggestionsCount++;
+          }
         }
       }
+
+      if (newSuggestionsCount > 0) {
+        console.log(`ℹ️ Build Scraper: Submitted ${newSuggestionsCount} pending suggestion(s) to Admin Review Panel.`);
+      } else {
+        console.log(`✅ Build Scraper: Verified ${scrapedList.length} faculty members against Supabase (Directory up to date).`);
+      }
+    } else {
+      console.log(`✅ Build Scraper: Verified ${scrapedList.length} official faculty members on PUC website.`);
     }
-
-    const outPath = path.join(__dirname, 'src', 'data', 'faculty_rich_map.json');
-    fs.writeFileSync(outPath, JSON.stringify(richFacultyData, null, 2), 'utf8');
-
-    const rootOut = path.join(__dirname, 'faculty_info.json');
-    fs.writeFileSync(rootOut, JSON.stringify(richFacultyData, null, 2), 'utf8');
-
-    console.log(`✅ Updated faculty directory with ${Object.keys(richFacultyData).length} faculty members from PUC CSE website!`);
   } catch (err) {
-    console.warn(`ℹ️ Could not fetch latest faculty updates from university site (${err.message}). Using existing faculty_info.json.`);
+    console.warn(`ℹ️ Could not check live faculty site (${err.message}). Using current directory.`);
   }
 }
 

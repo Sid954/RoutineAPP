@@ -1,257 +1,322 @@
 {
-  "asif_cse": {
-    "code": "SMAI",
-    "officialUsername": "asif_cse",
-    "name": "Dr. Shahid Md. Asif Iqbal",
-    "designation": "Professor · Department of Computer Science and Engineering · Associate Dean · Faculty Of Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/asif_cse_1030600009.JPG",
-    "status": "Active",
-    "emails": [
-      "asif.iqbal@puc.ac.bd",
-      "asifcsep@gmail.com"
-    ],
-    "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=asif_cse",
-    "socialLinks": {}
-  },
   "SMAI": {
     "code": "SMAI",
     "officialUsername": "asif_cse",
     "name": "Dr. Shahid Md. Asif Iqbal",
     "designation": "Professor · Department of Computer Science and Engineering · Associate Dean · Faculty Of Engineering",
+    "department": "CSE",
     "photo": "https://admin.puc.ac.bd/ProfilePictures/asif_cse_1030600009.JPG",
     "status": "Active",
     "emails": [
-      "asif.iqbal@puc.ac.bd",
-      "asifcsep@gmail.com"
+      "asif_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=asif_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "shirin_cse": {
-    "code": "FSC",
-    "officialUsername": "shirin_cse",
-    "name": "Ms. Farhana Shirin Chowdhury",
-    "designation": "Associate Professor · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/fsc.jpg",
+  "asif_cse": {
+    "code": "SMAI",
+    "officialUsername": "asif_cse",
+    "name": "Dr. Shahid Md. Asif Iqbal",
+    "designation": "Professor · Department of Computer Science and Engineering · Associate Dean · Faculty Of Engineering",
+    "department": "CSE",
+    "photo": "https://admin.puc.ac.bd/ProfilePictures/asif_cse_1030600009.JPG",
     "status": "Active",
     "emails": [
-      "fshirin2007@gmail.com",
-      "farhana_cse@puc.ac.bd"
+      "asif_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=shirin_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=asif_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "FSC": {
     "code": "FSC",
     "officialUsername": "shirin_cse",
     "name": "Ms. Farhana Shirin Chowdhury",
     "designation": "Associate Professor · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/fsc.jpg",
     "status": "Active",
     "emails": [
-      "fshirin2007@gmail.com",
-      "farhana_cse@puc.ac.bd"
+      "shirin_cse@puc.ac.bd",
+      "farhana.shirin@gmail.com"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=shirin_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "akram_cse": {
-    "code": "AKK",
-    "officialUsername": "akram_cse",
-    "name": "N.U.M Akramul Kabir Khan",
+  "shirin_cse": {
+    "code": "FSC",
+    "officialUsername": "shirin_cse",
+    "name": "Ms. Farhana Shirin Chowdhury",
     "designation": "Associate Professor · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/akk.jpg",
+    "department": "CSE",
+    "photo": "src/assets/faculty/fsc.jpg",
     "status": "Active",
     "emails": [
-      "numakramulkabirkhan7@gmail.com"
+      "shirin_cse@puc.ac.bd",
+      "farhana.shirin@gmail.com"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=akram_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=shirin_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "AKK": {
     "code": "AKK",
     "officialUsername": "akram_cse",
     "name": "N.U.M Akramul Kabir Khan",
     "designation": "Associate Professor · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/akk.jpg",
     "status": "Active",
     "emails": [
-      "numakramulkabirkhan7@gmail.com"
+      "akram_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=akram_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "kingshuk_cse": {
-    "code": "KD",
-    "officialUsername": "kingshuk_cse",
-    "name": "Kingshuk Dhar",
-    "designation": "Assistant Professor & Administrative Coordinator · Department Of Computer Science and Engineering",
-    "photo": "src/assets/faculty/kd.JPG",
+  "akram_cse": {
+    "code": "AKK",
+    "officialUsername": "akram_cse",
+    "name": "N.U.M Akramul Kabir Khan",
+    "designation": "Associate Professor · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/akk.jpg",
     "status": "Active",
     "emails": [
-      "kingshuk2006@yahoo.com",
-      "kingshuk2018@gmail.com",
-      "kingshukdhar@puc.ac.bd"
+      "akram_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=kingshuk_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=akram_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "KD": {
     "code": "KD",
     "officialUsername": "kingshuk_cse",
     "name": "Kingshuk Dhar",
     "designation": "Assistant Professor & Administrative Coordinator · Department Of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/kd.JPG",
     "status": "Active",
     "emails": [
-      "kingshuk2006@yahoo.com",
-      "kingshuk2018@gmail.com",
-      "kingshukdhar@puc.ac.bd"
+      "kingshuk_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=kingshuk_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": [
+      "KLD"
+    ]
   },
-  "ataur_cse": {
-    "code": "Ataur",
-    "officialUsername": "ataur_cse",
-    "name": "Md. Ataur Rahman",
-    "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/ataur.jpg",
-    "status": "Study Leave",
-    "emails": [],
+  "kingshuk_cse": {
+    "code": "KD",
+    "officialUsername": "kingshuk_cse",
+    "name": "Kingshuk Dhar",
+    "designation": "Assistant Professor & Administrative Coordinator · Department Of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/kd.JPG",
+    "status": "Active",
+    "emails": [
+      "kingshuk_cse@puc.ac.bd"
+    ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=ataur_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=kingshuk_cse",
+    "socialLinks": {},
+    "aliases": [
+      "KLD"
+    ]
+  },
+  "KLD": {
+    "code": "KLD",
+    "officialUsername": "kingshuk_cse",
+    "name": "Kingshuk Dhar",
+    "designation": "Assistant Professor & Administrative Coordinator · Department Of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/kd.JPG",
+    "status": "Active",
+    "emails": [
+      "kingshuk_cse@puc.ac.bd"
+    ],
+    "phone": "",
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=kingshuk_cse",
+    "socialLinks": {},
+    "aliases": [
+      "KLD"
+    ]
   },
   "Ataur": {
     "code": "Ataur",
     "officialUsername": "ataur_cse",
     "name": "Md. Ataur Rahman",
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/ataur.jpg",
     "status": "Study Leave",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=ataur_cse",
-    "socialLinks": {}
-  },
-  "tanni_cse": {
-    "code": "TDM",
-    "officialUsername": "tanni_cse",
-    "name": "Ms. Tanni Dhoom",
-    "designation": "Assistant Professor · Department of Computer Science and Engineering · Member, Eve Teasing Complain Committee",
-    "photo": "src/assets/faculty/tdm.jpg",
-    "status": "Active",
     "emails": [
-      "tanni.cse0708@gmail.com",
-      "tanni.dhoom@puc.ac.bd"
+      "ataur_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tanni_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=ataur_cse",
+    "socialLinks": {},
+    "aliases": []
+  },
+  "ataur_cse": {
+    "code": "Ataur",
+    "officialUsername": "ataur_cse",
+    "name": "Md. Ataur Rahman",
+    "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/ataur.jpg",
+    "status": "Study Leave",
+    "emails": [
+      "ataur_cse@puc.ac.bd"
+    ],
+    "phone": "",
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=ataur_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "TDM": {
     "code": "TDM",
     "officialUsername": "tanni_cse",
     "name": "Ms. Tanni Dhoom",
     "designation": "Assistant Professor · Department of Computer Science and Engineering · Member, Eve Teasing Complain Committee",
+    "department": "CSE",
     "photo": "src/assets/faculty/tdm.jpg",
     "status": "Active",
     "emails": [
-      "tanni.cse0708@gmail.com",
-      "tanni.dhoom@puc.ac.bd"
+      "tanni_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tanni_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "asma_cse": {
-    "code": "AJT",
-    "officialUsername": "asma_cse",
-    "name": "Ms. Asma Joshita Trisha",
-    "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/ajt.jpg",
+  "tanni_cse": {
+    "code": "TDM",
+    "officialUsername": "tanni_cse",
+    "name": "Ms. Tanni Dhoom",
+    "designation": "Assistant Professor · Department of Computer Science and Engineering · Member, Eve Teasing Complain Committee",
+    "department": "CSE",
+    "photo": "src/assets/faculty/tdm.jpg",
     "status": "Active",
     "emails": [
-      "joshita.cu@gmail.com"
+      "tanni_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=asma_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tanni_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "AJT": {
     "code": "AJT",
     "officialUsername": "asma_cse",
     "name": "Ms. Asma Joshita Trisha",
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/ajt.jpg",
     "status": "Active",
     "emails": [
-      "joshita.cu@gmail.com"
+      "asma_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=asma_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "anik_cse": {
-    "code": "",
+  "asma_cse": {
+    "code": "AJT",
+    "officialUsername": "asma_cse",
+    "name": "Ms. Asma Joshita Trisha",
+    "designation": "Assistant Professor · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/ajt.jpg",
+    "status": "Active",
+    "emails": [
+      "asma_cse@puc.ac.bd"
+    ],
+    "phone": "",
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=asma_cse",
+    "socialLinks": {},
+    "aliases": []
+  },
+  "ANIK_CSE": {
+    "code": "ANIK_CSE",
     "officialUsername": "anik_cse",
     "name": "Anik Sen",
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/anik_cse.jpg",
     "status": "Study Leave",
     "emails": [
-      "aniksen.cuet09@gmail.com",
-      "anik.sen@puc.ac.bd",
-      "as5867@drexel.edu"
+      "anik_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=anik_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "faisal_cse": {
-    "code": "",
+  "anik_cse": {
+    "code": "ANIK_CSE",
+    "officialUsername": "anik_cse",
+    "name": "Anik Sen",
+    "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/anik_cse.jpg",
+    "status": "Study Leave",
+    "emails": [
+      "anik_cse@puc.ac.bd"
+    ],
+    "phone": "",
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=anik_cse",
+    "socialLinks": {},
+    "aliases": []
+  },
+  "FAISAL_CSE": {
+    "code": "FAISAL_CSE",
     "officialUsername": "faisal_cse",
     "name": "Faisal Ahmed",
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "https://admin.puc.ac.bd/ProfilePictures/faisal_cse_1041700179.JPG",
     "status": "Study Leave",
     "emails": [
-      "faisalcsecubd@gmail.com"
+      "faisal_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=faisal_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "nazma_fbs": {
-    "code": "NAK",
-    "officialUsername": "nazma_fbs",
-    "name": "Nazma Akther",
-    "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/nak.jpg",
-    "status": "Active",
+  "faisal_cse": {
+    "code": "FAISAL_CSE",
+    "officialUsername": "faisal_cse",
+    "name": "Faisal Ahmed",
+    "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "https://admin.puc.ac.bd/ProfilePictures/faisal_cse_1041700179.JPG",
+    "status": "Study Leave",
     "emails": [
-      "nazmacse2013@gmail.com",
-      "nazma.akther@puc.ac.bd",
-      "nazma.akther@uts.edu.au"
+      "faisal_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nazma_fbs",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=faisal_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "NAK": {
     "code": "NAK",
     "officialUsername": "nazma_fbs",
     "name": "Nazma Akther",
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/nak.jpg",
     "status": "Active",
     "emails": [
@@ -261,1479 +326,1053 @@
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nazma_fbs",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "nusrat_cse": {
-    "code": "NJS",
-    "officialUsername": "nusrat_cse",
-    "name": "Ms. Nusrat Jahan Shirin",
+  "nazma_fbs": {
+    "code": "NAK",
+    "officialUsername": "nazma_fbs",
+    "name": "Nazma Akther",
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/njs.jpg",
+    "department": "CSE",
+    "photo": "src/assets/faculty/nak.jpg",
     "status": "Active",
     "emails": [
-      "nusratshirinpu@gmail.com"
+      "nazmacse2013@gmail.com",
+      "nazma.akther@puc.ac.bd",
+      "nazma.akther@uts.edu.au"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nusrat_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nazma_fbs",
+    "socialLinks": {},
+    "aliases": []
   },
   "NJS": {
     "code": "NJS",
     "officialUsername": "nusrat_cse",
     "name": "Ms. Nusrat Jahan Shirin",
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/njs.jpg",
     "status": "Active",
     "emails": [
-      "nusratshirinpu@gmail.com"
+      "nusrat_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nusrat_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "hasan_cse": {
-    "code": "MH",
-    "officialUsername": "hasan_cse",
-    "name": "Mohammad Hasan",
-    "designation": "Assistant Professor & Coordinator of M. Sc in CSE · Department of Computer Science and Engineering · Assistant Proctor",
-    "photo": "src/assets/faculty/mh.jpg",
+  "nusrat_cse": {
+    "code": "NJS",
+    "officialUsername": "nusrat_cse",
+    "name": "Ms. Nusrat Jahan Shirin",
+    "designation": "Assistant Professor · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/njs.jpg",
     "status": "Active",
     "emails": [
-      "mehedi.cse@puc.ac.bd",
-      "mehedih256@gmail.com"
+      "nusrat_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=hasan_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nusrat_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "MH": {
     "code": "MH",
     "officialUsername": "hasan_cse",
     "name": "Mohammad Hasan",
     "designation": "Assistant Professor & Coordinator of M. Sc in CSE · Department of Computer Science and Engineering · Assistant Proctor",
+    "department": "CSE",
     "photo": "src/assets/faculty/mh.jpg",
     "status": "Active",
     "emails": [
-      "mehedi.cse@puc.ac.bd",
-      "mehedih256@gmail.com"
+      "hasan_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=hasan_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "dhruba_cse": {
-    "code": "",
+  "hasan_cse": {
+    "code": "MH",
+    "officialUsername": "hasan_cse",
+    "name": "Mohammad Hasan",
+    "designation": "Assistant Professor & Coordinator of M. Sc in CSE · Department of Computer Science and Engineering · Assistant Proctor",
+    "department": "CSE",
+    "photo": "src/assets/faculty/mh.jpg",
+    "status": "Active",
+    "emails": [
+      "hasan_cse@puc.ac.bd"
+    ],
+    "phone": "",
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=hasan_cse",
+    "socialLinks": {},
+    "aliases": []
+  },
+  "DHRUBA_CSE": {
+    "code": "DHRUBA_CSE",
     "officialUsername": "dhruba_cse",
     "name": "Dhrubajyoti Das",
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/dhruba_cse.jpg",
     "status": "Study Leave",
     "emails": [
-      "dhrubajyoti1212@gmail.com",
-      "dhruba_461@puc.ac.bd"
+      "dhruba_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=dhruba_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "sabrina_cse": {
-    "code": "ST",
-    "officialUsername": "sabrina_cse",
-    "name": "Ms. Sabrina Tarannum",
-    "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/st.jpg",
-    "status": "Active",
+  "dhruba_cse": {
+    "code": "DHRUBA_CSE",
+    "officialUsername": "dhruba_cse",
+    "name": "Dhrubajyoti Das",
+    "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/dhruba_cse.jpg",
+    "status": "Study Leave",
     "emails": [
-      "sabrina.tarannum@puc.ac.bd",
-      "sabrincse@gmail.com"
+      "dhruba_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=sabrina_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=dhruba_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "ST": {
     "code": "ST",
     "officialUsername": "sabrina_cse",
     "name": "Ms. Sabrina Tarannum",
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/st.jpg",
     "status": "Active",
     "emails": [
-      "sabrina.tarannum@puc.ac.bd",
-      "sabrincse@gmail.com"
+      "sabrina_cse@puc.ac.bd",
+      "sabrinatarannum00@gmail.com"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=sabrina_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "arif_cse": {
-    "code": "AIB",
-    "officialUsername": "arif_cse",
-    "name": "Md. Ariful Islam Bhuyan",
-    "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/aib.jpg",
-    "status": "Study Leave",
+  "sabrina_cse": {
+    "code": "ST",
+    "officialUsername": "sabrina_cse",
+    "name": "Ms. Sabrina Tarannum",
+    "designation": "Assistant Professor · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/st.jpg",
+    "status": "Active",
     "emails": [
-      "arif.ajtfs@yahoo.com"
+      "sabrina_cse@puc.ac.bd",
+      "sabrinatarannum00@gmail.com"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=arif_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=sabrina_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "AIB": {
     "code": "AIB",
     "officialUsername": "arif_cse",
     "name": "Md. Ariful Islam Bhuyan",
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/aib.jpg",
     "status": "Study Leave",
     "emails": [
-      "arif.ajtfs@yahoo.com"
+      "arif_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=arif_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "Shreyashi_cse": {
-    "code": "",
+  "arif_cse": {
+    "code": "AIB",
+    "officialUsername": "arif_cse",
+    "name": "Md. Ariful Islam Bhuyan",
+    "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/aib.jpg",
+    "status": "Study Leave",
+    "emails": [
+      "arif_cse@puc.ac.bd"
+    ],
+    "phone": "",
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=arif_cse",
+    "socialLinks": {},
+    "aliases": []
+  },
+  "SHREYASHI_CSE": {
+    "code": "SHREYASHI_CSE",
     "officialUsername": "Shreyashi_cse",
     "name": "Shreyashi Paul",
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/shreyashi_cse.jpg",
     "status": "Study Leave",
     "emails": [
-      "shreyashicox@gmail.com"
+      "shreyashi_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=Shreyashi_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "abrar_cse": {
-    "code": "KMAY",
-    "officialUsername": "abrar_cse",
-    "name": "Kazi Md. Abrar Yeaser",
-    "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/abrar_cse_1042200215.JPG",
-    "status": "Active",
+  "Shreyashi_cse": {
+    "code": "SHREYASHI_CSE",
+    "officialUsername": "Shreyashi_cse",
+    "name": "Shreyashi Paul",
+    "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/shreyashi_cse.jpg",
+    "status": "Study Leave",
     "emails": [
-      "abrar.yeaser@puc.ac.bd",
-      "yeaser41@gmail.com"
+      "shreyashi_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=abrar_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=Shreyashi_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "KMAY": {
     "code": "KMAY",
     "officialUsername": "abrar_cse",
     "name": "Kazi Md. Abrar Yeaser",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "https://admin.puc.ac.bd/ProfilePictures/abrar_cse_1042200215.JPG",
     "status": "Active",
     "emails": [
-      "abrar.yeaser@puc.ac.bd",
-      "yeaser41@gmail.com"
+      "abrar_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=abrar_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "adnan_cse": {
-    "code": "AHK",
-    "officialUsername": "adnan_cse",
-    "name": "Adnan Hossain Khan",
-    "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/adnan_cse_1042200214.JPG",
-    "status": "Study Leave",
+  "abrar_cse": {
+    "code": "KMAY",
+    "officialUsername": "abrar_cse",
+    "name": "Kazi Md. Abrar Yeaser",
+    "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "https://admin.puc.ac.bd/ProfilePictures/abrar_cse_1042200215.JPG",
+    "status": "Active",
     "emails": [
-      "adnanhkhan@puc.ac.bd"
+      "abrar_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=adnan_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=abrar_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "AHK": {
     "code": "AHK",
     "officialUsername": "adnan_cse",
     "name": "Adnan Hossain Khan",
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "https://admin.puc.ac.bd/ProfilePictures/adnan_cse_1042200214.JPG",
     "status": "Study Leave",
     "emails": [
-      "adnanhkhan@puc.ac.bd"
+      "adnan_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=adnan_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "Adiba_cse": {
-    "code": "",
+  "adnan_cse": {
+    "code": "AHK",
+    "officialUsername": "adnan_cse",
+    "name": "Adnan Hossain Khan",
+    "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "https://admin.puc.ac.bd/ProfilePictures/adnan_cse_1042200214.JPG",
+    "status": "Study Leave",
+    "emails": [
+      "adnan_cse@puc.ac.bd"
+    ],
+    "phone": "",
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=adnan_cse",
+    "socialLinks": {},
+    "aliases": []
+  },
+  "ADIBA_CSE": {
+    "code": "ADIBA_CSE",
     "officialUsername": "Adiba_cse",
     "name": "Adiba Ibnat Hossain",
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/adiba_cse.jpg",
     "status": "Study Leave",
     "emails": [
-      "hossainadiba123@gmail.com"
+      "adiba_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=Adiba_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "Avisheak-cse": {
-    "code": "AD",
-    "officialUsername": "Avisheak-cse",
-    "name": "Avisheak Das",
-    "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/Avisheak-cse_Avisheak Das.jpg",
-    "status": "Active",
+  "Adiba_cse": {
+    "code": "ADIBA_CSE",
+    "officialUsername": "Adiba_cse",
+    "name": "Adiba Ibnat Hossain",
+    "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/adiba_cse.jpg",
+    "status": "Study Leave",
     "emails": [
-      "avisheak@puc.ac.bd"
+      "adiba_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=Avisheak-cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=Adiba_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "AD": {
     "code": "AD",
     "officialUsername": "Avisheak-cse",
     "name": "Avisheak Das",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "https://admin.puc.ac.bd/ProfilePictures/Avisheak-cse_Avisheak Das.jpg",
     "status": "Active",
     "emails": [
-      "avisheak@puc.ac.bd"
+      "avisheak_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=Avisheak-cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "Rezaur_cse": {
-    "code": "MRRC",
-    "officialUsername": "Rezaur_cse",
-    "name": "Mohammed Rezaur Rahman Chowdhury",
-    "designation": "Lecturer & Academic Coordinator of B.Sc in CSE · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/mrrc.jpg",
+  "Avisheak-cse": {
+    "code": "AD",
+    "officialUsername": "Avisheak-cse",
+    "name": "Avisheak Das",
+    "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "https://admin.puc.ac.bd/ProfilePictures/Avisheak-cse_Avisheak Das.jpg",
     "status": "Active",
     "emails": [
-      "mrrchy999@gmail.com"
+      "avisheak_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=Rezaur_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=Avisheak-cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "MRRC": {
     "code": "MRRC",
     "officialUsername": "Rezaur_cse",
     "name": "Mohammed Rezaur Rahman Chowdhury",
     "designation": "Lecturer & Academic Coordinator of B.Sc in CSE · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/mrrc.jpg",
     "status": "Active",
     "emails": [
-      "mrrchy999@gmail.com"
+      "rezaur_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=Rezaur_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "mdhasan_cse": {
-    "code": "MHN",
-    "officialUsername": "mdhasan_cse",
-    "name": "Md. Hasan",
-    "designation": "Lecturer & Coordinator of Co-curricular activities · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/mhn.jpg",
+  "Rezaur_cse": {
+    "code": "MRRC",
+    "officialUsername": "Rezaur_cse",
+    "name": "Mohammed Rezaur Rahman Chowdhury",
+    "designation": "Lecturer & Academic Coordinator of B.Sc in CSE · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/mrrc.jpg",
     "status": "Active",
-    "emails": [],
+    "emails": [
+      "rezaur_cse@puc.ac.bd"
+    ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=mdhasan_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=Rezaur_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "MHN": {
     "code": "MHN",
     "officialUsername": "mdhasan_cse",
     "name": "Md. Hasan",
     "designation": "Lecturer & Coordinator of Co-curricular activities · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/mhn.jpg",
     "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=mdhasan_cse",
-    "socialLinks": {}
-  },
-  "noortaz_cse": {
-    "code": "NR",
-    "officialUsername": "noortaz_cse",
-    "name": "Noortaz Rezoana",
-    "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/nr.jpg",
-    "status": "Active",
     "emails": [
-      "noortaz6@gmail.com"
+      "mdhasan_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=noortaz_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=mdhasan_cse",
+    "socialLinks": {},
+    "aliases": []
+  },
+  "mdhasan_cse": {
+    "code": "MHN",
+    "officialUsername": "mdhasan_cse",
+    "name": "Md. Hasan",
+    "designation": "Lecturer & Coordinator of Co-curricular activities · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/mhn.jpg",
+    "status": "Active",
+    "emails": [
+      "mdhasan_cse@puc.ac.bd"
+    ],
+    "phone": "",
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=mdhasan_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "NR": {
     "code": "NR",
     "officialUsername": "noortaz_cse",
     "name": "Noortaz Rezoana",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/nr.jpg",
     "status": "Active",
     "emails": [
-      "noortaz6@gmail.com"
+      "noortaz_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=noortaz_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "mahmudul_hasan_cse": {
-    "code": "MHE",
-    "officialUsername": "mahmudul_hasan_cse",
-    "name": "Mahmudul Hasan Emon",
+  "noortaz_cse": {
+    "code": "NR",
+    "officialUsername": "noortaz_cse",
+    "name": "Noortaz Rezoana",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/mhe.jpg",
+    "department": "CSE",
+    "photo": "src/assets/faculty/nr.jpg",
     "status": "Active",
     "emails": [
-      "mahmudulhasan154422@gmail.com"
+      "noortaz_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=mahmudul_hasan_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=noortaz_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "MHE": {
     "code": "MHE",
     "officialUsername": "mahmudul_hasan_cse",
-    "name": "Mahmudul Hasan Emon",
+    "name": "Mahmudul Hasan",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/mhe.jpg",
     "status": "Active",
     "emails": [
-      "mahmudulhasan154422@gmail.com"
+      "mahmudul_hasan_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=mahmudul_hasan_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "tamim_hossain": {
-    "code": "TMH",
-    "officialUsername": "tamim_hossain",
-    "name": "MD Tamim Hossain",
+  "mahmudul_hasan_cse": {
+    "code": "MHE",
+    "officialUsername": "mahmudul_hasan_cse",
+    "name": "Mahmudul Hasan",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/tmh.png",
+    "department": "CSE",
+    "photo": "src/assets/faculty/mhe.jpg",
     "status": "Active",
     "emails": [
-      "tamim.hossain@puc.ac.bd",
-      "thossain3333@gmail.com"
+      "mahmudul_hasan_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tamim_hossain",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=mahmudul_hasan_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "TMH": {
     "code": "TMH",
     "officialUsername": "tamim_hossain",
     "name": "MD Tamim Hossain",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/tmh.png",
     "status": "Active",
     "emails": [
-      "tamim.hossain@puc.ac.bd",
-      "thossain3333@gmail.com"
+      "tamim_hossain@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tamim_hossain",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "jannattohfa": {
-    "code": "JTC",
-    "officialUsername": "jannattohfa",
-    "name": "Jannat Tohfa Chowdhury",
-    "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/jtc.jpeg",
-    "status": "Study Leave",
+  "tamim_hossain": {
+    "code": "TMH",
+    "officialUsername": "tamim_hossain",
+    "name": "MD Tamim Hossain",
+    "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/tmh.png",
+    "status": "Active",
     "emails": [
-      "jannattohfa@gmail.com"
+      "tamim_hossain@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=jannattohfa",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tamim_hossain",
+    "socialLinks": {},
+    "aliases": []
   },
   "JTC": {
     "code": "JTC",
     "officialUsername": "jannattohfa",
     "name": "Jannat Tohfa Chowdhury",
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/jtc.jpeg",
     "status": "Study Leave",
     "emails": [
-      "jannattohfa@gmail.com"
+      "jannattohfa@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=jannattohfa",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "asif_saad_cse": {
-    "code": "AMS",
-    "officialUsername": "asif_saad_cse",
-    "name": "Asif Mohammed Saad",
-    "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/ams.jpg",
-    "status": "Active",
+  "jannattohfa": {
+    "code": "JTC",
+    "officialUsername": "jannattohfa",
+    "name": "Jannat Tohfa Chowdhury",
+    "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/jtc.jpeg",
+    "status": "Study Leave",
     "emails": [
-      "saad.cse@puc.ac.bd",
-      "asifsaad730@gmail.com"
+      "jannattohfa@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=asif_saad_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=jannattohfa",
+    "socialLinks": {},
+    "aliases": []
   },
   "AMS": {
     "code": "AMS",
     "officialUsername": "asif_saad_cse",
     "name": "Asif Mohammed Saad",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/ams.jpg",
     "status": "Active",
     "emails": [
-      "saad.cse@puc.ac.bd",
-      "asifsaad730@gmail.com"
+      "asif_saad_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=asif_saad_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "nadim_cse": {
-    "code": "NBH",
-    "officialUsername": "nadim_cse",
-    "name": "Nadim Bin Hossain",
+  "asif_saad_cse": {
+    "code": "AMS",
+    "officialUsername": "asif_saad_cse",
+    "name": "Asif Mohammed Saad",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/nbh.jpeg",
+    "department": "CSE",
+    "photo": "src/assets/faculty/ams.jpg",
     "status": "Active",
     "emails": [
-      "nadim.cse@puc.ac.bd"
+      "asif_saad_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nadim_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=asif_saad_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "NBH": {
     "code": "NBH",
     "officialUsername": "nadim_cse",
     "name": "Nadim Bin Hossain",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/nbh.jpeg",
     "status": "Active",
     "emails": [
-      "nadim.cse@puc.ac.bd"
+      "nadim_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nadim_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "tashin_hossain_cse": {
-    "code": "TH",
-    "officialUsername": "tashin_hossain_cse",
-    "name": "Ms. Tashin Hossain",
+  "nadim_cse": {
+    "code": "NBH",
+    "officialUsername": "nadim_cse",
+    "name": "Nadim Bin Hossain",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/th.jpg",
+    "department": "CSE",
+    "photo": "src/assets/faculty/nbh.jpeg",
     "status": "Active",
     "emails": [
-      "tashin.hossain.cu@gmail.com"
+      "nadim_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tashin_hossain_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=nadim_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "TH": {
     "code": "TH",
     "officialUsername": "tashin_hossain_cse",
     "name": "Ms. Tashin Hossain",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/th.jpg",
     "status": "Active",
     "emails": [
-      "tashin.hossain.cu@gmail.com"
+      "tashin_hossain_cse@puc.ac.bd",
+      "tashin.hossain@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tashin_hossain_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "estiaksazid": {
-    "code": "EAS",
-    "officialUsername": "estiaksazid",
-    "name": "Estiak Ahamed Sazid",
+  "tashin_hossain_cse": {
+    "code": "TH",
+    "officialUsername": "tashin_hossain_cse",
+    "name": "Ms. Tashin Hossain",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/eas.png",
+    "department": "CSE",
+    "photo": "src/assets/faculty/th.jpg",
     "status": "Active",
     "emails": [
-      "estiak.ahamed@puc.ac.bd",
-      "estiaksazid@gmail.com"
+      "tashin_hossain_cse@puc.ac.bd",
+      "tashin.hossain@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=estiaksazid",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tashin_hossain_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "EAS": {
     "code": "EAS",
     "officialUsername": "estiaksazid",
     "name": "Estiak Ahamed Sazid",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/eas.png",
     "status": "Active",
     "emails": [
-      "estiak.ahamed@puc.ac.bd",
-      "estiaksazid@gmail.com"
+      "estiaksazid@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=estiaksazid",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "mdtoukirshah_cse": {
-    "code": "MTS",
-    "officialUsername": "mdtoukirshah_cse",
-    "name": "Md Toukir Shah",
+  "estiaksazid": {
+    "code": "EAS",
+    "officialUsername": "estiaksazid",
+    "name": "Estiak Ahamed Sazid",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/mdtoukirshah_cse_Md Toukir Shah.png",
+    "department": "CSE",
+    "photo": "src/assets/faculty/eas.png",
     "status": "Active",
     "emails": [
-      "toukir.shah@puc.ac.bd",
-      "mdtoukirshah122@gmail.com"
+      "estiaksazid@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=mdtoukirshah_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=estiaksazid",
+    "socialLinks": {},
+    "aliases": []
   },
   "MTS": {
     "code": "MTS",
     "officialUsername": "mdtoukirshah_cse",
     "name": "Md Toukir Shah",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "https://admin.puc.ac.bd/ProfilePictures/mdtoukirshah_cse_Md Toukir Shah.png",
     "status": "Active",
     "emails": [
-      "toukir.shah@puc.ac.bd",
-      "mdtoukirshah122@gmail.com"
+      "mdtoukirshah_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=mdtoukirshah_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "roshni": {
-    "code": "RA",
-    "officialUsername": "roshni",
-    "name": "Rowshon Akter",
+  "mdtoukirshah_cse": {
+    "code": "MTS",
+    "officialUsername": "mdtoukirshah_cse",
+    "name": "Md Toukir Shah",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/ra.jpg",
+    "department": "CSE",
+    "photo": "https://admin.puc.ac.bd/ProfilePictures/mdtoukirshah_cse_Md Toukir Shah.png",
     "status": "Active",
     "emails": [
-      "roshni.cse18@gmail.com"
+      "mdtoukirshah_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=roshni",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=mdtoukirshah_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "RA": {
     "code": "RA",
     "officialUsername": "roshni",
     "name": "Rowshon Akter",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/ra.jpg",
     "status": "Active",
     "emails": [
-      "roshni.cse18@gmail.com"
+      "roshni@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=roshni",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "fariha_cse": {
-    "code": "CFK",
-    "officialUsername": "fariha_cse",
-    "name": "Chowdhury Fariha Kamrul",
+  "roshni": {
+    "code": "RA",
+    "officialUsername": "roshni",
+    "name": "Rowshon Akter",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/cfk.jpeg",
+    "department": "CSE",
+    "photo": "src/assets/faculty/ra.jpg",
     "status": "Active",
     "emails": [
-      "far400305@gmail.com"
+      "roshni@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=fariha_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=roshni",
+    "socialLinks": {},
+    "aliases": []
   },
   "CFK": {
     "code": "CFK",
     "officialUsername": "fariha_cse",
     "name": "Chowdhury Fariha Kamrul",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/cfk.jpeg",
     "status": "Active",
     "emails": [
-      "far400305@gmail.com"
+      "fariha_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=fariha_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "raisulislam_cse": {
-    "code": "MRI",
-    "officialUsername": "raisulislam_cse",
-    "name": "Md. Raisul Islam",
+  "fariha_cse": {
+    "code": "CFK",
+    "officialUsername": "fariha_cse",
+    "name": "Chowdhury Fariha Kamrul",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/mri.jpeg",
+    "department": "CSE",
+    "photo": "src/assets/faculty/cfk.jpeg",
     "status": "Active",
     "emails": [
-      "mdraisulislam2040@mail.com"
+      "fariha_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=raisulislam_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=fariha_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "MRI": {
     "code": "MRI",
     "officialUsername": "raisulislam_cse",
     "name": "Md. Raisul Islam",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/mri.jpeg",
     "status": "Active",
     "emails": [
-      "mdraisulislam2040@mail.com"
+      "raisulislam_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=raisulislam_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "fahim_csecu_gt": {
-    "code": "MFF",
-    "officialUsername": "fahim_csecu_gt",
-    "name": "Mohammd Fahim Foisal",
+  "raisulislam_cse": {
+    "code": "MRI",
+    "officialUsername": "raisulislam_cse",
+    "name": "Md. Raisul Islam",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/mff.png",
+    "department": "CSE",
+    "photo": "src/assets/faculty/mri.jpeg",
     "status": "Active",
     "emails": [
-      "fahim.csecu@gmail.com"
+      "raisulislam_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=fahim_csecu_gt",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=raisulislam_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "MFF": {
     "code": "MFF",
     "officialUsername": "fahim_csecu_gt",
     "name": "Mohammd Fahim Foisal",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/mff.png",
     "status": "Active",
     "emails": [
-      "fahim.csecu@gmail.com"
+      "fahim_csecu_gt@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=fahim_csecu_gt",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "tanvirhassan_cse": {
-    "code": "THA",
-    "officialUsername": "tanvirhassan_cse",
-    "name": "Tanvir Hassan Ananta",
+  "fahim_csecu_gt": {
+    "code": "MFF",
+    "officialUsername": "fahim_csecu_gt",
+    "name": "Mohammd Fahim Foisal",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/tanvirhassan_cse_1042500280 Tanvir Hassan Ananta.jpeg",
+    "department": "CSE",
+    "photo": "src/assets/faculty/mff.png",
     "status": "Active",
     "emails": [
-      "tanvirhassan@iut-dhaka.edu"
+      "fahim_csecu_gt@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tanvirhassan_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=fahim_csecu_gt",
+    "socialLinks": {},
+    "aliases": []
   },
   "THA": {
     "code": "THA",
     "officialUsername": "tanvirhassan_cse",
     "name": "Tanvir Hassan Ananta",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "https://admin.puc.ac.bd/ProfilePictures/tanvirhassan_cse_1042500280 Tanvir Hassan Ananta.jpeg",
     "status": "Active",
     "emails": [
-      "tanvirhassan@iut-dhaka.edu"
+      "tanvirhassan_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tanvirhassan_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "tahiatmahabub_cse": {
-    "code": "TMC",
-    "officialUsername": "tahiatmahabub_cse",
-    "name": "Tahiat Mahabub Chowdhury",
+  "tanvirhassan_cse": {
+    "code": "THA",
+    "officialUsername": "tanvirhassan_cse",
+    "name": "Tanvir Hassan Ananta",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/tmc.jpeg",
+    "department": "CSE",
+    "photo": "https://admin.puc.ac.bd/ProfilePictures/tanvirhassan_cse_1042500280 Tanvir Hassan Ananta.jpeg",
     "status": "Active",
     "emails": [
-      "tahiatmahabub355@gmail.com"
+      "tanvirhassan_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tahiatmahabub_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tanvirhassan_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "TMC": {
     "code": "TMC",
     "officialUsername": "tahiatmahabub_cse",
     "name": "Tahiat Mahabub Chowdhury",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/tmc.jpeg",
     "status": "Active",
     "emails": [
-      "tahiatmahabub355@gmail.com"
+      "tahiatmahabub_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tahiatmahabub_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "yakinur_cse": {
-    "code": "YR",
-    "officialUsername": "yakinur_cse",
-    "name": "Yakinur Rahman",
+  "tahiatmahabub_cse": {
+    "code": "TMC",
+    "officialUsername": "tahiatmahabub_cse",
+    "name": "Tahiat Mahabub Chowdhury",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/yr.jpeg",
+    "department": "CSE",
+    "photo": "src/assets/faculty/tmc.jpeg",
     "status": "Active",
-    "emails": [],
+    "emails": [
+      "tahiatmahabub_cse@puc.ac.bd"
+    ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=yakinur_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=tahiatmahabub_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "YR": {
     "code": "YR",
     "officialUsername": "yakinur_cse",
     "name": "Yakinur Rahman",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/yr.jpeg",
     "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=yakinur_cse",
-    "socialLinks": {}
-  },
-  "kafayet_cse": {
-    "code": "KMN",
-    "officialUsername": "kafayet_cse",
-    "name": "Kafayet Monoar Nahin",
-    "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/kafayet_cse_1042500283 Kafayet Monoar Nahin.jpg",
-    "status": "Active",
     "emails": [
-      "kafayetccs22@gmail.com"
+      "yakinur_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=kafayet_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=yakinur_cse",
+    "socialLinks": {},
+    "aliases": []
+  },
+  "yakinur_cse": {
+    "code": "YR",
+    "officialUsername": "yakinur_cse",
+    "name": "Yakinur Rahman",
+    "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "src/assets/faculty/yr.jpeg",
+    "status": "Active",
+    "emails": [
+      "yakinur_cse@puc.ac.bd"
+    ],
+    "phone": "",
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=yakinur_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "KMN": {
     "code": "KMN",
     "officialUsername": "kafayet_cse",
     "name": "Kafayet Monoar Nahin",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "https://admin.puc.ac.bd/ProfilePictures/kafayet_cse_1042500283 Kafayet Monoar Nahin.jpg",
     "status": "Active",
     "emails": [
-      "kafayetccs22@gmail.com"
+      "kafayet_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=kafayet_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "rashed_cse": {
-    "code": "RM",
-    "officialUsername": "rashed_cse",
-    "name": "Rashed Miah",
+  "kafayet_cse": {
+    "code": "KMN",
+    "officialUsername": "kafayet_cse",
+    "name": "Kafayet Monoar Nahin",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/rashed_cse_1042500284 Rashed Mia.jpeg",
+    "department": "CSE",
+    "photo": "https://admin.puc.ac.bd/ProfilePictures/kafayet_cse_1042500283 Kafayet Monoar Nahin.jpg",
     "status": "Active",
-    "emails": [],
+    "emails": [
+      "kafayet_cse@puc.ac.bd"
+    ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=rashed_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=kafayet_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "RM": {
     "code": "RM",
     "officialUsername": "rashed_cse",
     "name": "Rashed Miah",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "https://admin.puc.ac.bd/ProfilePictures/rashed_cse_1042500284 Rashed Mia.jpeg",
     "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=rashed_cse",
-    "socialLinks": {}
-  },
-  "wong_cse": {
-    "code": "WMN",
-    "officialUsername": "wong_cse",
-    "name": "Wong May Nu",
-    "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/wmn.jpeg",
-    "status": "Active",
     "emails": [
-      "wong.ngyo@gmail.com"
+      "rashed_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=wong_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=rashed_cse",
+    "socialLinks": {},
+    "aliases": []
+  },
+  "rashed_cse": {
+    "code": "RM",
+    "officialUsername": "rashed_cse",
+    "name": "Rashed Miah",
+    "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
+    "photo": "https://admin.puc.ac.bd/ProfilePictures/rashed_cse_1042500284 Rashed Mia.jpeg",
+    "status": "Active",
+    "emails": [
+      "rashed_cse@puc.ac.bd"
+    ],
+    "phone": "",
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=rashed_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "WMN": {
     "code": "WMN",
     "officialUsername": "wong_cse",
     "name": "Wong May Nu",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/wmn.jpeg",
     "status": "Active",
     "emails": [
-      "wong.ngyo@gmail.com"
+      "wong_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=wong_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "afsar_cse": {
-    "code": "AU",
-    "officialUsername": "afsar_cse",
-    "name": "Afsar Uddin",
+  "wong_cse": {
+    "code": "WMN",
+    "officialUsername": "wong_cse",
+    "name": "Wong May Nu",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "src/assets/faculty/au.jpeg",
+    "department": "CSE",
+    "photo": "src/assets/faculty/wmn.jpeg",
     "status": "Active",
     "emails": [
-      "afsarmohammadi52@gmail.com"
+      "wong_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=afsar_cse",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=wong_cse",
+    "socialLinks": {},
+    "aliases": []
   },
   "AU": {
     "code": "AU",
     "officialUsername": "afsar_cse",
     "name": "Afsar Uddin",
     "designation": "Lecturer · Department of Computer Science and Engineering",
+    "department": "CSE",
     "photo": "src/assets/faculty/au.jpeg",
     "status": "Active",
     "emails": [
-      "afsarmohammadi52@gmail.com"
+      "afsar_cse@puc.ac.bd"
     ],
     "phone": "",
     "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=afsar_cse",
-    "socialLinks": {}
+    "socialLinks": {},
+    "aliases": []
   },
-  "ABSAR": {
-    "code": "ABSAR",
-    "officialUsername": "",
-    "name": "ABSAR",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "AIR": {
-    "code": "AIR",
-    "officialUsername": "arif_istiaq",
-    "name": "Arif Istiaq",
+  "afsar_cse": {
+    "code": "AU",
+    "officialUsername": "afsar_cse",
+    "name": "Afsar Uddin",
     "designation": "Lecturer · Department of Computer Science and Engineering",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "ALAMGIR": {
-    "code": "ALAMGIR",
-    "officialUsername": "",
-    "name": "ALAMGIR",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "ASIF": {
-    "code": "ASIF",
-    "officialUsername": "",
-    "name": "ASIF",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "ATIQUR": {
-    "code": "ATIQUR",
-    "officialUsername": "",
-    "name": "ATIQUR",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "AVISHEK CHOW": {
-    "code": "AVISHEK CHOW",
-    "officialUsername": "",
-    "name": "AVISHEK CHOW",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "AWAL": {
-    "code": "AWAL",
-    "officialUsername": "",
-    "name": "AWAL",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "AYESHA": {
-    "code": "AYESHA",
-    "officialUsername": "",
-    "name": "AYESHA",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "AYESHA BANU": {
-    "code": "AYESHA BANU",
-    "officialUsername": "",
-    "name": "AYESHA BANU",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "AZAD": {
-    "code": "AZAD",
-    "officialUsername": "",
-    "name": "AZAD",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "AZMAIN": {
-    "code": "AZMAIN",
-    "officialUsername": "",
-    "name": "Azmain Yakin Srizon",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "DAB": {
-    "code": "DAB",
-    "officialUsername": "",
-    "name": "DAB",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "FIROZA": {
-    "code": "FIROZA",
-    "officialUsername": "",
-    "name": "FIROZA",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "FJD": {
-    "code": "FJD",
-    "officialUsername": "",
-    "name": "FJD",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "FK": {
-    "code": "FK",
-    "officialUsername": "",
-    "name": "FK",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "FORHAD": {
-    "code": "FORHAD",
-    "officialUsername": "",
-    "name": "FORHAD",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "FORKAN": {
-    "code": "FORKAN",
-    "officialUsername": "",
-    "name": "FORKAN",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "HKR": {
-    "code": "HKR",
-    "officialUsername": "",
-    "name": "HKR",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "IFTEKAR MIA": {
-    "code": "IFTEKAR MIA",
-    "officialUsername": "iftekar_cse",
-    "name": "Iftekar Mia",
-    "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "INZAMAM": {
-    "code": "INZAMAM",
-    "officialUsername": "",
-    "name": "INZAMAM",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "JA": {
-    "code": "JA",
-    "officialUsername": "",
-    "name": "JA",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "JBA": {
-    "code": "JBA",
-    "officialUsername": "",
-    "name": "JBA",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "JU": {
-    "code": "JU",
-    "officialUsername": "",
-    "name": "JU",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "JUA": {
-    "code": "JUA",
-    "officialUsername": "",
-    "name": "JUA",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "KAMAL": {
-    "code": "KAMAL",
-    "officialUsername": "",
-    "name": "KAMAL",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "KLD": {
-    "code": "KLD",
-    "officialUsername": "kingshuk_cse",
-    "name": "KLD",
-    "designation": "Faculty Member",
-    "photo": "src/assets/faculty/kd.JPG",
+    "department": "CSE",
+    "photo": "src/assets/faculty/au.jpeg",
     "status": "Active",
     "emails": [
-      "kingshuk2006@yahoo.com",
-      "kingshuk2018@gmail.com",
-      "kingshukdhar@puc.ac.bd"
+      "afsar_cse@puc.ac.bd"
     ],
     "phone": "",
-    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=kingshuk_cse",
-    "socialLinks": {}
-  },
-  "MA": {
-    "code": "MA",
-    "officialUsername": "",
-    "name": "MA",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "MAHBUBUL": {
-    "code": "MAHBUBUL",
-    "officialUsername": "",
-    "name": "MAHBUBUL",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "MAWLA": {
-    "code": "MAWLA",
-    "officialUsername": "",
-    "name": "MAWLA",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "MI": {
-    "code": "MI",
-    "officialUsername": "",
-    "name": "MI",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "MIHIR": {
-    "code": "MIHIR",
-    "officialUsername": "",
-    "name": "MIHIR",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "MR": {
-    "code": "MR",
-    "officialUsername": "",
-    "name": "MR",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "MTH": {
-    "code": "MTH",
-    "officialUsername": "",
-    "name": "MTH",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "NM": {
-    "code": "NM",
-    "officialUsername": "",
-    "name": "NM",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "NME": {
-    "code": "NME",
-    "officialUsername": "erfan_cse",
-    "name": "Noor Mohammad Erfan",
-    "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "NP": {
-    "code": "NP",
-    "officialUsername": "",
-    "name": "NP",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "RMA": {
-    "code": "RMA",
-    "officialUsername": "",
-    "name": "RMA",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "ROKON": {
-    "code": "ROKON",
-    "officialUsername": "",
-    "name": "ROKON",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "RSN": {
-    "code": "RSN",
-    "officialUsername": "rehnuma_cse",
-    "name": "Ms. Rehnuma Shahrin",
-    "designation": "Assistant Professor · Department of Computer Science and Engineering",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "SAGAR": {
-    "code": "SAGAR",
-    "officialUsername": "",
-    "name": "SAGAR",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "SAIFUL": {
-    "code": "SAIFUL",
-    "officialUsername": "",
-    "name": "SAIFUL",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "SHUHENA": {
-    "code": "SHUHENA",
-    "officialUsername": "",
-    "name": "SHUHENA",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "SN": {
-    "code": "SN",
-    "officialUsername": "",
-    "name": "SN",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "TASLIMA": {
-    "code": "TASLIMA",
-    "officialUsername": "",
-    "name": "TASLIMA",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "TASMIN": {
-    "code": "TASMIN",
-    "officialUsername": "",
-    "name": "TASMIN",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "TASNIA": {
-    "code": "TASNIA",
-    "officialUsername": "",
-    "name": "TASNIA",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "TASNIM": {
-    "code": "TASNIM",
-    "officialUsername": "",
-    "name": "TASNIM",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "TMF": {
-    "code": "TMF",
-    "officialUsername": "",
-    "name": "TMF",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "WALI": {
-    "code": "WALI",
-    "officialUsername": "",
-    "name": "WALI",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "ZAHID": {
-    "code": "ZAHID",
-    "officialUsername": "",
-    "name": "ZAHID",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
-  },
-  "ZIA": {
-    "code": "ZIA",
-    "officialUsername": "",
-    "name": "ZIA",
-    "designation": "Faculty Member",
-    "photo": "",
-    "status": "Active",
-    "emails": [],
-    "phone": "",
-    "profileUrl": "",
-    "socialLinks": {}
+    "profileUrl": "https://cse.puc.ac.bd/Home/Profile?userName=afsar_cse",
+    "socialLinks": {},
+    "aliases": []
   }
 }
