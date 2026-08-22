@@ -1,12 +1,14 @@
 const { createClient } = require('@supabase/supabase-js');
 
-// Initialize Supabase Client
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 let supabase = null;
-
-if (supabaseUrl && supabaseServiceKey) {
-  supabase = createClient(supabaseUrl, supabaseServiceKey);
+function getSupabase() {
+  if (supabase) return supabase;
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (url && key) {
+    supabase = createClient(url, key);
+  }
+  return supabase;
 }
 
 // Whitelist of all official Premier University faculty & routine teacher codes
@@ -34,8 +36,9 @@ function isGarbageString(str) {
 
 // Table helper with fallback
 async function getActiveTable() {
-  if (!supabase) return 'teacher_names';
-  const { error } = await supabase.from('instructor_edit_suggestions').select('id').limit(1);
+  const db = getSupabase();
+  if (!db) return 'teacher_names';
+  const { error } = await db.from('instructor_edit_suggestions').select('id').limit(1);
   return error ? 'teacher_names' : 'instructor_edit_suggestions';
 }
 
@@ -54,7 +57,8 @@ module.exports = async (req, res) => {
     return;
   }
 
-  if (!supabase) {
+  const db = getSupabase();
+  if (!db) {
     return res.status(500).json({ error: 'Supabase credentials are not configured on the server.' });
   }
 
@@ -253,9 +257,9 @@ module.exports = async (req, res) => {
       const bucketName = 'faculty-photos';
 
       try {
-        const { data: buckets } = await supabase.storage.listBuckets();
+        const { data: buckets } = await db.storage.listBuckets();
         if (!buckets || !buckets.some(b => b.name === bucketName)) {
-          await supabase.storage.createBucket(bucketName, {
+          await db.storage.createBucket(bucketName, {
             public: true,
             fileSizeLimit: 5242880,
             allowedMimeTypes: allowedMimes
@@ -269,7 +273,7 @@ module.exports = async (req, res) => {
       const codePrefix = (teacherCode || 'faculty').trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
       const filename = `${codePrefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await db.storage
         .from(bucketName)
         .upload(filename, buffer, {
           contentType: cleanMime,
@@ -279,7 +283,7 @@ module.exports = async (req, res) => {
 
       if (uploadError) throw uploadError;
 
-      const { data: publicUrlData } = supabase.storage
+      const { data: publicUrlData } = db.storage
         .from(bucketName)
         .getPublicUrl(filename);
 
@@ -325,7 +329,7 @@ module.exports = async (req, res) => {
           if (updateRes.error && (updateRes.error.message?.includes('photo') || updateRes.error.message?.includes('profile_url'))) {
             delete updatePayload.photo;
             delete updatePayload.profile_url;
-            updateRes = await supabase.from(tableName).update(updatePayload).eq('id', id).select();
+            updateRes = await db.from(tableName).update(updatePayload).eq('id', id).select();
           }
 
           if (updateRes.error) throw updateRes.error;
@@ -487,20 +491,20 @@ module.exports = async (req, res) => {
         submitted_at: new Date().toISOString()
       };
 
-      let insertRes = await supabase.from(tableName).insert([submissionRow]).select();
+      let insertRes = await db.from(tableName).insert([submissionRow]).select();
       if (insertRes.error) {
         const errMsg = insertRes.error.message || '';
         if (errMsg.includes('source')) {
           delete submissionRow.source;
-          insertRes = await supabase.from(tableName).insert([submissionRow]).select();
+          insertRes = await db.from(tableName).insert([submissionRow]).select();
         }
         if (insertRes.error && insertRes.error.message?.includes('old_data')) {
           delete submissionRow.old_data;
-          insertRes = await supabase.from(tableName).insert([submissionRow]).select();
+          insertRes = await db.from(tableName).insert([submissionRow]).select();
         }
         if (insertRes.error && insertRes.error.message?.includes('ip_address')) {
           delete submissionRow.ip_address;
-          insertRes = await supabase.from(tableName).insert([submissionRow]).select();
+          insertRes = await db.from(tableName).insert([submissionRow]).select();
         }
       }
 
