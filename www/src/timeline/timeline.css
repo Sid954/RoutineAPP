@@ -381,7 +381,7 @@ html[data-theme="dark"] .focal-day-card,
 
 /* COMPONENT 2: UNIFIED RESTING CARD WITH DOTTED TIME CONNECTOR */
 .resting-class-row {
-  background: var(--resting-card-bg, var(--card-bg));
+  background: linear-gradient(135deg, var(--resting-card-bg) 0%, var(--card-bg) 100%);
   border: 1px solid var(--resting-card-border, var(--card-border));
   border-radius: 18px;
   padding: 13px 16px;
@@ -1099,7 +1099,7 @@ html[data-theme="light"] .resting-tag.rescheduled {
 }
 
 :root[data-color="light"] .resting-class-row.is-rescheduled-override {
-  background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 100%);
+  background: linear-gradient(135deg, var(--resting-card-bg) 0%, var(--card-bg) 100%);
   border-color: #475569;
   box-shadow: 0 2px 6px rgba(100, 116, 139, 0.10), 0 6px 18px rgba(15, 23, 42, 0.06);
 }

@@ -76,7 +76,7 @@ html[data-theme="light"],
 :root[data-color="light"] {
   --bg: #F7F4EB;
   --canvas: #F7F4EB;
-  --card-bg: #FAF7F0;
+  --card-bg: #F6F0DD;
   --card-border: rgba(45, 35, 25, 0.09);
   --card-border-subtle: rgba(45, 35, 25, 0.04);
 
@@ -105,7 +105,7 @@ html[data-theme="light"],
   --live-ring-track: #E7E2D6;
   --live-ring-fill: #2563EB;
 
-  --resting-card-bg: #FAF7F0;
+  --resting-card-bg: #FFF;
   --resting-card-border: rgba(45, 35, 25, 0.08);
   --resting-card-shadow: 0 1px 3px rgba(45, 35, 25, 0.06), 0 4px 12px rgba(45, 35, 25, 0.05);
 
