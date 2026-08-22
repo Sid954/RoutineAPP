@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS faculty_members (
   designation TEXT DEFAULT 'Faculty Member',
   department TEXT DEFAULT 'CSE',
   photo TEXT DEFAULT '',
+  source_photo_url TEXT DEFAULT '',
   status TEXT DEFAULT 'Active',
   emails TEXT[] DEFAULT '{}'::TEXT[],
   phone TEXT DEFAULT '',
@@ -35,9 +36,16 @@ CREATE POLICY "Allow public read" ON faculty_members FOR SELECT USING (true);
 -- 2. Restrict all INSERT / UPDATE / DELETE to service_role (Admin / API endpoints only)
 -- (No public write policy exists, meaning anon key writes are completely blocked by default)
 
--- Ensure source column exists on instructor_edit_suggestions
+-- Ensure source_photo_url and source columns exist
 DO $$
 BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'faculty_members' AND column_name = 'source_photo_url'
+  ) THEN
+    ALTER TABLE faculty_members ADD COLUMN source_photo_url TEXT DEFAULT '';
+  END IF;
+
   IF NOT EXISTS (
     SELECT 1 FROM information_schema.columns 
     WHERE table_name = 'instructor_edit_suggestions' AND column_name = 'source'

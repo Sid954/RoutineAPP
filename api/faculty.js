@@ -54,6 +54,7 @@ module.exports = async (req, res) => {
         designation: (row.designation || '').trim() || 'Faculty Member',
         department: (row.department || 'CSE').trim(),
         photo: (row.photo || '').trim(),
+        sourcePhotoUrl: (row.source_photo_url || '').trim(),
         status: (row.status || 'Active').trim(),
         emails: Array.isArray(row.emails) ? row.emails : (row.email ? [row.email] : []),
         phone: (row.phone || '').trim(),

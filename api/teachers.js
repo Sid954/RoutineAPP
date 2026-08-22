@@ -103,6 +103,7 @@ module.exports = async (req, res) => {
               designation: (row.designation || '').trim() || 'Faculty Member',
               department: (row.department || 'CSE').trim(),
               photo: (row.photo || '').trim(),
+              sourcePhotoUrl: (row.source_photo_url || '').trim(),
               status: (row.status || 'Active').trim(),
               emails: Array.isArray(row.emails) ? row.emails : (row.email ? [row.email] : []),
               phone: (row.phone || '').trim(),
@@ -341,6 +342,7 @@ module.exports = async (req, res) => {
               designation: (designation || (updatedRow && updatedRow.designation) || '').trim() || 'Faculty Member',
               phone: (phone || (updatedRow && updatedRow.phone) || '').trim(),
               photo: (photo || (updatedRow && updatedRow.photo) || '').trim(),
+              source_photo_url: ((updatedRow && updatedRow.source_photo_url) || '').trim(),
               profile_url: (profileUrl || (updatedRow && (updatedRow.profile_url || updatedRow.profileUrl)) || '').trim(),
               source: (updatedRow && updatedRow.source) || 'admin_approved',
               updated_at: new Date().toISOString()

@@ -21,7 +21,8 @@ const seedList = [
     "name": "Dr. Shahid Md. Asif Iqbal",
     "designation": "Professor · Department of Computer Science and Engineering · Associate Dean · Faculty Of Engineering",
     "department": "CSE",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/asif_cse_1030600009.JPG",
+    "photo": "src/assets/faculty/smai.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/asif_cse_1030600009.JPG",
     "status": "Active",
     "emails": [
       "asif.iqbal@puc.ac.bd",
@@ -40,6 +41,7 @@ const seedList = [
     "designation": "Associate Professor · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/fsc.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/shirin_cse_1031400005.JPG",
     "status": "Active",
     "emails": [
       "fshirin2007@gmail.com",
@@ -58,6 +60,7 @@ const seedList = [
     "designation": "Associate Professor · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/akk.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/akram_cse_akram.jpg",
     "status": "Active",
     "emails": [
       "numakramulkabirkhan7@gmail.com"
@@ -75,6 +78,7 @@ const seedList = [
     "designation": "Assistant Professor & Administrative Coordinator · Department Of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/kd.JPG",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/kingshuk_cse_1031400108.JPG",
     "status": "Active",
     "emails": [
       "kingshuk2006@yahoo.com",
@@ -96,6 +100,7 @@ const seedList = [
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/ataur.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/ataur_cse_MD ATAUR RAHAMAN.jpg",
     "status": "Study Leave",
     "emails": [
       "ataur_cse@puc.ac.bd"
@@ -113,6 +118,7 @@ const seedList = [
     "designation": "Assistant Professor · Department of Computer Science and Engineering · Member, Eve Teasing Complain Committee",
     "department": "CSE",
     "photo": "src/assets/faculty/tdm.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/tanni_cse_DSC_3658.JPG",
     "status": "Active",
     "emails": [
       "tanni.cse0708@gmail.com",
@@ -131,6 +137,7 @@ const seedList = [
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/ajt.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/asma_cse_ASMA-JOSHITA-TRISHA.jpg",
     "status": "Active",
     "emails": [
       "joshita.cu@gmail.com"
@@ -148,6 +155,7 @@ const seedList = [
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/anik_cse.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/anik_cse_1041800195.JPG",
     "status": "Study Leave",
     "emails": [
       "aniksen.cuet09@gmail.com",
@@ -166,7 +174,8 @@ const seedList = [
     "name": "Faisal Ahmed",
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
     "department": "CSE",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/faisal_cse_1041700179.JPG",
+    "photo": "src/assets/faculty/faisal_cse.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/faisal_cse_1041700179.JPG",
     "status": "Study Leave",
     "emails": [
       "faisalcsecubd@gmail.com"
@@ -184,6 +193,7 @@ const seedList = [
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/nak.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/nazma_fbs_Nazma.JPG",
     "status": "Active",
     "emails": [
       "nazmacse2013@gmail.com",
@@ -203,6 +213,7 @@ const seedList = [
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/njs.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/nusrat_cse_1051500136.JPG",
     "status": "Active",
     "emails": [
       "nusratshirinpu@gmail.com"
@@ -220,6 +231,7 @@ const seedList = [
     "designation": "Assistant Professor & Coordinator of M. Sc in CSE · Department of Computer Science and Engineering · Assistant Proctor",
     "department": "CSE",
     "photo": "src/assets/faculty/mh.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/hasan_cse_1041500137.JPG",
     "status": "Active",
     "emails": [
       "mehedi.cse@puc.ac.bd",
@@ -238,6 +250,7 @@ const seedList = [
     "designation": "Assistant Professor (Study Leave) · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/dhruba_cse.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/dhruba_cse_1041800196.JPG",
     "status": "Study Leave",
     "emails": [
       "dhrubajyoti1212@gmail.com",
@@ -256,6 +269,7 @@ const seedList = [
     "designation": "Assistant Professor · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/st.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/sabrina_cse_Ms. Sabrina Tarannum.jpg",
     "status": "Active",
     "emails": [
       "sabrina.tarannum@puc.ac.bd",
@@ -274,6 +288,7 @@ const seedList = [
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/aib.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/arif_cse_1041700177.JPG",
     "status": "Study Leave",
     "emails": [
       "arif.ajtfs@yahoo.com"
@@ -291,6 +306,7 @@ const seedList = [
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/shreyashi_cse.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/shrayashi_cse_1042200212.JPG",
     "status": "Study Leave",
     "emails": [
       "shreyashicox@gmail.com"
@@ -307,7 +323,8 @@ const seedList = [
     "name": "Kazi Md. Abrar Yeaser",
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/abrar_cse_1042200215.JPG",
+    "photo": "src/assets/faculty/kmay.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/abrar_cse_1042200215.JPG",
     "status": "Active",
     "emails": [
       "abrar.yeaser@puc.ac.bd",
@@ -325,7 +342,8 @@ const seedList = [
     "name": "Adnan Hossain Khan",
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
     "department": "CSE",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/adnan_cse_1042200214.JPG",
+    "photo": "src/assets/faculty/ahk.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/adnan_cse_1042200214.JPG",
     "status": "Study Leave",
     "emails": [
       "adnanhkhan@puc.ac.bd"
@@ -343,6 +361,7 @@ const seedList = [
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/adiba_cse.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/Adiba_cse_Adiba Ibnat Hossain.jpg",
     "status": "Study Leave",
     "emails": [
       "hossainadiba123@gmail.com"
@@ -359,7 +378,8 @@ const seedList = [
     "name": "Avisheak Das",
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/Avisheak-cse_Avisheak Das.jpg",
+    "photo": "src/assets/faculty/ad.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/Avisheak-cse_Avisheak Das.jpg",
     "status": "Active",
     "emails": [
       "avisheak@puc.ac.bd"
@@ -377,6 +397,7 @@ const seedList = [
     "designation": "Lecturer & Academic Coordinator of B.Sc in CSE · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/mrrc.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/Rezaur_cse_Mohammad Rezaur Rahman Chowdhury.jpg",
     "status": "Active",
     "emails": [
       "mrrchy999@gmail.com"
@@ -394,6 +415,7 @@ const seedList = [
     "designation": "Lecturer & Coordinator of Co-curricular activities · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/mhn.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/mdhasan_cse_223. 1042200223.jpg",
     "status": "Active",
     "emails": [
       "mdhasan_cse@puc.ac.bd"
@@ -411,6 +433,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/nr.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/noortaz_cse_Noortaz Rezoana.jpg",
     "status": "Active",
     "emails": [
       "noortaz6@gmail.com"
@@ -428,6 +451,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/mhe.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/mahmudul_hasan_cse_mahmudul_hasan_cse.jpg",
     "status": "Active",
     "emails": [
       "mahmudulhasan154422@gmail.com"
@@ -445,6 +469,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/tmh.png",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/tamim_hossain_MD Tamim Hossain.png",
     "status": "Active",
     "emails": [
       "tamim.hossain@puc.ac.bd",
@@ -463,6 +488,7 @@ const seedList = [
     "designation": "Lecturer (Study Leave) · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/jtc.jpeg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/jannattohfa_Jannat Tohfa Chowdhury.jpeg",
     "status": "Study Leave",
     "emails": [
       "jannattohfa@gmail.com"
@@ -480,6 +506,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/ams.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/asif_saad_asif.jpg",
     "status": "Active",
     "emails": [
       "saad.cse@puc.ac.bd",
@@ -498,6 +525,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/nbh.jpeg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/nadim_cse_nadim_cse.jpeg",
     "status": "Active",
     "emails": [
       "nadim.cse@puc.ac.bd"
@@ -515,6 +543,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/th.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/tashin_hossain_tashin.jpg",
     "status": "Active",
     "emails": [
       "tashin.hossain.cu@gmail.com"
@@ -532,6 +561,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/eas.png",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/estiaksazid_Estiak Ahamed Sazid.png",
     "status": "Active",
     "emails": [
       "estiak.ahamed@puc.ac.bd",
@@ -549,7 +579,8 @@ const seedList = [
     "name": "Md Toukir Shah",
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/mdtoukirshah_cse_Md Toukir Shah.png",
+    "photo": "src/assets/faculty/mts.png",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/mdtoukirshah_cse_Md Toukir Shah.png",
     "status": "Active",
     "emails": [
       "toukir.shah@puc.ac.bd",
@@ -568,6 +599,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/ra.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/roshni_Rowshon Akter.jpg",
     "status": "Active",
     "emails": [
       "roshni.cse18@gmail.com"
@@ -585,6 +617,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/cfk.jpeg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/fariha_cse_Chowdhury_Fariha_Kamrul_PUC_CSE.jpeg",
     "status": "Active",
     "emails": [
       "far400305@gmail.com"
@@ -602,6 +635,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/mri.jpeg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/raisulislam_cse_1042500278 Md. Raisul Islam.jpeg",
     "status": "Active",
     "emails": [
       "mdraisulislam2040@mail.com"
@@ -619,6 +653,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/mff.png",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/fahim_csecu_gt_1042500279 Mohammad Fahim Foisal.png",
     "status": "Active",
     "emails": [
       "fahim.csecu@gmail.com"
@@ -635,7 +670,8 @@ const seedList = [
     "name": "Tanvir Hassan Ananta",
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/tanvirhassan_cse_1042500280 Tanvir Hassan Ananta.jpeg",
+    "photo": "src/assets/faculty/tha.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/tanvirhassan_cse_1042500280 Tanvir Hassan Ananta.jpeg",
     "status": "Active",
     "emails": [
       "tanvirhassan@iut-dhaka.edu"
@@ -653,6 +689,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/tmc.jpeg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/tahiatmahabub_cse_1042500281 Tahiat Mahabub Chowdhury.jpeg",
     "status": "Active",
     "emails": [
       "tahiatmahabub355@gmail.com"
@@ -670,6 +707,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/yr.jpeg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/yakinur_cse_1042500282 Yakinur Rahman.jpeg",
     "status": "Active",
     "emails": [
       "yakinur_cse@puc.ac.bd"
@@ -686,7 +724,8 @@ const seedList = [
     "name": "Kafayet Monoar Nahin",
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/kafayet_cse_1042500283 Kafayet Monoar Nahin.jpg",
+    "photo": "src/assets/faculty/kmn.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/kafayet_cse_1042500283 Kafayet Monoar Nahin.jpg",
     "status": "Active",
     "emails": [
       "kafayetccs22@gmail.com"
@@ -703,7 +742,8 @@ const seedList = [
     "name": "Rashed Miah",
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
-    "photo": "https://admin.puc.ac.bd/ProfilePictures/rashed_cse_1042500284 Rashed Mia.jpeg",
+    "photo": "src/assets/faculty/rm.jpg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/rashed_cse_1042500284 Rashed Mia.jpeg",
     "status": "Active",
     "emails": [
       "rashed_cse@puc.ac.bd"
@@ -721,6 +761,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/wmn.jpeg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/wong_cse_1042600286 Wong May Nu.jpeg",
     "status": "Active",
     "emails": [
       "wong.ngyo@gmail.com"
@@ -738,6 +779,7 @@ const seedList = [
     "designation": "Lecturer · Department of Computer Science and Engineering",
     "department": "CSE",
     "photo": "src/assets/faculty/au.jpeg",
+    "source_photo_url": "https://admin.puc.ac.bd/ProfilePictures/afsar_cse_afsar_PUC_CSE.jpeg",
     "status": "Active",
     "emails": [
       "afsarmohammadi52@gmail.com"
@@ -751,7 +793,7 @@ const seedList = [
 ];
 
 async function seed() {
-  console.log('Seeding 42 verified faculty members to Supabase faculty_members table...');
+  console.log('Seeding 42 verified faculty members with local bundled photos to Supabase faculty_members table...');
   let successCount = 0;
 
   for (const item of seedList) {
@@ -764,7 +806,7 @@ async function seed() {
       console.error(`Failed to seed ${item.teacher_code} (${item.name}):`, error.message);
     } else {
       successCount++;
-      console.log(`✅ [${successCount}/42] Seeded ${item.teacher_code}: ${item.name} (${item.emails.length} email(s))`);
+      console.log(`✅ [${successCount}/42] Seeded ${item.teacher_code}: ${item.name} -> ${item.photo}`);
     }
   }
 

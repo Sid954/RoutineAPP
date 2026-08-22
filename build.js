@@ -243,6 +243,31 @@ function fetchUrl(url, timeoutMs = 8000) {
   });
 }
 
+
+function downloadFile(url, destPath) {
+  return new Promise((resolve) => {
+    if (!url) return resolve(false);
+    const client = url.startsWith('https') ? https : http;
+    const req = client.get(url, (res) => {
+      if (res.statusCode === 200) {
+        const fileStream = fs.createWriteStream(destPath);
+        res.pipe(fileStream);
+        fileStream.on('finish', () => {
+          fileStream.close();
+          resolve(true);
+        });
+      } else {
+        resolve(false);
+      }
+    });
+    req.on('error', () => resolve(false));
+    req.setTimeout(15000, () => {
+      req.destroy();
+      resolve(false);
+    });
+  });
+}
+
 function cleanText(str) {
   if (!str) return '';
   return str.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
@@ -298,15 +323,28 @@ async function updateFacultyDirectoryFromWeb() {
       });
 
       let newSuggestionsCount = 0;
+      const assetsDir = path.join(__dirname, 'src', 'assets', 'faculty');
+
       for (const f of scrapedList) {
         const existing = dbMap[f.username.toLowerCase()];
         if (!existing) {
           // New faculty member found on university site
+          let localAssetPath = f.photo;
+          if (f.photo) {
+            const extMatch = f.photo.match(/\.(jpe?g|png|webp)/i);
+            const ext = extMatch ? extMatch[1].toLowerCase().replace('jpeg', 'jpg') : 'jpg';
+            const filename = `${f.username.toLowerCase()}.${ext}`;
+            const destPath = path.join(assetsDir, filename);
+            const downloaded = await downloadFile(f.photo, destPath);
+            if (downloaded) localAssetPath = `src/assets/faculty/${filename}`;
+          }
+
           await supabase.from('instructor_edit_suggestions').insert([{
             teacher_code: f.username.toUpperCase(),
             full_name: f.name,
             designation: f.designation,
-            photo: f.photo,
+            photo: localAssetPath,
+            source_photo_url: f.photo,
             profile_url: f.profileUrl,
             status: 'pending',
             source: 'build_scraper',
@@ -314,20 +352,34 @@ async function updateFacultyDirectoryFromWeb() {
           }]);
           newSuggestionsCount++;
         } else {
-          // Check for changed designation or photo
+          // Check for changed designation or changed remote university photo URL
           const desigChanged = f.designation && f.designation !== existing.designation;
-          const photoChanged = f.photo && f.photo !== existing.photo && !existing.photo.includes('supabase');
+          const photoChanged = f.photo && f.photo !== existing.source_photo_url;
+
           if (desigChanged || photoChanged) {
+            let localAssetPath = existing.photo;
+            if (photoChanged && f.photo) {
+              const extMatch = f.photo.match(/\.(jpe?g|png|webp)/i);
+              const ext = extMatch ? extMatch[1].toLowerCase().replace('jpeg', 'jpg') : 'jpg';
+              const codeLower = (existing.teacher_code || f.username).toLowerCase().replace(/[^a-z0-9_]/g, '_');
+              const filename = `${codeLower}.${ext}`;
+              const destPath = path.join(assetsDir, filename);
+              const downloaded = await downloadFile(f.photo, destPath);
+              if (downloaded) localAssetPath = `src/assets/faculty/${filename}`;
+            }
+
             await supabase.from('instructor_edit_suggestions').insert([{
               teacher_code: existing.teacher_code,
               full_name: f.name,
               designation: f.designation,
-              photo: f.photo,
+              photo: localAssetPath,
+              source_photo_url: f.photo,
               profile_url: f.profileUrl,
               old_data: {
                 name: existing.name,
                 designation: existing.designation,
                 photo: existing.photo,
+                source_photo_url: existing.source_photo_url,
                 profileUrl: existing.profile_url
               },
               status: 'pending',
