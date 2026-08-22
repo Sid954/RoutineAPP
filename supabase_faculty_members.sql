@@ -1,7 +1,13 @@
 -- ============================================================================
--- SQL Migration: Create live faculty_members table for Premier University
+-- SQL Migration: Setup Premier University Faculty Architecture
+-- Creates:
+--   1. faculty_members (Live Production Directory)
+--   2. instructor_edit_suggestions (Pending Suggestions Queue)
 -- ============================================================================
 
+-- ----------------------------------------------------------------------------
+-- 1. Create faculty_members Table (Live Directory)
+-- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS faculty_members (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   teacher_code TEXT UNIQUE NOT NULL,
@@ -26,30 +32,46 @@ CREATE TABLE IF NOT EXISTS faculty_members (
 CREATE INDEX IF NOT EXISTS idx_faculty_code ON faculty_members(teacher_code);
 CREATE INDEX IF NOT EXISTS idx_faculty_username ON faculty_members(official_username);
 
--- Enable Row Level Security (RLS)
+-- Enable Row Level Security (RLS) on faculty_members
 ALTER TABLE faculty_members ENABLE ROW LEVEL SECURITY;
 
--- 1. Public Read Policy (Allow anyone using anon key or unauthenticated to read faculty)
-DROP POLICY IF EXISTS "Allow public read" ON faculty_members;
-CREATE POLICY "Allow public read" ON faculty_members FOR SELECT USING (true);
+-- Allow public read (All students and teachers can read active faculty)
+DROP POLICY IF EXISTS "Allow public read on faculty_members" ON faculty_members;
+CREATE POLICY "Allow public read on faculty_members" ON faculty_members FOR SELECT USING (true);
 
--- 2. Restrict all INSERT / UPDATE / DELETE to service_role (Admin / API endpoints only)
--- (No public write policy exists, meaning anon key writes are completely blocked by default)
 
--- Ensure source_photo_url and source columns exist
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns 
-    WHERE table_name = 'faculty_members' AND column_name = 'source_photo_url'
-  ) THEN
-    ALTER TABLE faculty_members ADD COLUMN source_photo_url TEXT DEFAULT '';
-  END IF;
+-- ----------------------------------------------------------------------------
+-- 2. Create instructor_edit_suggestions Table (Moderation Queue)
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS instructor_edit_suggestions (
+  id BIGSERIAL PRIMARY KEY,
+  teacher_code TEXT NOT NULL,
+  full_name TEXT,
+  email TEXT,
+  phone TEXT,
+  designation TEXT,
+  photo TEXT,
+  source_photo_url TEXT,
+  profile_url TEXT,
+  old_data JSONB,
+  status TEXT DEFAULT 'pending',
+  source TEXT DEFAULT 'user_suggestion',
+  ip_address TEXT,
+  submitted_at TIMESTAMPTZ DEFAULT NOW(),
+  reviewed_at TIMESTAMPTZ
+);
 
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns 
-    WHERE table_name = 'instructor_edit_suggestions' AND column_name = 'source'
-  ) THEN
-    ALTER TABLE instructor_edit_suggestions ADD COLUMN source TEXT DEFAULT 'user_suggestion';
-  END IF;
-END $$;
+-- Fast lookup indexes on suggestions
+CREATE INDEX IF NOT EXISTS idx_suggestions_status ON instructor_edit_suggestions(status);
+CREATE INDEX IF NOT EXISTS idx_suggestions_code ON instructor_edit_suggestions(teacher_code);
+
+-- Enable Row Level Security (RLS) on instructor_edit_suggestions
+ALTER TABLE instructor_edit_suggestions ENABLE ROW LEVEL SECURITY;
+
+-- Allow public insert (Crowdsourced suggestions from students/teachers)
+DROP POLICY IF EXISTS "Allow public insert on suggestions" ON instructor_edit_suggestions;
+CREATE POLICY "Allow public insert on suggestions" ON instructor_edit_suggestions FOR INSERT WITH CHECK (true);
+
+-- Allow public read of approved entries
+DROP POLICY IF EXISTS "Allow public read on approved suggestions" ON instructor_edit_suggestions;
+CREATE POLICY "Allow public read on approved suggestions" ON instructor_edit_suggestions FOR SELECT USING (true);
