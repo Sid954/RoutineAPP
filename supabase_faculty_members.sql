@@ -3,6 +3,7 @@
 -- Creates:
 --   1. faculty_members (Live Production Directory)
 --   2. instructor_edit_suggestions (Pending Suggestions Queue)
+--   3. Automatically migrates legacy data from teacher_names if present
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
@@ -72,6 +73,35 @@ ALTER TABLE instructor_edit_suggestions ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow public insert on suggestions" ON instructor_edit_suggestions;
 CREATE POLICY "Allow public insert on suggestions" ON instructor_edit_suggestions FOR INSERT WITH CHECK (true);
 
--- Allow public read of approved entries
+-- Allow public read on approved suggestions
 DROP POLICY IF EXISTS "Allow public read on approved suggestions" ON instructor_edit_suggestions;
 CREATE POLICY "Allow public read on approved suggestions" ON instructor_edit_suggestions FOR SELECT USING (true);
+
+
+-- ----------------------------------------------------------------------------
+-- 3. Automatic Legacy Data Migration (from teacher_names if it exists)
+-- ----------------------------------------------------------------------------
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables 
+    WHERE table_schema = 'public' AND table_name = 'teacher_names'
+  ) THEN
+    INSERT INTO instructor_edit_suggestions (
+      teacher_code, full_name, email, phone, designation, status, submitted_at, reviewed_at, source
+    )
+    SELECT 
+      teacher_code, 
+      full_name, 
+      email, 
+      phone, 
+      designation, 
+      status, 
+      submitted_at, 
+      reviewed_at, 
+      'legacy_teacher_names'
+    FROM teacher_names;
+    
+    RAISE NOTICE 'Successfully migrated legacy rows from teacher_names to instructor_edit_suggestions.';
+  END IF;
+END $$;
