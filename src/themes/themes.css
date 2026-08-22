@@ -76,7 +76,7 @@ html[data-theme="light"],
 :root[data-color="light"] {
   --bg: #F7F4EB;
   --canvas: #F7F4EB;
-  --card-bg: #F6F0DD;
+  --card-bg: #faf7f0;
   --card-border: rgba(45, 35, 25, 0.09);
   --card-border-subtle: rgba(45, 35, 25, 0.04);
 
