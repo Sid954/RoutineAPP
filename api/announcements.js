@@ -38,7 +38,11 @@ const LIMITS = {
   TITLE: 50,
   EXAM_NAME: 15,
   TOPICS: 50,
-  PLATFORM_LINK: 100
+  PLATFORM_LINK: 100,
+  TASK_TITLE: 15,
+  ASSIGNMENT_DESC: 50,
+  ROOM: 20,
+  REASON: 50
 };
 
 function collapseNewlines(str) {
@@ -143,6 +147,9 @@ function sanitizeAndValidatePayload(body) {
       const isOnline = parsed?.is_online !== undefined ? Boolean(parsed.is_online) : true;
       const isExtra = parsed?.is_extra_class !== undefined ? Boolean(parsed.is_extra_class) : false;
       const room = (parsed?.room || '').trim();
+      if (!isOnline && room.length > LIMITS.ROOM) {
+        return { error: `Room cannot exceed ${LIMITS.ROOM} characters.` };
+      }
       const teacher = (parsed?.teacher || '').trim();
 
       const obj = {
@@ -161,14 +168,22 @@ function sanitizeAndValidatePayload(body) {
   } else if (itemType === 'rescheduled') {
     try {
       const parsed = typeof announcement === 'string' ? JSON.parse(announcement) : announcement;
+      const newRoom = (parsed?.new_room || '').trim();
+      if (newRoom.length > LIMITS.ROOM) {
+        return { error: `Room cannot exceed ${LIMITS.ROOM} characters.` };
+      }
+      const reason = collapseNewlines(parsed?.reason || '');
+      if (reason.length > LIMITS.REASON) {
+        return { error: `Reason cannot exceed ${LIMITS.REASON} characters.` };
+      }
       const obj = {
         original_date: (parsed?.original_date || date_override || '').trim(),
         original_start_time: (parsed?.original_start_time || '').trim(),
         original_room: (parsed?.original_room || '').trim(),
         new_date: (parsed?.new_date || date_override || '').trim(),
         new_start_time: (parsed?.new_start_time || '03:00 PM').trim(),
-        new_room: (parsed?.new_room || '').trim(),
-        reason: collapseNewlines(parsed?.reason || '')
+        new_room: newRoom,
+        reason: reason
       };
       cleanAnnouncement = JSON.stringify(obj);
     } catch (e) {
@@ -177,10 +192,21 @@ function sanitizeAndValidatePayload(body) {
   } else if (itemType === 'assignment') {
     try {
       const parsed = typeof announcement === 'string' ? JSON.parse(announcement) : announcement;
+      const taskTitle = (parsed?.task_title || '').trim();
+      if (!taskTitle) {
+        return { error: 'Task title is required.' };
+      }
+      if (taskTitle.length > LIMITS.TASK_TITLE) {
+        return { error: `Task title cannot exceed ${LIMITS.TASK_TITLE} characters.` };
+      }
+      const desc = collapseNewlines(parsed?.description || '');
+      if (desc.length > LIMITS.ASSIGNMENT_DESC) {
+        return { error: `Notes / Submission Info cannot exceed ${LIMITS.ASSIGNMENT_DESC} characters.` };
+      }
       const obj = {
-        task_title: (parsed?.task_title || '').trim(),
+        task_title: taskTitle,
         due_time: (parsed?.due_time || '').trim(),
-        description: collapseNewlines(parsed?.description || '')
+        description: desc
       };
       cleanAnnouncement = JSON.stringify(obj);
     } catch (e) {
@@ -375,6 +401,14 @@ module.exports = async (req, res) => {
               const parsed = JSON.parse(targetAnnouncement);
               notificationBody = `Class rescheduled to ${parsed.new_date ? `${parsed.new_date} at ` : ''}${parsed.new_start_time || 'new slot'}${parsed.new_room ? ` (Room ${parsed.new_room})` : ''}`;
             } catch (e) {}
+          } else if (targetType === 'assignment') {
+            try {
+              const parsed = JSON.parse(targetAnnouncement);
+              const taskTitle = parsed.task_title || 'Assignment';
+              const dueTime = parsed.due_time || '';
+              const desc = (parsed.description || '').trim();
+              notificationBody = `${taskTitle}${dueTime ? ` — Due ${dueTime}` : ''}${desc ? `. ${desc.length > 60 ? desc.slice(0, 57) + '…' : desc}` : ''}`;
+            } catch (e) {}
           }
 
           const BATCH_SIZE = 500;
@@ -385,7 +419,7 @@ module.exports = async (req, res) => {
             const message = {
               tokens: batchTokens,
               notification: {
-                title: `${targetType === 'cancellation' ? '🚫 ' : targetType === 'holiday' ? '🎉 ' : targetType === 'online_class' ? '📡 ' : targetType === 'class_test' ? '📝 ' : targetType === 'rescheduled' ? '🔄 ' : '📢 '}${targetTitle}`,
+                title: `${targetType === 'cancellation' ? '🚫 ' : targetType === 'holiday' ? '🎉 ' : targetType === 'online_class' ? '📡 ' : targetType === 'class_test' ? '📝 ' : targetType === 'rescheduled' ? '🔄 ' : targetType === 'assignment' ? '📌 ' : '📢 '}${targetTitle}`,
                 body: notificationBody,
               },
               data: {

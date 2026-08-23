@@ -811,19 +811,6 @@
   padding: 4px;
 }
 
-.faculty-page-stats-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 10px 0 2px;
-}
-
-.faculty-count-text {
-  font-size: 11px;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
 .faculty-full-grid {
   display: flex;
   flex-direction: column;
@@ -848,13 +835,24 @@
   border-radius: 3px;
 }
 
-/* Section Dividers for Two-Group Layout */
+/* Sticky Section Dividers for Two-Group Layout */
 .faculty-section-divider {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--canvas);
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 4px 4px 4px;
+  padding: 8px 2px 6px 2px;
   user-select: none;
+}
+
+.faculty-section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--card-border, rgba(255, 255, 255, 0.08));
 }
 
 .faculty-section-title {
@@ -866,6 +864,7 @@
 }
 
 .faculty-section-badge {
+  font-family: var(--font-mono, monospace);
   font-size: 9.5px;
   font-weight: 800;
   color: var(--text-muted);

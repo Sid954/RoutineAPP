@@ -835,7 +835,7 @@ export function renderTeacherFinderModal() {
 
   if (unlistedGroup.length > 0) {
     html += `
-      <div class="faculty-section-divider" style="${namedGroup.length > 0 ? 'margin-top: 10px;' : ''}">
+      <div class="faculty-section-divider">
         <span class="faculty-section-title">Other Instructors</span>
         <span class="faculty-section-badge">${unlistedGroup.length}</span>
       </div>

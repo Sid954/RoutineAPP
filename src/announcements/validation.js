@@ -7,7 +7,11 @@ export const ANNOUNCEMENT_LIMITS = {
   EXAM_NAME: 15,
   TOPICS: 50,
   PLATFORM_LINK: 100,
-  FEED_COLLAPSE_CHARS: 50
+  FEED_COLLAPSE_CHARS: 50,
+  TASK_TITLE: 15,
+  ASSIGNMENT_DESC: 50,
+  ROOM: 20,
+  REASON: 50
 };
 
 /**
@@ -359,7 +363,7 @@ export function validateAnnouncementPayload(rawData = {}) {
     const origRoom = cleanString(parsedPayload.original_room || rawData.original_room || '');
     const newRoom = cleanString(parsedPayload.new_room || rawData.new_room || '');
     const reasonRaw = collapseNewlines(parsedPayload.reason || rawData.reason || '');
-    const reasonCheck = validateField(reasonRaw, 50, 'Reason / Instructions', false);
+    const reasonCheck = validateField(reasonRaw, ANNOUNCEMENT_LIMITS.REASON, 'Reason / Instructions', false);
     if (!reasonCheck.valid) return { valid: false, error: reasonCheck.error };
 
     const structuredObj = {
@@ -395,18 +399,26 @@ export function validateAnnouncementPayload(rawData = {}) {
     }
 
     const taskTitleRaw = parsedPayload.task_title || rawData.task_title || 'Assignment';
+    const taskTitleCheck = validateField(taskTitleRaw, ANNOUNCEMENT_LIMITS.TASK_TITLE, 'Task Title', true);
+    if (!taskTitleCheck.valid) return { valid: false, error: taskTitleCheck.error };
+
     const dueTime = cleanString(parsedPayload.due_time || rawData.due_time || '11:59 PM');
-    const desc = collapseNewlines(parsedPayload.description || rawData.description || '');
+
+    const descRaw = collapseNewlines(parsedPayload.description || rawData.description || '');
+    const descCheck = validateField(descRaw, ANNOUNCEMENT_LIMITS.ASSIGNMENT_DESC, 'Notes / Submission Info', false);
+    if (!descCheck.valid) return { valid: false, error: descCheck.error };
 
     const structuredObj = {
       subject: subj,
-      task_title: taskTitleRaw,
+      task_title: taskTitleCheck.cleaned,
       due_date: cleanString(rawData.date_override),
       due_time: dueTime,
-      description: desc
+      description: descCheck.cleaned
     };
 
-    sanitized.title = `${taskTitleRaw}: ${subj}`;
+    sanitized.title = `${taskTitleCheck.cleaned}: ${subj}`;
+    sanitized.date_override = cleanString(rawData.date_override);
+    sanitized.subject_override = subj;
     sanitized.announcement = JSON.stringify(structuredObj);
   }
 

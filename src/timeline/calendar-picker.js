@@ -5,6 +5,8 @@
  */
 
 import { State } from '../core/state.js';
+import { DOM } from '../core/dom.js';
+import { closeModal } from '../modals/modal.js';
 import { DAY_NAMES, MONTHS, FULL_MONTHS } from '../core/config.js';
 import { renderTimeline } from './timeline.js';
 import { getOverridesByDateMap, normalizeDate } from '../announcements/overrides.js';
@@ -106,6 +108,8 @@ export function renderCalendarMonthGrid() {
 
 export function pickDate(year, month, day) {
   _selectedDate = new Date(year, month, day);
+  _calendarViewMonth = _selectedDate.getMonth();
+  _calendarViewYear = _selectedDate.getFullYear();
   const dow = _selectedDate.getDay();
   State.currentViewDayIdx = dow;
   State.viewDate = _selectedDate;
@@ -119,6 +123,11 @@ export function pickDate(year, month, day) {
 
   const modal = document.getElementById('calendarPickerModal');
   if (modal) modal.classList.remove('open');
+
+  if (DOM.viewModal && DOM.viewModal.classList.contains('open')) {
+    closeModal(DOM.viewModal);
+    if (window.switchAppView) window.switchAppView('home');
+  }
 
   renderTimeline(true);
 }
@@ -137,6 +146,11 @@ export function jumpToToday() {
 
   const modal = document.getElementById('calendarPickerModal');
   if (modal) modal.classList.remove('open');
+
+  if (DOM.viewModal && DOM.viewModal.classList.contains('open')) {
+    closeModal(DOM.viewModal);
+    if (window.switchAppView) window.switchAppView('home');
+  }
 
   renderTimeline(true);
 

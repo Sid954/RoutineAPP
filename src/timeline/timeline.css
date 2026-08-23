@@ -231,6 +231,16 @@ html[data-theme="dark"] .focal-day-card,
   background: #10B981;
   color: #FFFFFF;
 }
+.satellite-override-badge.rescheduled,
+.focal-override-badge.rescheduled {
+  background: #64748B;
+  color: #FFFFFF;
+}
+.satellite-override-badge.assignment,
+.focal-override-badge.assignment {
+  background: #A855F7;
+  color: #FFFFFF;
+}
 
 .focal-day-card.override-holiday {
   border: 1.5px solid rgba(245, 158, 11, 0.7);
@@ -895,6 +905,14 @@ html[data-theme="light"] .timeline-ghost-strip.tappable:hover {
   color: #6EE7B7 !important;
   font-weight: 800;
 }
+.calendar-day-cell.cal-override-rescheduled .cal-day-num {
+  color: #94A3B8 !important;
+  font-weight: 800;
+}
+.calendar-day-cell.cal-override-assignment .cal-day-num {
+  color: #E9D5FF !important;
+  font-weight: 800;
+}
 
 /* Light Mode High-Contrast Calendar Picker Override Numbers (WCAG AA >= 4.5:1) */
 :root[data-color="light"] .calendar-day-cell.cal-override-cancellation .cal-day-num,
@@ -913,6 +931,14 @@ html[data-theme="light"] .calendar-day-cell.cal-override-class_test .cal-day-num
 html[data-theme="light"] .calendar-day-cell.cal-override-online_class .cal-day-num {
   color: #047857 !important;
 }
+:root[data-color="light"] .calendar-day-cell.cal-override-rescheduled .cal-day-num,
+html[data-theme="light"] .calendar-day-cell.cal-override-rescheduled .cal-day-num {
+  color: #1E293B !important;
+}
+:root[data-color="light"] .calendar-day-cell.cal-override-assignment .cal-day-num,
+html[data-theme="light"] .calendar-day-cell.cal-override-assignment .cal-day-num {
+  color: #6B21A8 !important;
+}
 
 .calendar-day-cell.cal-override-cancellation {
   border-color: rgba(244, 63, 94, 0.45) !important;
@@ -929,6 +955,14 @@ html[data-theme="light"] .calendar-day-cell.cal-override-online_class .cal-day-n
 .calendar-day-cell.cal-override-online_class {
   border-color: rgba(16, 185, 129, 0.45) !important;
   background: rgba(16, 185, 129, 0.08);
+}
+.calendar-day-cell.cal-override-rescheduled {
+  border-color: rgba(148, 163, 184, 0.45) !important;
+  background: rgba(148, 163, 184, 0.08);
+}
+.calendar-day-cell.cal-override-assignment {
+  border-color: rgba(168, 85, 247, 0.45) !important;
+  background: rgba(168, 85, 247, 0.08);
 }
 
 .cal-indicators-row {
@@ -949,6 +983,8 @@ html[data-theme="light"] .calendar-day-cell.cal-override-online_class .cal-day-n
 .cal-override-dot.holiday { background: #F59E0B; box-shadow: 0 0 4px rgba(245, 158, 11, 0.6); }
 .cal-override-dot.class_test { background: #F97316; box-shadow: 0 0 4px rgba(249, 115, 22, 0.6); }
 .cal-override-dot.online_class { background: #10B981; box-shadow: 0 0 4px rgba(16, 185, 129, 0.6); }
+.cal-override-dot.rescheduled { background: #64748B; box-shadow: 0 0 4px rgba(100, 116, 139, 0.6); }
+.cal-override-dot.assignment { background: #A855F7; box-shadow: 0 0 4px rgba(168, 85, 247, 0.6); }
 
 .calendar-quick-actions {
   display: flex;

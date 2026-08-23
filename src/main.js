@@ -12,6 +12,7 @@ import { CONFIG } from './core/config.js';
 import { openModal, closeModal, setParticlesRef } from './modals/modal.js';
 import { Particles } from './particles/particles.js';
 import { Notifications } from './notifications/notifications.js';
+import { openCalendarPicker } from './timeline/calendar-picker.js';
 import { renderWeeklyMatrix } from './weekly-matrix/matrix.js';
 import { renderTimeline } from './timeline/timeline.js';
 import { initKeyboard } from './events/keyboard.js';
@@ -95,6 +96,7 @@ export function switchAppView(viewId, payload) {
     }
   }
 }
+window.__currentAppViewId = 'home';
 window.switchAppView = switchAppView;
 
 // Set default active tab
@@ -114,16 +116,23 @@ if (dockCenterFab) {
   dockCenterFab.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
-    switchAppView('home');
-    const today = new Date();
-    State.viewDate = today;
-    State.currentViewDayIdx = today.getDay();
-    State.lastRenderedMinute = -1;
-    renderTimeline(true);
-    const chg = document.getElementById('chG');
-    if (chg) {
-      chg.scrollTo({ top: 0, behavior: 'smooth' });
+
+    const isModalOpen = DOM.viewModal && DOM.viewModal.classList.contains('open');
+    const currentView = window.__currentAppViewId || 'home';
+
+    if (isModalOpen) {
+      closeModal(DOM.viewModal);
+      switchAppView('home');
+      return;
     }
+
+    if (currentView !== 'home') {
+      switchAppView('home');
+      return;
+    }
+
+    // Already at Home -> Open Monthly Calendar Picker
+    openCalendarPicker();
   });
 }
 
@@ -138,6 +147,11 @@ if (dockAppsBtn) {
 }
 
 /* ── Campus Apps Hub Actions ─────────────────────────────────── */
+const appsHubPageBackBtn = document.getElementById('appsHubPageBackBtn');
+if (appsHubPageBackBtn) {
+  appsHubPageBackBtn.addEventListener('click', () => switchAppView('home'));
+}
+
 const appHubFaculty = document.getElementById('appHubFaculty');
 if (appHubFaculty) {
   appHubFaculty.addEventListener('click', () => switchAppView('faculty'));

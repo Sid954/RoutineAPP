@@ -73,30 +73,7 @@
   background: rgba(255, 255, 255, 0.35);
 }
 
-/* Group Section Dividers */
-.announce-group-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: clamp(6px, 1.8vw, 10px) 2px 2px 2px;
-  user-select: none;
-}
-
-.announce-group-header span:first-child {
-  font-size: clamp(10.5px, 2.9vw, 12px);
-  font-weight: 800;
-  color: var(--text-muted, #94A3B8);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-}
-
-.announce-group-header::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--card-border, rgba(255, 255, 255, 0.08));
-}
-
+/* Section Dividers & Badges */
 .announce-group-badge {
   font-family: var(--font-mono, monospace);
   font-size: clamp(9.5px, 2.6vw, 11px);
