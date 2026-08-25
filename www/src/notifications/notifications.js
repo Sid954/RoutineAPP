@@ -258,7 +258,7 @@ export const Notifications = {
               largeBody: body,
               summaryText: '',
               id: Math.floor(Math.random() * 1000000),
-              iconColor: type === 'class_test' ? '#f97316' : (type === 'online_class' ? '#10b981' : (type === 'cancellation' ? '#f43f5e' : '#38bdf8'))
+              iconColor: type === 'class_test' ? '#f97316' : (type === 'online_class' ? '#10b981' : (type === 'cancellation' ? '#f43f5e' : (type === 'rescheduled' ? '#64748b' : (type === 'assignment' ? '#a855f7' : '#38bdf8'))))
             }]
           });
         }

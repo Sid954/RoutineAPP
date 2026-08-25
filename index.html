@@ -724,6 +724,91 @@
           </div>
         </div>
 
+        <!-- 5. Full-Page View: Free Rooms Availability Finder -->
+        <div id="freeRoomsAppView" class="app-page-view" style="display: none;">
+          <div class="page-container">
+            
+            <!-- Unified Page Header -->
+            <div class="page-header">
+              <div class="page-header-top">
+                <button class="page-back-btn" id="freeRoomsPageBackBtn" title="Back to Apps Hub">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  <span>Apps</span>
+                </button>
+                <div class="page-actions">
+                  <button id="freeRoomsRefreshBtn" class="page-action-btn secondary" title="Refresh Live Room Data">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    <span>Refresh</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="page-title-group">
+                <h1 class="page-title">Room Availability</h1>
+                <span class="page-subtitle">Live classroom vacancies, labs & daily schedules</span>
+              </div>
+            </div>
+
+            <!-- Page Separator Component -->
+            <div class="page-separator">
+              <span>EXPLORE ROOMS</span>
+            </div>
+
+            <!-- Compact Minimal Controls Section -->
+            <div class="fr-compact-controls">
+              <!-- Primary Search Bar -->
+              <div class="fr-search-bar-wrap">
+                <div class="fr-search-box">
+                  <svg class="fr-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  <input type="text" id="frSearchInput" class="fr-search-input" placeholder="Search room (e.g. 604, Lab, 4th)..." autocomplete="off" />
+                  <button id="frSearchClear" class="fr-search-clear" title="Clear search">✕</button>
+                </div>
+              </div>
+
+              <!-- Compact Action Bar: Day/Time Pill + Floor Filter Button + Filter Drawer Toggle -->
+              <div class="fr-action-bar">
+                <button id="frDayTimeTriggerBtn" class="fr-daytime-pill" title="Change date or time">
+                  <svg class="fr-pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span id="frDayTimeLabel">Today · Right Now</span>
+                  <svg class="fr-pill-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+
+                <button id="frFloorFilterBtn" class="fr-floor-filter-pill" title="Filter by floor">
+                  <svg class="fr-pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18"/></svg>
+                  <span id="frFloorFilterLabel">All Floors</span>
+                  <svg class="fr-pill-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+
+                <div class="fr-action-bar-right">
+                  <button id="frToggleFilterBtn" class="fr-filter-icon-btn" title="Toggle room filters">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                    <span>Filters</span>
+                    <span id="frFilterActiveDot" class="fr-filter-dot" style="display: none;"></span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Secondary Filter Drawer (Hidden by default) -->
+              <div id="frFilterDrawer" class="fr-filter-drawer" style="display: none;">
+                <div class="fr-drawer-row">
+                  <span class="fr-drawer-label">Room Type</span>
+                  <div class="fr-type-toggle-group" id="frTypeToggleGroup">
+                    <button class="fr-type-toggle-btn active" data-type="ALL">All</button>
+                    <button class="fr-type-toggle-btn" data-type="classroom">Classrooms</button>
+                    <button class="fr-type-toggle-btn" data-type="lab">Labs</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Flat Room List Container (Free rooms on top, occupied muted below) -->
+            <div id="frFlatRoomsListContainer" class="fr-flat-rooms-container">
+              <!-- Populated dynamically with minimal room cards -->
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -990,7 +1075,7 @@
   </div>
 
   <!-- Modal: Class Detail Bottom Sheet (100% Solid Card Surface) -->
-  <div class="class-sheet-modal-overlay" id="classDetailModal" style="z-index: 3000;">
+  <div class="class-sheet-modal-overlay" id="classDetailModal" style="z-index: 100030;">
     <div class="class-detail-bottom-sheet">
       <!-- Drag Handle -->
       <div class="sheet-drag-handle-bar">
@@ -1220,90 +1305,118 @@
     </div>
   </div>
 
-  <!-- Modal: Free Rooms Finder -->
-  <div class="mo" id="freeRoomsModal">
-    <div class="md md-wide" style="max-width: 640px; padding: 22px; position: relative;">
-      <button class="cls" id="freeRoomsCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
-      
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
-        <span style="font-size: 24px;">🚪</span>
-        <h2 style="font-size: 19px; font-weight: 800; color: var(--text); margin: 0;">Room Availability</h2>
-      </div>
-      
-      <div id="freeRoomsSummary" style="font-size: 12px; color: var(--dim); margin-bottom: 14px;">
-        Searching across all semesters and sections...
-      </div>
-
-      <!-- 2-Column Body Container -->
-      <div class="fr-modal-body">
-
-        <!-- Left Sidebar: Floor Selection -->
-        <div class="fr-floor-sidebar">
-          <div class="fr-sidebar-title">FLOORS</div>
-          <div id="freeRoomsFloorList" class="fr-floor-btn-list">
-            <button class="fr-floor-btn active" data-floor="ALL">All Floors</button>
-            <button class="fr-floor-btn" data-floor="4th">4th Floor</button>
-            <button class="fr-floor-btn" data-floor="5th">5th Floor</button>
-            <button class="fr-floor-btn" data-floor="6th">6th Floor</button>
-            <button class="fr-floor-btn" data-floor="9th">9th Floor</button>
-            <button class="fr-floor-btn" data-floor="10th">10th Floor</button>
-          </div>
+  <!-- Bottom Sheet: Room Daily Schedule & Free Gaps -->
+  <div id="roomScheduleSheet">
+    <div class="fr-sheet-card">
+      <div class="fr-sheet-header">
+        <div class="fr-sheet-title-row">
+          <div class="fr-sheet-room-name" id="roomSheetTitle">Room Schedule</div>
+          <div class="fr-sheet-meta-tags" id="roomSheetMeta">Department Room</div>
         </div>
+        <button class="fr-sheet-close-btn" id="roomSheetCloseBtn" title="Close sheet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
 
-        <!-- Right Main Content: Search, Status Filters, Cards Grid -->
-        <div class="fr-main-content">
-          <!-- Search & Sort Row -->
-          <div style="margin-bottom: 10px;">
-            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-              <input type="text" id="freeRoomsSearchInput" placeholder="🔍 Search room..." style="flex: 1; height: 36px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 12.5px; outline: none;" />
-              <select id="freeRoomsSortSelect" class="fr-sort-select" title="Sort rooms">
-                <option value="availability">⚡ Free First</option>
-                <option value="room_asc">🔢 Room (Low-High)</option>
-                <option value="room_desc">🔢 Room (High-Low)</option>
-                <option value="floor">🏢 By Floor</option>
-              </select>
-            </div>
-            
-            <div id="freeRoomsStatusTabs" style="display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;">
-              <button class="fr-filter-pill" data-filter="ALL">All</button>
-              <button class="fr-filter-pill active" data-filter="FREE_NOW">Free Right Now</button>
-              <button class="fr-filter-pill" data-filter="FREE_SOON">Free in 30m</button>
-              <button class="fr-filter-pill" data-filter="OCCUPIED">Occupied</button>
-            </div>
-          </div>
-
-          <!-- Free Rooms Cards Grid -->
-          <div id="freeRoomsGrid" class="fr-grid" style="max-height: 340px; overflow-y: auto; padding-right: 2px;">
-            <!-- Populated dynamically by room-modal.js -->
-          </div>
+      <!-- In-Sheet Day Switcher (Local to this sheet) -->
+      <div class="fr-sheet-day-switcher">
+        <button id="frSheetPrevDayBtn" class="fr-sheet-day-nav-btn" title="Previous Day">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 14px; height: 14px;"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div class="fr-sheet-day-pills" id="frSheetDayPills">
+          <button class="fr-sheet-day-pill" data-day="6">Sat</button>
+          <button class="fr-sheet-day-pill" data-day="0">Sun</button>
+          <button class="fr-sheet-day-pill" data-day="1">Mon</button>
+          <button class="fr-sheet-day-pill" data-day="2">Tue</button>
+          <button class="fr-sheet-day-pill" data-day="3">Wed</button>
+          <button class="fr-sheet-day-pill" data-day="4">Thu</button>
+          <button class="fr-sheet-day-pill" data-day="5">Fri</button>
         </div>
+        <button id="frSheetNextDayBtn" class="fr-sheet-day-nav-btn" title="Next Day">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 14px; height: 14px;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
 
+      <div class="fr-sheet-timeline-list" id="roomSheetTimelineList">
+        <!-- Populated dynamically by rooms-view.js -->
       </div>
     </div>
   </div>
 
-  <!-- Modal: Room Daily Schedule Detail View -->
-  <div class="mo" id="roomDetailModal" style="z-index: 100010;">
-    <div class="md" style="max-width: 460px; padding: 22px; position: relative;">
-      <button class="cls" id="roomDetailCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
-      
-      <!-- Room Header -->
-      <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
-        <h2 id="roomDetailTitle" style="font-size: 22px; font-weight: 900; color: #fff; margin: 0;">Room 404</h2>
-        <span id="roomDetailFloor" style="font-size: 12px; font-weight: 700; color: var(--dim);">4th Floor</span>
+  <!-- Bottom Sheet: Real Date + Time Picker -->
+  <div id="frDayTimePickerSheet" class="fr-daytime-sheet-overlay">
+    <div class="fr-daytime-sheet-card" style="max-height: 90vh;">
+      <div class="fr-sheet-header">
+        <div class="fr-sheet-title-row">
+          <div class="fr-sheet-room-name">Select Date & Time</div>
+          <div class="fr-sheet-meta-tags">Pick any calendar date and time of day</div>
+        </div>
+        <button class="fr-sheet-close-btn" id="frDayTimePickerCloseBtn" title="Close sheet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
       </div>
 
-      <div id="roomDetailLiveBanner" style="margin-bottom: 16px;">
-        <!-- Dynamic Live Status Banner -->
+      <!-- Quick "Right Now" shortcut -->
+      <div class="fr-sheet-quick-row">
+        <button id="frQuickRightNowBtn" class="fr-quick-now-btn active" title="Use current live date & time">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 14px; height: 14px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span>⚡ Right Now (Live Date & Time)</span>
+        </button>
       </div>
 
-      <!-- Schedule Timeline Container -->
-      <div style="font-size: 11px; font-weight: 800; color: var(--dim); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;">
-        Today's Class Schedule
+      <!-- 1. Calendar Month Date Picker -->
+      <div class="fr-sheet-section">
+        <div class="fr-cal-header-row">
+          <span class="fr-sheet-section-title">Academic Date</span>
+          <div class="fr-cal-nav-group">
+            <button id="frCalPrevMonthBtn" class="fr-cal-nav-btn" title="Previous Month">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <span id="frCalMonthLabel" class="fr-cal-month-label">August 2026</span>
+            <button id="frCalNextMonthBtn" class="fr-cal-nav-btn" title="Next Month">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="fr-cal-weekdays-row">
+          <span>Sat</span><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span>
+        </div>
+        <div class="fr-cal-days-grid" id="frCalDaysGrid">
+          <!-- Rendered dynamically by rooms-view.js -->
+        </div>
       </div>
 
-      <div id="roomTimelineList" style="display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow-y: auto; padding-right: 2px;">
-        <!-- Populated dynamically: Finished (greyed out) -> Current (highlighted) -> Future (colored) -->
+      <!-- 2. Time-of-Day Picker -->
+      <div class="fr-sheet-section">
+        <div class="fr-sheet-section-title">Time of Day</div>
+        <div class="fr-sheet-time-picker-row">
+          <input type="time" id="frSheetTimePickerInput" class="fr-time-picker-input" />
+          <span id="frSheetTimeFormattedLabel" class="fr-time-formatted-label">10:10 AM</span>
+        </div>
+      </div>
+
+      <div class="fr-sheet-footer">
+        <button id="frDayTimePickerApplyBtn" class="fr-sheet-apply-btn">Apply Selection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Sheet: Floor Filter Picker -->
+  <div id="frFloorPickerSheet" class="fr-daytime-sheet-overlay">
+    <div class="fr-daytime-sheet-card">
+      <div class="fr-sheet-header">
+        <div class="fr-sheet-title-row">
+          <div class="fr-sheet-room-name">Select Floor</div>
+          <div class="fr-sheet-meta-tags">Filter flat room list to a specific campus floor</div>
+        </div>
+        <button class="fr-sheet-close-btn" id="frFloorPickerCloseBtn" title="Close sheet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="fr-floor-picker-options" id="frFloorPickerOptions">
+        <!-- Populated dynamically with All Floors & 4th/5th/6th/9th/10th floors + live vacancy badges -->
       </div>
     </div>
   </div>
@@ -1426,7 +1539,7 @@
   </div>
 
   <!-- Modal: Full Faculty Profile Card (Slide-up Bottom Sheet) -->
-  <div class="class-sheet-modal-overlay faculty-sheet-overlay" id="teacherDetailModal" style="z-index: 3100;">
+  <div class="class-sheet-modal-overlay faculty-sheet-overlay" id="teacherDetailModal" style="z-index: 100035;">
     <div class="faculty-profile-sheet" onclick="event.stopPropagation()">
       <!-- Drag Handle -->
       <div class="sheet-drag-handle-bar">

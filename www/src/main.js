@@ -12,6 +12,7 @@ import { CONFIG } from './core/config.js';
 import { openModal, closeModal, setParticlesRef } from './modals/modal.js';
 import { Particles } from './particles/particles.js';
 import { Notifications } from './notifications/notifications.js';
+import { openCalendarPicker } from './timeline/calendar-picker.js';
 import { renderWeeklyMatrix } from './weekly-matrix/matrix.js';
 import { renderTimeline } from './timeline/timeline.js';
 import { initKeyboard } from './events/keyboard.js';
@@ -38,6 +39,7 @@ export function switchAppView(viewId, payload) {
   const facultyAppView = document.getElementById('facultyAppView');
   const announcementsAppView = document.getElementById('announcementsAppView');
   const postAnnounceAppView = document.getElementById('postAnnounceAppView');
+  const freeRoomsAppView = document.getElementById('freeRoomsAppView');
 
   const dockHomeBtn = document.getElementById('dockHomeBtn');
   const dockAppsBtn = document.getElementById('dockAppsBtn');
@@ -51,6 +53,7 @@ export function switchAppView(viewId, payload) {
   if (facultyAppView) facultyAppView.style.display = 'none';
   if (announcementsAppView) announcementsAppView.style.display = 'none';
   if (postAnnounceAppView) postAnnounceAppView.style.display = 'none';
+  if (freeRoomsAppView) freeRoomsAppView.style.display = 'none';
 
   // Clear dock active classes
   if (dockHomeBtn) dockHomeBtn.classList.remove('active');
@@ -93,8 +96,18 @@ export function switchAppView(viewId, payload) {
     if (window.__openPostAnnounceForm) {
       window.__openPostAnnounceForm(payload);
     }
+  } else if (viewId === 'free_rooms') {
+    if (freeRoomsAppView) {
+      freeRoomsAppView.style.display = 'flex';
+      freeRoomsAppView.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    if (dockAppsBtn) dockAppsBtn.classList.add('active');
+    if (window.__renderFreeRooms) {
+      window.__renderFreeRooms();
+    }
   }
 }
+window.__currentAppViewId = 'home';
 window.switchAppView = switchAppView;
 
 // Set default active tab
@@ -114,16 +127,23 @@ if (dockCenterFab) {
   dockCenterFab.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
-    switchAppView('home');
-    const today = new Date();
-    State.viewDate = today;
-    State.currentViewDayIdx = today.getDay();
-    State.lastRenderedMinute = -1;
-    renderTimeline(true);
-    const chg = document.getElementById('chG');
-    if (chg) {
-      chg.scrollTo({ top: 0, behavior: 'smooth' });
+
+    const isModalOpen = DOM.viewModal && DOM.viewModal.classList.contains('open');
+    const currentView = window.__currentAppViewId || 'home';
+
+    if (isModalOpen) {
+      closeModal(DOM.viewModal);
+      switchAppView('home');
+      return;
     }
+
+    if (currentView !== 'home') {
+      switchAppView('home');
+      return;
+    }
+
+    // Already at Home -> Open Monthly Calendar Picker
+    openCalendarPicker();
   });
 }
 
@@ -138,6 +158,11 @@ if (dockAppsBtn) {
 }
 
 /* ── Campus Apps Hub Actions ─────────────────────────────────── */
+const appsHubPageBackBtn = document.getElementById('appsHubPageBackBtn');
+if (appsHubPageBackBtn) {
+  appsHubPageBackBtn.addEventListener('click', () => switchAppView('home'));
+}
+
 const appHubFaculty = document.getElementById('appHubFaculty');
 if (appHubFaculty) {
   appHubFaculty.addEventListener('click', () => switchAppView('faculty'));
@@ -145,15 +170,7 @@ if (appHubFaculty) {
 
 const appHubFreeRooms = document.getElementById('appHubFreeRooms');
 if (appHubFreeRooms) {
-  appHubFreeRooms.addEventListener('click', async () => {
-    const freeRoomsModal = document.getElementById('freeRoomsModal');
-    if (freeRoomsModal) {
-      const { loadMasterRoomData, renderFreeRoomsModal } = await import('./rooms/room-modal.js');
-      openModal(freeRoomsModal);
-      await loadMasterRoomData(true);
-      renderFreeRoomsModal();
-    }
-  });
+  appHubFreeRooms.addEventListener('click', () => switchAppView('free_rooms'));
 }
 
 const appHubRoutineMatrix = document.getElementById('appHubRoutineMatrix');
@@ -264,7 +281,7 @@ import { initPullToRefresh } from './events/pull-to-refresh.js';
 import { checkFirstTimeOnboarding } from './events/onboarding.js';
 import { initAndroidPrompt } from './banners/android-prompt.js';
 import { initWidgetPinningUI } from './widget/widget.js';
-import { initRoomFinderUI } from './rooms/room-modal.js';
+import { initFreeRoomsUI } from './rooms/rooms-view.js';
 import { initTeacherFinderUI } from './teachers/teacher-modal.js';
 import { initCalendarPicker } from './timeline/calendar-picker.js';
 
@@ -274,6 +291,6 @@ initializeApp();
 checkFirstTimeOnboarding();
 initAndroidPrompt();
 initWidgetPinningUI();
-initRoomFinderUI();
+initFreeRoomsUI();
 initTeacherFinderUI();
 initCalendarPicker();

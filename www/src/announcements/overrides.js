@@ -219,6 +219,31 @@ export function getOverridesByDateMap() {
         existing.announcement = item;
       }
     }
+
+    // For rescheduled, also index the destination date (new_date) so the week strip
+    // and calendar picker can badge the day the class is moving TO, not just the origin.
+    if (itemType === 'rescheduled') {
+      let parsedAnn = {};
+      if (typeof item.announcement === 'string') {
+        try { parsedAnn = JSON.parse(item.announcement); } catch (e) {}
+      } else if (typeof item.announcement === 'object' && item.announcement !== null) {
+        parsedAnn = item.announcement;
+      }
+      const destDateStr = parsedAnn.new_date ? normalizeDate(parsedAnn.new_date) : '';
+      // Only index destination if it differs from origin (avoid double-counting same-day reschedules)
+      if (destDateStr && destDateStr !== dateStr) {
+        const destExisting = map.get(destDateStr);
+        if (!destExisting) {
+          map.set(destDateStr, { type: itemType, count: 1, announcement: item });
+        } else {
+          destExisting.count++;
+          if (PRIORITY[itemType] < PRIORITY[destExisting.type]) {
+            destExisting.type = itemType;
+            destExisting.announcement = item;
+          }
+        }
+      }
+    }
   });
 
   return map;

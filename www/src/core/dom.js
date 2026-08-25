@@ -83,6 +83,7 @@ export const DOM = {
   announceBadge: $id('announceBadge'),
   dockAnnounceDot: $id('dockAnnounceDot'),
   announcePageBackBtn: $id('announcePageBackBtn'),
+  appsHubPageBackBtn: $id('appsHubPageBackBtn'),
   postAnnounceBackBtn: $id('postAnnounceBackBtn'),
   newAnnounceBtn: $id('newAnnounceBtn'),
   announceList: $id('announceList'),

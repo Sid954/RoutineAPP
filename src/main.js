@@ -39,6 +39,7 @@ export function switchAppView(viewId, payload) {
   const facultyAppView = document.getElementById('facultyAppView');
   const announcementsAppView = document.getElementById('announcementsAppView');
   const postAnnounceAppView = document.getElementById('postAnnounceAppView');
+  const freeRoomsAppView = document.getElementById('freeRoomsAppView');
 
   const dockHomeBtn = document.getElementById('dockHomeBtn');
   const dockAppsBtn = document.getElementById('dockAppsBtn');
@@ -52,6 +53,7 @@ export function switchAppView(viewId, payload) {
   if (facultyAppView) facultyAppView.style.display = 'none';
   if (announcementsAppView) announcementsAppView.style.display = 'none';
   if (postAnnounceAppView) postAnnounceAppView.style.display = 'none';
+  if (freeRoomsAppView) freeRoomsAppView.style.display = 'none';
 
   // Clear dock active classes
   if (dockHomeBtn) dockHomeBtn.classList.remove('active');
@@ -93,6 +95,15 @@ export function switchAppView(viewId, payload) {
     if (dockNoticesBtn) dockNoticesBtn.classList.add('active');
     if (window.__openPostAnnounceForm) {
       window.__openPostAnnounceForm(payload);
+    }
+  } else if (viewId === 'free_rooms') {
+    if (freeRoomsAppView) {
+      freeRoomsAppView.style.display = 'flex';
+      freeRoomsAppView.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    if (dockAppsBtn) dockAppsBtn.classList.add('active');
+    if (window.__renderFreeRooms) {
+      window.__renderFreeRooms();
     }
   }
 }
@@ -159,15 +170,7 @@ if (appHubFaculty) {
 
 const appHubFreeRooms = document.getElementById('appHubFreeRooms');
 if (appHubFreeRooms) {
-  appHubFreeRooms.addEventListener('click', async () => {
-    const freeRoomsModal = document.getElementById('freeRoomsModal');
-    if (freeRoomsModal) {
-      const { loadMasterRoomData, renderFreeRoomsModal } = await import('./rooms/room-modal.js');
-      openModal(freeRoomsModal);
-      await loadMasterRoomData(true);
-      renderFreeRoomsModal();
-    }
-  });
+  appHubFreeRooms.addEventListener('click', () => switchAppView('free_rooms'));
 }
 
 const appHubRoutineMatrix = document.getElementById('appHubRoutineMatrix');
@@ -278,7 +281,7 @@ import { initPullToRefresh } from './events/pull-to-refresh.js';
 import { checkFirstTimeOnboarding } from './events/onboarding.js';
 import { initAndroidPrompt } from './banners/android-prompt.js';
 import { initWidgetPinningUI } from './widget/widget.js';
-import { initRoomFinderUI } from './rooms/room-modal.js';
+import { initFreeRoomsUI } from './rooms/rooms-view.js';
 import { initTeacherFinderUI } from './teachers/teacher-modal.js';
 import { initCalendarPicker } from './timeline/calendar-picker.js';
 
@@ -288,6 +291,6 @@ initializeApp();
 checkFirstTimeOnboarding();
 initAndroidPrompt();
 initWidgetPinningUI();
-initRoomFinderUI();
+initFreeRoomsUI();
 initTeacherFinderUI();
 initCalendarPicker();

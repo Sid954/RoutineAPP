@@ -137,6 +137,42 @@ export function updateClassTestSubjectsList(selectedVal = '') {
   }
 }
 
+export function updateAssignmentSubjectsList(selectedVal = '') {
+  const paAssignmentDueDate = document.getElementById('paAssignmentDueDate');
+  const paAssignmentSubjectSelect = document.getElementById('paAssignmentSubjectSelect');
+  const paAssignmentShowAllSubjects = document.getElementById('paAssignmentShowAllSubjects');
+  if (!paAssignmentDueDate || !paAssignmentSubjectSelect) return;
+  const dateVal = paAssignmentDueDate.value;
+  if (!dateVal) {
+    paAssignmentSubjectSelect.innerHTML = '<option value="">Select a date first</option>';
+    return;
+  }
+  const [y, m, d] = dateVal.split('-').map(Number);
+  const dayIdx = new Date(y, m - 1, d).getDay();
+  const showAll = paAssignmentShowAllSubjects && paAssignmentShowAllSubjects.checked;
+
+  let subjs = [];
+  if (showAll) {
+    const allSubjs = new Set();
+    Object.values(State.schedule).forEach(dayClasses => {
+      dayClasses.forEach(c => { if (c.title) allSubjs.add(c.title); });
+    });
+    subjs = Array.from(allSubjs);
+  } else {
+    const classes = getClassesForDay(dayIdx);
+    subjs = Array.from(new Set(classes.map(c => c.title).filter(Boolean)));
+  }
+
+  if (subjs.length === 0) {
+    paAssignmentSubjectSelect.innerHTML = `<option value="">No classes on this ${showAll ? 'schedule' : 'day'}</option>`;
+  } else {
+    paAssignmentSubjectSelect.innerHTML = subjs
+      .sort()
+      .map(sub => `<option value="${escapeHtml(sub)}" ${sub === selectedVal ? 'selected' : ''}>${escapeHtml(sub)}</option>`)
+      .join('');
+  }
+}
+
 export function updateRescheduleSubjectsList(selectedVal = '') {
   const paRescheduleOrigDate = document.getElementById('paRescheduleOrigDate');
   const paRescheduleSubjectSelect = document.getElementById('paRescheduleSubjectSelect');
@@ -381,8 +417,7 @@ export function openPostForm(existingAnnouncement = null) {
     } else if (type === 'assignment') {
       const paAssignmentDueDate = document.getElementById('paAssignmentDueDate');
       if (paAssignmentDueDate) paAssignmentDueDate.value = item.date_override || todayStr;
-      const paAssignmentSubject = document.getElementById('paAssignmentSubject');
-      if (paAssignmentSubject) paAssignmentSubject.value = item.subject_override || item.subject || '';
+      updateAssignmentSubjectsList(item.subject_override || item.subject || '');
       try {
         const parsed = JSON.parse(item.announcement);
         const paAssignmentTitle = document.getElementById('paAssignmentTitle');
@@ -441,10 +476,22 @@ export function openPostForm(existingAnnouncement = null) {
     if (paRescheduleReason) paRescheduleReason.value = '';
     if (paRescheduleWarning) paRescheduleWarning.style.display = 'none';
 
+    const paAssignmentDueDate = document.getElementById('paAssignmentDueDate');
+    const paAssignmentTitle = document.getElementById('paAssignmentTitle');
+    const paAssignmentDueTime = document.getElementById('paAssignmentDueTime');
+    const paAssignmentDescription = document.getElementById('paAssignmentDescription');
+    const paAssignmentShowAllSubjects = document.getElementById('paAssignmentShowAllSubjects');
+    if (paAssignmentDueDate) { paAssignmentDueDate.value = todayStr; paAssignmentDueDate.min = todayStr; }
+    if (paAssignmentTitle) paAssignmentTitle.value = '';
+    if (paAssignmentDueTime) paAssignmentDueTime.value = '23:59';
+    if (paAssignmentDescription) paAssignmentDescription.value = '';
+    if (paAssignmentShowAllSubjects) paAssignmentShowAllSubjects.checked = false;
+
     setSectionVisibility('general');
     updateCancelSubjectsList();
     updateClassTestSubjectsList();
     updateRescheduleSubjectsList();
+    updateAssignmentSubjectsList();
   }
 
   // Refresh character counts after populating fields
@@ -481,13 +528,18 @@ export function initPostForm() {
   setupCharCounter(paTitle, document.getElementById('paTitleCounter'), ANNOUNCEMENT_LIMITS.TITLE);
   setupCharCounter(paHolidayDetails, document.getElementById('paHolidayDetailsCounter'), ANNOUNCEMENT_LIMITS.HOLIDAY_NAME);
   setupCharCounter(paOnlineLink, document.getElementById('paOnlineLinkCounter'), ANNOUNCEMENT_LIMITS.PLATFORM_LINK);
-  setupCharCounter(paOnlineRoom, document.getElementById('paOnlineRoomCounter'), 20);
+  setupCharCounter(paOnlineRoom, document.getElementById('paOnlineRoomCounter'), ANNOUNCEMENT_LIMITS.ROOM);
   setupCharCounter(paClassTestName, document.getElementById('paClassTestNameCounter'), ANNOUNCEMENT_LIMITS.EXAM_NAME);
   setupCharCounter(paClassTestTopics, document.getElementById('paClassTestTopicsCounter'), ANNOUNCEMENT_LIMITS.TOPICS);
   const paRescheduleNewRoom = document.getElementById('paRescheduleNewRoom');
   const paRescheduleReason = document.getElementById('paRescheduleReason');
-  setupCharCounter(paRescheduleNewRoom, document.getElementById('paRescheduleRoomCounter'), 20);
-  setupCharCounter(paRescheduleReason, document.getElementById('paRescheduleReasonCounter'), 50);
+  setupCharCounter(paRescheduleNewRoom, document.getElementById('paRescheduleRoomCounter'), ANNOUNCEMENT_LIMITS.ROOM);
+  setupCharCounter(paRescheduleReason, document.getElementById('paRescheduleReasonCounter'), ANNOUNCEMENT_LIMITS.REASON);
+
+  const paAssignmentTitle = document.getElementById('paAssignmentTitle');
+  const paAssignmentDescription = document.getElementById('paAssignmentDescription');
+  setupCharCounter(paAssignmentTitle, document.getElementById('paAssignmentTitleCounter'), ANNOUNCEMENT_LIMITS.TASK_TITLE);
+  setupCharCounter(paAssignmentDescription, document.getElementById('paAssignmentDescCounter'), ANNOUNCEMENT_LIMITS.ASSIGNMENT_DESC);
 
   // Multi-line newline collapse on blur / change
   if (paContent) {
@@ -504,6 +556,12 @@ export function initPostForm() {
   if (paRescheduleReason) {
     paRescheduleReason.addEventListener('blur', () => {
       paRescheduleReason.value = collapseNewlines(paRescheduleReason.value);
+      refreshAllCounters();
+    });
+  }
+  if (paAssignmentDescription) {
+    paAssignmentDescription.addEventListener('blur', () => {
+      paAssignmentDescription.value = collapseNewlines(paAssignmentDescription.value);
       refreshAllCounters();
     });
   }
@@ -564,6 +622,11 @@ export function initPostForm() {
     paRescheduleNewStart.addEventListener('input', checkRescheduleOverlap);
     paRescheduleNewStart.addEventListener('change', checkRescheduleOverlap);
   }
+
+  const paAssignmentDueDate = document.getElementById('paAssignmentDueDate');
+  const paAssignmentShowAllSubjects = document.getElementById('paAssignmentShowAllSubjects');
+  if (paAssignmentDueDate) paAssignmentDueDate.addEventListener('change', () => updateAssignmentSubjectsList());
+  if (paAssignmentShowAllSubjects) paAssignmentShowAllSubjects.addEventListener('change', () => updateAssignmentSubjectsList());
 
   // Custom Popover Type Picker Binding
   const typePickerBtn = document.getElementById('paTypePickerBtn');
@@ -1060,15 +1123,22 @@ export function initPostForm() {
 
       } else if (type === 'assignment') {
         const date = document.getElementById('paAssignmentDueDate')?.value;
-        const subject = document.getElementById('paAssignmentSubject')?.value || '';
+        const subject = document.getElementById('paAssignmentSubjectSelect')?.value || '';
         const taskTitle = document.getElementById('paAssignmentTitle')?.value || 'Assignment';
         const dueTime = document.getElementById('paAssignmentDueTime')?.value || '23:59';
         const desc = document.getElementById('paAssignmentDescription')?.value || '';
 
         if (!date || !subject || !taskTitle) {
-          showToast('Please enter Due Date, Subject, and Task Title.', 'warning');
+          showToast('Please select a Due Date, Subject, and Task Title.', 'warning');
           submitBtn.disabled = false;
           submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
+          return;
+        }
+
+        if (!isEdit && date < todayStr) {
+          showToast('Cannot post assignments with a past due date.', 'warning');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Publish & Notify';
           return;
         }
 

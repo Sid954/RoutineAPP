@@ -185,6 +185,21 @@ export const Announcements = {
               const parsed = JSON.parse(announce.announcement);
               bodyText = `Platform: ${parsed.platform || "Online"}\nTime: ${parsed.start_time || "—"} – ${parsed.end_time || "—"}`;
             } catch (e) {}
+          } else if (announce.type === "rescheduled") {
+            try {
+              const parsed = JSON.parse(announce.announcement);
+              const subject = parsed.target_subject || announce.subject_override || announce.subject || "Class";
+              const newDate = parsed.new_date || "";
+              const newTime = parsed.new_start_time || "";
+              bodyText = `${subject} moved to${newDate ? ` ${newDate}` : ""}${newTime ? ` at ${newTime}` : " a new slot"}${parsed.reason ? `\nReason: ${parsed.reason}` : ""}`;
+            } catch (e) {}
+          } else if (announce.type === "assignment") {
+            try {
+              const parsed = JSON.parse(announce.announcement);
+              const taskTitle = parsed.task_title || "Assignment";
+              const dueTime = parsed.due_time || "";
+              bodyText = `${taskTitle}${dueTime ? ` — Due ${dueTime}` : ""}`;
+            } catch (e) {}
           }
           Notifications.showInstant(announce.title, bodyText, announce.type);
         });
@@ -648,7 +663,7 @@ export const Announcements = {
     // Render pinned group first
     if (pinned.length > 0) {
       html += `
-        <div class="announce-group-header">
+        <div class="page-separator">
           <span>📌 Pinned</span>
           <span class="announce-group-badge">${pinned.length}</span>
         </div>
@@ -664,7 +679,7 @@ export const Announcements = {
       if (!groups[cat] || groups[cat].length === 0) return;
 
       html += `
-        <div class="announce-group-header">
+        <div class="page-separator">
           <span>${cat}</span>
           <span class="announce-group-badge">${groups[cat].length}</span>
         </div>
@@ -863,6 +878,27 @@ export const Announcements = {
           const parsed = JSON.parse(announcement);
           notifBody += ` Exam: ${parsed.exam_name || "Class Test"}\nTopics: ${parsed.topics || "Not Specified"}`;
         } catch (e) {}
+      } else if (extras.type === "rescheduled") {
+        notifTitle = "🔄 Class Rescheduled";
+        try {
+          const parsed = JSON.parse(announcement);
+          const subject = parsed.target_subject || extras.subject_override || extras.subject || "Class";
+          const newDate = parsed.new_date || "";
+          const newTime = parsed.new_start_time || "";
+          notifBody = `${subject} moved to${newDate ? ` ${newDate}` : ""}${newTime ? ` at ${newTime}` : " a new slot"}${parsed.reason ? `\nReason: ${parsed.reason}` : ""}`;
+        } catch (e) {
+          notifBody = announcement;
+        }
+      } else if (extras.type === "assignment") {
+        notifTitle = "📌 Assignment Due";
+        try {
+          const parsed = JSON.parse(announcement);
+          const taskTitle = parsed.task_title || "Assignment";
+          const dueTime = parsed.due_time || "";
+          notifBody = `${taskTitle}${dueTime ? ` — Due ${dueTime}` : ""}`;
+        } catch (e) {
+          notifBody = announcement;
+        }
       } else {
         notifTitle = `📢 ${title || "New Announcement"}`;
         notifBody = announcement;

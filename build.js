@@ -121,11 +121,34 @@ function compileMasterRoomSchedule() {
 
   scanDir(dataDir);
 
-  master.rooms = Array.from(roomSet).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  // Load verified room metadata
+  let metadataList = [];
+  const metaPath = path.join(__dirname, 'src', 'data', 'rooms_metadata.json');
+  if (fs.existsSync(metaPath)) {
+    try {
+      metadataList = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+    } catch (e) {
+      console.warn('Could not read rooms_metadata.json:', e);
+    }
+  }
+  const metaMap = new Map(metadataList.map(m => [m.id, m]));
+
+  const allRoomIds = new Set([...roomSet, ...metadataList.map(m => m.id)]);
+  master.rooms = Array.from(allRoomIds).map(id => {
+    const meta = metaMap.get(id);
+    if (meta) return { ...meta };
+    return {
+      id,
+      name: `Room ${id}`,
+      floor: parseInt(id.replace(/[^0-9]/g, '').slice(0, -2) || '0', 10),
+      type: 'classroom',
+      capacity: 60
+    };
+  }).sort((a, b) => (a.floor - b.floor) || a.id.localeCompare(b.id, undefined, { numeric: true }));
 
   const outPath = path.join(__dirname, 'master_rooms_schedule.json');
   fs.writeFileSync(outPath, JSON.stringify(master, null, 2), 'utf8');
-  console.log(`Compiled master_rooms_schedule.json with ${master.rooms.length} unique rooms across all semesters.`);
+  console.log(`Compiled master_rooms_schedule.json with ${master.rooms.length} rich room definitions across all semesters.`);
 }
 
 function compileMasterTeacherSchedule() {

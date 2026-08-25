@@ -1,38 +1,236 @@
 {
   "rooms": [
-    "403",
-    "404",
-    "405",
-    "406",
-    "408",
-    "409",
-    "410",
-    "411",
-    "503",
-    "505",
-    "506",
-    "508",
-    "510",
-    "601",
-    "604",
-    "606",
-    "608",
-    "610",
-    "611",
-    "612",
-    "613",
-    "901",
-    "902",
-    "903",
-    "904",
-    "905",
-    "909",
-    "910",
-    "1001",
-    "1002",
-    "1003",
-    "1004",
-    "1008"
+    {
+      "id": "403",
+      "name": "Room 403",
+      "floor": 4,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "404",
+      "name": "Room 404",
+      "floor": 4,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "405",
+      "name": "Room 405",
+      "floor": 4,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "406",
+      "name": "Room 406",
+      "floor": 4,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "408",
+      "name": "Room 408",
+      "floor": 4,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "409",
+      "name": "Room 409",
+      "floor": 4,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "410",
+      "name": "Room 410",
+      "floor": 4,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "411",
+      "name": "Room 411",
+      "floor": 4,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "503",
+      "name": "Microprocessor & Multimedia Lab",
+      "floor": 5,
+      "type": "lab",
+      "capacity": 40
+    },
+    {
+      "id": "505",
+      "name": "Physics Lab",
+      "floor": 5,
+      "type": "lab",
+      "capacity": 40
+    },
+    {
+      "id": "506",
+      "name": "Electronic Devices & Circuits Lab",
+      "floor": 5,
+      "type": "lab",
+      "capacity": 40
+    },
+    {
+      "id": "508",
+      "name": "Digital Logic & EEE Lab",
+      "floor": 5,
+      "type": "lab",
+      "capacity": 40
+    },
+    {
+      "id": "510",
+      "name": "Room 510",
+      "floor": 5,
+      "type": "classroom",
+      "capacity": 75
+    },
+    {
+      "id": "601",
+      "name": "Room 601",
+      "floor": 6,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "604",
+      "name": "Software & AI Lab 1",
+      "floor": 6,
+      "type": "lab",
+      "capacity": 45
+    },
+    {
+      "id": "606",
+      "name": "Operating Systems & Network Lab",
+      "floor": 6,
+      "type": "lab",
+      "capacity": 45
+    },
+    {
+      "id": "608",
+      "name": "Project & Development Lab",
+      "floor": 6,
+      "type": "lab",
+      "capacity": 45
+    },
+    {
+      "id": "610",
+      "name": "Room 610",
+      "floor": 6,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "611",
+      "name": "Room 611",
+      "floor": 6,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "612",
+      "name": "Room 612",
+      "floor": 6,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "613",
+      "name": "Room 613",
+      "floor": 6,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "901",
+      "name": "Room 901",
+      "floor": 9,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "902",
+      "name": "Room 902",
+      "floor": 9,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "903",
+      "name": "Room 903",
+      "floor": 9,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "904",
+      "name": "Programming & OOP Lab",
+      "floor": 9,
+      "type": "lab",
+      "capacity": 45
+    },
+    {
+      "id": "905",
+      "name": "Data Science & Algorithms Lab",
+      "floor": 9,
+      "type": "lab",
+      "capacity": 45
+    },
+    {
+      "id": "909",
+      "name": "CAD & Simulation Lab",
+      "floor": 9,
+      "type": "lab",
+      "capacity": 45
+    },
+    {
+      "id": "910",
+      "name": "Room 910",
+      "floor": 9,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "1001",
+      "name": "Room 1001",
+      "floor": 10,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "1002",
+      "name": "Room 1002",
+      "floor": 10,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "1003",
+      "name": "Room 1003",
+      "floor": 10,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "1004",
+      "name": "Room 1004",
+      "floor": 10,
+      "type": "classroom",
+      "capacity": 60
+    },
+    {
+      "id": "1008",
+      "name": "Mobile App & Database Lab",
+      "floor": 10,
+      "type": "lab",
+      "capacity": 45
+    }
   ],
   "schedule": {
     "Saturday": {
