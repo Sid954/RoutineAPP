@@ -1,7 +1,7 @@
 import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
 import { DAY_NAMES, FULL_COURSE_NAMES } from '../core/config.js';
-import { getClassesForDay } from '../schedule/queries.js';
+import { getClassesForDay, getEffectiveClassesForDay } from '../schedule/queries.js';
 import { getOverrideFor, getOverridesByDateMap, normalizeDate, getDateForDayIndex, getExtraClassesForDate, getRescheduledClassesForDate, getDeadlinesForDate } from '../announcements/overrides.js';
 import { toMinutes, format12h, toTimeString, getCurrentMinutes, escapeHtml, formatRoom } from '../core/utils.js';
 import { getFullName } from '../teachers/teacher-names.js';
@@ -51,12 +51,8 @@ export function renderWeekStrip() {
     const isHoliday = override && override.type === 'holiday';
     const isOnlineClass = override && override.type === 'online_class';
 
-    // Calculate actual non-cancelled class count for this specific date
-    const classes = getClassesForDay(dow);
-    const activeClasses = isHoliday ? [] : classes.filter(c => {
-      const cancelOv = getOverrideFor(dateStr, c.title);
-      return !cancelOv || cancelOv.type !== 'cancellation';
-    });
+    // Calculate actual effective class count for this specific date (with cancellations, extras, and reschedules)
+    const activeClasses = getEffectiveClassesForDay(dow, d);
     const classCount = activeClasses.length;
 
     // Subtext label logic

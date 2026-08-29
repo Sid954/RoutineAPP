@@ -3,6 +3,7 @@ import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
 import { showToast } from '../toast/toast.js';
 import { getOverrideFor } from '../announcements/overrides.js';
+import { getEffectiveClassesForDay } from '../schedule/queries.js';
 import { format12h, formatRoom, toMinutes } from '../core/utils.js';
 
 export let _nativePush = null;
@@ -132,7 +133,7 @@ export const Notifications = {
 
       const todayDate = new Date();
       const todayIdx = todayDate.getDay();
-      const classes = State.schedule[todayIdx] || [];
+      const classes = getEffectiveClassesForDay(todayIdx, todayDate);
       const now = todayDate.getHours() * 60 + todayDate.getMinutes();
       const holidayOverride = getOverrideFor(todayDate);
       const isHoliday = holidayOverride && holidayOverride.type === 'holiday';

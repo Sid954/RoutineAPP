@@ -25,6 +25,9 @@ export function fetchAnnouncementsAndNotify() {
       if (FEATURES.notifications) {
         Notifications.scheduleForToday();
       }
+      if (typeof window.refreshFreeRoomsIfVisible === 'function') {
+        window.refreshFreeRoomsIfVisible();
+      }
     }
   }).catch(() => { /* Silent fallback: offline */ });
 }

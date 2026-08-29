@@ -12,6 +12,7 @@ export const Announcements = {
   activeFilter: "all",
   isAdminMode: false,
   CACHE_KEY: "routine_announcements_cache",
+  DEPT_CACHE_KEY: "routine_announcements_dept_cache",
   PINNED_KEY: "routine_pinned_announcements",
   READ_KEY: "routine_read_announcements",
   _observer: null,
@@ -61,12 +62,11 @@ export const Announcements = {
   },
 
   ensureReadStateInitialized() {
-    const hasReadStorage = localStorage.getItem(this.READ_KEY) !== null;
-    const hasLegacyStorage = localStorage.getItem("last_viewed_announcement_id") !== null;
-
-    if (!hasReadStorage && !hasLegacyStorage && this.list && this.list.length > 0) {
-      const initialRead = new Set(this.list.map((item) => String(item.id)));
-      this.saveReadIds(initialRead);
+    const readSet = this.getReadIds();
+    if (this.list && this.list.length > 0) {
+      this.list.forEach((item) => {
+        item.is_read = readSet.has(String(item.id));
+      });
     }
   },
 
@@ -82,6 +82,15 @@ export const Announcements = {
 
   loadCached() {
     try {
+      // Load department-wide cache for room engine
+      const deptSaved = localStorage.getItem(this.DEPT_CACHE_KEY);
+      if (deptSaved) {
+        const deptParsed = JSON.parse(deptSaved);
+        if (Array.isArray(deptParsed)) {
+          State.allAnnouncementsList = deptParsed;
+        }
+      }
+
       const saved = localStorage.getItem(this.CACHE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
@@ -121,9 +130,26 @@ export const Announcements = {
 
       const currentSem = (Storage.getSemester() || "").toString().toLowerCase();
       const currentSec = (Storage.getSection() || "").toString().toLowerCase();
-
-      // Filter announcements and sync persistent pinned state
       const localPinned = this.getPinnedIds();
+
+      // Store full department-wide announcements list for Room Engine & cross-section overrides
+      State.allAnnouncementsList = (Array.isArray(rawList) ? rawList : []).map((item) => {
+        const isServerPinned = item.is_pinned === true || item.is_pinned === "true" || item.is_pinned === 1;
+        if (isServerPinned) {
+          localPinned.add(String(item.id));
+          item.is_pinned = true;
+        } else if (localPinned.has(String(item.id))) {
+          item.is_pinned = true;
+        } else {
+          item.is_pinned = false;
+        }
+        return item;
+      });
+      try {
+        localStorage.setItem(this.DEPT_CACHE_KEY, JSON.stringify(State.allAnnouncementsList));
+      } catch (e) {}
+
+      // Filter announcements and sync persistent pinned state for user's active section
       this.list = rawList.filter((item) => {
         const semMatch =
           !item.semester ||

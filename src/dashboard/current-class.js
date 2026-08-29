@@ -1,5 +1,5 @@
 import { DOM } from '../core/dom.js';
-import { getClassesForDay, getActiveClass } from '../schedule/queries.js';
+import { getEffectiveClassesForDay, getActiveClass } from '../schedule/queries.js';
 import { getOverrideFor } from '../announcements/overrides.js';
 import { toMinutes, format12h, formatRoom, getCurrentMinutes, toTimeString, escapeHtml } from '../core/utils.js';
 
@@ -11,10 +11,11 @@ export function renderCurrentClass() {
   const roomPill = DOM.currentRoom;
   const timePill = DOM.currentTimeRange;
 
+  const todayClasses = getEffectiveClassesForDay(todayIdx, todayDate);
+  const currentMins = getCurrentMinutes();
+
   if (holidayOverride && holidayOverride.type === 'holiday') {
     // Check if there's an online class right now that overrides the holiday
-    const todayClasses = getClassesForDay(todayIdx);
-    const currentMins = getCurrentMinutes();
     const activeOnline = todayClasses.find(c => {
       const ov = getOverrideFor(todayDate, c.title);
       return ov && ov.type === 'online_class' &&
@@ -35,15 +36,7 @@ export function renderCurrentClass() {
     }
   }
 
-  const todayClasses = getClassesForDay(todayIdx);
-  const currentMins = getCurrentMinutes();
   let activeItem = getActiveClass(todayClasses, currentMins);
-  if (activeItem) {
-    const cancelOverride = getOverrideFor(todayDate, activeItem.title);
-    if (cancelOverride && cancelOverride.type === 'cancellation') {
-      activeItem = null;
-    }
-  }
 
   if (activeItem) {
     const cancelOverride = getOverrideFor(todayDate, activeItem.title);

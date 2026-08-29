@@ -1,6 +1,7 @@
 export const State = {
   schedule: {},
   announcementsList: [],
+  allAnnouncementsList: [],
   undoCallback: null,
   toastTimer: null,
   selectedDay: new Date().getDay(),

@@ -1,5 +1,5 @@
 import { DOM } from '../core/dom.js';
-import { getClassesForDay, getActiveClass, getNextClass } from '../schedule/queries.js';
+import { getEffectiveClassesForDay, getActiveClass, getNextClass } from '../schedule/queries.js';
 import { getOverrideFor } from '../announcements/overrides.js';
 import { toMinutes, format12h, formatRoom, getCurrentMinutes, escapeHtml } from '../core/utils.js';
 
@@ -10,7 +10,7 @@ export function renderNextClass() {
   const subRow = DOM.nextRoom.parentElement;
   const currentMins = getCurrentMinutes();
 
-  const todayClasses = getClassesForDay(todayIdx);
+  const todayClasses = getEffectiveClassesForDay(todayIdx, todayDate);
 
   // If holiday and no online classes are scheduled, render break message and exit
   const hasOnlineClasses = todayClasses.some(c => {
