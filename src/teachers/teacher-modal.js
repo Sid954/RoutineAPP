@@ -2,6 +2,7 @@ import { DAY_NAMES, DAY_SHORT, FULL_COURSE_NAMES } from '../core/config.js';
 import { format12h, getCurrentMinutes } from '../core/utils.js';
 import { openModal, closeModal } from '../modals/modal.js';
 import { showToast } from '../toast/toast.js';
+import { showClassDetails } from '../timeline/class-detail.js';
 import { loadMasterTeacherData, searchTeachers, getTeacherClassesForDay, getTeacherWeeklySubjects } from './teacher-finder.js';
 import { initTeacherNames, getTeacherInfo, resolveTeacherCode, submitNameSuggestion, fetchPendingSubmissions, reviewSubmission, uploadFacultyPhoto, getAllFacultyKeys } from './teacher-names.js';
 
@@ -884,6 +885,48 @@ function getTeacherWeeklyAllClasses(teacherKey) {
   return all;
 }
 
+function getOrdinal(n) {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function computeSemestersTaught(allClasses) {
+  if (!Array.isArray(allClasses) || allClasses.length === 0) {
+    return 'No routine semesters';
+  }
+
+  const semMap = new Map();
+
+  allClasses.forEach(c => {
+    const raw = c.semSec || '';
+    const match = String(raw).match(/Sem\s*(\d+)(?:-([A-Za-z0-9]+))?/i);
+    if (match) {
+      const sem = parseInt(match[1], 10);
+      const sec = (match[2] || '').trim().toUpperCase();
+      if (!semMap.has(sem)) semMap.set(sem, new Set());
+      if (sec) semMap.get(sem).add(sec);
+    }
+  });
+
+  const sortedSemesters = Array.from(semMap.keys()).sort((a, b) => a - b);
+  if (sortedSemesters.length === 0) {
+    return 'No routine semesters';
+  }
+
+  const parts = sortedSemesters.map(sem => {
+    const ord = getOrdinal(sem);
+    const secSet = semMap.get(sem);
+    const sections = Array.from(secSet).sort();
+    if (sections.length > 1) {
+      return `${ord} (${sections.join(', ')})`;
+    }
+    return ord;
+  });
+
+  return parts.join(', ');
+}
+
 function renderTeacherScheduleRowsHtml(teacherKey, activeTab) {
   const allClasses = getTeacherWeeklyAllClasses(teacherKey);
   let filtered = allClasses;
@@ -893,21 +936,27 @@ function renderTeacherScheduleRowsHtml(teacherKey, activeTab) {
   }
 
   if (!filtered || filtered.length === 0) {
-    return `<div class="faculty-empty-state">🌴 No Classes Scheduled on ${escapeHtml(activeTab)}</div>`;
+    return {
+      html: `<div class="faculty-empty-state">🌴 No Classes Scheduled on ${escapeHtml(activeTab)}</div>`,
+      filtered: []
+    };
   }
 
-  return filtered.map(c => {
+  const html = filtered.map((c, idx) => {
     const isLab = c.isLab;
     const roomText = c.room ? `Room ${escapeHtml(c.room)}` : 'Campus Room';
     const courseTitle = escapeHtml(c.fullCourseName || c.subject);
+    const dayChipHtml = activeTab === 'ALL'
+      ? `<span class="faculty-day-chip">${escapeHtml(c.dayShort)}</span>`
+      : '';
     
     return `
-      <div class="faculty-routine-row">
+      <div class="faculty-routine-row is-clickable" data-class-idx="${idx}" title="View details for ${escapeHtml(c.subject)}">
         <div class="faculty-routine-left">
           <div class="faculty-routine-subj-row">
             <span class="faculty-routine-subj">${escapeHtml(c.subject)}</span>
             <span class="resting-tag ${isLab ? 'lab' : 'theory'}">${isLab ? '★ LAB' : 'THEORY'}</span>
-            <span class="faculty-day-chip">${escapeHtml(c.dayShort)}</span>
+            ${dayChipHtml}
           </div>
           <div class="faculty-routine-meta">
             <span>${roomText}</span>
@@ -916,12 +965,69 @@ function renderTeacherScheduleRowsHtml(teacherKey, activeTab) {
           </div>
         </div>
         <div class="faculty-routine-right">
-          <span class="faculty-routine-time">${format12h(c.start)}</span>
-          <span class="faculty-routine-duration">${escapeHtml(c.duration)}</span>
+          <div class="faculty-routine-time-box">
+            <span class="faculty-routine-time">${format12h(c.start)}</span>
+            <span class="faculty-routine-duration">${escapeHtml(c.duration)}</span>
+          </div>
+          <svg class="faculty-routine-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       </div>
     `;
   }).join('');
+
+  return { html, filtered };
+}
+
+function attachTeacherScheduleRowListeners(filteredClasses, teacherKey, fullName) {
+  const routineList = document.getElementById('facultyRoutineList');
+  if (!routineList || !Array.isArray(filteredClasses)) return;
+
+  routineList.querySelectorAll('.faculty-routine-row.is-clickable').forEach(row => {
+    row.addEventListener('click', () => {
+      const idx = parseInt(row.dataset.classIdx, 10);
+      const c = filteredClasses[idx];
+      if (!c) return;
+
+      const semMatch = String(c.semSec || '').match(/Sem\s*(\d+)(?:-([A-Za-z0-9]+))?/i);
+      const semester = semMatch ? semMatch[1] : '';
+      const section = semMatch ? semMatch[2] : '';
+
+      const classData = {
+        code: c.subject,
+        title: c.subject,
+        subject: c.subject,
+        name: c.fullCourseName || FULL_COURSE_NAMES[c.subject] || c.subject,
+        type: c.type || (c.isLab ? 'Lab' : 'Theory'),
+        room: c.room,
+        instructor: teacherKey,
+        teacher: teacherKey,
+        instructorName: fullName || teacherKey,
+        start: format12h(c.start),
+        end: format12h(c.end),
+        timing: `${format12h(c.start)} – ${format12h(c.end)}`,
+        duration: c.duration,
+        hasExplicitEndTime: true,
+        dayName: c.dayName,
+        dayIdx: c.dayIdx,
+        dayShort: c.dayShort,
+        semSec: c.semSec || '',
+        semester: semester,
+        section: section
+      };
+
+      // Elevate #classDetailModal above #teacherDetailModal (100035) so it slides up on top
+      const classModal = document.getElementById('classDetailModal');
+      if (classModal) {
+        classModal.style.zIndex = '100040';
+      }
+
+      if (typeof showClassDetails === 'function') {
+        showClassDetails(classData);
+      } else if (typeof window.openClassDetailSheet === 'function') {
+        window.openClassDetailSheet(classData);
+      }
+    });
+  });
 }
 
 export function closeTeacherDetailModal() {
@@ -953,6 +1059,8 @@ window.__switchTeacherDetailTab = function(tabName) {
   if (!_currentOpenTeacherData) return;
   const rawTeacherKey = _currentOpenTeacherData.teacher || _currentOpenTeacherData.code || _currentOpenTeacherData;
   const teacherKey = resolveTeacherCode(rawTeacherKey);
+  const info = getTeacherInfo(teacherKey);
+  const fullName = info.name || teacherKey;
 
   // Update tab buttons
   const strip = document.getElementById('facultyDaysStrip');
@@ -965,8 +1073,10 @@ window.__switchTeacherDetailTab = function(tabName) {
   // Update routine list container
   const routineList = document.getElementById('facultyRoutineList');
   if (routineList) {
-    routineList.innerHTML = renderTeacherScheduleRowsHtml(teacherKey, tabName);
+    const { html, filtered } = renderTeacherScheduleRowsHtml(teacherKey, tabName);
+    routineList.innerHTML = html;
     routineList.scrollTop = 0;
+    attachTeacherScheduleRowListeners(filtered, teacherKey, fullName);
   }
 };
 
@@ -992,20 +1102,17 @@ export function openTeacherDetailModal(teacherData, activeTab = 'ALL') {
 
   const desigText = info.designation || 'Assistant Professor';
 
-  // Fix: Code tag (e.g. MHE)
+  // Code tag (e.g. MHE)
   const isDistinctCode = teacherKey && fullName && (teacherKey.toUpperCase() !== fullName.toUpperCase());
   const codePillHtml = isDistinctCode
     ? `<span class="faculty-code-tag">${escapeHtml(teacherKey)}</span>`
     : '';
 
-  // Status Pill
+  // Status Pill: only show guest badge with pure SVG icon (zero emoji), nothing for active faculty
   const isGuest = info.isGuest || info.status === 'Guest';
-  const isLeave = (info.status === 'Study Leave');
   const statusPillHtml = isGuest
-    ? `<span class="faculty-status-pill guest">👤 GUEST FACULTY</span>`
-    : (isLeave
-      ? `<span class="faculty-status-pill leave">🎓 STUDY LEAVE</span>`
-      : `<span class="faculty-status-pill active">● ACTIVE FACULTY</span>`);
+    ? `<span class="faculty-status-pill guest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>GUEST FACULTY</span></span>`
+    : '';
 
   // Action Buttons
   const emailsList = Array.isArray(info.emails) ? info.emails.filter(e => e && e.trim()) : [];
@@ -1056,7 +1163,7 @@ export function openTeacherDetailModal(teacherData, activeTab = 'ALL') {
   `).join('');
 
   // Schedule rows (Max 3 visible, scrollable if > 3)
-  const routineRowsHtml = renderTeacherScheduleRowsHtml(teacherKey, activeTab);
+  const { html: routineRowsHtml, filtered } = renderTeacherScheduleRowsHtml(teacherKey, activeTab);
 
   // Courses Taught (deduplicated short codes)
   const weekly = getTeacherWeeklySubjects(teacherKey);
@@ -1067,6 +1174,10 @@ export function openTeacherDetailModal(teacherData, activeTab = 'ALL') {
         return `<span class="resting-tag ${isLab ? 'lab' : 'theory'}" title="${escapeHtml(FULL_COURSE_NAMES[code] || code)}">${escapeHtml(code)}</span>`;
       }).join('')
     : '<span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">No active routine courses</span>';
+
+  // Semester Taught
+  const allClasses = getTeacherWeeklyAllClasses(teacherKey);
+  const semesterTaughtText = computeSemestersTaught(allClasses);
 
   const isFromClassDetail = teacherData.isFromClassDetail || (document.getElementById('classDetailModal') && document.getElementById('classDetailModal').classList.contains('open'));
   const backTextEl = document.getElementById('teacherDetailBackText');
@@ -1121,7 +1232,22 @@ export function openTeacherDetailModal(teacherData, activeTab = 'ALL') {
         ${coursesPillsHtml}
       </div>
     </div>
+
+    <!-- Semester Taught Section (Add under Courses Taught) -->
+    <div class="faculty-courses-section faculty-semesters-section">
+      <div class="faculty-courses-header">
+        <div style="display: flex; align-items: center; gap: 5px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          <span>Semester Taught</span>
+        </div>
+      </div>
+      <div class="faculty-semesters-value">
+        ${escapeHtml(semesterTaughtText)}
+      </div>
+    </div>
   `;
+
+  attachTeacherScheduleRowListeners(filtered, teacherKey, fullName);
 
   openModal(detailModal);
 }

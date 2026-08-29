@@ -202,6 +202,11 @@
   margin-top: 2px;
   align-self: flex-start;
 }
+.faculty-status-pill svg {
+  width: 10.5px;
+  height: 10.5px;
+  stroke-width: 2.2;
+}
 .faculty-status-pill.active {
   background: rgba(16, 185, 129, 0.12);
   color: #10B981;
@@ -367,10 +372,22 @@
   flex-shrink: 0;
   min-height: 52px;
   box-sizing: border-box;
-  transition: border-color var(--duration-fast, 0.15s) ease;
+  transition: transform var(--duration-fast, 0.15s) ease, border-color var(--duration-fast, 0.15s) ease, background-color var(--duration-fast, 0.15s) ease;
 }
 .faculty-routine-row.is-current {
   border-color: var(--accent, #38bdf8);
+}
+.faculty-routine-row.is-clickable {
+  cursor: pointer;
+  user-select: none;
+}
+.faculty-routine-row.is-clickable:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent, #38bdf8);
+  background: var(--card-bg, #23252c);
+}
+.faculty-routine-row.is-clickable:active {
+  transform: scale(0.99);
 }
 
 .faculty-routine-left {
@@ -420,10 +437,16 @@
 
 .faculty-routine-right {
   display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.faculty-routine-time-box {
+  display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 2px;
-  flex-shrink: 0;
 }
 
 .faculty-routine-time {
@@ -437,6 +460,20 @@
   font-size: 9.5px;
   color: var(--text-muted, #94a3b8);
   font-weight: 600;
+}
+
+.faculty-routine-arrow {
+  width: 13px;
+  height: 13px;
+  color: var(--text-muted, #94a3b8);
+  opacity: 0.45;
+  transition: transform var(--duration-fast, 0.15s) ease, opacity var(--duration-fast, 0.15s) ease, color var(--duration-fast, 0.15s) ease;
+  flex-shrink: 0;
+}
+.faculty-routine-row.is-clickable:hover .faculty-routine-arrow {
+  opacity: 0.95;
+  transform: translateX(2px);
+  color: var(--accent, #38bdf8);
 }
 
 .faculty-empty-state {
@@ -492,6 +529,23 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+/* Semester Taught Section */
+.faculty-semesters-section {
+  padding-top: 10px;
+  border-top: 1px solid var(--card-border, rgba(255, 255, 255, 0.08));
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.faculty-semesters-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  line-height: 1.45;
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, sans-serif);
 }
 
 /* Admin Moderation & Diff Cards */

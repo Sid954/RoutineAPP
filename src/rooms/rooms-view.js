@@ -1,6 +1,8 @@
 import { DAY_NAMES, MONTHS, FULL_MONTHS } from '../core/config.js';
 import { getCurrentMinutes, escapeHtml } from '../core/utils.js';
 import { getTeacherInfo } from '../teachers/teacher-names.js';
+import { showClassDetails } from '../timeline/class-detail.js';
+import { openTeacherDetailByCode } from '../teachers/teacher-modal.js';
 import {
   loadMasterRoomsData,
   searchAllRoomsAvailability,
@@ -25,6 +27,7 @@ let _liveTickerTimer = null;
 let _currentOpenRoomData = null;
 let _sheetLocalDayIdx = new Date().getDay();
 let _isFilterDrawerOpen = false;
+let _freeRoomsReturnView = null;
 
 // Campus Floors & Academic Days
 const CAMPUS_FLOORS = [4, 5, 6, 9, 10];
@@ -37,7 +40,9 @@ export function initFreeRoomsUI() {
   const backBtn = document.getElementById('freeRoomsPageBackBtn');
   if (backBtn) {
     backBtn.addEventListener('click', () => {
-      if (window.switchAppView) window.switchAppView('apps');
+      const dest = _freeRoomsReturnView || 'apps';
+      _freeRoomsReturnView = null;
+      if (window.switchAppView) window.switchAppView(dest);
     });
   }
 
@@ -632,7 +637,7 @@ export function openRoomScheduleSheet(roomMeta, dayIdx = _selectedDate.getDay())
   if (titleEl) titleEl.textContent = roomMeta.name || `Room ${roomMeta.id}`;
   if (metaEl) {
     const typeLabel = roomMeta.type === 'lab' ? '🧪 Laboratory' : '🏢 Lecture Classroom';
-    metaEl.textContent = `${getFloorLabel(roomMeta.floor)} · ${typeLabel} · Capacity ${roomMeta.capacity || 60}`;
+    metaEl.textContent = `${getFloorLabel(roomMeta.floor)} · ${typeLabel}`;
   }
 
   // Sync In-Sheet Day Switcher Pills
@@ -711,9 +716,8 @@ function renderRoomScheduleSheetTimeline(roomMeta, dayIdx) {
         <div class="fr-tl-top-row">
           <div class="fr-tl-subject-group">
             <span class="fr-tl-subject-code">${escapeHtml(block.subject || 'Class')}</span>
-            ${isLive ? '<span class="fr-tl-live-badge"><span class="fr-tl-live-dot"></span>LIVE NOW</span>' : ''}
             <span class="fr-tl-type-badge ${isLab ? 'lab' : 'theory'}">${isLab ? 'LAB' : 'THEORY'}</span>
-            ${semSec ? `<span class="fr-tl-semsec-badge">Sem ${escapeHtml(semSec)}</span>` : ''}
+            ${semSec ? `<span class="fr-tl-semsec-badge">${escapeHtml(semSec)}</span>` : ''}
           </div>
           <div class="fr-tl-time-badge">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -752,6 +756,10 @@ function renderRoomScheduleSheetTimeline(roomMeta, dayIdx) {
       const block = timelineBlocks[idx];
       if (!block || block.isGap) return;
 
+      const semMatch = String(block.semSec || '').match(/Sem\s*(\d+)(?:-([A-Za-z0-9]+))?/i);
+      const semester = semMatch ? semMatch[1] : (block.semester || '');
+      const section = semMatch ? semMatch[2] : (block.section || '');
+
       const classData = {
         code: block.subject,
         title: block.subject,
@@ -766,11 +774,17 @@ function renderRoomScheduleSheetTimeline(roomMeta, dayIdx) {
         type: block.type,
         duration: formatDuration(block.durationMins),
         hasExplicitEndTime: true,
-        semester: block.semester,
-        section: block.section
+        dayIdx: _sheetLocalDayIdx,
+        dayName: DAY_NAMES[_sheetLocalDayIdx],
+        semSec: block.semSec || '',
+        semester: semester,
+        section: section,
+        isFromRoom: true
       };
 
-      if (typeof window.openClassDetailSheet === 'function') {
+      if (typeof showClassDetails === 'function') {
+        showClassDetails(classData);
+      } else if (typeof window.openClassDetailSheet === 'function') {
         window.openClassDetailSheet(classData);
       }
     });
@@ -782,7 +796,10 @@ function renderRoomScheduleSheetTimeline(roomMeta, dayIdx) {
       e.stopPropagation();
       e.preventDefault();
       const teacherCode = btn.dataset.teacher;
-      if (teacherCode && typeof window.openTeacherDetailByCode === 'function') {
+      if (!teacherCode) return;
+      if (typeof openTeacherDetailByCode === 'function') {
+        openTeacherDetailByCode(teacherCode);
+      } else if (typeof window.openTeacherDetailByCode === 'function') {
         window.openTeacherDetailByCode(teacherCode);
       }
     });
@@ -797,3 +814,66 @@ export function closeRoomScheduleSheet() {
   if (sheet) sheet.classList.remove('open');
   _currentOpenRoomData = null;
 }
+
+/**
+ * Deep-links into the Free Rooms page for a specific room and day.
+ * Pre-filters the search bar, opens the room's schedule sheet, and tracks return view.
+ *
+ * @param {string} rawRoomId - e.g. "1002" or "Room 1002"
+ * @param {number} dayIdx - Optional day index (0..6)
+ * @param {string} returnView - Optional view ID to return to when backing out
+ */
+export function openRoomInFreeRooms(rawRoomId, dayIdx = _selectedDate.getDay(), returnView = null) {
+  if (!returnView) {
+    returnView = (window.__currentAppViewId === 'faculty_directory')
+      ? 'faculty_directory'
+      : ((window.__currentAppViewId === 'home') ? 'home' : 'apps');
+  }
+  _freeRoomsReturnView = returnView;
+
+  // Dismiss stacked modals
+  if (typeof window.closeClassDetailSheet === 'function') {
+    window.closeClassDetailSheet();
+  }
+  if (typeof window.closeTeacherDetailModal === 'function') {
+    window.closeTeacherDetailModal();
+  }
+
+  // Navigate to Free Rooms app page
+  if (typeof window.switchAppView === 'function') {
+    window.switchAppView('free_rooms');
+  }
+
+  // Synchronize Free Rooms date and sheet day to the requested dayIdx
+  if (typeof dayIdx === 'number' && !isNaN(dayIdx)) {
+    const today = new Date();
+    const diff = (dayIdx - today.getDay() + 7) % 7;
+    _selectedDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + diff);
+    _sheetLocalDayIdx = dayIdx;
+  }
+
+  const cleanRoom = String(rawRoomId || '').replace(/^room\s*/i, '').trim();
+  const searchInput = document.getElementById('frSearchInput');
+  const searchClear = document.getElementById('frSearchClear');
+
+  if (cleanRoom && cleanRoom.toLowerCase() !== 'tba' && cleanRoom.toLowerCase() !== 'online') {
+    if (searchInput) {
+      searchInput.value = cleanRoom;
+      if (searchClear) searchClear.style.display = 'block';
+    }
+    _searchQuery = cleanRoom.toLowerCase();
+  }
+
+  loadMasterRoomsData().then(master => {
+    renderFreeRoomsView();
+    if (cleanRoom && cleanRoom.toLowerCase() !== 'tba' && cleanRoom.toLowerCase() !== 'online') {
+      const rooms = master?.rooms || [];
+      const target = rooms.find(r => r.id.toLowerCase() === cleanRoom.toLowerCase() || (r.name && r.name.toLowerCase() === cleanRoom.toLowerCase()));
+      if (target) {
+        openRoomScheduleSheet(target, dayIdx);
+      }
+    }
+  });
+}
+
+window.openRoomInFreeRooms = openRoomInFreeRooms;

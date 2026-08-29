@@ -5,6 +5,7 @@ import { getClassesForDay } from '../schedule/queries.js';
 import { getOverrideFor, getOverridesByDateMap, normalizeDate, getDateForDayIndex, getExtraClassesForDate, getRescheduledClassesForDate, getDeadlinesForDate } from '../announcements/overrides.js';
 import { toMinutes, format12h, toTimeString, getCurrentMinutes, escapeHtml, formatRoom } from '../core/utils.js';
 import { getFullName } from '../teachers/teacher-names.js';
+import { Storage } from '../storage/storage.js';
 
 let _lastRenderHash = '';
 
@@ -485,7 +486,13 @@ function findInstructorForSubject(subj) {
       origDate: c.origDate || '',
       origStart: c.origStart || '',
       isLive: isActive,
-      isPast: isPast
+      isPast: isPast,
+      dayName: DAY_NAMES[State.currentViewDayIdx],
+      dayIdx: State.currentViewDayIdx,
+      semSec: c.semSec || '',
+      semester: c.semester || Storage.getSemester(),
+      section: (c.section || Storage.getSection() || '').toUpperCase(),
+      isFromTimeline: true
     };
 
     const detailsJson = escapeHtml(JSON.stringify(detailsData));

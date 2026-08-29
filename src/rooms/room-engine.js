@@ -287,20 +287,6 @@ export function getRoomDayTimeline(roomMeta, rawClasses = [], currentMinute = ge
   const sorted = [...classes].sort((a, b) => a.startM - b.startM);
   const blocks = [];
 
-  // 1. Check if there's a free gap before the first class
-  const firstClass = sorted[0];
-  if (firstClass.startM > 0) {
-    blocks.push({
-      isGap: true,
-      startM: 0,
-      endM: firstClass.startM,
-      startStr: 'Start of Day',
-      endStr: firstClass.start || formatMinuteTo12h(firstClass.startM),
-      durationMins: firstClass.startM,
-      label: 'Free until First Class'
-    });
-  }
-
   for (let i = 0; i < sorted.length; i++) {
     const cls = sorted[i];
 
@@ -323,10 +309,12 @@ export function getRoomDayTimeline(roomMeta, rawClasses = [], currentMinute = ge
       instructor: cls.instructor || '',
       type: cls.type || 'Theory',
       semSec: cls.semSec || '',
+      semester: cls.semester || '',
+      section: cls.section || '',
       state: timelineState
     });
 
-    // Check gap between this class and next class
+    // Check mid-day free gap between this class and next class
     if (i < sorted.length - 1) {
       const nextCls = sorted[i + 1];
       if (nextCls.startM > cls.endM) {
@@ -344,20 +332,6 @@ export function getRoomDayTimeline(roomMeta, rawClasses = [], currentMinute = ge
         }
       }
     }
-  }
-
-  // Check if there's a free gap after the last class for the rest of the day
-  const lastClass = sorted[sorted.length - 1];
-  if (lastClass.endM < 1440) {
-    blocks.push({
-      isGap: true,
-      startM: lastClass.endM,
-      endM: 1440,
-      startStr: lastClass.end || formatMinuteTo12h(lastClass.endM),
-      endStr: 'Rest of Day',
-      durationMins: Math.max(0, 1440 - lastClass.endM),
-      label: 'Free for Rest of Day'
-    });
   }
 
   return blocks;

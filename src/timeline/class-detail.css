@@ -170,6 +170,15 @@
   word-wrap: break-word;
 }
 
+.class-sheet-hero-semsec {
+  font-family: var(--font-ui, sans-serif);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 3px;
+  letter-spacing: 0.2px;
+}
+
 .class-sheet-close-btn {
   width: 32px;
   height: 32px;
@@ -218,16 +227,19 @@
   grid-column: span 2;
 }
 
-.class-param-tile.interactive-faculty-tile {
+.class-param-tile.interactive-faculty-tile,
+.class-param-tile.interactive-room-tile {
   cursor: pointer;
   transition: border-color var(--duration-fast) ease, transform var(--duration-fast) var(--ease-spring);
 }
 
-.class-param-tile.interactive-faculty-tile:hover {
+.class-param-tile.interactive-faculty-tile:hover,
+.class-param-tile.interactive-room-tile:hover {
   border-color: var(--accent);
 }
 
-.class-param-tile.interactive-faculty-tile:active {
+.class-param-tile.interactive-faculty-tile:active,
+.class-param-tile.interactive-room-tile:active {
   transform: scale(0.98);
 }
 
@@ -377,11 +389,26 @@ html[data-theme="light"] .faculty-avatar-mini,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: all var(--duration-fast) ease;
+  transition: transform var(--duration-fast) ease, border-color var(--duration-fast) ease, background-color var(--duration-fast) ease;
 }
 
 .recurrence-card-row.is-active-session {
   border-color: var(--accent);
+}
+
+.recurrence-card-row.is-clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.recurrence-card-row.is-clickable:hover {
+  border-color: var(--accent);
+  background-color: var(--card-bg);
+  transform: translateY(-1px);
+}
+
+.recurrence-card-row.is-clickable:active {
+  transform: scale(0.99);
 }
 
 .recurrence-row-left {
@@ -431,6 +458,21 @@ html[data-theme="light"] .faculty-avatar-mini,
   border: 1px solid var(--accent-border);
   padding: 2px 6px;
   border-radius: 5px;
+}
+
+.recurrence-card-arrow {
+  width: 12px;
+  height: 12px;
+  color: var(--text-muted);
+  opacity: 0.45;
+  transition: transform var(--duration-fast) ease, opacity var(--duration-fast) ease, color var(--duration-fast) ease;
+  flex-shrink: 0;
+}
+
+.recurrence-card-row.is-clickable:hover .recurrence-card-arrow {
+  opacity: 0.95;
+  transform: translateX(2px);
+  color: var(--accent);
 }
 
 /* ==========================================================================

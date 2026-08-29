@@ -3,8 +3,47 @@ import { FULL_COURSE_NAMES, DAY_NAMES } from '../core/config.js';
 import { format12h, formatRoom, escapeHtml } from '../core/utils.js';
 import { getTeacherInfo } from '../teachers/teacher-names.js';
 import { openModal, closeModal } from '../modals/modal.js';
+import { Storage } from '../storage/storage.js';
 
 let _activeModalTeacherCode = 'MHE';
+let _activeModalRoom = '';
+let _activeModalDayIdx = new Date().getDay();
+
+function getOrdinal(n) {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function formatClassSemSec(data) {
+  let sem = data.semester || '';
+  let sec = data.section || '';
+
+  if (!sem && data.semSec) {
+    const match = String(data.semSec).match(/Sem\s*(\d+)(?:-([A-Za-z0-9]+))?/i);
+    if (match) {
+      sem = match[1];
+      sec = match[2] || '';
+    }
+  }
+
+  // Fallback to active student routine preference ONLY for Timeline / student routine classes
+  // (Prevents mislabeling department-wide room view classes if they ever lack semSec)
+  if (!sem && (data.isFromTimeline || !data.isFromRoom)) {
+    sem = Storage.getSemester();
+    if (!sec) {
+      sec = Storage.getSection();
+    }
+  }
+
+  if (!sem) return '';
+
+  const ord = getOrdinal(parseInt(sem, 10));
+  if (sec) {
+    return `${ord} Semester – Section ${sec.toUpperCase()}`;
+  }
+  return `${ord} Semester`;
+}
 
 export function getWeeklyRecurrences(courseCode) {
   const cleanCode = (courseCode || '').toUpperCase().trim();
@@ -20,11 +59,17 @@ export function getWeeklyRecurrences(courseCode) {
       if (itemCode === cleanCode) {
         recurrences.push({
           day: dayName,
+          dayIdx: dayIdx,
           dayShort: dayName.substring(0, 3).toUpperCase(),
           time: `${format12h(item.start)} – ${format12h(item.end)}`,
+          start: item.start,
+          end: item.end,
           room: formatRoom(item.room) || 'TBA',
-          instructor: item.instructor || '',
-          type: item.type
+          instructor: item.instructor || item.teacher || '',
+          type: item.type || '',
+          semSec: item.semSec || '',
+          semester: item.semester || '',
+          section: item.section || ''
         });
       }
     });
@@ -41,6 +86,23 @@ export function showClassDetails(data) {
   const fullTitle = FULL_COURSE_NAMES[code] || data.name || code;
   const isLab = (data.type || '').toLowerCase() === 'lab';
   const cleanRoom = formatRoom(data.room) || 'TBA';
+  _activeModalRoom = cleanRoom;
+
+  let classDayIdx = (data.dayIdx !== undefined && data.dayIdx !== null) ? data.dayIdx : undefined;
+  if (classDayIdx === undefined) {
+    if (data.dayName && DAY_NAMES.includes(data.dayName)) {
+      classDayIdx = DAY_NAMES.indexOf(data.dayName);
+    } else if (data.day && DAY_NAMES.includes(data.day)) {
+      classDayIdx = DAY_NAMES.indexOf(data.day);
+    }
+  }
+  if (classDayIdx === undefined || classDayIdx === -1) {
+    classDayIdx = (State.currentViewDayIdx !== undefined && State.currentViewDayIdx !== -1)
+      ? State.currentViewDayIdx
+      : new Date().getDay();
+  }
+  _activeModalDayIdx = classDayIdx;
+
   const teacherCode = (data.instructor || data.teacher || '').trim();
   const info = getTeacherInfo(teacherCode);
   const teacherName = data.instructorName || info.name || teacherCode || 'Not Assigned';
@@ -66,6 +128,7 @@ export function showClassDetails(data) {
   const iconEl = document.getElementById('modalSquircleIcon');
   const codeEl = document.getElementById('modalCourseCode');
   const titleEl = document.getElementById('modalFullTitle');
+  const semSecEl = document.getElementById('modalSemSec');
   const timingEl = document.getElementById('modalTiming');
   const durationEl = document.getElementById('modalDuration');
   const roomEl = document.getElementById('modalRoom');
@@ -79,6 +142,19 @@ export function showClassDetails(data) {
   if (iconEl) iconEl.innerHTML = iconSvg;
   if (codeEl) codeEl.textContent = code;
   if (titleEl) titleEl.textContent = fullTitle;
+
+  // Semester & Section subtitle directly under course title
+  const semSecText = formatClassSemSec(data);
+  if (semSecEl) {
+    if (semSecText) {
+      semSecEl.textContent = semSecText;
+      semSecEl.style.display = 'block';
+    } else {
+      semSecEl.textContent = '';
+      semSecEl.style.display = 'none';
+    }
+  }
+
   if (timingEl) {
     timingEl.textContent = data.timing || (data.hasExplicitEndTime && data.end ? `${data.start} – ${data.end}` : `Starts at ${data.start}`);
   }
@@ -260,28 +336,75 @@ export function showClassDetails(data) {
   if (listEl) {
     let recHtml = '';
     const displayList = recurrences.length ? recurrences : [{
-      day: currentDayName,
-      dayShort: currentDayName.substring(0, 3).toUpperCase(),
-      time: data.timing || `${data.start} – ${data.end}`,
-      room: cleanRoom
+      day: data.dayName || currentDayName,
+      dayIdx: data.dayIdx !== undefined ? data.dayIdx : new Date().getDay(),
+      dayShort: (data.dayName || currentDayName).substring(0, 3).toUpperCase(),
+      time: data.timing || (data.start && data.end ? `${data.start} – ${data.end}` : 'Scheduled'),
+      start: data.start,
+      end: data.end,
+      room: cleanRoom,
+      instructor: teacherCode,
+      type: data.type,
+      semSec: data.semSec || '',
+      semester: data.semester || '',
+      section: data.section || ''
     }];
 
-    displayList.forEach(r => {
-      const isCurrent = (r.day === currentDayName);
+    const activeDay = data.dayName || currentDayName;
+    const activeTime = data.timing || (data.start && data.end ? `${data.start} – ${data.end}` : '');
+
+    displayList.forEach((r, idx) => {
+      const isCurrentSession = (r.day === activeDay && (!activeTime || r.time === activeTime || displayList.length === 1));
+
       recHtml += `
-        <div class="recurrence-card-row ${isCurrent ? 'is-active-session' : ''}">
+        <div class="recurrence-card-row is-clickable ${isCurrentSession ? 'is-active-session' : ''}" data-rec-idx="${idx}" title="Switch view to ${escapeHtml(r.dayShort)} session">
           <div class="recurrence-row-left">
-            <span class="recurrence-day-chip">${r.dayShort}</span>
-            <span class="recurrence-row-time">${r.time}</span>
+            <span class="recurrence-day-chip">${escapeHtml(r.dayShort)}</span>
+            <span class="recurrence-row-time">${escapeHtml(r.time)}</span>
           </div>
           <div class="recurrence-row-right">
-            <span class="recurrence-room-label">Room ${r.room}</span>
-            ${isCurrent ? '<span class="recurrence-active-badge">ACTIVE</span>' : ''}
+            <span class="recurrence-room-label">Room ${escapeHtml(r.room)}</span>
+            ${isCurrentSession ? '<span class="recurrence-active-badge">CURRENT</span>' : ''}
+            <svg class="recurrence-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
         </div>
       `;
     });
     listEl.innerHTML = recHtml;
+
+    // Attach in-place refresh click handler to each recurrence row
+    listEl.querySelectorAll('.recurrence-card-row.is-clickable').forEach(row => {
+      row.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const idx = parseInt(row.dataset.recIdx, 10);
+        const r = displayList[idx];
+        if (!r) return;
+
+        const newSessionData = {
+          ...data,
+          code: code,
+          title: code,
+          name: fullTitle,
+          start: r.start ? (typeof r.start === 'number' ? format12h(r.start) : r.start) : data.start,
+          end: r.end ? (typeof r.end === 'number' ? format12h(r.end) : r.end) : data.end,
+          timing: r.time || (r.start && r.end ? `${typeof r.start === 'number' ? format12h(r.start) : r.start} – ${typeof r.end === 'number' ? format12h(r.end) : r.end}` : data.timing),
+          room: r.room || 'TBA',
+          instructor: r.instructor || data.instructor,
+          teacher: r.instructor || data.teacher,
+          type: r.type || data.type,
+          dayName: r.day,
+          dayIdx: r.dayIdx,
+          hasExplicitEndTime: true,
+          semSec: r.semSec || data.semSec,
+          semester: r.semester || data.semester,
+          section: r.section || data.section
+        };
+
+        // In-place refresh
+        showClassDetails(newSessionData);
+      });
+    });
   }
 
   openModal(modal);
@@ -289,13 +412,17 @@ export function showClassDetails(data) {
 
 export function closeClassDetails() {
   const modal = document.getElementById('classDetailModal');
-  if (modal) closeModal(modal);
+  if (modal) {
+    closeModal(modal);
+    modal.style.zIndex = '';
+  }
 }
 
 export function initClassDetailEvents() {
   const modal = document.getElementById('classDetailModal');
   const closeBtn = document.getElementById('classDetailClose');
   const instructorTile = document.getElementById('modalInstructorTile');
+  const roomTile = document.getElementById('modalRoomTile');
 
   if (closeBtn) {
     closeBtn.addEventListener('click', closeClassDetails);
@@ -307,16 +434,35 @@ export function initClassDetailEvents() {
     });
   }
 
+  if (roomTile) {
+    roomTile.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof window.openRoomInFreeRooms === 'function') {
+        window.openRoomInFreeRooms(_activeModalRoom, _activeModalDayIdx);
+      }
+    });
+  }
+
   if (instructorTile) {
     instructorTile.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       const code = _activeModalTeacherCode;
       if (!code || code === 'TBA' || code === '—' || code === 'Not Assigned') return;
-      if (typeof window.openTeacherDetailByCode === 'function') {
-        window.openTeacherDetailByCode(code);
-      } else if (typeof window.__openTeacherProfileByCode === 'function') {
-        window.__openTeacherProfileByCode(code);
+
+      const teacherModal = document.getElementById('teacherDetailModal');
+      const isTeacherModalOpen = teacherModal && teacherModal.classList.contains('open');
+
+      if (isTeacherModalOpen) {
+        // Teacher modal is already open behind class detail; closing class detail cleanly reveals it
+        closeClassDetails();
+      } else {
+        if (typeof window.openTeacherDetailByCode === 'function') {
+          window.openTeacherDetailByCode(code);
+        } else if (typeof window.__openTeacherProfileByCode === 'function') {
+          window.__openTeacherProfileByCode(code);
+        }
       }
     });
   }
