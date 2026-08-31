@@ -715,6 +715,28 @@ function renderRoomScheduleSheetTimeline(roomMeta, dayIdx) {
     const isPast = block.state === 'past';
     const stateClass = isPast ? 'is-past' : (isLive ? 'is-current' : 'is-upcoming');
     const isLab = (block.type || '').toLowerCase() === 'lab';
+    const isCancelled = Boolean(block.isCancelled);
+    const isRescheduled = Boolean(block.isRescheduled);
+    const isMovedOnline = Boolean(block.isMovedOnline);
+    const isExtra = Boolean(block.isExtraClass);
+
+    let overrideCardClass = '';
+    let overrideBadgeHtml = '';
+
+    if (isCancelled) {
+      overrideCardClass = 'is-cancelled-override cancelled';
+      overrideBadgeHtml = `<span class="fr-tl-override-badge cancelled">CANCELLED</span>`;
+    } else if (isRescheduled) {
+      overrideCardClass = 'is-rescheduled-override rescheduled';
+      overrideBadgeHtml = `<span class="fr-tl-override-badge rescheduled">RESCHEDULED</span>`;
+    } else if (isMovedOnline) {
+      overrideCardClass = 'is-online-override online';
+      overrideBadgeHtml = `<span class="fr-tl-override-badge online">ONLINE</span>`;
+    } else if (isExtra) {
+      overrideCardClass = 'is-extra-override extra';
+      overrideBadgeHtml = `<span class="fr-tl-override-badge extra">EXTRA CLASS</span>`;
+    }
+
     const teacherCode = (block.instructor || '').trim();
     const info = getTeacherInfo(teacherCode);
     const teacherDisplayName = info?.name || teacherCode || 'TBA';
@@ -722,12 +744,13 @@ function renderRoomScheduleSheetTimeline(roomMeta, dayIdx) {
     const semSec = block.semSec || (block.semester && block.section ? `${block.semester}-${block.section.toUpperCase()}` : '');
 
     return `
-      <div class="fr-tl-card ${stateClass} ${isLab ? 'is-lab' : 'is-theory'} fr-tl-class-card" data-block-idx="${idx}">
+      <div class="fr-tl-card ${stateClass} ${isLab ? 'is-lab' : 'is-theory'} ${overrideCardClass} fr-tl-class-card" data-block-idx="${idx}">
         <!-- Top Row: Subject + Badges + Time -->
         <div class="fr-tl-top-row">
           <div class="fr-tl-subject-group">
-            <span class="fr-tl-subject-code">${escapeHtml(block.subject || 'Class')}</span>
+            <span class="fr-tl-subject-code ${isCancelled ? 'cancelled-text' : ''}">${escapeHtml(block.subject || 'Class')}</span>
             <span class="fr-tl-type-badge ${isLab ? 'lab' : 'theory'}">${isLab ? 'LAB' : 'THEORY'}</span>
+            ${overrideBadgeHtml}
             ${semSec ? `<span class="fr-tl-semsec-badge">${escapeHtml(semSec)}</span>` : ''}
           </div>
           <div class="fr-tl-time-badge">
@@ -790,6 +813,11 @@ function renderRoomScheduleSheetTimeline(roomMeta, dayIdx) {
         semSec: block.semSec || '',
         semester: semester,
         section: section,
+        isCancelled: Boolean(block.isCancelled),
+        cancelReason: block.cancelReason || '',
+        isRescheduled: Boolean(block.isRescheduled),
+        rescheduledReason: block.rescheduledReason || '',
+        isOnline: Boolean(block.isMovedOnline),
         isFromRoom: true
       };
 

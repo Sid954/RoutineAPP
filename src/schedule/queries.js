@@ -32,39 +32,67 @@ export function getEffectiveClassesForDay(dayIdx, dateVal) {
   // Base routine classes
   let classes = (State.schedule[targetDayIdx] || []).map(c => ({ ...c }));
 
-  // 1. If holiday, only keep classes that have an explicit online class override
-  if (isHoliday) {
-    classes = classes.filter(c => {
-      const ov = getOverrideFor(targetDateStr, c.title);
-      return ov && ov.type === 'online_class';
-    });
-  } else {
-    // 2. Filter out cancelled classes
-    classes = classes.filter(c => {
-      const cancelOv = getOverrideFor(targetDateStr, c.title);
-      return !cancelOv || cancelOv.type !== 'cancellation';
-    });
+  // 1. Process Holidays & Cancellations
+  classes = classes.map(c => {
+    const cancelOv = getOverrideFor(targetDateStr, c.title);
+    const isCancelled = cancelOv && cancelOv.type === 'cancellation';
+    const isOnline = cancelOv && cancelOv.type === 'online_class';
+    const isHolidayCancelled = !isOnline && !isCancelled && isHoliday;
 
-    // 3. Filter out classes rescheduled away from this date
-    if (State.announcementsList && State.announcementsList.length > 0) {
-      State.announcementsList.forEach(item => {
-        if (item.type !== 'rescheduled') return;
-        let parsed = {};
-        if (typeof item.announcement === 'string') {
-          try { parsed = JSON.parse(item.announcement); } catch (e) {}
-        } else if (typeof item.announcement === 'object' && item.announcement !== null) {
-          parsed = item.announcement;
-        }
-        const origDateStr = normalizeDate(parsed.original_date || item.date_override);
-        if (origDateStr === targetDateStr) {
-          const targetSubj = (parsed.target_subject || item.subject_override || item.subject || '').toUpperCase().trim();
-          classes = classes.filter(c => (c.title || c.subject || '').toUpperCase().trim() !== targetSubj);
-        }
-      });
+    if (isCancelled || isHolidayCancelled) {
+      return {
+        ...c,
+        isCancelled: true,
+        cancelledDate: targetDateStr,
+        cancelReason: isCancelled
+          ? (cancelOv.announcement?.announcement || 'Class cancelled for this date')
+          : (holidayOverride.announcement?.title || 'Holiday / Day Off')
+      };
     }
+
+    if (isOnline) {
+      let parsed = {};
+      try { parsed = JSON.parse(cancelOv.announcement?.announcement || '{}'); } catch (e) {}
+      return {
+        ...c,
+        isMovedOnline: true,
+        isOnline: true,
+        platform: parsed.platform || ''
+      };
+    }
+
+    return c;
+  });
+
+  // 2. Mark classes rescheduled away from this date
+  if (State.announcementsList && State.announcementsList.length > 0) {
+    State.announcementsList.forEach(item => {
+      if (item.type !== 'rescheduled') return;
+      let parsed = {};
+      if (typeof item.announcement === 'string') {
+        try { parsed = JSON.parse(item.announcement); } catch (e) {}
+      } else if (typeof item.announcement === 'object' && item.announcement !== null) {
+        parsed = item.announcement;
+      }
+      const origDateStr = normalizeDate(parsed.original_date || item.date_override);
+      if (origDateStr === targetDateStr) {
+        const targetSubj = (parsed.target_subject || item.subject_override || item.subject || '').toUpperCase().trim();
+        classes = classes.map(c => {
+          if ((c.title || c.subject || '').toUpperCase().trim() === targetSubj) {
+            return {
+              ...c,
+              isRescheduled: true,
+              rescheduledTo: parsed.new_date || '',
+              rescheduledReason: parsed.reason || ''
+            };
+          }
+          return c;
+        });
+      }
+    });
   }
 
-  // 4. Inject extra classes on this date
+  // 3. Inject extra classes on this date
   const extraClasses = getExtraClassesForDate(targetDateStr);
   extraClasses.forEach(item => {
     let parsed = {};
@@ -91,7 +119,7 @@ export function getEffectiveClassesForDay(dayIdx, dateVal) {
     });
   });
 
-  // 5. Inject incoming rescheduled classes on this date
+  // 4. Inject incoming rescheduled classes on this date
   const rescheduledClasses = getRescheduledClassesForDate(targetDateStr);
   rescheduledClasses.forEach(item => {
     let parsed = {};
@@ -125,6 +153,7 @@ export function getEffectiveClassesForDay(dayIdx, dateVal) {
 
 export function getActiveClass(entries, currentMins) {
   for (const item of entries) {
+    if (item.isCancelled) continue;
     if (currentMins >= toMinutes(item.start) && currentMins < toMinutes(item.end)) return item;
   }
   return null;
@@ -134,6 +163,7 @@ export function getNextClass(entries, currentMins) {
   let next = null;
   let minDiff = Infinity;
   for (const item of entries) {
+    if (item.isCancelled) continue;
     const startMins = toMinutes(item.start);
     const diff = startMins - currentMins;
     if (diff > 0 && diff < minDiff) { minDiff = diff; next = item; }

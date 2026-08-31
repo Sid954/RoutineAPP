@@ -1,4 +1,4 @@
-﻿import { State } from '../core/state.js';
+import { State } from '../core/state.js';
 import { normalizeDate } from '../announcements/overrides.js';
 import { formatMinuteTo12h } from './room-engine.js';
 
@@ -46,13 +46,13 @@ export function matchesSemSec(classSemSec, annSemester, annSection) {
 }
 
 /**
- * Flexible subject acronym / code matcher.
+ * Flexible subject acronym / code matcher (exact match only).
  */
 export function isSubjMatch(annSubj, classSubj) {
   const a = (annSubj || '').toUpperCase().trim();
   const c = (classSubj || '').toUpperCase().trim();
   if (!a || !c) return false;
-  return a === c || a.includes(c) || c.includes(a);
+  return a === c;
 }
 
 /**
@@ -62,7 +62,7 @@ export function isSubjMatch(annSubj, classSubj) {
  * @param {string} dayName - e.g. "Tuesday"
  * @param {string} dateStr - Target date in YYYY-MM-DD format
  * @param {Array} baseClasses - Raw scheduled classes for this room from master_rooms_schedule
- * @returns {Array} Updated array of class objects with cancellations removed, reschedules moved, and extra classes added
+ * @returns {Array} Updated array of class objects with cancellations marked, reschedules moved, and extra classes added
  */
 export function getEffectiveRoomClasses(roomId, dayName, dateStr, baseClasses = []) {
   const announcements = (State.allAnnouncementsList && State.allAnnouncementsList.length > 0)
@@ -83,21 +83,36 @@ export function getEffectiveRoomClasses(roomId, dayName, dateStr, baseClasses = 
   });
 
   if (holiday) {
-    // If university-wide holiday or general holiday, all rooms are completely free
+    // If university-wide holiday or general holiday, mark all room classes as cancelled
     if (!holiday.semester) {
-      return [];
+      return (Array.isArray(baseClasses) ? baseClasses : []).map(cls => ({
+        ...cls,
+        isCancelled: true,
+        cancelledDate: targetDate,
+        cancelReason: holiday.title || 'Holiday / Day Off'
+      }));
     }
   }
 
   // Clone base classes for modification
   let effectiveClasses = Array.isArray(baseClasses) ? baseClasses.map(c => ({ ...c })) : [];
 
-  // Filter out classes affected by holiday (if batch-specific holiday)
+  // Mark classes affected by holiday (if batch-specific holiday)
   if (holiday && holiday.semester) {
-    effectiveClasses = effectiveClasses.filter(cls => !matchesSemSec(cls.semSec, holiday.semester, holiday.section));
+    effectiveClasses = effectiveClasses.map(cls => {
+      if (matchesSemSec(cls.semSec, holiday.semester, holiday.section)) {
+        return {
+          ...cls,
+          isCancelled: true,
+          cancelledDate: targetDate,
+          cancelReason: holiday.title || 'Holiday / Day Off'
+        };
+      }
+      return cls;
+    });
   }
 
-  // 2. Process Removals: Cancellations, Online Classes (replacements), and Rescheduled (from original slot)
+  // 2. Process Overrides: Cancellations, Online Classes (replacements), and Rescheduled (from original slot)
   announcements.forEach(item => {
     const itemDate = normalizeDate(item.date_override);
     let parsed = {};
@@ -107,36 +122,59 @@ export function getEffectiveRoomClasses(roomId, dayName, dateStr, baseClasses = 
       parsed = item.announcement;
     }
 
-    // A. Cancellation
+    // A. Cancellation -> Mark with isCancelled
     if (item.type === 'cancellation' && itemDate === targetDate) {
       const annSubj = item.subject_override || item.subject || '';
-      effectiveClasses = effectiveClasses.filter(cls => {
+      effectiveClasses = effectiveClasses.map(cls => {
         const subjMatch = isSubjMatch(annSubj, cls.subject);
         const semMatch = matchesSemSec(cls.semSec, item.semester, item.section);
-        return !(subjMatch && semMatch);
+        if (subjMatch && semMatch) {
+          return {
+            ...cls,
+            isCancelled: true,
+            cancelledDate: itemDate,
+            cancelReason: item.announcement || 'Class cancelled for this date'
+          };
+        }
+        return cls;
       });
     }
 
-    // B. Online Class (replaces scheduled in-person session, freeing the physical room)
+    // B. Online Class -> Mark as isMovedOnline
     if (item.type === 'online_class' && itemDate === targetDate) {
       const isOnline = (parsed.is_online === false || /extra class/i.test(item.title || '')) ? false : true;
       if (isOnline) {
         const annSubj = item.subject_override || item.subject || '';
-        effectiveClasses = effectiveClasses.filter(cls => {
+        effectiveClasses = effectiveClasses.map(cls => {
           const subjMatch = isSubjMatch(annSubj, cls.subject);
           const semMatch = matchesSemSec(cls.semSec, item.semester, item.section);
-          return !(subjMatch && semMatch);
+          if (subjMatch && semMatch) {
+            return {
+              ...cls,
+              isMovedOnline: true,
+              onlinePlatform: parsed.platform || ''
+            };
+          }
+          return cls;
         });
       }
     }
 
-    // C. Rescheduled: Remove from original slot if this is the origin date
+    // C. Rescheduled: Mark as isRescheduled on original date
     if (item.type === 'rescheduled' && itemDate === targetDate) {
       const annSubj = item.subject_override || item.subject || parsed.target_subject || '';
-      effectiveClasses = effectiveClasses.filter(cls => {
+      effectiveClasses = effectiveClasses.map(cls => {
         const subjMatch = isSubjMatch(annSubj, cls.subject);
         const semMatch = matchesSemSec(cls.semSec, item.semester, item.section);
-        return !(subjMatch && semMatch);
+        if (subjMatch && semMatch) {
+          return {
+            ...cls,
+            isRescheduled: true,
+            rescheduledTo: parsed.new_date || '',
+            rescheduledReason: parsed.reason || ''
+          };
+        }
+        return cls;
       });
     }
   });

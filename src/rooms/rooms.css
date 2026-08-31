@@ -902,6 +902,66 @@
   filter: grayscale(40%);
 }
 
+.fr-tl-card.is-cancelled-override,
+.fr-tl-card.cancelled {
+  opacity: 0.6;
+  border-left: 3.5px dashed #ef4444 !important;
+}
+
+.fr-tl-card.cancelled .fr-tl-subject-code,
+.fr-tl-subject-code.cancelled-text {
+  text-decoration: line-through;
+  color: #f87171 !important;
+}
+
+.fr-tl-card.is-rescheduled-override,
+.fr-tl-card.rescheduled {
+  border-left: 3.5px solid #f59e0b !important;
+}
+
+.fr-tl-card.is-online-override,
+.fr-tl-card.online {
+  border-left: 3.5px solid #10b981 !important;
+}
+
+.fr-tl-card.is-extra-override,
+.fr-tl-card.extra {
+  border-left: 3.5px solid #6366f1 !important;
+}
+
+.fr-tl-override-badge {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1.5px 5.5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.fr-tl-override-badge.cancelled {
+  background: rgba(239, 68, 68, 0.14);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.fr-tl-override-badge.rescheduled {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.fr-tl-override-badge.online {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.fr-tl-override-badge.extra {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
 .fr-tl-top-row {
   display: flex;
   align-items: center;

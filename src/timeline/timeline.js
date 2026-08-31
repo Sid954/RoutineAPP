@@ -51,9 +51,9 @@ export function renderWeekStrip() {
     const isHoliday = override && override.type === 'holiday';
     const isOnlineClass = override && override.type === 'online_class';
 
-    // Calculate actual effective class count for this specific date (with cancellations, extras, and reschedules)
+    // Calculate actual active class count for this specific date (excluding cancelled classes)
     const activeClasses = getEffectiveClassesForDay(dow, d);
-    const classCount = activeClasses.length;
+    const classCount = activeClasses.filter(c => !c.isCancelled).length;
 
     // Subtext label logic
     let subText = '';

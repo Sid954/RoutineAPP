@@ -2,7 +2,7 @@ import { CONFIG, DAY_NAMES } from '../core/config.js';
 import { format12h, getCurrentMinutes } from '../core/utils.js';
 import { getEffectiveRoomClasses } from './room-overrides.js';
 
-const MASTER_ROOMS_CACHE_KEY = 'routine_master_rooms_v4';
+const MASTER_ROOMS_CACHE_KEY = 'routine_master_rooms_v5';
 let _masterData = null;
 
 /**
@@ -13,9 +13,9 @@ export async function loadMasterRoomsData() {
     return _masterData;
   }
 
-  // 1. Try LocalStorage cache
+  // 1. Try LocalStorage cache for instant offline load
   try {
-    const cached = localStorage.getItem(MASTER_ROOMS_CACHE_KEY);
+    const cached = localStorage.getItem(MASTER_ROOMS_CACHE_KEY) || localStorage.getItem('routine_master_rooms_v4');
     if (cached) {
       const parsed = JSON.parse(cached);
       if (parsed && Array.isArray(parsed.rooms) && parsed.rooms.length > 0) {
@@ -29,20 +29,28 @@ export async function loadMasterRoomsData() {
     console.warn('[RoomEngine] Failed to read localStorage cache:', e);
   }
 
-  // 2. Fetch master_rooms_schedule.json
+  // 2. Fetch fresh dataset from Supabase API (with static JSON fallback)
   try {
-    const res = await fetch(`master_rooms_schedule.json?v=${CONFIG.appVersionCode || Date.now()}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (data && Array.isArray(data.rooms)) {
-      _masterData = data;
-      try {
-        localStorage.setItem(MASTER_ROOMS_CACHE_KEY, JSON.stringify(data));
-      } catch (e) {}
-      return _masterData;
+    const apiEndpoint = `${CONFIG.apiBase}/api/schedule?action=rooms_master&v=${CONFIG.appVersionCode || Date.now()}`;
+    let res = await fetch(apiEndpoint).catch(() => null);
+
+    // Fallback to static JSON file if API fails (e.g. static local hosting)
+    if (!res || !res.ok) {
+      res = await fetch(`master_rooms_schedule.json?v=${CONFIG.appVersionCode || Date.now()}`).catch(() => null);
+    }
+
+    if (res && res.ok) {
+      const data = await res.json();
+      if (data && Array.isArray(data.rooms) && data.rooms.length > 0) {
+        _masterData = data;
+        try {
+          localStorage.setItem(MASTER_ROOMS_CACHE_KEY, JSON.stringify(data));
+        } catch (e) {}
+        return _masterData;
+      }
     }
   } catch (e) {
-    console.warn('[RoomEngine] Failed to fetch master_rooms_schedule.json:', e);
+    console.warn('[RoomEngine] Network load failed, checking fallback:', e);
   }
 
   // 3. Fallback to empty shell
@@ -52,10 +60,14 @@ export async function loadMasterRoomsData() {
 
 async function fetchMasterRoomsAsync() {
   try {
-    const res = await fetch(`master_rooms_schedule.json?v=${CONFIG.appVersionCode || Date.now()}`);
-    if (res.ok) {
+    const apiEndpoint = `${CONFIG.apiBase}/api/schedule?action=rooms_master&v=${CONFIG.appVersionCode || Date.now()}`;
+    let res = await fetch(apiEndpoint).catch(() => null);
+    if (!res || !res.ok) {
+      res = await fetch(`master_rooms_schedule.json?v=${CONFIG.appVersionCode || Date.now()}`).catch(() => null);
+    }
+    if (res && res.ok) {
       const data = await res.json();
-      if (data && Array.isArray(data.rooms)) {
+      if (data && Array.isArray(data.rooms) && data.rooms.length > 0) {
         _masterData = data;
         try {
           localStorage.setItem(MASTER_ROOMS_CACHE_KEY, JSON.stringify(data));
@@ -351,7 +363,15 @@ export function getRoomDayTimeline(roomMeta, rawClasses = [], currentMinute = ge
       semSec: cls.semSec || '',
       semester: cls.semester || '',
       section: cls.section || '',
-      state: timelineState
+      state: timelineState,
+      isCancelled: Boolean(cls.isCancelled),
+      cancelledDate: cls.cancelledDate || '',
+      cancelReason: cls.cancelReason || '',
+      isRescheduled: Boolean(cls.isRescheduled || cls.isRescheduledOverride),
+      rescheduledTo: cls.rescheduledTo || '',
+      rescheduledReason: cls.rescheduledReason || '',
+      isMovedOnline: Boolean(cls.isMovedOnline),
+      isExtraClass: Boolean(cls.isExtraClassOverride)
     });
 
     // Check mid-day free gap between this class and next class

@@ -66,12 +66,12 @@ export function getOverrideFor(dayOrDate, subjectCode, explicitAnchor) {
   const targetDateStr = getDateForDayIndex(dayOrDate, explicitAnchor);
   const targetSubj = (subjectCode || '').toUpperCase().trim();
 
-  // Helper for matching subject codes flexibly
+  // Helper for matching subject codes (exact match)
   const isSubjMatch = (itemSubj) => {
     if (!targetSubj) return true;
     const cleanItem = (itemSubj || '').toUpperCase().trim();
     if (!cleanItem) return false;
-    return cleanItem === targetSubj || targetSubj.includes(cleanItem) || cleanItem.includes(targetSubj);
+    return cleanItem === targetSubj;
   };
 
   // 1. Online Class for specific subject (beats holiday for that subject, but only if online)

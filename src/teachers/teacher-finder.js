@@ -3,6 +3,7 @@ import { State } from '../core/state.js';
 import { toMinutes, getCurrentMinutes } from '../core/utils.js';
 import { getAllFacultyKeys, getTeacherInfo } from './teacher-names.js';
 
+const MASTER_TEACHERS_CACHE_KEY = 'routine_master_teachers_v2';
 let _masterTeacherData = null;
 
 export async function loadMasterTeacherData(forceReload = false) {
@@ -10,39 +11,68 @@ export async function loadMasterTeacherData(forceReload = false) {
     return _masterTeacherData;
   }
 
-  // 1. Try fetching fresh master teacher schedule JSON
+  // 1. Try localStorage cache for instant offline load
   try {
-    const res = await fetch('master_teachers_schedule.json?v=' + Date.now(), { cache: 'no-store' });
-    if (res.ok) {
+    const cached = localStorage.getItem(MASTER_TEACHERS_CACHE_KEY) || localStorage.getItem('routine_master_teachers_v1');
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed && Array.isArray(parsed.teachers) && parsed.teachers.length > 0) {
+        _masterTeacherData = parsed;
+        // Trigger non-blocking background refresh
+        fetchMasterTeachersAsync();
+        return _masterTeacherData;
+      }
+    }
+  } catch (e) {
+    console.warn('[TeacherFinder] Failed to read localStorage cache:', e);
+  }
+
+  // 2. Fetch fresh dataset from Supabase API (with static JSON fallback)
+  try {
+    const apiEndpoint = `${CONFIG.apiBase}/api/schedule?action=teachers_master&v=${CONFIG.appVersionCode || Date.now()}`;
+    let res = await fetch(apiEndpoint).catch(() => null);
+
+    // Fallback to static JSON file if API fails (e.g. static local hosting)
+    if (!res || !res.ok) {
+      res = await fetch(`master_teachers_schedule.json?v=${CONFIG.appVersionCode || Date.now()}`).catch(() => null);
+    }
+
+    if (res && res.ok) {
       const data = await res.json();
-      if (data && data.teachers && data.teachers.length > 0 && data.schedule) {
+      if (data && Array.isArray(data.teachers) && data.teachers.length > 0 && data.schedule) {
         _masterTeacherData = data;
         try {
-          localStorage.removeItem('routine_master_teachers');
-          localStorage.setItem('routine_master_teachers_v1', JSON.stringify(_masterTeacherData));
+          localStorage.setItem(MASTER_TEACHERS_CACHE_KEY, JSON.stringify(_masterTeacherData));
         } catch (e) {}
         return _masterTeacherData;
       }
     }
   } catch (e) {
-    console.warn('Network load of master_teachers_schedule.json failed, checking cache:', e);
+    console.warn('[TeacherFinder] Network load failed, checking fallback:', e);
   }
-
-  // 2. Fallback to localStorage cache
-  try {
-    const cached = localStorage.getItem('routine_master_teachers_v1');
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      if (parsed && parsed.teachers && parsed.teachers.length > 0) {
-        _masterTeacherData = parsed;
-        return _masterTeacherData;
-      }
-    }
-  } catch (e) {}
 
   // 3. Fallback: generate from current active schedule
   _masterTeacherData = generateFallbackTeacherData();
   return _masterTeacherData;
+}
+
+async function fetchMasterTeachersAsync() {
+  try {
+    const apiEndpoint = `${CONFIG.apiBase}/api/schedule?action=teachers_master&v=${CONFIG.appVersionCode || Date.now()}`;
+    let res = await fetch(apiEndpoint).catch(() => null);
+    if (!res || !res.ok) {
+      res = await fetch(`master_teachers_schedule.json?v=${CONFIG.appVersionCode || Date.now()}`).catch(() => null);
+    }
+    if (res && res.ok) {
+      const data = await res.json();
+      if (data && Array.isArray(data.teachers) && data.teachers.length > 0 && data.schedule) {
+        _masterTeacherData = data;
+        try {
+          localStorage.setItem(MASTER_TEACHERS_CACHE_KEY, JSON.stringify(_masterTeacherData));
+        } catch (e) {}
+      }
+    }
+  } catch (e) {}
 }
 
 function generateFallbackTeacherData() {

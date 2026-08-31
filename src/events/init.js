@@ -32,6 +32,23 @@ export function fetchAnnouncementsAndNotify() {
   }).catch(() => { /* Silent fallback: offline */ });
 }
 
+export async function fetchSectionSchedule(sem, sec) {
+  const apiEndpoint = `${CONFIG.apiBase}/api/schedule?action=section&semester=${sem}&section=${sec}&v=${CONFIG.appVersionCode || Date.now()}`;
+  let res = await fetch(apiEndpoint).catch(() => null);
+
+  // Fallback to bundled static JSON file if API fails (e.g. offline, local dev, or static hosting)
+  if (!res || !res.ok) {
+    const fallbackPath = `./src/data/sem-${sem}/${sec}/routine.json?t=${Date.now()}`;
+    res = await fetch(fallbackPath).catch(() => null);
+  }
+
+  if (res && res.ok) {
+    const data = await res.json();
+    return normalizeSchedule(data);
+  }
+  return null;
+}
+
 export function initializeApp() {
   initThemeEngine();
   initTeacherNames();
@@ -121,11 +138,9 @@ export function initializeApp() {
 
   const currentSem = Storage.getSemester();
   const currentSec = Storage.getSection();
-  fetch(`./src/data/sem-${currentSem}/${currentSec}/routine.json?t=${Date.now()}`)
-    .then(res => { if (!res.ok) throw new Error(); return res.json(); })
-    .then(data => {
-      const freshSchedule = normalizeSchedule(data);
-      if (JSON.stringify(State.schedule) !== JSON.stringify(freshSchedule)) {
+  fetchSectionSchedule(currentSem, currentSec)
+    .then(freshSchedule => {
+      if (freshSchedule && JSON.stringify(State.schedule) !== JSON.stringify(freshSchedule)) {
         State.schedule = freshSchedule;
         Storage.saveSchedule();
         forceUpdate();
@@ -195,12 +210,10 @@ export async function saveAllSettings() {
         Storage.saveNotifSettings(notifSettings);
       }
 
-      // Fetch routine JSON for targeted semester & section
-      const path = `./src/data/sem-${sem}/${sec}/routine.json`;
-      const res = await fetch(`${path}?t=${Date.now()}`).catch(() => null);
-      if (res && res.ok) {
-        const data = await res.json();
-        State.schedule = normalizeSchedule(data);
+      // Fetch routine for targeted semester & section (API with static fallback)
+      const freshSchedule = await fetchSectionSchedule(sem, sec);
+      if (freshSchedule) {
+        State.schedule = freshSchedule;
         Storage.saveSchedule();
       }
 
