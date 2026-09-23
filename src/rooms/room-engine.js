@@ -101,6 +101,11 @@ export function formatDuration(durationMins) {
   return `${mins}m`;
 }
 
+function getActuallyOccupyingClasses(rawClasses = []) {
+  if (!Array.isArray(rawClasses)) return [];
+  return rawClasses.filter(cls => !cls.isCancelled && !cls.isMovedOnline && !cls.isRescheduled);
+}
+
 /**
  * Maps numeric floor number to formatted label.
  */
@@ -122,7 +127,7 @@ export function getFloorLabel(floorNumber) {
  * @returns {Object} Evaluated status object
  */
 export function evaluateRoomStatus(roomMeta, rawClasses = [], targetMinute = getCurrentMinutes()) {
-  const classes = Array.isArray(rawClasses) ? rawClasses : [];
+  const classes = getActuallyOccupyingClasses(rawClasses);
   
   // Sort classes chronologically by start time
   const sorted = [...classes].sort((a, b) => a.startM - b.startM);
@@ -326,7 +331,7 @@ export function computeFloorVacancyStats(evaluatedRooms = []) {
  * @returns {Array} Array of timeline block objects
  */
 export function getRoomDayTimeline(roomMeta, rawClasses = [], currentMinute = getCurrentMinutes()) {
-  const classes = Array.isArray(rawClasses) ? rawClasses : [];
+  const classes = getActuallyOccupyingClasses(rawClasses);
   if (classes.length === 0) {
     return [
       {

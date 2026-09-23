@@ -129,4 +129,77 @@ const AT_1206 = 726; // 12:06 PM
   console.log('✅ Test 6b: Timeline gap starts at merged streak end (10:30), not the nested block end');
 }
 
+// ---------------------------------------------------------------------------
+// Test 7: cancelled Room 404 blocks must free the room and open timeline gaps
+// ---------------------------------------------------------------------------
+{
+  const cancelledRoom404 = CONTIGUOUS.map(c => (
+    c.startM === 660 || c.startM === 735 ? { ...c, isCancelled: true } : c
+  ));
+  const s = evaluateRoomStatus(ROOM, cancelledRoom404, AT_1206);
+  assert.strictEqual(s.status, 'FREE');
+  assert.strictEqual(s.freeUntilMins, 810, 'next physical class is the 01:30 PM block');
+
+  const blocks = getRoomDayTimeline(ROOM, cancelledRoom404, AT_1206);
+  const gaps = blocks.filter(b => b.isGap);
+  assert.ok(gaps.some(gap => gap.startM === 660 && gap.endM === 810), 'cancelled blocks must create a 11:00 AM–01:30 PM free gap');
+  console.log('✅ Test 7: Cancelled Room 404 blocks free the room and create timeline gaps');
+}
+
+// ---------------------------------------------------------------------------
+// Test 8: an origin reschedule frees its original room and time
+// ---------------------------------------------------------------------------
+{
+  const originVacated = [cls(660, 735, 'Moved'), cls(810, 885, 'Later')];
+  originVacated[0].isRescheduled = true;
+  const s = evaluateRoomStatus(ROOM, originVacated, 700);
+  assert.strictEqual(s.status, 'FREE');
+  assert.strictEqual(s.freeUntilMins, 810);
+  console.log('✅ Test 8: Origin-rescheduled class does not occupy its old room');
+}
+
+// ---------------------------------------------------------------------------
+// Test 9: a destination reschedule remains a physical room occupancy
+// ---------------------------------------------------------------------------
+{
+  const destinationInserted = [cls(660, 735, 'Moved')];
+  destinationInserted[0].isRescheduledOverride = true;
+  const s = evaluateRoomStatus(ROOM, destinationInserted, 700);
+  assert.strictEqual(s.status, 'OCCUPIED');
+  assert.strictEqual(s.occupiedUntilMins, 735);
+  console.log('✅ Test 9: Destination-rescheduled class occupies its new room');
+}
+
+// ---------------------------------------------------------------------------
+// Test 10: online replacements and university-wide holidays free rooms
+// ---------------------------------------------------------------------------
+{
+  const onlineReplacement = [Object.assign(cls(660, 735, 'Online'), { isMovedOnline: true })];
+  const onlineStatus = evaluateRoomStatus(ROOM, onlineReplacement, 700);
+  assert.strictEqual(onlineStatus.status, 'FREE');
+  assert.strictEqual(onlineStatus.isFreeRestOfDay, true);
+
+  const universityHoliday = CONTIGUOUS.map(c => ({ ...c, isCancelled: true }));
+  const holidayStatus = evaluateRoomStatus(ROOM, universityHoliday, AT_1206);
+  assert.strictEqual(holidayStatus.status, 'FREE');
+  assert.strictEqual(holidayStatus.isFreeRestOfDay, true);
+  console.log('✅ Test 10: Online replacements and university-wide holidays free rooms');
+}
+
+// ---------------------------------------------------------------------------
+// Test 11: cancelled entries cannot hide a simultaneous real class
+// ---------------------------------------------------------------------------
+{
+  const mixed = [
+    Object.assign(cls(660, 735, 'Cancelled'), { isCancelled: true }),
+    cls(660, 735, 'Physical')
+  ];
+  const s = evaluateRoomStatus(ROOM, mixed, 700);
+  assert.strictEqual(s.status, 'OCCUPIED');
+  assert.strictEqual(s.currentClasses.length, 1, 'only the physical class is active');
+  assert.strictEqual(s.currentClasses[0].subject, 'Physical');
+  assert.strictEqual(s.hasConflict, false, 'cancelled entry cannot create a conflict');
+  console.log('✅ Test 11: Mixed real and cancelled classes retain only real occupancy');
+}
+
 console.log('\n🎉 ALL ROOM OCCUPANCY MERGE TESTS PASSED CLEANLY!');
