@@ -2,7 +2,8 @@
   "scripts": {
     "build": "node build.js",
     "update-faculty": "node build.js",
-    "sync": "npm run build && npx cap sync"
+    "sync": "npm run build && npx cap sync",
+    "test": "node tests/run.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",

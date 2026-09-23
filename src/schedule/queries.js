@@ -15,8 +15,12 @@ export function getClassesForDay(dayIdx) {
 }
 
 /**
- * Returns effective classes for a day/date with all user-relevant announcement overrides applied
- * (cancellations removed, moved classes removed from origin date, incoming rescheduled classes added, extra classes added).
+ * Returns effective classes for a day/date with all user-relevant announcement overrides applied.
+ * Cancelled / holiday / online-moved / rescheduled-away classes are RETAINED in the returned
+ * array but flagged (isCancelled / isMovedOnline / isRescheduled) so the UI can render them
+ * with a badge/strikethrough instead of a blank gap — they are NOT removed here.
+ * Incoming rescheduled classes and extra classes are injected as additional entries.
+ * Note: getActiveClass()/getNextClass() are what skip isCancelled classes at consumption time.
  *
  * @param {number} [dayIdx] - Day index (0..6)
  * @param {Date|string} [dateVal] - Optional date or anchor

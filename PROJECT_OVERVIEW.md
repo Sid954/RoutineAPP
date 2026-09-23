@@ -1,229 +1,215 @@
-# 📋 RoutineAPP (My Routine) — Complete Technical Overview & Redesign Blueprint
+﻿# RoutineAPP — Agent Briefing
 
-> **Document Purpose**: This document serves as the single source of truth for the architecture, data models, build targets, UI systems, and feature sets of the RoutineAPP project. It is intended to guide a comprehensive visual redesign while guaranteeing 100% preservation of all existing functionality.
-
----
-
-## 1. 🏗️ Project Overview
-
-### 1.1 What is this app/site for?
-**"My Routine"** is an academic companion, real-time schedule tracker, campus room vacancy finder, faculty directory, and announcement dashboard built specifically for university students (Department of Computer Science & Engineering at Premier University Chittagong, Bangladesh).
-
-It provides instant answers to:
-- *"What class do I have right now, in which room, and with which professor?"*
-- *"When is my next class and how many minutes do I have left?"*
-- *"Which campus rooms are free right now to study or hang out?"*
-- *"Where is Professor X teaching right now and how can I contact them?"*
-- *"Are any of today's classes cancelled, moved online, or suspended for a holiday?"*
+> Read this fully before touching any code. Last updated: **Sep 23, 2026** (commit `9ba2156`).  
+> If significant time has passed since that date, treat this doc as background context and verify current state with `git log --oneline -20` + `git status`.
 
 ---
 
-### 1.2 Tech Stack
-| Layer | Technology |
-| :--- | :--- |
-| **Frontend Framework** | **Vanilla ES6+ JavaScript** (Native ES Modules — zero React/Vue/Angular overhead for instantaneous cold start and tiny bundle size) |
-| **Styling & Design System** | **Modular Pure CSS3** with CSS Custom Properties (Design Tokens), glassmorphism, responsive grid/flexbox, and theme hooks |
-| **State Management** | Centralized mutable singleton state store in `src/core/state.js` |
-| **Native Wrapper** | **Capacitor 8.4** (`@capacitor/android`, `@capacitor/core`, `@capacitor/local-notifications`, `@capacitor/push-notifications`, `@capacitor/app`) |
-| **Android Widgets** | **Native Java / Android RemoteViews** with `AlarmManager` background updates |
-| **Backend & Database** | **Vercel Serverless Functions + Supabase PostgreSQL** (`https://routine-app-iota-one.vercel.app`) |
-| **Build & Tooling** | Custom Node.js pipeline (`build.js`) aggregating multi-semester routines, scraping official university faculty rosters, and syncing assets |
-| **Hosting & Deployment**| **GitHub Pages** (Web/PWA) + **GitHub Releases** (Direct APK updates) + **Vercel** (API) |
+## What This App Is
+
+**RoutineAPP** — a class-schedule and campus companion app for CSE university students.
+
+- **Stack:** Vanilla ES6+ modules, modular CSS, Capacitor (Android APK + PWA), Supabase (Postgres + RLS), Vercel serverless API
+- **Live URL:** `https://routine-app-iota-one.vercel.app`
+- **GitHub pages mirror:** `https://sid954.github.io/RoutineAPP`
+- **Build output:** `node build.js` → compiles everything into `/www/` — this is what actually ships.
 
 ---
 
-### 1.3 Repository Structure
+## Standing Rules (Non-Negotiable)
+
+Read these before doing anything. Violations have happened repeatedly.
+
+1. **Ask before committing or pushing.** No auto-commit, ever. Not even "small" fixes.
+2. **Ask before running build/screenshot/browser automation scripts.**
+3. **Never claim "fixed" or "working" without real evidence.** Acceptable: screenshot from device, actual script output against real data, user's hands-on confirmation. "The code looks right" is not evidence. There is a history of false-completion claims in this project.
+4. **User tests all major changes on their physical phone.** Unit/simulation tests catch logic bugs — not real-device rendering, PWA caching, or Capacitor WebView behavior.
+5. **When fixing a drifted component, copy exact values from the last-known-good source.** Never recreate from memory. "Recreating from memory" is the #1 recurring root cause of regressions here.
+6. **Any change to `api/*.js` requires a real commit + push + Vercel deploy to take effect.** Local builds don't touch the live endpoint. A production 500 error was shipped once precisely because a fix was never actually pushed.
+7. **Never trust a commit message or prior summary over the live file.** Multiple AI sessions have worked on this codebase with zero cross-session visibility. When real behavior matters, always verify against `git diff` and actual file contents.
+8. **If you spot an API key or secret in plaintext anywhere**, flag it immediately and do not silently use it. A Supabase service role key was accidentally exposed once and had to be rotated. Use env vars only.
+9. **Do not resurrect deliberately-removed code.** Class-start/pre-class notification scaffolding was intentionally removed — it needs a ground-up rebuild, not a restore from git history.
+10. **Zero emoji as UI icons. SVG only.** This is a recurring regression. Always double-check after implementing any new UI component.
+
+---
+
+## Architecture
+
+### Data Flow (Current State — Post Supabase Migration)
+
 ```
-RA/
-├── index.html                   # Master single-page app markup & modal skeletons
-├── build.js                     # Master Node build script (compiles data, updates SW, syncs Capacitor)
-├── manifest.json                # PWA web app manifest
-├── sw.js                        # Progressive Web App Service Worker with cache busting
-├── capacitor.config.json        # Capacitor native Android configuration
-├── config.json                  # Dynamic app runtime configuration & default schedule
-├── schedule.json                # Default active semester timetable schedule
-├── master_rooms_schedule.json   # Auto-compiled schedule of all 33 campus rooms across 8 semesters
-├── master_teachers_schedule.json# Auto-compiled weekly schedule of 84+ faculty members
-├── faculty_info.json            # Scraped & enriched faculty database (130+ profiles)
-├── android-custom/              # Android native source files (injected into android/ during build)
-│   ├── java/com/routine/app/    # Widget providers, RemoteViews factories, and Capacitor plugins
-│   ├── res/layout/              # XML layouts for Android Home Screen widgets
-│   ├── res/drawable/            # Widget vectors, previews, and progress bars
-│   └── AndroidManifest.xml      # Native Android manifest with permissions & widget declarations
-├── android/                     # Generated Android Studio Gradle project (synced via npx cap sync)
-├── src/                         # Modular Frontend ES Modules
-│   ├── main.js                  # App bootstrap entry point
-│   ├── main.css                 # Master CSS importer
-│   ├── features.js              # Feature flags registry
-│   ├── core/                    # Config, State, DOM cache, and utilities
-│   ├── dashboard/               # Clock, Greeting, Live Current Class, Next Class ETA
-│   ├── timeline/                # Daily class list, Day switcher, Course title expander
-│   ├── rooms/                   # Campus Free Room Finder & room schedule modal
-│   ├── teachers/                # Faculty Directory, Search, Profile modal & routine
-│   ├── weekly-matrix/           # Full-week 5-day timetable grid modal
-│   ├── announcements/           # Live feed, Post form, Holiday/Cancellation overrides
-│   ├── notifications/           # Native push, Local alerts, Lead-time scheduler, Log modal
-│   ├── edit-schedule/           # Custom routine editor & JSON Import/Export
-│   ├── exams/                   # Semester exam schedule & countdowns
-│   ├── themes/                  # Multi-palette theme engine (Midnight, AMOLED, Cyber, etc.)
-│   ├── updater/                 # In-app APK auto-updater (GitHub Releases API)
-│   ├── storage/                 # LocalStorage persistence layer
-│   ├── streak/                  # Daily usage streak tracker
-│   ├── particles/               # Interactive HTML5 Canvas particle background
-│   ├── modals/                  # Universal modal open/close controller
-│   └── toast/                   # Toast notification system with Undo action
+Supabase Postgres
+    └── api/schedule.js       (Vercel Serverless, public read)
+    └── api/teachers.js       (faculty profiles, RLS-gated writes)
+    └── api/announcements.js  (per-section + department-wide reads)
+    └── api/faculty.js        (faculty directory)
+
+Client Boot Sequence (src/events/init.js):
+  1. Load cached schedule from localStorage instantly → render dashboard immediately
+  2. Fetch fresh schedule from /api/schedule (Supabase) → fallback to bundled ./src/data/sem-X/Y/routine.json if API fails
+  3. Apply announcement overrides from getEffectiveClassesForDay()
+  4. Poll announcements every 30s → re-resolve overrides → cascade refresh all views
 ```
 
----
+### Schedule Data (Supabase — migrated Aug 31, 2026)
 
-## 2. 📱 Platforms & Build Targets
+Tables: `academic_terms`, `semesters`, `sections`, `rooms`, `courses`, `class_sessions`, `schedule_edit_suggestions`
 
-1. **Web Application**: Static Single-Page App hosted on GitHub Pages (`https://sid954.github.io/RoutineAPP`).
-2. **Progressive Web App (PWA)**:
-   - Installable on Chrome, Safari (iOS), Edge, and Desktop.
-   - Offline-capable via `sw.js` Cache-First strategy.
-   - Dynamic cache versioning (`routine-cache-<timestamp>`) injected during `npm run build`.
-3. **Android Native App (APK)**:
-   - Native container powered by **Capacitor 8.4**.
-   - Package ID: `com.routine.app` | Version: `1.5.0` (VersionCode: `10`).
-   - In-app auto-updater checks GitHub Releases (`/releases/latest/download/app-release.apk`).
-4. **Android Home Screen Widgets** *(Fully Implemented & Active)*:
-   - **Widget 1: Live Class & Countdown Widget** (`RoutineWidgetProvider.java`): Shows ongoing class progress bar, room, remaining time, and next class.
-   - **Widget 2: Landscape Timetable Card** (`RoutineRotatedWidgetProvider.java`): Compact wide view of today's schedule.
-   - **Widget 3: Full Scrollable List Widget** (`RoutineListWidgetProvider.java`): Interactive scrollable RemoteViews list of all classes today.
-   - Synced via background `AlarmManager` and native Capacitor plugin (`WidgetPlugin.java`).
-5. **App Store Presence**: Currently distributed directly via GitHub Releases APK and Web/PWA.
+Seeded data:
+- 1 academic term: `spring_2026` (current)
+- 8 semesters, 41 sections, 33 rooms, 70 courses, 518 class sessions
+- Times stored as **integer minutes from midnight** (`start_mins`, `end_mins`). Example: `585 = 09:45`, `660 = 11:00`
+- Day indices: `0=Sunday, 1=Monday, ..., 6=Saturday` (JS convention)
+- Room `03` is remapped to `503` for Sem 4-C Saturday MML session
 
----
+API endpoints in `api/schedule.js`:
+- `?action=rooms_master` — all 33 rooms with full metadata
+- `?action=teachers_master` — all 84 teacher codes + schedule cross-reference
+- `?action=section&semester=X&section=Y` — routine JSON for a section (normalizeSchedule-compatible)
+- `?action=courses` — course code → full name lookup
+- `?action=semesters_sections` — semester/section directory
 
-## 3. 🎯 Features — Complete Catalog
+### 3-Tier Consumer Architecture
 
-| Feature | Description | Key Data Dependencies | Critical Logic / Behaviors |
-| :--- | :--- | :--- | :--- |
-| **Digital Header & Clock** | 12h/24h digital clock with AM/PM indicator, active day, date badge. | System clock (`new Date()`) | Updates every second; tap toggles 12h/24h display format. |
-| **Smart Greeting & Daily Streak** | Greets the user based on time-of-day and tracks daily visit streaks with fire emoji (`🔥 Streak: 5 days`). | `localStorage` (`streak_data`) | Increments if visited on consecutive days; resets if a day is skipped. |
-| **Live Current Class Card** | Shows ongoing class with real-time animated progress bar, elapsed time, remaining countdown, room badge, and professor code. | `State.schedule`, `announcementsList`, `getCurrentMinutes()` | Calculates minute delta (`currentMins - startM`); detects **Free Time**, **Holiday**, **Class Cancellation**, or **Online Class**. |
-| **Next Class ETA Card** | Shows upcoming class details with countdown chip (`in 25m`, `in 1h 15m`). | `State.schedule`, `getCurrentMinutes()` | Finds next chronological class; displays "No upcoming classes 🎉" or "Enjoy your break" when done. |
-| **Daily Class Timeline** | Vertically stacked class cards showing start/end time, subject code, room badge, Theory/Lab badge, and teacher code. | `State.schedule`, `State.currentViewDayIdx` | Highlights active class in glowing cyan/emerald; greys out finished classes; inserts Break cards between gaps; swipe gestures support. |
-| **Day Switcher** | Segmented day navigation (`Sat`, `Sun`, `Mon`, `Tue`, `Wed`) with previous/next controls. | `CONFIG.activeDays` | Switches rendered day smoothly without reloading; automatically selects tomorrow's routine in the evening (after 5 PM). |
-| **Campus Free Room Finder** | Lists all 33 university campus rooms with real-time status: 🟢 Free now (with "free for next X hrs") vs 🔴 Occupied. | `master_rooms_schedule.json` (33 rooms across 8 semesters) | Time-travel slider allows students to check room vacancy at any specific future hour today. |
-| **Faculty Directory & Profiles** | Searchable directory of 130+ faculty members with contact info, photo, designation, live status (🟢 In Class vs 🌴 Free), and full weekly routine. | `faculty_info.json`, `master_teachers_schedule.json` | Instant search by name, short code, designation, subject taught, or room; interactive day tabs for routine. |
-| **Faculty Info Suggestion & Admin Review** | Allows students to suggest missing faculty phone numbers, emails, or names; admin approval panel with passkey. | Supabase API (`/api/teachers`) | Submissions saved to remote DB; approved overrides broadcast to all users. |
-| **Weekly Timetable Matrix** | Full-screen interactive 5-day timetable grid mapped against standard departmental time intervals. | `State.schedule`, `CONFIG.matrixIntervals` | Matrix modal displaying entire week at a glance with theory/lab color coding. |
-| **Announcements & Override System** | Live feed of notices (Class Cancellations, Holidays, Online Classes, General News) posted by class representatives. | Supabase API (`/api/announcements`) | Overrides dynamically alter the main dashboard (e.g. crossing out a cancelled class or inserting Zoom link). |
-| **Smart Notification Engine** | Background/local notifications 5, 10, 15, or 30 minutes before every class; cancellation alerts. | Capacitor `LocalNotifications` / Web Notification API | Schedules daily notification alarms; logs history to in-app Notification Log modal. |
-| **Custom Routine Editor & Import/Export** | Allows students to customize their routine (add/edit/delete classes), export as JSON backup, or import a friend's routine. | `localStorage` (`genz_routine_data`) | Full normalizer validates start/end times and formats; instant rollback / default reset option. |
-| **Semester Exam Timetable** | Modal displaying upcoming midterm/final exam dates, course codes, rooms, and live countdown timers. | `src/exams/exam-schedule.js` | Calculates days/hours remaining until each exam. |
-| **Themes Engine** | Multi-theme switcher: Midnight Navy, AMOLED Pitch Black, Cyberpunk, Emerald, Sunset, Light mode. | CSS Custom Properties & `localStorage` (`puc_app_theme`) | Applies `data-theme` attribute to `<html>` for instant, non-flickering palette changes. |
-| **In-App APK Auto-Updater** | Checks GitHub Releases for new APK versions, displays changelog, and offers one-click download. | GitHub API (`/repos/sid954/RoutineAPP/releases/latest`) | Compares `CONFIG.appVersionCode` against remote release tag. |
+| Tier | File | Cache Key | Network Fallback | Offline Fallback |
+|------|------|-----------|-----------------|-----------------|
+| 1 — Teacher Finder | `src/teachers/teacher-finder.js` | `routine_master_teachers_v2` | `api/schedule?action=teachers_master` | `master_teachers_schedule.json` |
+| 2 — Room Engine | `src/rooms/room-engine.js` | `routine_master_rooms_v5` | `api/schedule?action=rooms_master` | `master_rooms_schedule.json` |
+| 3 — Core Routine | `src/events/init.js` via `fetchSectionSchedule()` | `genz_routine_data` (Storage) | `api/schedule?action=section&...` | `./src/data/sem-X/Y/routine.json` |
 
----
+**Brand-new user / offline cold launch:** `CONFIG.defaultRoutine` (hardcoded in `src/core/config.js`) is the absolute last-resort fallback for the core routine. The app never shows a blank dashboard.
 
-## 4. 🧠 Data Model & Logic
+### Announcements & Overrides System
 
-### 4.1 Core Data Entities
-```typescript
-// 1. Class Item
-interface ClassItem {
-  time?: string;          // "09:45 AM - 11:00 AM"
-  start: string;          // "09:45 AM"
-  end: string;            // "11:00 AM"
-  startM: number;         // 585 (Minutes since midnight)
-  endM: number;           // 660
-  subject: string;        // "ICMP"
-  title?: string;         // "Introduction to Classical & Modern Physics"
-  room: string;           // "404"
-  instructor: string;     // "NME"
-  type: "Theory" | "Lab"; // Theory or Lab
-  semSec?: string;        // "Sem 2-B"
-}
+Announcements stored in Supabase, fetched **department-wide** (not just the user's section), and can override the live routine.
 
-// 2. Weekly Schedule
-type Schedule = Record<number | string, ClassItem[]>; // Keyed by Day Index (6=Sat, 0=Sun, 1=Mon, 2=Tue, 3=Wed)
+Override types: `cancellation`, `holiday`, `class_test`, `online_class`, `general`, `rescheduled`, `assignment`
 
-// 3. Faculty Member Info
-interface FacultyInfo {
-  code: string;           // "NME"
-  name: string;           // "Nur Mohammad Eman"
-  designation: string;    // "Faculty Member · Department of CSE"
-  photo?: string;         // Remote URL
-  status: "Active" | "Study Leave";
-  emails: string[];
-  phone: string;
-  profileUrl: string;
-}
+**Critical design decisions — do not revert:**
 
-// 4. Announcement / Override
-interface Announcement {
-  id: string;
-  title: string;
-  announcement: string;
-  type: "general" | "holiday" | "cancellation" | "online_class";
-  targetDate?: string;    // "2026-08-19"
-  targetSubject?: string; // "ICMP"
-  targetDayIdx?: number;  // 1
-  createdAt: string;
-  expiresAt: string;
-}
+- **Overrides FLAG classes, they do not remove them.** Cancelled/rescheduled classes get `isCancelled: true` etc. — rendered with badge + strikethrough/dashed style. Previously filtered out entirely (caused schedule to look wrong). Deliberately fixed.
+- **Subject matching is EXACT (`===`), not substring (`.includes()`).** Past bug: `"DS"` matched `"DSL"`. The fix lives in `isSubjMatch()` in both `src/rooms/room-overrides.js` and `src/announcements/overrides.js`. Do not reintroduce fuzzy matching.
+
+Central resolvers:
+- **Student schedule:** `getEffectiveClassesForDay(dayIdx, dateVal)` in `src/schedule/queries.js` — single source of truth after all overrides applied. All dashboard/timeline/notification code reads through this.
+- **Room occupancy:** `getEffectiveRoomClasses(roomId, dayName, dateStr, baseClasses)` in `src/rooms/room-overrides.js` — for Free Rooms.
+
+### Faculty Data
+
+- `faculty_members` table in Supabase: 42 CSE faculty (web-scraped + cleaned)
+- 51 non-CSE stubs (Math, Physics, English, Economics, etc.): `name = teacher_code`, `designation = null`, `department = null`, `source = 'unverified_routine_code'`
+- These stubs render cleanly in `teacher-names.js` — null-designation fallback shows raw code (e.g. `AIR`) with no crash
+- **Do not add a NOT NULL constraint on `designation` or `department`** — the null values are intentional and correct
+
+### Key Files
+
+```
+src/core/config.js          CONFIG, FULL_COURSE_NAMES, SUBJECT_PALETTES, DAY_MAP, defaultRoutine
+src/core/state.js           Global State object
+src/storage/storage.js      localStorage wrappers
+src/events/init.js          App boot, fetchSectionSchedule(), 30s polling, refresh cascade
+src/schedule/normalizer.js  normalizeSchedule() — raw JSON → { dayIdx: [{start, end, title, room, instructor, type}] }
+src/schedule/queries.js     getEffectiveClassesForDay(), getActiveClass(), getNextClass()
+src/announcements/          announcements.js (fetch/cache/post), overrides.js (subject/date matching)
+src/rooms/                  room-engine.js, room-overrides.js, rooms-view.js, rooms.css
+src/teachers/               teacher-finder.js, teacher-names.js
+src/dashboard/              current-class.js, next-class.js (override-aware)
+src/timeline/timeline.js    Week strip + daily timeline (override-aware)
+src/notifications/          notifications.js (skips cancelled classes)
+api/schedule.js             Unified Vercel serverless for all routine data
+api/teachers.js             Faculty directory and edit suggestion workflow
+api/announcements.js        Supabase-backed announcement fetch/post
+scripts/seed-schedule.js    One-time seeder for schedule tables (has --dry-run flag)
+supabase_schedule_schema.sql DDL for all 7 schedule tables + RLS + indexes
+build.js                    Compiles /src → /www/ for deployment
 ```
 
-### 4.2 Scheduling & Time Calculation Logic
-- **Minutes-Since-Midnight System**: All string times (`09:45 AM`, `1:30 PM`, `14:30`) are converted via `toMinutes()` into an integer (0..1439).
-- **Active Class Detection**: `currentMins >= class.startM && currentMins < class.endM`.
-- **Academic Week Cycle**:
-  - Active Days: `Saturday (6)`, `Sunday (0)`, `Monday (1)`, `Tuesday (2)`, `Wednesday (3)`.
-  - Weekend / Off Days: `Thursday (4)`, `Friday (5)`.
-- **Auto-Switch Evening Logic**: After 5:00 PM (`17:00`), the dashboard automatically pre-selects the next academic day's timetable.
+### Testing
 
-### 4.3 Authentication & Access Control
-- **Zero-Friction Access**: No user registration or login required to view schedules, rooms, or faculty profiles.
-- **Admin Password Gate**: Password verification required only for publishing announcements or approving faculty data submissions.
+- Test suites live in `tests/` (tracked in git — moved out of the old gitignored `scratch/` on Sep 23, 2026)
+- Run all: `npm test` (executes `tests/run.js`, which runs every `tests/test_*.js` with a 60s per-test timeout)
+- 8/10 suites pass as of Sep 23, 2026. The two exceptions are environment-dependent, not logic failures:
+  - `test_direct_fetch.js` — requires a real local `.env` with Supabase credentials (reads `../.env`; only `.env.example` ships in the repo), so it hangs without them
+  - `test_init_schedule_resilience.js` — hits a Node DOM-mock gap (`toast.js:48` `addEventListener` on null) and then hangs on dangling handles; needs a fuller DOM mock
 
----
+### Critical DOM IDs & UI Constraints
 
-## 5. 🎨 Current UI & Design System Architecture
+JavaScript modules query specific DOM elements by ID — renaming an ID silently breaks event listeners and update cycles (and anything deep-linking or bridged to native code that depends on exact IDs). Markup structure and CSS classes can be redesigned freely, but **DOM element IDs must be preserved**:
 
-### 5.1 Design Tokens (`src/core/core.css` & `src/themes/themes.css`)
-- **Backgrounds**: `--bg: #06080d;`, `--bg2: #0f121a;`, `--card: #141824;`, `--card2: #1b2030;`
-- **Text Hierarchy**: `--text: #f3f5f9;` (Headings/Primary), `--dim: #848c9e;` (Muted/Captions)
-- **Accents**: `--accent: #38bdf8;` (Sky Cyan), `--accent2: #7dd3fc;`, `--pink: #f43f5e;` (Rose/Alert), `--lime: #10b981;` (Success/Live)
-- **Typography**: 
-  - Main Body: `'Plus Jakarta Sans', system-ui, sans-serif`
-  - Numbers & Time Badges: `'JetBrains Mono', monospace`
-- **Border Radius**: `--r: 24px;` (Main cards), `--rs: 18px;` (Inner containers), `--rx: 10px;` (Pills/Buttons)
+- `clockTrigger`, `cc`, `cT`, `cR`, `cBar`, `nc`, `nT`, `chG`, `prevDayBtn`, `nextDayBtn`, `findTeacherFab`, `freeRoomsFab`
 
-### 5.2 Modal & Overlay Architecture
-- Universal modal controller in `src/modals/modal.js` controlling backdrop blur (`.mo.open`) and dialog container (`.md`).
-- All sub-modals (Faculty Profile, Room Finder, Weekly Matrix, Routine Editor, Announcements, Notification Settings, Exams) share this common modal structure.
+Other hard boundaries:
+
+- **Android Widget Independence:** Android widgets are rendered via native Java XML (`android-custom/res/layout/`). Web CSS changes will not break them as long as `build.js` remains intact.
+- **State & Logic Separation:** All logic modules in `src/dashboard/`, `src/timeline/`, `src/rooms/`, and `src/teachers/` read from `State` and output structured HTML templates. The HTML strings they render can be styled to match any new design language.
+- **Mobile WebView Safe Areas:** Must always maintain `env(safe-area-inset-top)` and `env(safe-area-inset-bottom)` so buttons and headers never get clipped by device camera notches or home gesture bars.
 
 ---
 
-## 6. 🔌 Integrations & Native APIs
+## Design System
 
-1. **Supabase REST API / Vercel Proxy**:
-   - `GET/POST /api/announcements`: Real-time class notices and cancellation overrides.
-   - `GET/POST /api/teachers`: Crowd-sourced faculty updates.
-2. **PUC Official CSE Portal**:
-   - `build.js` scrapes `https://cse.puc.ac.bd/Home/FacultyMembers` to populate teacher designations, profile pictures, and profile URLs.
-3. **Capacitor Device APIs**:
-   - `LocalNotifications`: Scheduled alarms prior to class start.
-   - `PushNotifications`: Remote broadcast alerts.
-   - `App`: App state / lifecycle listener.
-4. **Android Native Bridge (`WidgetPlugin.java`)**:
-   - Transmits live schedule data from web layer into Android `SharedPreferences` to render Home Screen AppWidgets.
+Do not deviate without explicit user approval.
+
+- **Light theme:** `#F7F4EB` / `#FAF7F0` (intentionally warmed ivory) + Cobalt Ultramarine `#2563EB`
+- **Dark theme:** `#18191E` / `#23252C` + Luminescent Sky `#38BDF8`
+- **Fonts:** Plus Jakarta Sans (UI), JetBrains Mono (times/metrics)
+- **Icon badges:** squircle — 42×42px, `border-radius: 13px` (NOT `clip-path`)
+- **No glassmorphism / glow / backdrop-filter anywhere** — recurring regression
+- **No emoji as UI icons — SVG only** — recurring regression
+- **Two themes only** (light/dark) — all other palettes deleted, do not reintroduce
+
+Announcement type color identity:
+
+| Type | Color |
+|------|-------|
+| `cancellation` | Rose / Red |
+| `holiday` | Amber / Gold |
+| `class_test` | Orange |
+| `online_class` | Emerald / Green |
+| `general` | Sky Blue |
+| `rescheduled` | Slate / Steel-Blue |
+| `assignment` | Purple / Magenta |
 
 ---
 
-## 7. ⚠️ Critical Rules for the Redesign (Do Not Break)
+## Current State (Sep 23, 2026)
 
-When overhauling the visual interface, keep these critical technical boundaries in mind:
+### Stable and confirmed
+- Core redesign: dashboard, class detail sheet, faculty profile, apps hub nav — all full-page conversions
+- Announcements system: 8-type system, all known bugs fixed
+- Faculty data in Supabase: 42 CSE + 51 stub rows, RLS configured, approval-queue workflow active
+- Free Rooms Stages 1 & 2: full rebuild, announcement override sync working, on-device tested
+- Schedule Supabase migration: 518 sessions seeded, 3-tier consumers migrated, offline fallbacks simulation-verified
 
-1. **Keep HTML IDs Intact**:
-   - JavaScript modules query specific DOM elements by ID (e.g. `clockTrigger`, `cc`, `cT`, `cR`, `cBar`, `nc`, `nT`, `chG`, `prevDayBtn`, `nextDayBtn`, `findTeacherFab`, `freeRoomsFab`).
-   - The markup structure and CSS classes can be redesigned, but **DOM element IDs should be preserved** so event listeners and update cycles don't break.
-2. **Android Widget Independence**:
-   - Android widgets are rendered via native Java XML (`android-custom/res/layout/`). Any web CSS changes will not break Android widgets as long as `build.js` remains intact.
-3. **State & Logic Separation**:
-   - All logic modules in `src/dashboard/`, `src/timeline/`, `src/rooms/`, and `src/teachers/` read from `State` and output structured HTML templates. The HTML strings they render can be styled to match any new design language.
-4. **Mobile WebView Safe Areas**:
-   - Must always maintain `env(safe-area-inset-top)` and `env(safe-area-inset-bottom)` so buttons and headers never get clipped by device camera notches or home gesture bars.
+### Needs on-device verification
+The schedule migration (`9ba2156`, Aug 31 2026) was committed and pushed but **has not yet been physically tested on the user's phone**. This is the immediate next action — have the user push (if not done) and test:
+- Dashboard loads correct routine from Supabase
+- Teacher Finder loads
+- Free Rooms loads
+- **Airplane mode test:** confirm offline fallback works on a real device
+
+### Backlog
+
+1. Holiday date-range picker: end date should default to day-after start date
+2. Week-strip/timeline multi-override icons: show up to 3 + "3+" badge (currently only shows first)
+3. Calendar month-view color priority: only `class_test` and `assignment` get background coloring; explicit priority order when multiple types land on same day
+4. Past announcements: stop showing once their date has passed
+5. 6pm schedule rollover: after 6pm, show tomorrow's schedule; update greeting and day-header accordingly
+6. Announcement icon overflow: cap visible icons at ~5, collapse rest behind a "+N" circular button (WhatsApp chip-row pattern)
+7. Routine Matrix + Schedule Settings: need same full-page conversion as Faculty/Announcements/Free Rooms
+8. Real Android/Gradle APK build: never verified end-to-end
+9. Class-start/pre-class briefing notifications: rebuild from scratch (old scaffolding intentionally removed — do NOT restore from git)
+10. Free Rooms polish:
+    - Lab room header should lead with room number: `"503 (Microprocessor & Multimedia Lab)"`
+    - Verify "No Class Scheduled" copy is consistent
+    - Class-card tap opens instructor profile instead of class-detail — needs proper fix (prior attempt failed)
+11. Schedule admin/edit flow: build an admin-facing UI to edit schedule data without requiring a re-seed
+
+---
+
+## Suggested First Steps for a New Agent
+
+1. Run `git log --oneline -15` and `git status` — confirm actual repo state.
+2. Ask the user if the `9ba2156` push + Vercel deployment is done and device-tested. If not, that's the only immediate priority.
+3. Once device test is confirmed, ask which backlog item to tackle next.
+4. Before touching the overrides system, re-read the Architecture section above — it has a history of subtle regressions.
