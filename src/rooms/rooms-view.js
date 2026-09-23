@@ -16,6 +16,11 @@ import {
   formatDuration,
   getFloorLabel
 } from './room-engine.js';
+import {
+  resolveFreeRoomsSelection,
+  createCustomFreeRoomsSelection,
+  createNowFreeRoomsSelection
+} from './room-date-lifecycle.js';
 
 // State
 let _selectedDate = new Date();
@@ -35,6 +40,18 @@ let _freeRoomsReturnView = null;
 // Campus Floors & Academic Days
 const CAMPUS_FLOORS = [4, 5, 6, 9, 10];
 const ACADEMIC_DAYS = [6, 0, 1, 2, 3, 4, 5]; // Sat, Sun, Mon, Tue, Wed, Thu, Fri
+
+function getActiveFreeRoomsSelection() {
+  return resolveFreeRoomsSelection(_targetMode, _selectedDate, _customMinute);
+}
+
+function applyFreeRoomsSelection(selection) {
+  _selectedDate = selection.selectedDate;
+  _targetMode = selection.targetMode;
+  _customMinute = selection.customMinute;
+  if (typeof selection.calViewMonth === 'number') _calViewMonth = selection.calViewMonth;
+  if (typeof selection.calViewYear === 'number') _calViewYear = selection.calViewYear;
+}
 
 /**
  * Initializes Free Rooms UI event listeners and controls.
@@ -132,10 +149,10 @@ export function initFreeRoomsUI() {
   // 7. Room Schedule Bottom Sheet & In-Sheet Day Switcher Events
   initRoomScheduleSheetEvents();
 
-  // 60-second ticker to update 'NOW' mode live
+  // 60-second ticker keeps the active view current; CUSTOM mode remains pinned by its selection.
   if (_liveTickerTimer) clearInterval(_liveTickerTimer);
   _liveTickerTimer = setInterval(() => {
-    if (_targetMode === 'NOW' && window.__currentAppViewId === 'free_rooms') {
+    if (window.__currentAppViewId === 'free_rooms') {
       renderFreeRoomsView();
       if (_currentOpenRoomData) {
         renderRoomScheduleSheetTimeline(_currentOpenRoomData.roomMeta, _sheetLocalDayIdx);
@@ -178,11 +195,7 @@ function initDayTimePickerEvents() {
   // Quick "Right Now" Shortcut
   if (quickNowBtn) {
     quickNowBtn.addEventListener('click', () => {
-      _selectedDate = new Date();
-      _calViewMonth = _selectedDate.getMonth();
-      _calViewYear = _selectedDate.getFullYear();
-      _targetMode = 'NOW';
-      _customMinute = getCurrentMinutes();
+      applyFreeRoomsSelection(createNowFreeRoomsSelection());
 
       syncDayTimeSheetState();
       renderDayTimeCalendarGrid();
@@ -231,8 +244,9 @@ function openDayTimePickerSheet() {
   const sheet = document.getElementById('frDayTimePickerSheet');
   if (!sheet) return;
 
-  _calViewMonth = _selectedDate.getMonth();
-  _calViewYear = _selectedDate.getFullYear();
+  const { date } = getActiveFreeRoomsSelection();
+  _calViewMonth = date.getMonth();
+  _calViewYear = date.getFullYear();
 
   syncDayTimeSheetState();
   renderDayTimeCalendarGrid();
@@ -250,7 +264,7 @@ function syncDayTimeSheetState() {
   const timeInput = document.getElementById('frSheetTimePickerInput');
   const timeFormattedLabel = document.getElementById('frSheetTimeFormattedLabel');
 
-  const currentMin = _targetMode === 'NOW' ? getCurrentMinutes() : _customMinute;
+  const { targetMinute: currentMin } = getActiveFreeRoomsSelection();
   const isLiveNow = _targetMode === 'NOW';
 
   if (quickNowBtn) quickNowBtn.classList.toggle('active', isLiveNow);
@@ -279,6 +293,7 @@ function renderDayTimeCalendarGrid() {
   const firstDay = new Date(_calViewYear, _calViewMonth, 1);
   const lastDay = new Date(_calViewYear, _calViewMonth + 1, 0);
   const realToday = new Date();
+  const { date: activeDate } = getActiveFreeRoomsSelection();
 
   // Academic week starts Saturday (Sat=6 => 0, Sun=0 => 1, Mon=1 => 2, ..., Fri=5 => 6)
   const firstDaySatIndex = (firstDay.getDay() === 6) ? 0 : (firstDay.getDay() + 1);
@@ -293,7 +308,7 @@ function renderDayTimeCalendarGrid() {
     const thisDate = new Date(_calViewYear, _calViewMonth, day);
     const dow = thisDate.getDay();
     const isOff = (dow === 4 || dow === 5);
-    const isSelected = isSameCalendarDay(thisDate, _selectedDate);
+    const isSelected = isSameCalendarDay(thisDate, activeDate);
     const isToday = isSameCalendarDay(thisDate, realToday);
 
     gridHtml += `
@@ -313,8 +328,7 @@ function renderDayTimeCalendarGrid() {
       const month = parseInt(cell.dataset.month, 10);
       const day = parseInt(cell.dataset.day, 10);
 
-      _selectedDate = new Date(year, month, day);
-      _targetMode = 'CUSTOM';
+      applyFreeRoomsSelection(createCustomFreeRoomsSelection(new Date(year, month, day)));
       syncDayTimeSheetState();
       renderDayTimeCalendarGrid();
     });
@@ -348,8 +362,8 @@ function openFloorPickerSheet() {
   const optionsContainer = document.getElementById('frFloorPickerOptions');
   if (!sheet || !optionsContainer) return;
 
-  const dayName = DAY_NAMES[_selectedDate.getDay()] || 'Saturday';
-  const targetMinute = _targetMode === 'NOW' ? getCurrentMinutes() : _customMinute;
+  const { date, targetMinute } = getActiveFreeRoomsSelection();
+  const dayName = DAY_NAMES[date.getDay()] || 'Saturday';
   const allEvaluated = searchAllRoomsAvailability(dayName, targetMinute);
   const floorStats = computeFloorVacancyStats(allEvaluated);
 
@@ -474,12 +488,12 @@ export function renderFreeRoomsView() {
   const floorFilterLabel = document.getElementById('frFloorFilterLabel');
   if (!flatContainer) return;
 
-  const dayName = DAY_NAMES[_selectedDate.getDay()] || 'Saturday';
-  const targetMinute = _targetMode === 'NOW' ? getCurrentMinutes() : _customMinute;
-  const isRealToday = isSameCalendarDay(_selectedDate, new Date());
+  const { date, targetMinute } = getActiveFreeRoomsSelection();
+  const dayName = DAY_NAMES[date.getDay()] || 'Saturday';
+  const isRealToday = isSameCalendarDay(date, new Date());
 
   // 1. Evaluate availability for all department rooms with announcement overrides
-  const dateStr = normalizeDate(_selectedDate);
+  const dateStr = normalizeDate(date);
   const allEvaluated = searchAllRoomsAvailabilityWithOverrides(dayName, targetMinute, dateStr);
 
   // 2. Update Compact Day/Time Pill Label
@@ -487,7 +501,7 @@ export function renderFreeRoomsView() {
     const timeStr = _targetMode === 'NOW' ? 'Right Now' : formatMinuteTo12h(targetMinute);
     const dateStr = isRealToday
       ? 'Today'
-      : `${_selectedDate.getDate()} ${MONTHS[_selectedDate.getMonth()] || ''}`;
+      : `${date.getDate()} ${MONTHS[date.getMonth()] || ''}`;
     dayTimeLabel.textContent = `${dateStr} · ${timeStr}`;
   }
 
@@ -617,7 +631,7 @@ export function renderFreeRoomsView() {
       const roomId = card.dataset.roomId;
       const targetRoom = allEvaluated.find(i => i.room.id === roomId);
       if (targetRoom) {
-        openRoomScheduleSheet(targetRoom.room, _selectedDate.getDay());
+        openRoomScheduleSheet(targetRoom.room, date.getDay());
       }
     });
   });
@@ -629,13 +643,15 @@ export function renderFreeRoomsView() {
  * @param {Object} roomMeta - Room metadata
  * @param {number} dayIdx - Day of the week index (0..6)
  */
-export function openRoomScheduleSheet(roomMeta, dayIdx = _selectedDate.getDay()) {
+export function openRoomScheduleSheet(roomMeta, dayIdx) {
   const sheet = document.getElementById('roomScheduleSheet');
   const titleEl = document.getElementById('roomSheetTitle');
   const metaEl = document.getElementById('roomSheetMeta');
   if (!sheet || !roomMeta) return;
 
-  _currentOpenRoomData = { roomMeta, dayIdx };
+  const resolvedDayIdx = typeof dayIdx === 'number' ? dayIdx : getActiveFreeRoomsSelection().date.getDay();
+  _currentOpenRoomData = { roomMeta, dayIdx: resolvedDayIdx };
+  dayIdx = resolvedDayIdx;
   _sheetLocalDayIdx = dayIdx;
 
   let sheetTitle = roomMeta.name || `Room ${roomMeta.id}`;
@@ -667,9 +683,9 @@ function renderRoomScheduleSheetTimeline(roomMeta, dayIdx) {
   if (!listEl || !roomMeta) return;
 
   const dayName = DAY_NAMES[dayIdx] || 'Saturday';
-  const dateStr = getDateForDayIndex(dayIdx, _selectedDate);
+  const { date, targetMinute: currentMinute } = getActiveFreeRoomsSelection();
+  const dateStr = getDateForDayIndex(dayIdx, date);
   const rawClasses = getEffectiveRoomDaySchedule(dayName, roomMeta.id, dateStr);
-  const currentMinute = _targetMode === 'NOW' ? getCurrentMinutes() : _customMinute;
   const timelineBlocks = getRoomDayTimeline(roomMeta, rawClasses, currentMinute);
 
   listEl.innerHTML = timelineBlocks.map((block, idx) => {
@@ -862,7 +878,7 @@ export function closeRoomScheduleSheet() {
  * @param {number} dayIdx - Optional day index (0..6)
  * @param {string} returnView - Optional view ID to return to when backing out
  */
-export function openRoomInFreeRooms(rawRoomId, dayIdx = _selectedDate.getDay(), returnView = null) {
+export function openRoomInFreeRooms(rawRoomId, dayIdx = null, returnView = null) {
   if (!returnView) {
     returnView = (window.__currentAppViewId === 'faculty_directory')
       ? 'faculty_directory'
@@ -884,12 +900,15 @@ export function openRoomInFreeRooms(rawRoomId, dayIdx = _selectedDate.getDay(), 
   }
 
   // Synchronize Free Rooms date and sheet day to the requested dayIdx
+  const activeDate = getActiveFreeRoomsSelection().date;
+  const resolvedDayIdx = typeof dayIdx === 'number' && !isNaN(dayIdx) ? dayIdx : activeDate.getDay();
   if (typeof dayIdx === 'number' && !isNaN(dayIdx)) {
-    const today = new Date();
-    const diff = (dayIdx - today.getDay() + 7) % 7;
-    _selectedDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + diff);
-    _sheetLocalDayIdx = dayIdx;
+    const diff = (resolvedDayIdx - activeDate.getDay() + 7) % 7;
+    applyFreeRoomsSelection(createCustomFreeRoomsSelection(
+      new Date(activeDate.getFullYear(), activeDate.getMonth(), activeDate.getDate() + diff)
+    ));
   }
+  _sheetLocalDayIdx = resolvedDayIdx;
 
   const cleanRoom = String(rawRoomId || '').replace(/^room\s*/i, '').trim();
   const searchInput = document.getElementById('frSearchInput');
@@ -909,7 +928,7 @@ export function openRoomInFreeRooms(rawRoomId, dayIdx = _selectedDate.getDay(), 
       const rooms = master?.rooms || [];
       const target = rooms.find(r => r.id.toLowerCase() === cleanRoom.toLowerCase() || (r.name && r.name.toLowerCase() === cleanRoom.toLowerCase()));
       if (target) {
-        openRoomScheduleSheet(target, dayIdx);
+        openRoomScheduleSheet(target, resolvedDayIdx);
       }
     }
   });

@@ -19,6 +19,9 @@ export function initVisibility() {
       updateClock();
       forceUpdate();
       updateGreeting();
+      if (typeof window.refreshFreeRoomsIfVisible === 'function') {
+        window.refreshFreeRoomsIfVisible();
+      }
       if (FEATURES.notifications) {
         Notifications.scheduleForToday();
       }
