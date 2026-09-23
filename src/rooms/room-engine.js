@@ -152,24 +152,30 @@ export function evaluateRoomStatus(roomMeta, rawClasses = [], targetMinute = get
   const nextClass = upcomingClasses.length > 0 ? upcomingClasses[0] : null;
 
   if (activeClasses.length > 0) {
-    // Room is currently OCCUPIED
-    const maxEndM = Math.max(...activeClasses.map(c => c.endM));
-    const minsUntilFree = Math.max(0, maxEndM - targetMinute);
+    // Room is currently OCCUPIED. This campus runs gapless back-to-back blocks, so the
+    // room only truly frees at the end of the whole contiguous streak — chain forward
+    // through every block starting at or before the current streak end.
+    let streakEndM = Math.max(...activeClasses.map(c => c.endM));
+    for (const c of sorted) {
+      if (c.startM <= streakEndM && c.endM > streakEndM) streakEndM = c.endM;
+    }
+
+    const minsUntilFree = Math.max(0, streakEndM - targetMinute);
     const hasConflict = activeClasses.length > 1;
 
-    // Class starting right when this one ends (or later)
-    const nextAfterActive = sorted.find(c => c.startM >= maxEndM);
+    // Class starting once the room actually frees (or later)
+    const nextAfterStreak = sorted.find(c => c.startM >= streakEndM);
 
     return {
       room: roomMeta,
       status: 'OCCUPIED',
       statusText: 'Occupied',
-      subText: `Occupied until ${formatMinuteTo12h(maxEndM)} · Free in ${formatDuration(minsUntilFree)}`,
-      occupiedUntilMins: maxEndM,
-      occupiedUntilStr: formatMinuteTo12h(maxEndM),
+      subText: `Occupied until ${formatMinuteTo12h(streakEndM)} · Free in ${formatDuration(minsUntilFree)}`,
+      occupiedUntilMins: streakEndM,
+      occupiedUntilStr: formatMinuteTo12h(streakEndM),
       minsUntilFree,
       currentClasses: activeClasses,
-      nextClass: nextAfterActive || null,
+      nextClass: nextAfterStreak || null,
       hasConflict,
       isFreeRestOfDay: false
     };
@@ -339,6 +345,10 @@ export function getRoomDayTimeline(roomMeta, rawClasses = [], currentMinute = ge
   const sorted = [...classes].sort((a, b) => a.startM - b.startM);
   const blocks = [];
 
+  // Running end of the occupied streak so far. Overlapping or nested blocks must not
+  // fake a free gap at the earlier block's end.
+  let streakEndM = -1;
+
   for (let i = 0; i < sorted.length; i++) {
     const cls = sorted[i];
 
@@ -374,17 +384,18 @@ export function getRoomDayTimeline(roomMeta, rawClasses = [], currentMinute = ge
       isExtraClass: Boolean(cls.isExtraClassOverride)
     });
 
-    // Check mid-day free gap between this class and next class
+    // Check mid-day free gap between the occupied streak so far and next class
+    streakEndM = Math.max(streakEndM, cls.endM);
     if (i < sorted.length - 1) {
       const nextCls = sorted[i + 1];
-      if (nextCls.startM > cls.endM) {
-        const gapMins = nextCls.startM - cls.endM;
+      if (nextCls.startM > streakEndM) {
+        const gapMins = nextCls.startM - streakEndM;
         if (gapMins > 0) {
           blocks.push({
             isGap: true,
-            startM: cls.endM,
+            startM: streakEndM,
             endM: nextCls.startM,
-            startStr: cls.end || formatMinuteTo12h(cls.endM),
+            startStr: formatMinuteTo12h(streakEndM),
             endStr: nextCls.start || formatMinuteTo12h(nextCls.startM),
             durationMins: gapMins,
             label: 'Free Gap'
