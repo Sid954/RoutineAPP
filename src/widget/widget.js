@@ -1,5 +1,5 @@
 import { State } from '../core/state.js';
-import { getClassesForDay } from '../schedule/queries.js';
+import { getClassesForDay, getEffectiveClassesForDay } from '../schedule/queries.js';
 import { getOverrideFor } from '../announcements/overrides.js';
 import { toMinutes, format12h, getCurrentMinutes, formatRoom, escapeHtml } from '../core/utils.js';
 import { showToast } from '../toast/toast.js';
@@ -45,7 +45,7 @@ export function renderWidgetPreview(type = 'live') {
   }
 
   if (type === 'live') {
-    let statusLabel = '● FREE TIME 🌴';
+    let statusLabel = '● FREE TIME';
     let timeRange = 'No Active Class';
     let courseTitle = 'Free Time';
     let roomChip = 'FREE';
@@ -71,7 +71,7 @@ export function renderWidgetPreview(type = 'live') {
       const isCancelled = override && override.type === 'cancellation';
       const isOnline = override && override.type === 'online_class';
 
-      statusLabel = isCancelled ? '● CANCELLED 🚫' : (isOnline ? '● ONLINE 📡' : '● CURRENT');
+      statusLabel = isCancelled ? '● CANCELLED' : (isOnline ? '● ONLINE' : '● CURRENT');
       timeRange = `${format12h(activeClass.start)} – ${format12h(activeClass.end)}`;
       courseTitle = `${activeClass.title}${activeClass.instructor ? ` (${activeClass.instructor})` : ''}`;
       roomChip = isOnline ? 'ONLINE' : (formatRoom(activeClass.room) || 'TBA');
@@ -91,7 +91,7 @@ export function renderWidgetPreview(type = 'live') {
       const nextStart = toMinutes(nextClass.start);
       const diff = Math.max(0, nextStart - now);
 
-      statusLabel = diff <= 30 ? '● STARTING SOON ⏰' : '● UP NEXT 📚';
+      statusLabel = diff <= 30 ? '● STARTING SOON' : '● UP NEXT';
       timeRange = `${format12h(nextClass.start)} – ${format12h(nextClass.end)}`;
       courseTitle = `${nextClass.title}${nextClass.instructor ? ` (${nextClass.instructor})` : ''}`;
       roomChip = formatRoom(nextClass.room) || 'TBA';
@@ -117,7 +117,7 @@ export function renderWidgetPreview(type = 'live') {
           <span class="w-status-badge">${escapeHtml(statusLabel)}</span>
           <div style="display: flex; align-items: center; gap: 6px;">
             <span class="w-time-chip">${escapeHtml(timeRange)}</span>
-            <span style="font-size: 11px; opacity: 0.6; color: #38bdf8;">🔄</span>
+            <span style="font-size: 11px; opacity: 0.6; color: #38bdf8;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
           </div>
         </div>
 
@@ -220,6 +220,41 @@ export function renderWidgetPreview(type = 'live') {
   }
 }
 
+/**
+ * Override-aware schedule for the native widget engine (RoutineScheduleEngine & list/rotated
+ * factories), in the same { "<dayIdx>": [ {start,end,title,room,instructor,type} ] } shape.
+ * The Java side recomputes live/next between app opens and knows nothing about
+ * announcements, so cancellations/holidays/moves are resolved here for the next 7 dates:
+ * cancelled and rescheduled-away classes are dropped, online/extra/rescheduled-in classes
+ * are included with their effective room. Beyond 7 days it degrades to the same weekday's
+ * resolved classes, which matches the base routine for non-override days.
+ */
+export function buildWidgetScheduleJson() {
+  if (!State.schedule) return '';
+  try {
+    const out = {};
+    const base = new Date();
+    for (let offset = 0; offset < 7; offset++) {
+      const date = new Date(base.getFullYear(), base.getMonth(), base.getDate() + offset);
+      const dayIdx = date.getDay();
+      out[String(dayIdx)] = getEffectiveClassesForDay(dayIdx, date)
+        .filter(c => !c.isCancelled && !('rescheduledTo' in c))
+        .map(c => ({
+          start: c.start,
+          end: c.end,
+          title: c.title || c.subject || 'Class',
+          room: c.isOnline ? 'ONLINE' : (c.room || ''),
+          instructor: c.instructor || c.teacher || '',
+          type: c.type || 'Theory'
+        }));
+    }
+    return JSON.stringify(out);
+  } catch (e) {
+    console.warn('Widget schedule build failed, falling back to raw schedule:', e);
+    return JSON.stringify(State.schedule);
+  }
+}
+
 export async function updateNativeWidget() {
   if (!window.Capacitor || !window.Capacitor.isNativePlatform()) return;
 
@@ -249,7 +284,7 @@ export async function updateNativeWidget() {
     // Check Holiday Override
     const holidayOverride = getOverrideFor(todayDate);
     if (holidayOverride && holidayOverride.type === 'holiday') {
-      currentLabel = "● HOLIDAY 🎉";
+      currentLabel = "● HOLIDAY";
       currentTime = "DAY OFF";
       currentTitle = holidayOverride.announcement ? holidayOverride.announcement.title : "Holiday / Day Off";
       currentRoom = "OFFLINE";
@@ -298,7 +333,7 @@ export async function updateNativeWidget() {
         const isCancelled = override && override.type === 'cancellation';
         const isOnline = override && override.type === 'online_class';
 
-        currentLabel = isCancelled ? "● CANCELLED 🚫" : (isOnline ? "● ONLINE 📡" : "● CURRENT");
+        currentLabel = isCancelled ? "● CANCELLED" : (isOnline ? "● ONLINE" : "● CURRENT");
         currentTime = `${format12h(activeClass.start)} – ${format12h(activeClass.end)}`;
         currentTitle = `${activeClass.title}${activeClass.instructor ? ` (${activeClass.instructor})` : ''}`;
         currentRoom = isOnline ? "ONLINE" : (formatRoom(activeClass.room) || "TBA");
@@ -321,7 +356,7 @@ export async function updateNativeWidget() {
         const nextStart = toMinutes(nextClass.start);
         const diff = Math.max(0, nextStart - now);
 
-        currentLabel = diff <= 30 ? "● STARTING SOON ⏰" : "● UP NEXT 📚";
+        currentLabel = diff <= 30 ? "● STARTING SOON" : "● UP NEXT";
         currentTime = `${format12h(nextClass.start)} – ${format12h(nextClass.end)}`;
         currentTitle = `${nextClass.title}${nextClass.instructor ? ` (${nextClass.instructor})` : ''}`;
         currentRoom = formatRoom(nextClass.room) || "TBA";
@@ -343,7 +378,7 @@ export async function updateNativeWidget() {
       } else {
         const lastClassEnd = Math.max(...classes.map(c => toMinutes(c.end)));
         if (now >= lastClassEnd) {
-          currentLabel = "● ALL DONE 🎉";
+          currentLabel = "● ALL DONE";
           currentTime = "DAY COMPLETED";
           currentTitle = "All Classes Done!";
           currentRoom = "FREE";
@@ -355,7 +390,7 @@ export async function updateNativeWidget() {
       }
     }
 
-    const fullJsonStr = State.schedule ? JSON.stringify(State.schedule) : '';
+    const fullJsonStr = buildWidgetScheduleJson();
 
     await WidgetPlugin.updateWidgetData({
       current_label: currentLabel,
@@ -404,7 +439,7 @@ export function initWidgetPinningUI() {
             landscape: 'Landscape Routine (Matrix)',
             portrait: 'Portrait Routine (Timeline)'
           };
-          pinBtnText.textContent = `📲 Add ${names[selectedWidgetType] || 'Widget'} to Home Screen`;
+          pinBtnText.textContent = `Add ${names[selectedWidgetType] || 'Widget'} to Home Screen`;
         }
 
         renderWidgetPreview(selectedWidgetType);
@@ -435,7 +470,7 @@ export function initWidgetPinningUI() {
                   feedbackBox.style.border = '1px solid rgba(16, 185, 129, 0.35)';
                   feedbackBox.style.color = '#34d399';
                   feedbackBox.innerHTML = `
-                    <div style="font-weight: 800; font-size: 13px; margin-bottom: 4px;">🎉 Widget Pin Prompt Displayed!</div>
+                    <div style="font-weight: 800; font-size: 13px; margin-bottom: 4px;">Widget Pin Prompt Displayed!</div>
                     <div>Tap <strong>"Add automatically"</strong> in the Android system popup to place the widget on your Home Screen.</div>
                   `;
                 }
@@ -447,7 +482,7 @@ export function initWidgetPinningUI() {
                   feedbackBox.style.border = '1px solid rgba(251, 191, 36, 0.35)';
                   feedbackBox.style.color = '#fbbf24';
                   feedbackBox.innerHTML = `
-                    <div style="font-weight: 800; font-size: 13px; margin-bottom: 6px;">💡 How to Add Widget Manually:</div>
+                    <div style="font-weight: 800; font-size: 13px; margin-bottom: 6px;">How to Add Widget Manually:</div>
                     <div style="margin-bottom: 4px;">1. Go to your Android Home Screen</div>
                     <div style="margin-bottom: 4px;">2. Touch & hold empty space → Tap <strong>Widgets</strong></div>
                     <div>3. Scroll to <strong>My Routine</strong> and drag your favorite widget onto your screen!</div>
