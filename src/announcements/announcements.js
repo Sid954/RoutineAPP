@@ -6,10 +6,12 @@ import { escapeHtml, format12h, fetchWithTimeout } from "../core/utils.js";
 import { showConfirm } from "../modals/modal.js";
 import { Notifications } from "../notifications/notifications.js";
 import { formatAnnouncementTitle } from "./validation.js";
+import { isPastAnnouncement } from "./overrides.js";
 
 export const Announcements = {
   list: [],
   activeFilter: "all",
+  showPast: false,
   isAdminMode: false,
   CACHE_KEY: "routine_announcements_cache",
   DEPT_CACHE_KEY: "routine_announcements_dept_cache",
@@ -320,8 +322,23 @@ export const Announcements = {
       );
     }
 
+    // Hide announcements whose date has passed (pinned ones stay), behind a toggle
+    const isPinnedItem = (i) => i.is_pinned === true || i.is_pinned === "true" || i.is_pinned === 1;
+    const pastCount = filteredList.filter((i) => !isPinnedItem(i) && isPastAnnouncement(i)).length;
+    if (!this.showPast) {
+      filteredList = filteredList.filter((i) => isPinnedItem(i) || !isPastAnnouncement(i));
+    }
+    const pastToggleHtml = pastCount > 0
+      ? `<button type="button" class="announce-past-toggle" id="announcePastToggle">${this.showPast ? "Hide" : "Show"} ${pastCount} past announcement${pastCount === 1 ? "" : "s"}</button>`
+      : "";
+    const bindPastToggle = () => {
+      const btn = document.getElementById("announcePastToggle");
+      if (btn) btn.addEventListener("click", () => { this.showPast = !this.showPast; this.renderFeed(); });
+    };
+
     if (filteredList.length === 0) {
-      feed.innerHTML = `<div class="announce-empty">No announcements under this category.</div>`;
+      feed.innerHTML = `<div class="announce-empty">${pastCount > 0 ? "No current announcements." : "No announcements under this category."}</div>${pastToggleHtml}`;
+      bindPastToggle();
       return;
     }
 
@@ -716,7 +733,8 @@ export const Announcements = {
       });
     });
 
-    feed.innerHTML = html;
+    feed.innerHTML = html + pastToggleHtml;
+    bindPastToggle();
 
     // Attach fade overlay listeners to all subcard scroll wrappers
     feed.querySelectorAll(".announce-subcard-scroll-wrap").forEach((wrap) => {
@@ -829,8 +847,9 @@ export const Announcements = {
     }
 
     const readSet = this.getReadIds();
+    // Past-dated announcements are hidden from the feed, so they shouldn't count as unread
     const unreadCount = this.list.filter(
-      (item) => !readSet.has(String(item.id)),
+      (item) => !readSet.has(String(item.id)) && !isPastAnnouncement(item),
     ).length;
 
     if (badge) {

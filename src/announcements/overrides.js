@@ -248,3 +248,25 @@ export function getOverridesByDateMap() {
 
   return map;
 }
+
+/**
+ * True when a dated announcement's day is before today (local time). It then drops out of
+ * the feed and the unread badge. Undated items (general notices) never expire here.
+ * Rescheduled items expire after their NEW date; everything else after date_override.
+ * @param {object} item announcement row
+ * @param {string} [todayStr] local 'YYYY-MM-DD' (injectable for tests)
+ */
+export function isPastAnnouncement(item, todayStr) {
+  if (!item) return false;
+  const today = todayStr || normalizeDate(new Date());
+  let dateStr = item.date_override;
+  if (item.type === 'rescheduled') {
+    try {
+      const parsed = typeof item.announcement === 'string' ? JSON.parse(item.announcement) : (item.announcement || {});
+      dateStr = parsed.new_date || dateStr;
+    } catch (e) {}
+  }
+  const d = normalizeDate(dateStr);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
+  return d < today;
+}
