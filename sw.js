@@ -63,6 +63,18 @@ self.addEventListener('fetch', event => {
   event.respondWith(networkFirst(event.request));
 });
 
+// The image cache survives app updates on purpose (offline faculty photos), so it needs
+// its own bound. Opaque cross-origin responses are padded to ~7MB each toward quota in
+// Chromium, so an unbounded cache can exhaust storage. Oldest entries are evicted first.
+const MAX_IMAGE_ENTRIES = 120;
+
+async function trimCache(cacheName, maxEntries) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length <= maxEntries) return;
+  await Promise.all(keys.slice(0, keys.length - maxEntries).map(k => cache.delete(k)));
+}
+
 /**
  * Cache-first strategy for images: serve instantly from cache, fetch & cache in background.
  */
@@ -76,7 +88,7 @@ async function cacheFirstImage(request) {
   try {
     const response = await fetch(request);
     if (response && (response.ok || response.type === 'opaque')) {
-      cache.put(request, response.clone());
+      cache.put(request, response.clone()).then(() => trimCache(IMAGE_CACHE, MAX_IMAGE_ENTRIES)).catch(() => {});
     }
     return response;
   } catch (err) {

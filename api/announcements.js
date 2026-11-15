@@ -34,6 +34,10 @@ if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && proc
   console.warn('Firebase environment variables are missing. FCM notifications will be skipped.');
 }
 
+// Cap the GET payload: every client polls this every 30s, and without a limit the
+// response grew with every announcement ever posted. Pinned items sort first.
+const MAX_ANNOUNCEMENTS = 300;
+
 const LIMITS = {
   AUTHOR_NAME: 15,
   TITLE: 50,
@@ -264,14 +268,16 @@ module.exports = async (req, res) => {
         .from('announcements')
         .select('*')
         .order('is_pinned', { ascending: false, nullsFirst: false })
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(MAX_ANNOUNCEMENTS);
 
       if (error) {
         // Fallback in case is_pinned column does not exist in Supabase table
         const fallback = await supabase
           .from('announcements')
           .select('*')
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .limit(MAX_ANNOUNCEMENTS);
         if (fallback.error) throw fallback.error;
         data = fallback.data;
       }

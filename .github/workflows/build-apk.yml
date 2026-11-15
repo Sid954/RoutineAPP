@@ -28,6 +28,10 @@ jobs:
       - name: Install Node Dependencies
         run: npm ci || npm install
 
+      # Gate the release on the test suite (all suites mock the network; no .env needed)
+      - name: Run Tests
+        run: npm test
+
       - name: Build Web Assets & Sync Capacitor
         run: |
           npm run build
