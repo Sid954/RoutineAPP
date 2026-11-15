@@ -1,6 +1,6 @@
 import { State } from '../core/state.js';
 import { showToast } from '../toast/toast.js';
-import { escapeHtml, format12h, parseTo24h, toMinutes } from '../core/utils.js';
+import { escapeHtml, format12h, parseTo24h, toMinutes, localDateStr } from '../core/utils.js';
 import { Announcements } from './announcements.js';
 import { getClassesForDay } from '../schedule/queries.js';
 import {
@@ -338,7 +338,7 @@ export function openPostForm(existingAnnouncement = null) {
 
   if (paOnlineSubjectSelect) paOnlineSubjectSelect.innerHTML = subjectOptions;
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = localDateStr();
 
   if (existingAnnouncement) {
     // EDIT MODE
@@ -746,7 +746,7 @@ export function initPostForm() {
       const name = document.getElementById('paName')?.value || '';
       const type = document.getElementById('paType')?.value || 'general';
       const password = document.getElementById('paPassword')?.value;
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = localDateStr();
 
       if (!name.trim() || !password) {
         showToast('Please fill out Name and Password.', 'warning');
@@ -926,10 +926,11 @@ export function initPostForm() {
           }
 
           const dates = [];
-          let curr = new Date(startDate);
-          const last = new Date(endDate);
+          // Parse as LOCAL midnight; 'YYYY-MM-DD' alone parses as UTC midnight
+          let curr = new Date(startDate + 'T00:00:00');
+          const last = new Date(endDate + 'T00:00:00');
           while (curr <= last) {
-            dates.push(curr.toISOString().split('T')[0]);
+            dates.push(localDateStr(curr));
             curr.setDate(curr.getDate() + 1);
           }
 
