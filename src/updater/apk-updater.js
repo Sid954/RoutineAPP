@@ -4,7 +4,6 @@ import { Storage } from '../storage/storage.js';
 import { escapeHtml } from '../core/utils.js';
 import { showToast } from '../toast/toast.js';
 import { forceUpdate } from '../dashboard/update.js';
-import { normalizeSchedule } from '../schedule/normalizer.js';
 import { Notifications } from '../notifications/notifications.js';
 
 export function getRemoteBaseUrl() {
@@ -54,6 +53,32 @@ export async function getActiveCacheVersion() {
     }
   } catch (e) {}
   return 'routine-cache-active';
+}
+
+/**
+ * Re-fetch the user's OWN section routine (Supabase API → bundled JSON fallback).
+ * Never use the legacy root schedule.json here: it is a single hardcoded section
+ * and would overwrite every user's routine on each OTA update.
+ * Dynamic import avoids a load-time cycle (init.js imports this module).
+ */
+async function refreshOwnSectionSchedule() {
+  try {
+    const { fetchSectionSchedule } = await import('../events/init.js');
+    const fresh = await fetchSectionSchedule(Storage.getSemester(), Storage.getSection());
+    if (fresh) {
+      State.schedule = fresh;
+      Storage.saveSchedule();
+    }
+  } catch (e) {
+    console.warn('Section schedule refresh skipped:', e);
+  }
+}
+
+/** Drop stale app-shell caches only; keep the faculty image cache for offline use. */
+async function clearAppShellCaches() {
+  if (!('caches' in window)) return;
+  const keys = await caches.keys();
+  await Promise.all(keys.filter(k => k.startsWith('routine-cache-')).map(k => caches.delete(k)));
 }
 
 /**
@@ -241,27 +266,17 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
       }
     } catch (e) {}
 
-    const schedRes = await fetch(`${remoteBase}/schedule.json?t=${Date.now()}`, { cache: 'no-store' }).catch(() => null);
-    const isSchedOk = schedRes && schedRes.ok;
-
     const cacheUpdateAvailable = (remoteCacheVersion !== currentCacheVersion) || !!swWaitingWorker;
 
     if (cacheUpdateAvailable) {
       // RULE: Automatically update normal updates on startup without asking permission!
       if (!isManual && !containerEl) {
         try {
-          if (isSchedOk) {
-            const freshSched = await schedRes.json();
-            State.schedule = normalizeSchedule(freshSched);
-            Storage.saveSchedule();
-          }
+          await refreshOwnSectionSchedule();
 
           localStorage.setItem('active_app_cache_version', remoteCacheVersion);
 
-          if ('caches' in window) {
-            const keys = await caches.keys();
-            await Promise.all(keys.map(k => caches.delete(k)));
-          }
+          await clearAppShellCaches();
 
           forceUpdate();
           Notifications.scheduleForToday();
@@ -294,18 +309,11 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
           try {
             showToast('Syncing latest schedule...', 'info');
 
-            if (isSchedOk) {
-              const freshSched = await schedRes.json();
-              State.schedule = normalizeSchedule(freshSched);
-              Storage.saveSchedule();
-            }
+            await refreshOwnSectionSchedule();
 
             localStorage.setItem('active_app_cache_version', remoteCacheVersion);
 
-            if ('caches' in window) {
-              const keys = await caches.keys();
-              await Promise.all(keys.map(k => caches.delete(k)));
-            }
+            await clearAppShellCaches();
 
             forceUpdate();
             Notifications.scheduleForToday();
