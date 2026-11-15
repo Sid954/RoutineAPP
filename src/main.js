@@ -22,7 +22,7 @@ import { initializeApp } from './events/init.js';
 
 // Self-registering modules (run on import)
 import './toast/toast.js';           // registers undo button listener
-import './notifications/native-push.js'; // calls setNativePush()
+import { NativePush } from './notifications/native-push.js'; // also calls setNativePush()
 import './timeline/day-switcher.js'; // registers prev/next day buttons
 
 // Connect Particles to modal system (avoids circular import)
@@ -288,6 +288,9 @@ import { initCalendarPicker } from './timeline/calendar-picker.js';
 /* ── Boot ─────────────────────────────────────────────────────── */
 initPullToRefresh();
 initializeApp();
+// Silently (re-)register for announcement pushes when permission was already granted.
+// Runs every launch, so the server's semester/section targeting stays current after a section change.
+if (FEATURES.notifications) NativePush.init({ prompt: false });
 checkFirstTimeOnboarding();
 initAndroidPrompt();
 initWidgetPinningUI();

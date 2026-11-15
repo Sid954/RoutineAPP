@@ -374,9 +374,10 @@ module.exports = async (req, res) => {
           subject_override: targetSubjectOverride
         } = sanitizedPayload;
 
-        let tokenQuery = supabase.from('fcm_tokens').select('token');
-        if (targetSemester) tokenQuery = tokenQuery.eq('semester', targetSemester);
-        if (targetSection) tokenQuery = tokenQuery.eq('section', targetSection);
+        // Tokens are written by api/register-token.js into device_tokens (see supabase_schema.sql)
+        let tokenQuery = supabase.from('device_tokens').select('token');
+        if (targetSemester) tokenQuery = tokenQuery.ilike('semester', targetSemester);
+        if (targetSection) tokenQuery = tokenQuery.ilike('section', targetSection);
 
         const { data: tokenRows, error: tokenError } = await tokenQuery;
 
@@ -439,22 +440,37 @@ module.exports = async (req, res) => {
                 }
               }
             };
-            messagePayloads.push(admin.messaging().sendEachForMulticast(message));
+            messagePayloads.push({ batchTokens, send: admin.messaging().sendEachForMulticast(message) });
           }
 
-          Promise.all(messagePayloads)
-            .then(responses => {
-              let successCount = 0;
-              let failureCount = 0;
-              responses.forEach(resp => {
-                successCount += resp.successCount;
-                failureCount += resp.failureCount;
+          // Must be awaited BEFORE responding: Vercel may freeze the function as soon as
+          // the response is sent, silently dropping un-awaited sends.
+          try {
+            const responses = await Promise.all(messagePayloads.map(p => p.send));
+            let successCount = 0;
+            let failureCount = 0;
+            const deadTokens = [];
+            responses.forEach((resp, batchIdx) => {
+              successCount += resp.successCount;
+              failureCount += resp.failureCount;
+              (resp.responses || []).forEach((r, i) => {
+                const code = r.error && r.error.code;
+                if (code === 'messaging/registration-token-not-registered' || code === 'messaging/invalid-registration-token') {
+                  deadTokens.push(messagePayloads[batchIdx].batchTokens[i]);
+                }
               });
-              console.log(`Section FCM Notifications sent (${tokens.length} target devices). Successes: ${successCount}, Failures: ${failureCount}`);
-            })
-            .catch(err => {
-              console.error('Error sending multicast FCM notification:', err);
             });
+            console.log(`Section FCM Notifications sent (${tokens.length} target devices). Successes: ${successCount}, Failures: ${failureCount}`);
+
+            // Prune tokens FCM reports as permanently invalid (uninstalled apps, etc.)
+            if (deadTokens.length > 0) {
+              const { error: pruneError } = await supabase.from('device_tokens').delete().in('token', deadTokens);
+              if (pruneError) console.error('Error pruning dead FCM tokens:', pruneError);
+              else console.log(`Pruned ${deadTokens.length} dead FCM tokens.`);
+            }
+          } catch (err) {
+            console.error('Error sending multicast FCM notification:', err);
+          }
         }
       }
 

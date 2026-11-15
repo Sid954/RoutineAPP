@@ -23,6 +23,25 @@ public class WidgetPlugin extends Plugin {
     public static final String PREFS_NAME = "RoutineWidgetPrefs";
     public static final String DATA_PREFS_NAME = "RoutineWidgetData";
 
+    /**
+     * Reports whether Firebase is configured in this build. The google-services Gradle
+     * plugin generates the "google_app_id" string resource only when google-services.json
+     * is present. Calling PushNotifications.register() without it crashes the app
+     * ("Default FirebaseApp is not initialized"), so the JS layer checks this first.
+     */
+    @PluginMethod
+    public void isFirebaseConfigured(PluginCall call) {
+        JSObject ret = new JSObject();
+        try {
+            Context context = getContext();
+            int resId = context.getResources().getIdentifier("google_app_id", "string", context.getPackageName());
+            ret.put("configured", resId != 0);
+        } catch (Exception e) {
+            ret.put("configured", false);
+        }
+        call.resolve(ret);
+    }
+
     @PluginMethod
     public void updateWidgetData(PluginCall call) {
         try {
