@@ -1,6 +1,6 @@
 import { DAY_NAMES, CONFIG } from '../core/config.js';
 import { State } from '../core/state.js';
-import { toMinutes, getCurrentMinutes } from '../core/utils.js';
+import { toMinutes, getCurrentMinutes, fetchWithTimeout } from '../core/utils.js';
 import { getAllFacultyKeys, getTeacherInfo } from './teacher-names.js';
 
 const MASTER_TEACHERS_CACHE_KEY = 'routine_master_teachers_v2';
@@ -30,7 +30,7 @@ export async function loadMasterTeacherData(forceReload = false) {
   // 2. Fetch fresh dataset from Supabase API (with static JSON fallback)
   try {
     const apiEndpoint = `${CONFIG.apiBase}/api/schedule?action=teachers_master&v=${CONFIG.appVersionCode || Date.now()}`;
-    let res = await fetch(apiEndpoint).catch(() => null);
+    let res = await fetchWithTimeout(apiEndpoint).catch(() => null);
 
     // Fallback to static JSON file if API fails (e.g. static local hosting)
     if (!res || !res.ok) {
@@ -59,7 +59,7 @@ export async function loadMasterTeacherData(forceReload = false) {
 async function fetchMasterTeachersAsync() {
   try {
     const apiEndpoint = `${CONFIG.apiBase}/api/schedule?action=teachers_master&v=${CONFIG.appVersionCode || Date.now()}`;
-    let res = await fetch(apiEndpoint).catch(() => null);
+    let res = await fetchWithTimeout(apiEndpoint).catch(() => null);
     if (!res || !res.ok) {
       res = await fetch(`master_teachers_schedule.json?v=${CONFIG.appVersionCode || Date.now()}`).catch(() => null);
     }

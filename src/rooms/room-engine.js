@@ -1,5 +1,5 @@
 import { CONFIG, DAY_NAMES } from '../core/config.js';
-import { format12h, getCurrentMinutes } from '../core/utils.js';
+import { format12h, getCurrentMinutes, fetchWithTimeout } from '../core/utils.js';
 import { getEffectiveRoomClasses } from './room-overrides.js';
 
 const MASTER_ROOMS_CACHE_KEY = 'routine_master_rooms_v5';
@@ -32,7 +32,7 @@ export async function loadMasterRoomsData() {
   // 2. Fetch fresh dataset from Supabase API (with static JSON fallback)
   try {
     const apiEndpoint = `${CONFIG.apiBase}/api/schedule?action=rooms_master&v=${CONFIG.appVersionCode || Date.now()}`;
-    let res = await fetch(apiEndpoint).catch(() => null);
+    let res = await fetchWithTimeout(apiEndpoint).catch(() => null);
 
     // Fallback to static JSON file if API fails (e.g. static local hosting)
     if (!res || !res.ok) {
@@ -61,7 +61,7 @@ export async function loadMasterRoomsData() {
 async function fetchMasterRoomsAsync() {
   try {
     const apiEndpoint = `${CONFIG.apiBase}/api/schedule?action=rooms_master&v=${CONFIG.appVersionCode || Date.now()}`;
-    let res = await fetch(apiEndpoint).catch(() => null);
+    let res = await fetchWithTimeout(apiEndpoint).catch(() => null);
     if (!res || !res.ok) {
       res = await fetch(`master_rooms_schedule.json?v=${CONFIG.appVersionCode || Date.now()}`).catch(() => null);
     }

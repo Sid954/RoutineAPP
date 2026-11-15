@@ -83,3 +83,23 @@ export function truncateText(str, maxLen = 10) {
   if (cleanStr.length <= maxLen) return cleanStr;
   return cleanStr.substring(0, maxLen) + '...';
 }
+
+/**
+ * fetch() with a timeout. Plain fetch can hang for minutes on captive portals or very
+ * weak signal, which delays the bundled/cached offline fallbacks. Rejects on timeout
+ * like a network error, so existing `.catch(() => null)` fallbacks keep working.
+ */
+export function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+  if (typeof AbortController === 'undefined') return fetch(url, options);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer));
+}
+
+/** Local-timezone YYYY-MM-DD. Use instead of toISOString(), which is UTC (wrong date 00:00–06:00 in BD, UTC+6). */
+export function localDateStr(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}

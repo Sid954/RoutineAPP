@@ -16,6 +16,7 @@ import { initThemeEngine } from '../core/theme.js';
 import { initTeacherNames } from '../teachers/teacher-names.js';
 import { loadMasterTeacherData } from '../teachers/teacher-finder.js';
 import { preloadScheduleImages } from '../core/image-cache.js';
+import { fetchWithTimeout } from '../core/utils.js';
 
 export function fetchAnnouncementsAndNotify() {
   return Announcements.fetchAll().then(fetched => {
@@ -34,7 +35,7 @@ export function fetchAnnouncementsAndNotify() {
 
 export async function fetchSectionSchedule(sem, sec) {
   const apiEndpoint = `${CONFIG.apiBase}/api/schedule?action=section&semester=${sem}&section=${sec}&v=${CONFIG.appVersionCode || Date.now()}`;
-  let res = await fetch(apiEndpoint).catch(() => null);
+  let res = await fetchWithTimeout(apiEndpoint).catch(() => null);
 
   // Fallback to bundled static JSON file if API fails (e.g. offline, local dev, or static hosting)
   if (!res || !res.ok) {
@@ -152,7 +153,11 @@ export function initializeApp() {
     .catch(() => { /* Silent fallback: offline or schedule unchanged */ });
 
   if (FEATURES.announcements) {
-    setInterval(() => fetchAnnouncementsAndNotify(), 30 * 1000);
+    // Skip polls while the app is backgrounded (saves data/battery); visibility.js refetches on resume
+    setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
+      fetchAnnouncementsAndNotify();
+    }, 30 * 1000);
   }
 
   // ── STEP 5: Initialize Routine Selection Dropdowns & Unified Save

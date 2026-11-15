@@ -85,22 +85,35 @@ async function cacheFirstImage(request) {
 }
 
 /**
+ * Cache key without the `t` cache-busting param. The app appends `?t=Date.now()` to
+ * config/routine fetches; keyed raw, every launch added a new never-matching entry
+ * (unbounded growth) and offline lookups always missed.
+ */
+function cacheKeyFor(request) {
+  const url = new URL(request.url);
+  if (!url.searchParams.has('t')) return request;
+  url.searchParams.delete('t');
+  return url.toString();
+}
+
+/**
  * Network-first strategy: try network, fallback to cache.
  */
 async function networkFirst(request) {
+  const key = cacheKeyFor(request);
   try {
     const response = await fetch(request);
     if (response && response.status === 200 && request.method === 'GET') {
       try {
         const cache = await caches.open(CACHE_VERSION);
-        await cache.put(request, response.clone());
+        await cache.put(key, response.clone());
       } catch (cacheErr) {
         // Caching errors must not break response delivery
       }
     }
     return response;
   } catch (err) {
-    const cached = await caches.match(request);
+    const cached = await caches.match(key);
     if (cached) {
       return cached;
     }

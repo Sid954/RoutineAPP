@@ -2,7 +2,7 @@ import { CONFIG } from "../core/config.js";
 import { State } from "../core/state.js";
 import { Storage } from "../storage/storage.js";
 import { showToast } from "../toast/toast.js";
-import { escapeHtml, format12h } from "../core/utils.js";
+import { escapeHtml, format12h, fetchWithTimeout } from "../core/utils.js";
 import { showConfirm } from "../modals/modal.js";
 import { Notifications } from "../notifications/notifications.js";
 import { formatAnnouncementTitle } from "./validation.js";
@@ -124,7 +124,7 @@ export const Announcements = {
         }
       } catch (e) {}
 
-      const res = await fetch(`${CONFIG.apiBase || ""}/api/announcements`);
+      const res = await fetchWithTimeout(`${CONFIG.apiBase || ""}/api/announcements`);
       if (!res.ok) throw new Error("Failed to fetch");
       const rawList = await res.json();
 
