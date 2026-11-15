@@ -109,7 +109,7 @@ async function showApkUpdatePermissionModal(apkVersionData) {
 
   modal.innerHTML = `
     <div class="md" style="max-width: 360px; padding: 26px 20px; text-align: center; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); border: 1.5px solid rgba(56, 189, 248, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56,189,248,0.15); border-radius: 20px;">
-      <div style="font-size: 40px; margin-bottom: 4px; filter: drop-shadow(0 0 10px rgba(56,189,248,0.5));">🚀</div>
+      <div style="font-size: 40px; margin-bottom: 4px; filter: drop-shadow(0 0 10px rgba(56,189,248,0.5));"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
       <h2 style="font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 4px; letter-spacing: -0.3px;">New Version Available!</h2>
       
       <div style="font-size: 19px; font-weight: 900; color: var(--accent2); margin-bottom: 6px; letter-spacing: 0.5px; font-family: var(--f); text-shadow: 0 0 12px rgba(56,189,248,0.4);">
@@ -122,7 +122,7 @@ async function showApkUpdatePermissionModal(apkVersionData) {
       
       <div style="display: flex; gap: 10px;">
         <button id="apkModalLaterBtn" style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--dim); font-weight: 700; font-size: 12px; cursor: pointer; transition: all 0.2s;">Later</button>
-        <button id="apkModalInstallBtn" style="flex: 1.5; padding: 12px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 16px rgba(56,189,248,0.4); transition: transform 0.15s active;">📦 Install APK</button>
+        <button id="apkModalInstallBtn" style="flex: 1.5; padding: 12px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 16px rgba(56,189,248,0.4); transition: transform 0.15s active;">Install APK</button>
       </div>
     </div>
   `;
@@ -173,7 +173,7 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
     if (containerEl) {
       containerEl.innerHTML = `
         <div style="display: flex; align-items: center; gap: 6px; color: var(--amber); font-weight: 800; margin-bottom: 6px;">
-          <span>⚠️ Offline Mode</span>
+          <span>Offline Mode</span>
         </div>
         <div style="font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 4px;">
           <div>• App Version: <span style="color: var(--text);">v${currentVerClean} (Code ${localVersionCode})</span></div>
@@ -210,14 +210,14 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
           <div style="background: rgba(56, 189, 248, 0.1); border: 1.5px solid var(--accent); border-radius: var(--rx); padding: 14px; box-shadow: 0 0 20px rgba(56,189,248,0.15);">
             <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
               <div>
-                <div style="font-weight: 800; color: #fff; font-size: 14px;">🚀 New Version Available!</div>
+                <div style="font-weight: 800; color: #fff; font-size: 14px;">New Version Available!</div>
                 <div style="font-size: 15px; font-weight: 900; color: var(--accent2); margin-top: 2px;">v${escapeHtml(remoteVerClean)}</div>
                 <div style="font-size: 11px; color: var(--dim); margin-top: 2px;">Installed on device: v${escapeHtml(currentVerClean)}</div>
               </div>
             </div>
             <div style="margin-top: 12px;">
               <button id="downloadApkBtn" style="width: 100%; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; font-family: var(--f); box-shadow: 0 4px 14px rgba(56,189,248,0.35);">
-                📦 Install APK (v${escapeHtml(remoteVerClean)})
+                Install APK (v${escapeHtml(remoteVerClean)})
               </button>
             </div>
           </div>
@@ -295,11 +295,11 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
           <div style="background: rgba(16, 185, 129, 0.08); border: 1px dashed var(--lime); border-radius: var(--rx); padding: 12px 14px;">
             <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
               <div>
-                <div style="font-weight: 800; color: #fff; font-size: 12.5px;">⚡ Schedule & Asset Update Available</div>
+                <div style="font-weight: 800; color: #fff; font-size: 12.5px;">Schedule & Asset Update Available</div>
                 <div style="font-size: 11px; color: var(--dim); margin-top: 2px;">Version: <span style="color: var(--lime); font-weight: 700; font-family: var(--m);">${remoteCacheVersion}</span></div>
               </div>
               <button id="applyUpdateNowBtn" style="background: linear-gradient(135deg, var(--lime), #059669); color: #fff; border: none; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 11.5px; cursor: pointer; font-family: var(--f);">
-                ⚡ Sync & Reload
+                Sync & Reload
               </button>
             </div>
           </div>
@@ -339,7 +339,7 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
       const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
       containerEl.innerHTML = `
         <div style="display: flex; align-items: center; gap: 6px; color: var(--lime); font-weight: 800; margin-bottom: 6px;">
-          <span>✅ App & Schedule are fully up to date!</span>
+          <span>App & Schedule are fully up to date!</span>
         </div>
         <div style="font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 4px;">
           <div>• Native APK: <span style="color: var(--text);">v${currentVerClean} (Code ${localVersionCode}) — Latest</span></div>
@@ -357,7 +357,7 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
     if (containerEl) {
       containerEl.innerHTML = `
         <div style="display: flex; align-items: center; gap: 6px; color: var(--pink); font-weight: 800; margin-bottom: 6px;">
-          <span>❌ Update Check Failed</span>
+          <span>Update Check Failed</span>
         </div>
         <div style="font-family: var(--m); font-size: 11px; color: var(--dim);">
           ${escapeHtml(err.message || 'Error checking for updates.')}
