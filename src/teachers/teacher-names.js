@@ -279,7 +279,12 @@ export async function fetchPendingSubmissions(password) {
   if (!password) throw new Error('Admin password required.');
   if (!CONFIG.apiBase) throw new Error('API server is not configured.');
 
-  const res = await fetch(`${CONFIG.apiBase}/api/teachers?pending=true&password=${encodeURIComponent(password)}`);
+  // POST so the admin password travels in the body, never in URLs/server logs
+  const res = await fetch(`${CONFIG.apiBase}/api/teachers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'list_pending', password })
+  });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data.error || 'Invalid password or failed to fetch pending updates.');

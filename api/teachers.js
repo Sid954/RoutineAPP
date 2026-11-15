@@ -1,4 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
+const { getClientIp, checkPassword } = require('./_lib/security.js');
+const { VALID_TEACHER_CODES } = require('./_lib/teacher-codes.js');
+const { handlePhotoUpload } = require('./_lib/photo-upload.js');
 
 // Initialize Supabase Client
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -7,17 +10,6 @@ let supabase = null;
 
 if (supabaseUrl && supabaseServiceKey) {
   supabase = createClient(supabaseUrl, supabaseServiceKey);
-}
-
-// Whitelist of all official Premier University faculty & routine teacher codes
-const VALID_TEACHER_CODES = new Set([
-  "ABRAR_CSE","ABSAR","AD","ADIBA_CSE","ADNAN_CSE","AFSAR_CSE","AHK","AIB","AIR","AJT","AKK","AKRAM_CSE","ALAMGIR","AMS","ANIK_CSE","ARIF_CSE","ASIF","ASIF_CSE","ASIF_SAAD_CSE","ASMA_CSE","ATAUR","ATAUR_CSE","ATIQUR","AU","AVISHEAK-CSE","AVISHEK CHOW","AWAL","AYESHA","AYESHA BANU","AZAD","AZMAIN","CFK","DAB","DHRUBA_CSE","EAS","ESTIAKSAZID","FAHIM_CSECU_GT","FAISAL_CSE","FARIHA_CSE","FIROZA","FJD","FK","FORHAD","FORKAN","FSC","HASAN_CSE","HKR","IFTEKAR MIA","INZAMAM","JA","JANNATTOHFA","JBA","JTC","JU","JUA","KAFAYET_CSE","KAMAL","KD","KINGSHUK_CSE","KLD","KMAY","KMN","MA","MAHBUBUL","MAHMUDUL_HASAN_CSE","MAWLA","MDHASAN_CSE","MDTOUKIRSHAH_CSE","MFF","MH","MHE","MHN","MI","MIHIR","MR","MRI","MRRC","MTH","MTS","NADIM_CSE","NAK","NAZMA_FBS","NBH","NJS","NM","NME","NOORTAZ_CSE","NP","NR","NUSRAT_CSE","RA","RAISULISLAM_CSE","RASHED_CSE","REZAUR_CSE","RM","RMA","ROKON","ROSHNI","RSN","SABRINA_CSE","SAGAR","SAIFUL","SHIRIN_CSE","SHREYASHI_CSE","SHUHENA","SMAI","SN","ST","TAHIATMAHABUB_CSE","TAMIM_HOSSAIN","TANNI_CSE","TANVIRHASSAN_CSE","TASHIN_HOSSAIN_CSE","TASLIMA","TASMIN","TASNIA","TASNIM","TDM","TH","THA","TMC","TMF","TMH","WALI","WMN","WONG_CSE","YAKINUR_CSE","YR","ZAHID","ZIA"
-]);
-
-function getClientIp(req) {
-  const forwarded = req.headers['x-forwarded-for'];
-  if (forwarded) return forwarded.split(',')[0].trim();
-  return req.headers['x-real-ip'] || req.socket?.remoteAddress || 'unknown';
 }
 
 function sanitizeString(str) {
@@ -35,6 +27,26 @@ function isGarbageString(str) {
 // Table helper for edit suggestions
 async function getActiveTable() {
   return 'instructor_edit_suggestions';
+}
+
+// No hardcoded fallback: if neither env var is set, admin actions fail closed (503).
+function getAdminPassword() {
+  return process.env.ADMIN_PASSWORD || process.env.ANNOUNCEMENT_PASSWORD || '';
+}
+
+async function listPending(res, tableName) {
+  try {
+    const { data, error } = await supabase
+      .from(tableName)
+      .select('*')
+      .eq('status', 'pending')
+      .order('submitted_at', { ascending: false });
+
+    if (error) throw error;
+    return res.status(200).json(data || []);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 }
 
 module.exports = async (req, res) => {
@@ -62,24 +74,12 @@ module.exports = async (req, res) => {
   if (req.method === 'GET') {
     const { pending, password } = req.query || {};
 
+    // Legacy admin read (password in query string). Kept for older app builds; current
+    // clients use POST { action: 'list_pending' } so the password never lands in URL logs.
     if (pending === 'true') {
-      const adminPassword = process.env.ADMIN_PASSWORD || process.env.ANNOUNCEMENT_PASSWORD || 'secret123';
-      if (!password || password !== adminPassword) {
-        return res.status(401).json({ error: 'Unauthorized: Invalid admin password.' });
-      }
-
-      try {
-        const { data, error } = await supabase
-          .from(tableName)
-          .select('*')
-          .eq('status', 'pending')
-          .order('submitted_at', { ascending: false });
-
-        if (error) throw error;
-        return res.status(200).json(data || []);
-      } catch (err) {
-        return res.status(500).json({ error: err.message });
-      }
+      const auth = checkPassword(req, password, getAdminPassword());
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error });
+      return listPending(res, tableName);
     }
 
     // Default public GET: Return full faculty directory from faculty_members table
@@ -176,13 +176,19 @@ module.exports = async (req, res) => {
       seedList
     } = req.body || {};
 
-    const adminPassword = process.env.ADMIN_PASSWORD || process.env.ANNOUNCEMENT_PASSWORD || 'secret123';
+    const adminPassword = getAdminPassword();
+
+    // Admin: list pending suggestions (password in body, not URL)
+    if (action === 'list_pending') {
+      const auth = checkPassword(req, password, adminPassword);
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error });
+      return listPending(res, tableName);
+    }
 
     // 0. Seed Faculty Ground Truth Action (Admin only)
     if (action === 'seed') {
-      if (!password || password !== adminPassword) {
-        return res.status(401).json({ error: 'Unauthorized: Invalid admin password.' });
-      }
+      const auth = checkPassword(req, password, adminPassword);
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error });
 
       const listToSeed = Array.isArray(seedList) ? seedList : [];
       if (listToSeed.length === 0) {
@@ -227,72 +233,16 @@ module.exports = async (req, res) => {
       }
     }
 
-    // 1. Photo Upload Action
+    // 1. Photo Upload Action (public: used by the faculty edit-suggestion form)
     if (action === 'upload_photo') {
-      const { imageBase64, teacherCode, mimeType } = req.body || {};
-      if (!imageBase64) {
-        return res.status(400).json({ error: 'Missing imageBase64 data.' });
-      }
-
-      let cleanMime = mimeType || 'image/jpeg';
-      let base64Data = imageBase64;
-      const match = imageBase64.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
-      if (match) {
-        cleanMime = match[1];
-        base64Data = match[2];
-      }
-
-      const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
-      if (!allowedMimes.includes(cleanMime.toLowerCase())) {
-        return res.status(400).json({ error: 'Only JPEG, PNG, or WebP images are allowed.' });
-      }
-
-      const buffer = Buffer.from(base64Data, 'base64');
-      const bucketName = 'faculty-photos';
-
-      try {
-        const { data: buckets } = await supabase.storage.listBuckets();
-        if (!buckets || !buckets.some(b => b.name === bucketName)) {
-          await supabase.storage.createBucket(bucketName, {
-            public: true,
-            fileSizeLimit: 5242880,
-            allowedMimeTypes: allowedMimes
-          });
-        }
-      } catch (bErr) {
-        console.warn('Bucket check/creation notice:', bErr.message);
-      }
-
-      const ext = cleanMime.split('/')[1]?.replace('jpeg', 'jpg') || 'jpg';
-      const codePrefix = (teacherCode || 'faculty').trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
-      const filename = `${codePrefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
-
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from(bucketName)
-        .upload(filename, buffer, {
-          contentType: cleanMime,
-          cacheControl: '31536000',
-          upsert: false
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: publicUrlData } = supabase.storage
-        .from(bucketName)
-        .getPublicUrl(filename);
-
-      return res.status(200).json({
-        success: true,
-        url: publicUrlData.publicUrl,
-        filename
-      });
+      const result = await handlePhotoUpload(supabase, req);
+      return res.status(result.status).json(result.body);
     }
 
     // 2. Admin Moderation Action (Approve / Reject)
     if (action === 'approve' || action === 'reject') {
-      if (!password || password !== adminPassword) {
-        return res.status(401).json({ error: 'Unauthorized: Invalid admin password.' });
-      }
+      const auth = checkPassword(req, password, adminPassword);
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error });
 
       if (!id && !code) {
         return res.status(400).json({ error: 'Missing submission ID or teacher code.' });

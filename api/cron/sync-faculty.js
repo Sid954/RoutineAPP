@@ -4,6 +4,7 @@
  */
 const { createClient } = require('@supabase/supabase-js');
 const { syncFacultyWithSupabase } = require('../_lib/faculty-scraper.js');
+const { safeEqual } = require('../_lib/security.js');
 
 module.exports = async (req, res) => {
   // CORS Headers
@@ -20,13 +21,16 @@ module.exports = async (req, res) => {
   }
 
   // 1. Verify Vercel Cron Authorization
+  // Fail closed: without CRON_SECRET anyone could trigger the scraper + DB writes.
+  // Vercel Cron sends "Authorization: Bearer <CRON_SECRET>" automatically when the env var is set.
   const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret) {
-    const authHeader = req.headers['authorization'];
-    if (authHeader !== `Bearer ${cronSecret}`) {
-      console.warn('[CRON sync-faculty] Unauthorized access attempt (invalid or missing CRON_SECRET).');
-      return res.status(401).json({ error: 'Unauthorized: Invalid or missing CRON_SECRET.' });
-    }
+  if (!cronSecret) {
+    console.error('[CRON sync-faculty] CRON_SECRET is not configured; refusing to run.');
+    return res.status(503).json({ error: 'CRON_SECRET is not configured on the server.' });
+  }
+  if (!safeEqual(req.headers['authorization'] || '', `Bearer ${cronSecret}`)) {
+    console.warn('[CRON sync-faculty] Unauthorized access attempt (invalid or missing CRON_SECRET).');
+    return res.status(401).json({ error: 'Unauthorized: Invalid or missing CRON_SECRET.' });
   }
 
   // 2. Initialize Supabase

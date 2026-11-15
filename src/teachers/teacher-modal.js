@@ -1142,7 +1142,8 @@ export function openTeacherDetailModal(teacherData, activeTab = 'ALL') {
 
   const rawUrl = (info.profileUrl && typeof info.profileUrl === 'string') ? info.profileUrl.trim() : '';
   const isGenericUrl = !rawUrl || rawUrl === 'https://cse.puc.ac.bd' || rawUrl === 'https://cse.puc.ac.bd/' || rawUrl === 'http://cse.puc.ac.bd' || rawUrl === 'http://cse.puc.ac.bd/';
-  const hasRealProfile = !isGenericUrl;
+  // Only http(s) may become a link: blocks javascript:/data: URLs from stored profile data
+  const hasRealProfile = !isGenericUrl && /^https?:\/\//i.test(rawUrl);
 
   const pucBtn = hasRealProfile
     ? `<a href="${escapeHtml(rawUrl)}" target="_blank" rel="noopener" class="faculty-action-chip" title="View Official PUC Website Profile">

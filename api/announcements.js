@@ -1,5 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const admin = require('firebase-admin');
+const { checkPassword } = require('./_lib/security.js');
 
 // Initialize Supabase Client
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -144,6 +145,10 @@ function sanitizeAndValidatePayload(body) {
       if (platform.length > LIMITS.PLATFORM_LINK) {
         return { error: `Platform link cannot exceed ${LIMITS.PLATFORM_LINK} characters.` };
       }
+      // Plain text ("Zoom", "Google Meet") or an http(s) link only — never script/data URLs
+      if (/^\s*(javascript|data|vbscript|file):/i.test(platform)) {
+        return { error: 'Platform link must be an http(s) URL or plain text.' };
+      }
       const isOnline = parsed?.is_online !== undefined ? Boolean(parsed.is_online) : true;
       const isExtra = parsed?.is_extra_class !== undefined ? Boolean(parsed.is_extra_class) : false;
       const room = (parsed?.room || '').trim();
@@ -280,13 +285,9 @@ module.exports = async (req, res) => {
   if (req.method === 'POST' || req.method === 'PATCH' || req.method === 'PUT') {
     const { id, isUpdate, action, password, checkPasswordOnly } = req.body || {};
 
-    if (!process.env.ANNOUNCEMENT_PASSWORD) {
-      return res.status(503).json({ error: 'Announcement password is not configured on the server.' });
-    }
-    const expectedPassword = process.env.ANNOUNCEMENT_PASSWORD;
-    if (password !== expectedPassword) {
-      return res.status(401).json({ error: 'Unauthorized: Invalid password.' });
-    }
+    // Constant-time compare + per-IP brute-force throttle; fails closed if unset
+    const auth = checkPassword(req, password, process.env.ANNOUNCEMENT_PASSWORD);
+    if (!auth.ok) return res.status(auth.status).json({ error: auth.error });
 
     if (checkPasswordOnly) {
       return res.status(200).json({ success: true, valid: true });
@@ -483,19 +484,16 @@ module.exports = async (req, res) => {
   // DELETE: Delete a specific announcement
   if (req.method === 'DELETE') {
     const id = req.body?.id || req.query?.id;
-    const password = req.body?.password || req.query?.password;
+    // Body only: a password in the query string would be written to request logs
+    const password = req.body?.password;
 
     if (!id) {
       return res.status(400).json({ error: 'Missing announcement ID.' });
     }
 
-    if (!process.env.ANNOUNCEMENT_PASSWORD) {
-      return res.status(503).json({ error: 'Announcement password is not configured on the server.' });
-    }
-    const expectedPassword = process.env.ANNOUNCEMENT_PASSWORD;
-    if (password !== expectedPassword) {
-      return res.status(401).json({ error: 'Unauthorized: Invalid password.' });
-    }
+    // Constant-time compare + per-IP brute-force throttle; fails closed if unset
+    const auth = checkPassword(req, password, process.env.ANNOUNCEMENT_PASSWORD);
+    if (!auth.ok) return res.status(auth.status).json({ error: auth.error });
 
     try {
       const { error } = await supabase
