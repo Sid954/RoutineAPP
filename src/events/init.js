@@ -3,6 +3,7 @@ import { CONFIG, FULL_COURSE_NAMES, SUBJECT_PALETTES, LAB_THEME } from '../core/
 import { State } from '../core/state.js';
 import { Storage } from '../storage/storage.js';
 import { normalizeSchedule } from '../schedule/normalizer.js';
+import { getDefaultViewDate } from '../schedule/queries.js';
 import { Announcements } from '../announcements/announcements.js';
 import { Streak } from '../streak/streak.js';
 import { Particles } from '../particles/particles.js';
@@ -50,6 +51,22 @@ export async function fetchSectionSchedule(sem, sec) {
   return null;
 }
 
+/**
+ * Points the timeline at today, or at tomorrow after the 6pm rollover (see shouldRollOver).
+ * @param {{ onlyIfOnDefault?: boolean }} opts onlyIfOnDefault: on resume, change the view only if
+ *   the user is still on real today, never overriding a day they navigated to themselves.
+ * @returns {boolean} whether the view day changed
+ */
+export function applyDefaultViewDay({ onlyIfOnDefault = false } = {}) {
+  const realTodayIdx = new Date().getDay();
+  if (onlyIfOnDefault && State.currentViewDayIdx !== realTodayIdx) return false;
+  const { date, dayIdx } = getDefaultViewDate();
+  if (State.currentViewDayIdx === dayIdx && State.viewDate && State.viewDate.toDateString() === date.toDateString()) return false;
+  State.currentViewDayIdx = dayIdx;
+  State.viewDate = date;
+  return true;
+}
+
 export function initializeApp() {
   initThemeEngine();
   initTeacherNames();
@@ -77,6 +94,9 @@ export function initializeApp() {
   if (FEATURES.announcements) {
     Announcements.loadCached();
   }
+
+  // After 6pm with today's classes done, open on tomorrow (needs schedule + overrides loaded)
+  applyDefaultViewDay();
 
   // ── STEP 3: Initial render (instant offline bootstrap)
   updateClock();

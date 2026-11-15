@@ -5,7 +5,7 @@ import { updateClock } from '../clock/clock.js';
 import { updateGreeting } from '../dashboard/greeting.js';
 import { updateDashboard, forceUpdate } from '../dashboard/update.js';
 import { Notifications } from '../notifications/notifications.js';
-import { fetchAnnouncementsAndNotify } from './init.js';
+import { fetchAnnouncementsAndNotify, applyDefaultViewDay } from './init.js';
 
 export function initVisibility() {
   let _resumeTimer = null;
@@ -16,6 +16,8 @@ export function initVisibility() {
     if (_resumeTimer) clearTimeout(_resumeTimer);
     _resumeTimer = setTimeout(() => {
       _resumeTimer = null;
+      // Coming back after 6pm while still on today: roll the timeline over to tomorrow
+      applyDefaultViewDay({ onlyIfOnDefault: true });
       updateClock();
       forceUpdate();
       updateGreeting();

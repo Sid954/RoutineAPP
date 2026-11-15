@@ -45,3 +45,11 @@ Tick each box only after confirming it on a real phone. Unit and mock tests alre
 - [ ] Settings offline: the dropdowns still load (cached or bundled list).
 - [ ] Post form, multi-day holiday: the end date defaults to the day after the start, and changing the start moves the end forward.
 - [ ] The announcements feed still shows pinned items first (the API now returns at most 300).
+
+## 7. Batch 4 (past announcements, 6pm rollover)
+- [ ] Announcements feed: dated announcements from before today are hidden, and pinned ones stay. "Show N past announcements" at the bottom reveals them, and "Hide" collapses them.
+- [ ] The unread badge no longer counts past-dated announcements.
+- [ ] After 6pm, once today's classes are done, opening the app shows "Tomorrow's Schedule" and the next-class card shows tomorrow's first class with a "Tomorrow" badge.
+- [ ] Before 6pm, or while a late class is still running, it stays on today.
+- [ ] After 6pm, swiping to another day isn't overridden when you leave and come back to the app.
+- [ ] Holiday day card shows a calendar SVG icon, not an emoji.

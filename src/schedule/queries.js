@@ -174,3 +174,34 @@ export function getNextClass(entries, currentMins) {
   }
   return next;
 }
+
+/** After this local hour, with no classes left today, views roll over to tomorrow. */
+export const ROLLOVER_HOUR = 18;
+
+/**
+ * True when it's past ROLLOVER_HOUR and today has no class still running or upcoming
+ * (cancelled and rescheduled-away classes ignored). A late lab keeps today on screen.
+ * @param {Date} [now]
+ */
+export function shouldRollOver(now = new Date()) {
+  if (now.getHours() < ROLLOVER_HOUR) return false;
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const remaining = getEffectiveClassesForDay(now.getDay(), now)
+    .filter(c => !c.isCancelled && !('rescheduledTo' in c))
+    .some(c => toMinutes(c.end) > nowMins);
+  return !remaining;
+}
+
+/**
+ * Date the timeline/next-class views should default to: today, or tomorrow after rollover.
+ * @param {Date} [now]
+ * @returns {{ date: Date, dayIdx: number, isTomorrow: boolean }}
+ */
+export function getDefaultViewDate(now = new Date()) {
+  if (shouldRollOver(now)) {
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    return { date: tomorrow, dayIdx: tomorrow.getDay(), isTomorrow: true };
+  }
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return { date: today, dayIdx: today.getDay(), isTomorrow: false };
+}

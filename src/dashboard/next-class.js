@@ -1,7 +1,32 @@
 import { DOM } from '../core/dom.js';
-import { getEffectiveClassesForDay, getActiveClass, getNextClass } from '../schedule/queries.js';
+import { getEffectiveClassesForDay, getActiveClass, getNextClass, shouldRollOver } from '../schedule/queries.js';
 import { getOverrideFor } from '../announcements/overrides.js';
 import { toMinutes, format12h, formatRoom, getCurrentMinutes, escapeHtml } from '../core/utils.js';
+
+function renderTomorrowFirstClass(todayDate, subRow) {
+  const tomorrow = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate() + 1);
+  const first = getEffectiveClassesForDay(tomorrow.getDay(), tomorrow)
+    .find(c => !c.isCancelled && !('rescheduledTo' in c));
+
+  if (!first) {
+    DOM.nextTitle.textContent = 'No classes tomorrow';
+    DOM.nextEta.style.display = 'none';
+    subRow.style.display = 'none';
+    if (DOM.nextCard) DOM.nextCard.classList.add('no-classes');
+    return;
+  }
+
+  const teacherHtml = first.instructor
+    ? ` (<span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(first.instructor)}" title="Click to view ${escapeHtml(first.instructor)}'s profile">${escapeHtml(first.instructor)}</span>)`
+    : '';
+  DOM.nextTitle.innerHTML = `${escapeHtml(first.title)}${teacherHtml}`;
+  DOM.nextTimeRange.textContent = `${format12h(first.start)} – ${format12h(first.end)}`;
+  DOM.nextRoom.textContent = first.isOnline ? 'ONLINE' : (formatRoom(first.room) || '—');
+  DOM.nextEta.textContent = 'Tomorrow';
+  DOM.nextEta.style.display = 'inline-block';
+  subRow.style.display = 'block';
+  if (DOM.nextCard) DOM.nextCard.classList.remove('no-classes');
+}
 
 export function renderNextClass() {
   const todayDate = new Date();
@@ -9,6 +34,12 @@ export function renderNextClass() {
   const holidayOverride = getOverrideFor(todayDate);
   const subRow = DOM.nextRoom.parentElement;
   const currentMins = getCurrentMinutes();
+
+  // After 6pm with today's classes done: preview tomorrow's first class instead
+  if (shouldRollOver(todayDate)) {
+    renderTomorrowFirstClass(todayDate, subRow);
+    return;
+  }
 
   const todayClasses = getEffectiveClassesForDay(todayIdx, todayDate);
 
@@ -69,7 +100,7 @@ export function renderNextClass() {
       }
     }
   } else {
-    DOM.nextTitle.textContent = 'No upcoming classes 🎉';
+    DOM.nextTitle.textContent = 'No upcoming classes';
     DOM.nextEta.style.display = 'none';
     subRow.style.display = 'none';
     if (DOM.nextCard) DOM.nextCard.classList.add('no-classes');
