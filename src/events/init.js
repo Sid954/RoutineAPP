@@ -169,7 +169,9 @@ export function initializeApp() {
   }, 4000);
 }
 
-const ROUTINE_STRUCTURE = {
+// Bundled fallback only. The live list comes from api/schedule?action=semesters_sections
+// (Supabase 'sections' table) so new sections appear without an app update.
+const DEFAULT_ROUTINE_STRUCTURE = {
   '1': ['a', 'b', 'c', 'd', 'e', 'f'],
   '2': ['a', 'b', 'c', 'd', 'e', 'f'],
   '3': ['a', 'b', 'c', 'd', 'e', 'f'],
@@ -179,6 +181,33 @@ const ROUTINE_STRUCTURE = {
   '7': ['a', 'b'],
   '8': ['a', 'b', 'c', 'd', 'e']
 };
+const ROUTINE_STRUCTURE_CACHE_KEY = 'routine_structure_v1';
+
+function isValidStructure(obj) {
+  return !!obj && typeof obj === 'object' && Object.keys(obj).length > 0 &&
+    Object.values(obj).every(v => Array.isArray(v) && v.length > 0 && v.every(x => typeof x === 'string'));
+}
+
+function loadCachedStructure() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(ROUTINE_STRUCTURE_CACHE_KEY) || 'null');
+    if (isValidStructure(parsed)) return parsed;
+  } catch (e) {}
+  return DEFAULT_ROUTINE_STRUCTURE;
+}
+
+async function fetchRoutineStructure() {
+  try {
+    const res = await fetchWithTimeout(`${CONFIG.apiBase}/api/schedule?action=semesters_sections`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!isValidStructure(data)) return null;
+    try { localStorage.setItem(ROUTINE_STRUCTURE_CACHE_KEY, JSON.stringify(data)); } catch (e) {}
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
 
 export async function saveAllSettings() {
   const semSelect = DOM.routineSemesterSelect || document.getElementById('routineSemesterSelect');
@@ -268,25 +297,38 @@ function initRoutineSelector() {
   const secSelect = DOM.routineSectionSelect;
   if (!semSelect || !secSelect) return;
 
-  const currentSem = Storage.getSemester();
-  const currentSec = Storage.getSection();
+  let structure = loadCachedStructure();
 
-  semSelect.innerHTML = Object.keys(ROUTINE_STRUCTURE)
-    .map(sem => `<option value="${sem}"${sem === currentSem ? ' selected' : ''}>Semester ${sem}</option>`)
-    .join('');
+  function populateSemesters(selectedSem) {
+    semSelect.innerHTML = Object.keys(structure)
+      .sort((a, b) => Number(a) - Number(b))
+      .map(sem => `<option value="${sem}"${sem === selectedSem ? ' selected' : ''}>Semester ${sem}</option>`)
+      .join('');
+  }
 
   function populateSections(sem, selectedSec) {
-    const sections = ROUTINE_STRUCTURE[sem] || [];
+    const sections = structure[sem] || [];
     secSelect.innerHTML = sections
       .map(sec => `<option value="${sec}"${sec === selectedSec ? ' selected' : ''}>Section ${sec.toUpperCase()}</option>`)
       .join('');
   }
 
-  populateSections(currentSem, currentSec);
+  populateSemesters(Storage.getSemester());
+  populateSections(Storage.getSemester(), Storage.getSection());
+
+  // Refresh from Supabase in the background; keep the user's in-progress choice if still valid
+  fetchRoutineStructure().then(fresh => {
+    if (!fresh || JSON.stringify(fresh) === JSON.stringify(structure)) return;
+    structure = fresh;
+    const sem = structure[semSelect.value] ? semSelect.value : Storage.getSemester();
+    const sec = (structure[sem] || []).includes(secSelect.value) ? secSelect.value : Storage.getSection();
+    populateSemesters(sem);
+    populateSections(sem, sec);
+  });
 
   semSelect.addEventListener('change', () => {
     const sem = semSelect.value;
-    const availableSections = ROUTINE_STRUCTURE[sem] || [];
+    const availableSections = structure[sem] || [];
     let sec = secSelect.value;
     if (!availableSections.includes(sec)) {
       sec = availableSections[0] || 'a';
