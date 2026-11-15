@@ -66,3 +66,5 @@ blob-report/
 playwright.config.ts
 playwright.config.js
 playwright.config.mjs
+# Local-only signing keystore & GitHub secrets (never commit)
+secrets/
