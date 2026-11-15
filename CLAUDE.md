@@ -23,8 +23,8 @@ node build.js --scrape-faculty            # optional faculty scrape during build
 
 - There is no linter or type checker.
 - Tests are plain Node scripts using `assert`. They `require()` the ES-module files in `src/` directly and mock `global.window`, so keep `src/` logic modules importable without a DOM.
-- Two suites depend on the environment and are known to fail or hang. `test_direct_fetch.js` needs a real `.env` with Supabase credentials. `test_init_schedule_resilience.js` runs into a gap in the DOM mock.
-- Environment variables are listed in `.env.example`: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET`, `ADMIN_PASSWORD`. Scripts load `.env` through `scripts/_load_env.js` or their own inline loader.
+- `test_direct_fetch.js` needs a real `.env` with Supabase credentials. The other suites only need `npm install`, because most API tests `require('@supabase/supabase-js')`. On-device checks that are still pending are tracked in `TESTING_CHECKLIST.md`.
+- Environment variables are listed in `.env.example`: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET`, `ADMIN_PASSWORD`, `ANNOUNCEMENT_PASSWORD` and the `FIREBASE_*` variables. Scripts load `.env` through `scripts/_load_env.js` or their own inline loader.
 
 ## Build pipeline (`build.js`): edit sources, not outputs
 
@@ -32,7 +32,7 @@ node build.js --scrape-faculty            # optional faculty scrape during build
 - **Android native code lives in `android-custom/`** (Java widgets, `res/`, `AndroidManifest.xml`). The build copies it over `android/app/src/main/`, so edits made directly under `android/app/src/main/` get overwritten.
 - `version.json` is the single source of truth for the app version. The build writes `versionCode`/`versionName` into `android/app/build.gradle` and into `appVersionCode`/`appVersionName` in `src/core/config.js`. It also stamps a fresh `CACHE_VERSION` into both `sw.js` files.
 - The build regenerates `master_rooms_schedule.json` and `master_teachers_schedule.json` from `src/data/sem-*/<section>/routine.json`. These files are the offline fallbacks.
-- CI (`.github/workflows/build-apk.yml`) runs on every push to `main`. It builds a debug APK and publishes it to a GitHub release whose tag is **hardcoded** in the workflow (`v1.5.0`).
+- CI (`.github/workflows/build-apk.yml`) runs on every push to `main` (Node 22, JDK 21). It builds a release APK signed with the keystore from GitHub secrets and publishes it to the GitHub release `v<versionName>`, reading the version from `version.json`. Without the keystore secrets it builds a debug APK as a workflow artifact only and publishes nothing.
 - Vercel serves `www/` as static output plus `api/*.js` as functions, and runs a weekly cron at `/api/cron/sync-faculty`. **A change to `api/` takes effect only after a commit, a push and a Vercel deploy.**
 
 ## Architecture (big picture)
