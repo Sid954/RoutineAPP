@@ -11,6 +11,13 @@ import {
   validateAnnouncementPayload
 } from './validation.js';
 
+/** 'YYYY-MM-DD' -> next calendar day, computed in local time. */
+function nextDayStr(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + 1);
+  return localDateStr(d);
+}
+
 let counterUpdateCallbacks = [];
 // Tracks the is_pinned state of the announcement being edited — preserved on update
 let _editIsPinned = false;
@@ -445,7 +452,7 @@ export function openPostForm(existingAnnouncement = null) {
 
     if (paCancelDate) { paCancelDate.value = todayStr; paCancelDate.min = todayStr; }
     if (paHolidayStartDate) { paHolidayStartDate.value = todayStr; paHolidayStartDate.min = todayStr; }
-    if (paHolidayEndDate) { paHolidayEndDate.value = todayStr; paHolidayEndDate.min = todayStr; }
+    if (paHolidayEndDate) { paHolidayEndDate.value = nextDayStr(todayStr); paHolidayEndDate.min = nextDayStr(todayStr); }
     if (paHolidayDetails) paHolidayDetails.value = '';
     if (paHolidayRangeType) paHolidayRangeType.value = 'single';
     if (paHolidayEndDateContainer) paHolidayEndDateContainer.style.display = 'none';
@@ -714,10 +721,22 @@ export function initPostForm() {
     });
   }
 
+  // Multi-day holiday: end date must be after start; default it to the day after start
+  const syncHolidayEndDate = () => {
+    const startEl = document.getElementById('paHolidayStartDate');
+    const endEl = document.getElementById('paHolidayEndDate');
+    if (!startEl || !endEl || !startEl.value) return;
+    const minEnd = nextDayStr(startEl.value);
+    endEl.min = minEnd;
+    if (!endEl.value || endEl.value < minEnd) endEl.value = minEnd;
+  };
+  document.getElementById('paHolidayStartDate')?.addEventListener('change', syncHolidayEndDate);
+
   if (paHolidayRangeType) {
     paHolidayRangeType.addEventListener('change', () => {
       const val = paHolidayRangeType.value;
       if (paHolidayEndDateContainer) paHolidayEndDateContainer.style.display = val === 'multiple' ? 'block' : 'none';
+      if (val === 'multiple') syncHolidayEndDate();
     });
   }
 

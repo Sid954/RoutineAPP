@@ -38,3 +38,10 @@ Tick each box only after confirming it on a real phone. Unit and mock tests alre
 - [ ] Home-screen widget: cancel a class through an announcement, close the app, and wait for the widget to refresh. The class shows as cancelled or is skipped instead of appearing as normal.
 - [ ] Slow or no network: the app falls back to the cached or bundled routine within about 8 seconds instead of hanging.
 - [ ] Between midnight and 6am, the announcement post form defaults to today's date, not yesterday's.
+
+## 6. Batch 3 (CI tests, section list, limits)
+- [ ] GitHub Actions: the "Run Tests" step passes before the APK build.
+- [ ] Settings: the semester and section dropdowns list the same sections as the Supabase `sections` table. A newly added section appears without an app update.
+- [ ] Settings offline: the dropdowns still load (cached or bundled list).
+- [ ] Post form, multi-day holiday: the end date defaults to the day after the start, and changing the start moves the end forward.
+- [ ] The announcements feed still shows pinned items first (the API now returns at most 300).
