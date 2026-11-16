@@ -186,6 +186,7 @@ select option {
 
 /* Clean Dropdown Select Inputs */
 select.clean-select,
+input.clean-select, /* text inputs (name field) share the select styling */
 .mf select,
 .fg select {
   width: 100%;
@@ -204,6 +205,7 @@ select.clean-select,
 }
 
 select.clean-select:focus,
+input.clean-select:focus,
 .mf select:focus,
 .fg select:focus {
   border-color: var(--accent) !important;
@@ -436,3 +438,6 @@ button, a, .ch, .t-card, .m-matrix-card, .m-tab-btn, .day-nav-btn {
     transition-timing-function: ease-out;
   }
 }
+
+input.clean-select { box-sizing: border-box; -webkit-appearance: none; appearance: none; }
+input.clean-select::placeholder { color: var(--dim); opacity: 1; font-weight: 500; }

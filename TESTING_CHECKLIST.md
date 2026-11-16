@@ -4,9 +4,10 @@ Pending hands-on verification of the fixes pushed on 2026-11-16 (commits `ec80b9
 Tick each box only after confirming it on a real phone. Unit and mock tests already pass, but they can't check real-device behaviour.
 
 ## 0. Install the signed build
-- [ ] Uninstall the old app. This is required once because the signing key changed.
-- [ ] Download `app-release.apk` from the GitHub release `v1.5.0` and install it.
-- [ ] The app opens without crashing, and the dashboard shows your own semester and section.
+> Device test run 2026-11-16 found: (1) settings save stuck on "Step 2/2" (fixed), (2) **production API returning 500 "TypeError: fetch failed" because Vercel cannot reach Supabase** (needs the Supabase project checked; the API now fails fast instead of hanging 7–14s), (3) unstyled name inputs and clipped long toasts (fixed).
+- [x] Uninstall the old app. This is required once because the signing key changed. *(2026-11-16, Redmi 23030RAC7Y / Android 16: installing over 1.5.0 was refused with INSTALL_FAILED_UPDATE_INCOMPATIBLE, as expected. v1.5.0 data was backed up first.)*
+- [x] Download `app-release.apk` from the GitHub release and install it. *(v1.5.1 / code 11; signer SHA-256 4d6fb81a…bfb042 matches the release keystore.)*
+- [x] The app opens without crashing *(no FATAL in logcat; welcome screen showed the SVG icon and name field)*. The dashboard showed 2nd Semester – Section C from the bundled fallback, because the API was down at the time.
 
 ## 1. Auto-update no longer overwrites the routine
 - [ ] Open the app online and wait at least 10 seconds for the background update check.

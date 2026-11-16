@@ -235,83 +235,52 @@ export async function saveAllSettings() {
   const sem = semSelect ? semSelect.value : Storage.getSemester();
   const sec = secSelect ? secSelect.value : Storage.getSection();
 
-  import('../modals/modal.js').then(async ({ showLoadingScreen, hideLoadingScreen }) => {
-    showLoadingScreen(
-      `Saving Settings (Semester ${sem} - Section ${sec.toUpperCase()})...`,
-      'Step 1/2: Saving preferences & downloading schedule...'
-    );
+  // Preferences are written synchronously FIRST, so they are never lost even if the network
+  // is slow or down. After that the flow always ends in a reload: the reload re-fetches the
+  // routine and announcements itself, so nothing here needs to block on them.
+  // (Previously a slow fetch re-opened the overlay after the timeout hid it, then returned
+  // without hiding it or reloading, leaving the app stuck on "Step 2/2".)
+  const nameInput = document.getElementById('displayNameInput');
+  if (nameInput) Storage.saveDisplayName(nameInput.value);
+  Storage.saveSemester(sem);
+  Storage.saveSection(sec);
+  if (DOM.notifToggle) {
+    const notifSettings = Storage.getNotifSettings();
+    notifSettings.enabled = DOM.notifToggle.checked;
+    if (DOM.notifLeadTime) notifSettings.leadTime = parseInt(DOM.notifLeadTime.value, 10) || 15;
+    Storage.saveNotifSettings(notifSettings);
+  }
 
-    let isFinished = false;
-    let saveTimeout = setTimeout(() => {
-      if (!isFinished) {
-        isFinished = true;
-        hideLoadingScreen();
-        import('../toast/toast.js').then(({ showToast }) => {
-          showToast('Saving taking longer than expected. Using cached settings.', 'warning');
-        });
-      }
-    }, 7000);
+  const [{ showLoadingScreen }, { showToast }] = await Promise.all([
+    import('../modals/modal.js'),
+    import('../toast/toast.js')
+  ]);
 
-    try {
-      const nameInput = document.getElementById('displayNameInput');
-      if (nameInput) Storage.saveDisplayName(nameInput.value);
-      Storage.saveSemester(sem);
-      Storage.saveSection(sec);
+  showLoadingScreen(
+    `Saving Settings (Semester ${sem} - Section ${sec.toUpperCase()})...`,
+    'Downloading your routine...'
+  );
 
-      // Save notification settings if elements exist
-      if (DOM.notifToggle) {
-        const notifSettings = Storage.getNotifSettings();
-        notifSettings.enabled = DOM.notifToggle.checked;
-        if (DOM.notifLeadTime) notifSettings.leadTime = parseInt(DOM.notifLeadTime.value, 10) || 15;
-        Storage.saveNotifSettings(notifSettings);
-      }
-
-      // Fetch routine for targeted semester & section (API with static fallback)
-      const freshSchedule = await fetchSectionSchedule(sem, sec);
-      if (freshSchedule) {
-        State.schedule = freshSchedule;
-        Storage.saveSchedule();
-      }
-
-      // Step 2: Fetch section-specific announcements
-      showLoadingScreen(
-        `Semester ${sem} - Section ${sec.toUpperCase()} Saved!`,
-        'Step 2/2: Syncing section announcements & schedule overrides...'
-      );
-
-      if (FEATURES.announcements) {
-        await fetchAnnouncementsAndNotify().catch(() => {});
-      }
-
-      if (isFinished) return;
-      clearTimeout(saveTimeout);
-      isFinished = true;
-
-      showLoadingScreen(
-        'Settings Applied!',
-        'Finalizing dashboard reload...'
-      );
-
-      import('../toast/toast.js').then(({ showToast }) => {
-        showToast('Settings saved & applied successfully!', 'success');
-      });
-
-      // Smooth auto reload
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
-
-    } catch (err) {
-      if (isFinished) return;
-      clearTimeout(saveTimeout);
-      isFinished = true;
-      hideLoadingScreen();
-      console.error('Error saving settings:', err);
-      import('../toast/toast.js').then(({ showToast }) => {
-        showToast('Error saving settings: ' + err.message, 'error');
-      });
+  // fetchSectionSchedule has its own 8s API timeout + bundled-file fallback; this outer cap
+  // guarantees we move on even if both are slow.
+  const SAVE_CAP_MS = 10000;
+  let timedOut = false;
+  try {
+    const freshSchedule = await Promise.race([
+      fetchSectionSchedule(sem, sec),
+      new Promise(resolve => setTimeout(() => { timedOut = true; resolve(null); }, SAVE_CAP_MS))
+    ]);
+    if (freshSchedule) {
+      State.schedule = freshSchedule;
+      Storage.saveSchedule();
     }
-  });
+  } catch (err) {
+    console.warn('Routine download during save failed:', err);
+  }
+
+  showLoadingScreen('Settings Saved!', timedOut ? 'Server is slow — reloading with your saved settings...' : 'Reloading dashboard...');
+  showToast(timedOut ? 'Settings saved. Routine will refresh when the server responds.' : 'Settings saved & applied!', timedOut ? 'warning' : 'success');
+  setTimeout(() => window.location.reload(), 600);
 }
 
 function initRoutineSelector() {
