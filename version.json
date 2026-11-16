@@ -1,8 +1,8 @@
 {
-  "versionCode": 13,
-  "versionName": "1.5.3",
+  "versionCode": 14,
+  "versionName": "1.5.4",
   "apkUrl": "https://github.com/sid954/RoutineAPP/releases/latest/download/app-release.apk",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.3 - New Notices page (department view, coming-up countdowns, search, calendar/share, post to any section or the whole department), rebuilt Faculty directory and Settings",
+  "releaseNotes": "v1.5.4 - New Home page: a smart \"now\" card (in class, next class countdown, done for today), heads-up for the week, week strip with class counts, day stats and a clearer timeline",
   "minRequiredVersionCode": 1
 }

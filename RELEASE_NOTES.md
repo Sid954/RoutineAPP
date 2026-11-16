@@ -1,29 +1,12 @@
-# My Routine v1.5.3 Release Notes
+# My Routine v1.5.4 Release Notes
 
-Updates install on top of v1.5.1 and v1.5.2. No reinstall needed.
+Installs on top of v1.5.1 and later. No reinstall needed.
 
-### Notices, rebuilt
-- **My section or the whole department:** switch between notices for your section and every notice in the department. Each one shows who it is for.
-- **Coming up:** a strip of countdown cards for exams, assignments, cancelled, extra and moved classes, and holidays in the next two weeks.
-- **Find things fast:** search notices, filter by type (with counts), and clear new ones with "Mark all read".
-- **Grouped by when it happens:** Today, Tomorrow, This week, Later, then general notices. Past notices are tucked away.
-- **Notice details:** one tap shows every detail, a "Join class" button for online classes, and buttons to add it to your calendar, share it, or jump to that day in your routine.
-- **Post to more than your section:** send a notice to another section, several sections, a whole semester or the whole department. Cancellations, classes, tests, reschedules and assignments use that section's own course list.
-- **Better posting:** a live preview, your name remembered, and new fields for an online/extra class's end time and teacher and a note on cancellations.
-- **Fix:** editing a department-wide notice no longer quietly limits it to your own section.
-
-### Faculty, rebuilt
-- Live status for every teacher: in class (room, until when), next class, or done for the day.
-- Filters for All, My teachers, In class and Today, plus search by name, code, course or room.
-- A new profile: a "now" card, email/call/profile buttons, a day-by-day schedule and the courses they teach.
-- Cancelled classes no longer show a teacher as "in class".
-
-### Settings, rebuilt
-- Your name saves as you type, with no reload. Changing semester or section asks before switching.
-- Light/dark picker, and a day-by-day class editor with Undo. "Restore official routine" restores your own section.
-
-### Rooms
-- A single Rooms page with a time slider, Free/Soon/All filters, and a day strip for every room.
-
-### Design
-- SVG icons throughout (no emoji), consistent light and dark themes.
+### New Home page
+- **A smart "now" card:** in class with time left and a progress bar; a countdown to your next class during breaks and before the first class; "Done for today" with your next class; off days and holidays show what's next.
+- **Today at a glance:** a class test or an assignment due today appears right on the card. Online classes get a "Join class" button.
+- **Heads up:** tests, assignments, cancellations, holidays and moved classes coming up this week. Tap one to open the notice.
+- **Week strip:** how many classes each day really has, dots for holidays, tests, cancellations and deadlines, and a quick "Back to today".
+- **Day stats:** class count and time span, time in class, longest break, labs, tests and cancellations.
+- **Clearer timeline:** breaks between classes (the current one highlighted), deadlines at their due time, and cancelled or moved classes shown struck through with the reason. Tap a moved class to jump to its new day.
+- Swiping still changes the day, and after 6pm the page still opens on tomorrow.
