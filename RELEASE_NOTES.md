@@ -1,28 +1,29 @@
-# My Routine v1.5.1 Release Notes
+# My Routine v1.5.3 Release Notes
 
-> **One-time reinstall needed:** this is the first build signed with the permanent release key. If you have v1.5.0 or older, uninstall it once, then install this APK. Future updates will install normally on top.
+Updates install on top of v1.5.1 and v1.5.2. No reinstall needed.
 
-### Fixes
-- **Your routine stays yours:** the background updater no longer replaces your semester/section routine with a different section's routine.
-- **Push notifications work:** announcement pushes are now delivered, targeted to your semester and section, and follow you when you change section.
-- **Home-screen widget respects announcements:** cancelled classes, holidays and moved classes no longer show as normal on the widget.
-- **Offline is faster and lighter:** network requests time out after 8 seconds and fall back to cached data. The offline cache no longer grows on every launch.
-- **Correct dates after midnight:** the post form and the streak no longer count the previous day between 12am and 6am.
-- **Free Rooms:** tapping a class card opens its details instead of the instructor profile, and the empty-state wording is consistent.
+### Notices, rebuilt
+- **My section or the whole department:** switch between notices for your section and every notice in the department. Each one shows who it is for.
+- **Coming up:** a strip of countdown cards for exams, assignments, cancelled, extra and moved classes, and holidays in the next two weeks.
+- **Find things fast:** search notices, filter by type (with counts), and clear new ones with "Mark all read".
+- **Grouped by when it happens:** Today, Tomorrow, This week, Later, then general notices. Past notices are tucked away.
+- **Notice details:** one tap shows every detail, a "Join class" button for online classes, and buttons to add it to your calendar, share it, or jump to that day in your routine.
+- **Post to more than your section:** send a notice to another section, several sections, a whole semester or the whole department. Cancellations, classes, tests, reschedules and assignments use that section's own course list.
+- **Better posting:** a live preview, your name remembered, and new fields for an online/extra class's end time and teacher and a note on cancellations.
+- **Fix:** editing a department-wide notice no longer quietly limits it to your own section.
 
-### New
-- **After 6pm the app shows tomorrow:** once today's classes are done, the schedule and next-class card switch to tomorrow.
-- **Past announcements are tucked away:** expired notices are hidden behind a "Show past announcements" toggle and no longer count as unread.
-- **More than one override per day:** the week strip shows up to 3 icons (plus "+N"). In the calendar, only class tests and assignments tint the day.
-- **Your name in the greeting:** set it in Settings or on first launch.
-- **Section list stays current:** new sections appear automatically from the server.
-- **Holiday ranges:** the end date defaults to the day after the start.
-- **Weekly Routine and Schedule Settings** now open as full pages.
+### Faculty, rebuilt
+- Live status for every teacher: in class (room, until when), next class, or done for the day.
+- Filters for All, My teachers, In class and Today, plus search by name, code, course or room.
+- A new profile: a "now" card, email/call/profile buttons, a day-by-day schedule and the courses they teach.
+- Cancelled classes no longer show a teacher as "in class".
 
-### Security
-- Admin and announcement passwords are checked more safely, with lockout after repeated wrong attempts and no default password.
-- Photo uploads are validated and rate-limited.
-- The weekly faculty sync only runs with its secret configured.
+### Settings, rebuilt
+- Your name saves as you type, with no reload. Changing semester or section asks before switching.
+- Light/dark picker, and a day-by-day class editor with Undo. "Restore official routine" restores your own section.
+
+### Rooms
+- A single Rooms page with a time slider, Free/Soon/All filters, and a day strip for every room.
 
 ### Design
-- All emoji icons replaced with SVG icons. Blur and glow effects removed for a cleaner, faster UI.
+- SVG icons throughout (no emoji), consistent light and dark themes.
