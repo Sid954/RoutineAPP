@@ -1,8 +1,8 @@
 {
-  "versionCode": 14,
-  "versionName": "1.5.4",
+  "versionCode": 15,
+  "versionName": "1.5.5",
   "apkUrl": "https://github.com/sid954/RoutineAPP/releases/latest/download/app-release.apk",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.4 - New Home page: a smart \"now\" card (in class, next class countdown, done for today), heads-up for the week, week strip with class counts, day stats and a clearer timeline",
+  "releaseNotes": "v1.5.5 - The original Home design is back, with countdown to your next class, \"Free now\" breaks, up-next on the live class and a next-class shortcut at the end of the day",
   "minRequiredVersionCode": 1
 }

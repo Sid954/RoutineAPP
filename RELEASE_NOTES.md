@@ -1,12 +1,17 @@
-# My Routine v1.5.4 Release Notes
+# My Routine v1.5.5 Release Notes
 
 Installs on top of v1.5.1 and later. No reinstall needed.
 
-### New Home page
-- **A smart "now" card:** in class with time left and a progress bar; a countdown to your next class during breaks and before the first class; "Done for today" with your next class; off days and holidays show what's next.
-- **Today at a glance:** a class test or an assignment due today appears right on the card. Online classes get a "Join class" button.
-- **Heads up:** tests, assignments, cancellations, holidays and moved classes coming up this week. Tap one to open the notice.
-- **Week strip:** how many classes each day really has, dots for holidays, tests, cancellations and deadlines, and a quick "Back to today".
-- **Day stats:** class count and time span, time in class, longest break, labs, tests and cancellations.
-- **Clearer timeline:** breaks between classes (the current one highlighted), deadlines at their due time, and cancelled or moved classes shown struck through with the reason. Tap a moved class to jump to its new day.
-- Swiping still changes the day, and after 6pm the page still opens on tomorrow.
+### The original Home is back
+v1.5.4's Home redesign has been undone. Home looks exactly as it did before, with these additions:
+- **Next class countdown:** today's next class shows "in 40m".
+- **Breaks:** the break you're in is highlighted: "Free now · 25m left".
+- **Up next:** the live class card shows what's next and how long the break is, or "Last class today".
+- **End of the day:** "All done for today" with your next class. Tap it to jump there.
+- **Empty days and holidays:** a button to your next class.
+- **Cancelled classes** show the reason from the notice.
+- **Deadlines:** tap an assignment to open its notice.
+- **"Today" pill:** jumps back to today when you're browsing another day.
+
+### Fix
+- Picking the same weekday next week in the calendar no longer shows today's live progress.
