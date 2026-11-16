@@ -199,6 +199,14 @@ export function getOverridesByDateMap() {
   if (!State.announcementsList || State.announcementsList.length === 0) return map;
 
   const PRIORITY = { holiday: 1, cancellation: 2, class_test: 3, rescheduled: 4, online_class: 5, assignment: 6 };
+  // Entry: { type (highest priority, drives the main badge/colour), types (all distinct types on
+  // that date, highest priority first), count, announcement }
+  const addType = (entry, t) => {
+    if (!entry.types.includes(t)) {
+      entry.types.push(t);
+      entry.types.sort((a, b) => PRIORITY[a] - PRIORITY[b]);
+    }
+  };
 
   State.announcementsList.forEach(item => {
     if (!item.date_override) return;
@@ -210,9 +218,10 @@ export function getOverridesByDateMap() {
 
     const existing = map.get(dateStr);
     if (!existing) {
-      map.set(dateStr, { type: itemType, count: 1, announcement: item });
+      map.set(dateStr, { type: itemType, types: [itemType], count: 1, announcement: item });
     } else {
       existing.count++;
+      addType(existing, itemType);
       // If new item has higher priority (lower priority number), it wins the visual badge
       if (PRIORITY[itemType] < PRIORITY[existing.type]) {
         existing.type = itemType;
@@ -234,9 +243,10 @@ export function getOverridesByDateMap() {
       if (destDateStr && destDateStr !== dateStr) {
         const destExisting = map.get(destDateStr);
         if (!destExisting) {
-          map.set(destDateStr, { type: itemType, count: 1, announcement: item });
+          map.set(destDateStr, { type: itemType, types: [itemType], count: 1, announcement: item });
         } else {
           destExisting.count++;
+          addType(destExisting, itemType);
           if (PRIORITY[itemType] < PRIORITY[destExisting.type]) {
             destExisting.type = itemType;
             destExisting.announcement = item;
@@ -269,4 +279,28 @@ export function isPastAnnouncement(item, todayStr) {
   const d = normalizeDate(dateStr);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
   return d < today;
+}
+
+/**
+ * Which override icons fit in a week-strip badge stack. Up to `max` icons are shown;
+ * past that, the last slot becomes a "+N" overflow chip so the stack never exceeds `max`.
+ * @param {string[]} types distinct types, highest priority first (from getOverridesByDateMap)
+ * @returns {{ icons: string[], more: number }}
+ */
+export function getOverrideBadgeSlots(types, max = 3) {
+  const list = Array.isArray(types) ? types : [];
+  if (list.length <= max) return { icons: list.slice(), more: 0 };
+  return { icons: list.slice(0, max - 1), more: list.length - (max - 1) };
+}
+
+/**
+ * Month calendar: only class tests and assignments tint the cell background (other types
+ * get a dot only). When both land on the same day, the class test wins.
+ * @returns {'class_test'|'assignment'|null}
+ */
+export function getCalendarBackgroundType(types) {
+  const list = Array.isArray(types) ? types : [];
+  if (list.includes('class_test')) return 'class_test';
+  if (list.includes('assignment')) return 'assignment';
+  return null;
 }

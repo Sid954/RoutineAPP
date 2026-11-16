@@ -53,3 +53,10 @@ Tick each box only after confirming it on a real phone. Unit and mock tests alre
 - [ ] Before 6pm, or while a late class is still running, it stays on today.
 - [ ] After 6pm, swiping to another day isn't overridden when you leave and come back to the app.
 - [ ] Holiday day card shows a calendar SVG icon, not an emoji.
+
+## 8. Batch 5 (override indicators)
+- [ ] Week strip: a day with 2–3 different override types (e.g. class test + assignment) shows that many small corner icons, overlapping, with the most important on the right.
+- [ ] A day with 4 or more types shows 2 icons and a "+N" chip, and the stack doesn't spill outside the pill on a narrow phone.
+- [ ] Calendar month view: only class-test (orange) and assignment (purple) days get a tinted background. Class test wins when both fall on the same day. Holidays, cancellations and online classes show only dots and a coloured number.
+- [ ] Calendar dots: up to 3 per day, without the glow.
+- [ ] Check both light and dark themes.

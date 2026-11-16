@@ -9,7 +9,7 @@ import { DOM } from '../core/dom.js';
 import { closeModal } from '../modals/modal.js';
 import { DAY_NAMES, MONTHS, FULL_MONTHS } from '../core/config.js';
 import { renderTimeline } from './timeline.js';
-import { getOverridesByDateMap, normalizeDate } from '../announcements/overrides.js';
+import { getOverridesByDateMap, normalizeDate, getCalendarBackgroundType } from '../announcements/overrides.js';
 
 let _calendarViewMonth = new Date().getMonth();
 let _calendarViewYear = new Date().getFullYear();
@@ -87,8 +87,15 @@ export function renderCalendarMonthGrid() {
 
     const dateStr = normalizeDate(thisDate);
     const override = overridesMap.get(dateStr);
-    const overrideClass = override ? `cal-override-${override.type}` : '';
-    const overrideDot = override ? `<span class="cal-override-dot ${override.type}"></span>` : '';
+    // Number colour follows the highest-priority type; only class tests / assignments tint the
+    // cell background (class test wins); one dot per type, highest priority first (max 3)
+    const types = override ? (override.types || [override.type]) : [];
+    const bgType = getCalendarBackgroundType(types);
+    const overrideClass = [
+      override ? `cal-override-${override.type}` : '',
+      bgType ? `cal-bg-${bgType}` : ''
+    ].join(' ').trim();
+    const overrideDot = types.slice(0, 3).map(t => `<span class="cal-override-dot ${t}"></span>`).join('');
 
     gridHtml += `
       <div class="calendar-day-cell ${isSelected ? 'is-selected' : ''} ${isToday ? 'is-today' : ''} ${isOff ? 'is-offday' : ''} ${overrideClass}" 

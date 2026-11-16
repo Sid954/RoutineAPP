@@ -2,7 +2,7 @@ import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
 import { DAY_NAMES, FULL_COURSE_NAMES } from '../core/config.js';
 import { getClassesForDay, getEffectiveClassesForDay } from '../schedule/queries.js';
-import { getOverrideFor, getOverridesByDateMap, normalizeDate, getDateForDayIndex, getExtraClassesForDate, getRescheduledClassesForDate, getDeadlinesForDate } from '../announcements/overrides.js';
+import { getOverrideFor, getOverridesByDateMap, normalizeDate, getDateForDayIndex, getExtraClassesForDate, getRescheduledClassesForDate, getDeadlinesForDate, getOverrideBadgeSlots } from '../announcements/overrides.js';
 import { toMinutes, format12h, toTimeString, getCurrentMinutes, escapeHtml, formatRoom } from '../core/utils.js';
 import { getFullName } from '../teachers/teacher-names.js';
 import { Storage } from '../storage/storage.js';
@@ -17,6 +17,22 @@ const OVERRIDE_ICONS = {
   rescheduled: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
   assignment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>'
 };
+
+/**
+ * Corner badge stack for a week-strip day: up to 3 override icons (highest priority first),
+ * with a "+N" chip in the last slot when more types share the date.
+ * @param {'satellite'|'focal'} variant
+ */
+function renderOverrideBadges(override, variant) {
+  if (!override) return '';
+  const { icons, more } = getOverrideBadgeSlots(override.types || [override.type]);
+  const cls = variant === 'focal' ? 'focal-override-badge' : 'satellite-override-badge';
+  const badges = icons
+    .map(t => `<span class="${cls} ${t}" title="${t.replace('_', ' ')}">${OVERRIDE_ICONS[t] || ''}</span>`)
+    .join('');
+  const moreChip = more > 0 ? `<span class="${cls} override-badge-more" title="${more} more">+${more}</span>` : '';
+  return `<span class="override-badge-stack">${badges}${moreChip}</span>`;
+}
 
 export function renderWeekStrip() {
   const container = document.getElementById('focalStripContainer');
@@ -73,7 +89,7 @@ export function renderWeekStrip() {
     const isEffectiveOffDay = isOffDay && !isOnlineClass;
 
     if (isSelected) {
-      const focalBadge = override ? `<span class="focal-override-badge ${override.type}" title="${override.type.replace('_', ' ')}">${OVERRIDE_ICONS[override.type] || ''}</span>` : '';
+      const focalBadge = renderOverrideBadges(override, 'focal');
       html += `
         <div class="focal-day-card ${overrideClass}" onclick="if(window.openCalendarPicker) window.openCalendarPicker();" title="${DAY_NAMES[dow]} (Tap to change date)">
           ${focalBadge}
@@ -85,7 +101,7 @@ export function renderWeekStrip() {
         </div>
       `;
     } else {
-      const satelliteBadge = override ? `<span class="satellite-override-badge ${override.type}" title="${override.type.replace('_', ' ')}">${OVERRIDE_ICONS[override.type] || ''}</span>` : '';
+      const satelliteBadge = renderOverrideBadges(override, 'satellite');
       html += `
         <div class="satellite-pill ${overrideClass} ${isEffectiveOffDay ? 'off-day' : ''} ${isToday ? 'is-real-today' : ''}" onclick="window.__switchTimelineDay(${dow}, ${d.getTime()})" title="${DAY_NAMES[dow]}${override ? ` (${override.type.replace('_', ' ')})` : ''}">
           ${satelliteBadge}
