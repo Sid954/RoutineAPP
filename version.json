@@ -1,7 +1,7 @@
 {
   "versionCode": 15,
   "versionName": "1.5.5",
-  "apkUrl": "https://github.com/sid954/RoutineAPP/releases/latest/download/app-release.apk",
+  "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
   "releaseNotes": "v1.5.5 - The original Home design is back, with countdown to your next class, \"Free now\" breaks, up-next on the live class and a next-class shortcut at the end of the day",
   "minRequiredVersionCode": 1

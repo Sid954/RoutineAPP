@@ -5,10 +5,12 @@ import { escapeHtml } from '../core/utils.js';
 import { showToast } from '../toast/toast.js';
 import { forceUpdate } from '../dashboard/update.js';
 import { Notifications } from '../notifications/notifications.js';
+import { checkAppUpdate, openUpdateSheet, fmtMB } from './app-update.js';
 
 export function getRemoteBaseUrl() {
   if (window.Capacitor && window.Capacitor.isNativePlatform()) {
-    return CONFIG.remoteAppUrl || 'https://sid954.github.io/RoutineAPP';
+    // Vercel serves www/ (sw.js, version.json). GitHub Pages stops working once the repo is private.
+    return CONFIG.apiBase || CONFIG.remoteAppUrl;
   }
   return '.';
 }
@@ -82,66 +84,6 @@ async function clearAppShellCaches() {
 }
 
 /**
- * Show a permission modal for APK updates on automatic launch.
- * Respects session dismissal so user is not nagged repeatedly in a single session.
- */
-async function showApkUpdatePermissionModal(apkVersionData) {
-  const remoteVerCode = apkVersionData.versionCode || 1;
-  const dismissKey = `apk_update_dismissed_v${remoteVerCode}`;
-
-  if (sessionStorage.getItem(dismissKey) === 'true') {
-    return;
-  }
-
-  let modal = document.getElementById('apkUpdatePermissionModal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'apkUpdatePermissionModal';
-    modal.className = 'mo';
-    modal.style.zIndex = '9999';
-    document.body.appendChild(modal);
-  }
-
-  const targetUrl = apkVersionData.apkUrl || apkVersionData.downloadUrl || 'https://github.com/sid954/RoutineAPP/releases';
-  const activeVer = await getActiveVersionInfo();
-  const currentVerClean = activeVer.name;
-  const remoteVerClean = apkVersionData.versionName || (apkVersionData.versionCode ? `${apkVersionData.versionCode}` : '');
-
-  modal.innerHTML = `
-    <div class="md" style="max-width: 360px; padding: 26px 20px; text-align: center; background: var(--card, #23252C); border: 1.5px solid rgba(56, 189, 248, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56,189,248,0.15); border-radius: 20px;">
-      <div style="font-size: 40px; margin-bottom: 4px; filter: drop-shadow(0 0 10px rgba(56,189,248,0.5));"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-      <h2 style="font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 4px; letter-spacing: -0.3px;">New Version Available!</h2>
-      
-      <div style="font-size: 19px; font-weight: 900; color: var(--accent2); margin-bottom: 6px; letter-spacing: 0.5px; font-family: var(--f); text-shadow: 0 0 12px rgba(56,189,248,0.4);">
-        v${escapeHtml(remoteVerClean)}
-      </div>
-      
-      <div style="font-size: 11.5px; color: var(--dim); margin-bottom: 22px; font-family: var(--m);">
-        Installed on device: <span style="color: var(--text); font-weight: 700;">v${escapeHtml(currentVerClean)}</span>
-      </div>
-      
-      <div style="display: flex; gap: 10px;">
-        <button id="apkModalLaterBtn" style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--dim); font-weight: 700; font-size: 12px; cursor: pointer; transition: all 0.2s;">Later</button>
-        <button id="apkModalInstallBtn" style="flex: 1.5; padding: 12px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 16px rgba(56,189,248,0.4); transition: transform 0.15s active;">Install APK</button>
-      </div>
-    </div>
-  `;
-
-  modal.classList.add('open');
-
-  document.getElementById('apkModalLaterBtn').addEventListener('click', () => {
-    modal.classList.remove('open');
-    sessionStorage.setItem(dismissKey, 'true');
-  });
-
-  document.getElementById('apkModalInstallBtn').addEventListener('click', () => {
-    modal.classList.remove('open');
-    showToast('Downloading APK in browser... Tap to install once downloaded!', 'info', null, 5000);
-    window.open(targetUrl, '_system') || window.open(targetUrl, '_blank');
-  });
-}
-
-/**
  * Unified Update Checker:
  * 1. Directly queries Native Android App info & GitHub version.json.
  * 2. If APK update found (remote versionCode > native Android versionCode):
@@ -181,45 +123,30 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
   }
 
   try {
-    // 1. Fetch version.json from GitHub to compare directly against Native App Info
-    let apkUpdateAvailable = false;
-    let apkVersionData = null;
-    try {
-      const verRes = await fetch(`${remoteBase}/version.json?t=${Date.now()}`, { cache: 'no-store' });
-      if (verRes.ok) {
-        apkVersionData = await verRes.json();
-        if (apkVersionData.versionCode && apkVersionData.versionCode > localVersionCode) {
-          apkUpdateAvailable = true;
+    // ── PRIORITY 1: NATIVE APK UPDATE (in-app download + install, see app-update.js) ──
+    const isNativeApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+    if (isNativeApp) {
+      // Auto check: app-update.js opens its sheet itself (respects "Skip this version")
+      const apk = await checkAppUpdate({ manual: isManual, silent: !!containerEl });
+      if (apk.available) {
+        if (containerEl) {
+          const v = apk.info;
+          containerEl.innerHTML = `
+            <div class="st-upd is-new">
+              <strong>${apk.forced ? 'Required update' : 'New version'} v${escapeHtml(v.versionName)}</strong>
+              <span>You have v${escapeHtml(currentVerClean)}.${v.size ? ` Download size ${fmtMB(v.size)}.` : ''} It downloads and installs right here in the app.</span>
+              <button type="button" id="downloadApkBtn" class="st-btn st-btn-primary st-btn-block">Update now</button>
+            </div>
+          `;
+          document.getElementById('downloadApkBtn').addEventListener('click', () => openUpdateSheet(v, { forced: apk.forced }));
         }
+        if (isManual) showToast(`Version ${apk.info.versionName} is available`, 'info');
+        return { apkUpdateAvailable: true, apkVersionData: apk.info };
       }
-    } catch (verErr) {}
-
-    // ── PRIORITY 1: NATIVE APK UPDATE FOUND ──
-    if (apkUpdateAvailable) {
-      const targetUrl = apkVersionData.apkUrl || apkVersionData.downloadUrl || 'https://github.com/sid954/RoutineAPP/releases';
-      const remoteVerClean = apkVersionData.versionName || (apkVersionData.versionCode ? `${apkVersionData.versionCode}` : '');
-
-      // On Manual Check in Edit Schedule modal: Show ONLY the APK update card
-      if (containerEl) {
-        containerEl.innerHTML = `
-          <div class="st-upd is-new">
-            <strong>New version v${escapeHtml(remoteVerClean)}</strong>
-            <span>You have v${escapeHtml(currentVerClean)}. The download opens in your browser; tap it to install.</span>
-            <button type="button" id="downloadApkBtn" class="st-btn st-btn-primary st-btn-block">Download v${escapeHtml(remoteVerClean)}</button>
-          </div>
-        `;
-
-        document.getElementById('downloadApkBtn').addEventListener('click', () => {
-          showToast('Downloading APK in browser... Tap to install once downloaded!', 'info', null, 5000);
-          window.open(targetUrl, '_system') || window.open(targetUrl, '_blank');
-        });
-      } else if (!isManual) {
-        // Automatic startup: Ask permission via permission modal
-        await showApkUpdatePermissionModal(apkVersionData);
+      if (apk.error && isManual && containerEl) {
+        // Keep going with the routine/app-files check, but say why the app check failed
+        console.warn('App update check failed:', apk.error);
       }
-
-      if (isManual) showToast('New APK update found!', 'info');
-      return { apkUpdateAvailable: true, apkVersionData };
     }
 
     // ── PRIORITY 2: NORMAL SCHEDULE & WEB ASSET OTA UPDATE ──

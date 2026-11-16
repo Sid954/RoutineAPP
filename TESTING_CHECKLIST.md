@@ -200,3 +200,16 @@ Verified in the PC browser at 375×812 in both themes. Still check on a real dev
 - [ ] Tapping an assignment deadline banner opens that notice.
 - [ ] On any day other than today, a "Today" pill appears next to the session count and jumps back.
 - [ ] Picking the same weekday next week in the calendar no longer shows today's live progress or "done" badges.
+
+## 19. In-app updates (from v1.5.6)
+Updating from 1.5.5 to 1.5.6 still goes through the browser one last time, because 1.5.5 has no in-app installer. The first real in-app update is 1.5.6 → 1.5.7.
+- [ ] On launch with a newer version out, a sheet slides up: "Update available", "vX · size · you have vY", the release notes, Update now / Later / Skip this version.
+- [ ] Update now: a progress bar with "x of y MB" and %. Hide keeps it downloading. When the download finishes, the sheet comes back with "Downloaded and verified" and Install.
+- [ ] First install: Android asks to allow installs from this app. "Open settings" goes to that toggle. After turning it on and coming back, the installer opens by itself.
+- [ ] The Android installer shows "Update" (not "Install"). After it finishes the app restarts on the new version, and the routine, name, theme and notices are all still there.
+- [ ] On first launch after updating, "Updated to vX · Here's what's new" shows once.
+- [ ] Skip this version: no popup on later launches. Settings → Check for updates still offers it.
+- [ ] Later: asked again on the next launch, or when coming back to the app after 6+ hours.
+- [ ] Cancel during a download works. Airplane mode mid-download shows "Download failed" with Try again.
+- [ ] Settings → Check for updates shows "New version vX … Update now", which opens the same sheet.
+- [ ] Setting minRequiredVersionCode in version.json above your version shows "Update required" with no Later/Skip/close.

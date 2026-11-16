@@ -184,8 +184,15 @@ export function initializeApp() {
   initRoutineSelector();
 
   // ── STEP 6: Check for App & Schedule updates in background (non-blocking)
-  setTimeout(() => {
-    performUnifiedUpdateCheck(null, false);
+  setTimeout(async () => {
+    // Just updated? Show what's new once; otherwise check for a newer version
+    let showedNotes = false;
+    try {
+      const { maybeShowWhatsNew, scheduleResumeChecks } = await import('../updater/app-update.js');
+      showedNotes = await maybeShowWhatsNew();
+      scheduleResumeChecks();
+    } catch (e) {}
+    if (!showedNotes) performUnifiedUpdateCheck(null, false);
   }, 4000);
 }
 

@@ -24,5 +24,6 @@
 @import './themes/themes.css';
 @import './widget/widget.css';
 @import './settings/settings.css';
+@import './updater/updater.css';
 
 @import './core/motion.css'; /* motion + layout system — keep LAST */
