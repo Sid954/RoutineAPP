@@ -550,6 +550,8 @@ export function initTeacherFinderUI() {
     if (badge) {
       e.preventDefault();
       e.stopPropagation();
+      // Ignore a ghost tap on a teacher badge inside the class detail sheet that just opened
+      if (badge.closest('#classDetailModal') && typeof window.__classDetailGhostGuard === 'function' && window.__classDetailGhostGuard()) return;
       const code = badge.dataset.teacherCode || badge.textContent;
       openTeacherDetailByCode(code);
     }

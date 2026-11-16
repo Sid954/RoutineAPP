@@ -138,7 +138,7 @@ export function evaluateRoomStatus(roomMeta, rawClasses = [], targetMinute = get
       room: roomMeta,
       status: 'FREE',
       statusText: 'Free All Day',
-      subText: 'No classes scheduled today',
+      subText: 'No classes scheduled', // same wording as the schedule sheet; no 'today' (custom day/date can be selected)
       freeUntilMins: null,
       freeUntilStr: 'End of Day',
       freeDurationMins: null,
@@ -341,7 +341,7 @@ export function getRoomDayTimeline(roomMeta, rawClasses = [], currentMinute = ge
         startStr: 'All Day',
         endStr: 'Rest of Day',
         durationMins: 1440,
-        label: 'No Class Scheduled'
+        label: 'No classes scheduled'
       }
     ];
   }

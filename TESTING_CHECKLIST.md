@@ -60,3 +60,10 @@ Tick each box only after confirming it on a real phone. Unit and mock tests alre
 - [ ] Calendar month view: only class-test (orange) and assignment (purple) days get a tinted background. Class test wins when both fall on the same day. Holidays, cancellations and online classes show only dots and a coloured number.
 - [ ] Calendar dots: up to 3 per day, without the glow.
 - [ ] Check both light and dark themes.
+
+## 9. Batch 6 (Free Rooms polish)
+- [ ] Free Rooms → open a room → tap a class card (not the teacher pill). The class detail sheet opens, not the instructor profile. Try this 5 or more times on cards at different heights. (A guard for an unconfirmed ghost-tap cause; if it still happens, note which card and where you tapped.)
+- [ ] Tapping the teacher pill on a card still opens the instructor profile.
+- [ ] In the class detail sheet, the Instructor and Room tiles still work when tapped normally (after about half a second).
+- [ ] Empty states: a free room reads "No classes scheduled" on both the room card and its schedule sheet, including for a custom future day.
+- [ ] Lab rooms: card and sheet headers lead with the number, e.g. "503 (Microprocessor & Multimedia Lab)". This was already in the code; just confirm it.

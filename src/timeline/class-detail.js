@@ -9,6 +9,15 @@ let _activeModalTeacherCode = 'MHE';
 let _activeModalRoom = '';
 let _activeModalDayIdx = new Date().getDay();
 
+// Ghost-tap guard: on Android WebView the tap that opens this sheet (e.g. a Free Rooms class
+// card) can land again on the freshly rendered Instructor/Room tile under the finger, opening
+// the teacher profile instead of showing class details. Ignore tile taps briefly after opening.
+const GHOST_TAP_GUARD_MS = 450;
+let _openedAt = 0;
+export function isWithinGhostTapWindow() {
+  return (typeof performance !== 'undefined' ? performance.now() : Date.now()) - _openedAt < GHOST_TAP_GUARD_MS;
+}
+
 function getOrdinal(n) {
   const s = ['th', 'st', 'nd', 'rd'];
   const v = n % 100;
@@ -407,6 +416,7 @@ export function showClassDetails(data) {
     });
   }
 
+  _openedAt = typeof performance !== 'undefined' ? performance.now() : Date.now();
   openModal(modal);
 }
 
@@ -438,6 +448,7 @@ export function initClassDetailEvents() {
     roomTile.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
+      if (isWithinGhostTapWindow()) return;
       if (typeof window.openRoomInFreeRooms === 'function') {
         window.openRoomInFreeRooms(_activeModalRoom, _activeModalDayIdx);
       }
@@ -448,6 +459,7 @@ export function initClassDetailEvents() {
     instructorTile.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
+      if (isWithinGhostTapWindow()) return;
       const code = _activeModalTeacherCode;
       if (!code || code === 'TBA' || code === '—' || code === 'Not Assigned') return;
 
@@ -468,5 +480,6 @@ export function initClassDetailEvents() {
   }
 
   window.openClassDetailSheet = showClassDetails;
+  window.__classDetailGhostGuard = isWithinGhostTapWindow; // used by the global teacher-badge listener
   window.closeClassDetailSheet = closeClassDetails;
 }
