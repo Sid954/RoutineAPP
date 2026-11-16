@@ -1,8 +1,8 @@
 {
-  "versionCode": 16,
-  "versionName": "1.5.6",
+  "versionCode": 17,
+  "versionName": "1.5.7",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.6 - Updates now download and install inside the app; widgets rebuilt and update on their own",
+  "releaseNotes": "v1.5.7 - Animations everywhere: tap ripples, haptics, swipe-down sheets, pull to refresh, smoother pages, auto-tuned to your phone",
   "minRequiredVersionCode": 1
 }
