@@ -160,10 +160,7 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
   if (containerEl) {
     containerEl.style.display = 'block';
     containerEl.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--accent2);">
-        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 1.5s infinite;"></span>
-        <span>Checking for updates...</span>
-      </div>
+      <div class="st-upd is-busy"><span class="st-upd-spin" aria-hidden="true"></span><strong>Checking for updates…</strong></div>
     `;
   }
 
@@ -172,14 +169,12 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
   if (!navigator.onLine) {
     if (containerEl) {
       containerEl.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 6px; color: var(--amber); font-weight: 800; margin-bottom: 6px;">
-          <span>Offline Mode</span>
-        </div>
-        <div style="font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 4px;">
-          <div>• App Version: <span style="color: var(--text);">v${currentVerClean} (Code ${localVersionCode})</span></div>
-          <div>• Cache Version: <span style="color: var(--text);">${currentCacheVersion}</span></div>
-        </div>
-      `;
+          <div class="st-upd is-warn">
+            <strong>You're offline</strong>
+            <span>Connect to the internet to check for updates.</span>
+            <dl class="st-upd-facts"><dt>App</dt><dd>v${escapeHtml(currentVerClean)}</dd></dl>
+          </div>
+        `;
     }
     if (isManual) showToast('Offline — cannot check server.', 'warning');
     return null;
@@ -207,19 +202,10 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
       // On Manual Check in Edit Schedule modal: Show ONLY the APK update card
       if (containerEl) {
         containerEl.innerHTML = `
-          <div style="background: rgba(56, 189, 248, 0.1); border: 1.5px solid var(--accent); border-radius: var(--rx); padding: 14px; box-shadow: 0 0 20px rgba(56,189,248,0.15);">
-            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <div>
-                <div style="font-weight: 800; color: #fff; font-size: 14px;">New Version Available!</div>
-                <div style="font-size: 15px; font-weight: 900; color: var(--accent2); margin-top: 2px;">v${escapeHtml(remoteVerClean)}</div>
-                <div style="font-size: 11px; color: var(--dim); margin-top: 2px;">Installed on device: v${escapeHtml(currentVerClean)}</div>
-              </div>
-            </div>
-            <div style="margin-top: 12px;">
-              <button id="downloadApkBtn" style="width: 100%; background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; font-family: var(--f); box-shadow: 0 4px 14px rgba(56,189,248,0.35);">
-                Install APK (v${escapeHtml(remoteVerClean)})
-              </button>
-            </div>
+          <div class="st-upd is-new">
+            <strong>New version v${escapeHtml(remoteVerClean)}</strong>
+            <span>You have v${escapeHtml(currentVerClean)}. The download opens in your browser; tap it to install.</span>
+            <button type="button" id="downloadApkBtn" class="st-btn st-btn-primary st-btn-block">Download v${escapeHtml(remoteVerClean)}</button>
           </div>
         `;
 
@@ -292,16 +278,10 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
       } else if (containerEl) {
         // Manual check UI card
         containerEl.innerHTML = `
-          <div style="background: rgba(16, 185, 129, 0.08); border: 1px dashed var(--lime); border-radius: var(--rx); padding: 12px 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <div>
-                <div style="font-weight: 800; color: #fff; font-size: 12.5px;">Schedule & Asset Update Available</div>
-                <div style="font-size: 11px; color: var(--dim); margin-top: 2px;">Version: <span style="color: var(--lime); font-weight: 700; font-family: var(--m);">${remoteCacheVersion}</span></div>
-              </div>
-              <button id="applyUpdateNowBtn" style="background: linear-gradient(135deg, var(--lime), #059669); color: #fff; border: none; padding: 7px 14px; border-radius: 8px; font-weight: 800; font-size: 11.5px; cursor: pointer; font-family: var(--f);">
-                Sync & Reload
-              </button>
-            </div>
+          <div class="st-upd is-new">
+            <strong>Routine and app data update</strong>
+            <span>A newer routine or app files are ready. Syncing takes a few seconds and reloads the app.</span>
+            <button type="button" id="applyUpdateNowBtn" class="st-btn st-btn-primary st-btn-block">Sync and reload</button>
           </div>
         `;
 
@@ -336,15 +316,14 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
 
     // ── ALL UP TO DATE ──
     if (containerEl) {
-      const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const nowStr = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
       containerEl.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 6px; color: var(--lime); font-weight: 800; margin-bottom: 6px;">
-          <span>App & Schedule are fully up to date!</span>
-        </div>
-        <div style="font-family: var(--m); font-size: 11px; color: var(--dim); display: flex; flex-direction: column; gap: 4px;">
-          <div>• Native APK: <span style="color: var(--text);">v${currentVerClean} (Code ${localVersionCode}) — Latest</span></div>
-          <div>• Web Cache: <span style="color: var(--text);">${currentCacheVersion} — Matches Server</span></div>
-          <div>• Last Checked: <span style="color: var(--text);">${nowStr}</span></div>
+        <div class="st-upd is-ok">
+          <strong>You're up to date</strong>
+          <dl class="st-upd-facts">
+            <dt>App</dt><dd>v${escapeHtml(currentVerClean)}</dd>
+            <dt>Checked</dt><dd>${nowStr}</dd>
+          </dl>
         </div>
       `;
     }
@@ -356,11 +335,9 @@ export async function performUnifiedUpdateCheck(containerEl = null, isManual = f
     console.error('Unified update check error:', err);
     if (containerEl) {
       containerEl.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 6px; color: var(--pink); font-weight: 800; margin-bottom: 6px;">
-          <span>Update Check Failed</span>
-        </div>
-        <div style="font-family: var(--m); font-size: 11px; color: var(--dim);">
-          ${escapeHtml(err.message || 'Error checking for updates.')}
+        <div class="st-upd is-err">
+          <strong>Couldn't check for updates</strong>
+          <span>${escapeHtml(err.message || 'Something went wrong. Try again.')}</span>
         </div>
       `;
     }

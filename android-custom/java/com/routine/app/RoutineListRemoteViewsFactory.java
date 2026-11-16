@@ -111,7 +111,7 @@ public class RoutineListRemoteViewsFactory implements RemoteViewsService.RemoteV
                 String type = item.optString("type", "THEORY");
                 boolean isLab = "LAB".equalsIgnoreCase(type);
                 boolean isExam = item.optBoolean("isExam", false);
-                c.badgeText = isExam ? "📝 EXAM" : (isLab ? "★ LAB" : type.toUpperCase());
+                c.badgeText = isExam ? "EXAM" : (isLab ? "★ LAB" : type.toUpperCase());
 
                 int pi = Math.abs(c.title.hashCode()) % PALETTES.length;
                 if (isLab) {

@@ -68,3 +68,4 @@ playwright.config.js
 playwright.config.mjs
 # Local-only signing keystore & GitHub secrets (never commit)
 secrets/
+.claude/launch.json

@@ -19,20 +19,20 @@ function buildReminderPayload(cls, settings, todayDate) {
   const isOnline = cancelOverride && cancelOverride.type === 'online_class';
   const isExam = cls.isExam || (cancelOverride && cancelOverride.type === 'class_test');
 
-  let titleText = `⏰ CLASS IN ${settings.leadTime} MIN: ${cls.title}`;
+  let titleText = `CLASS IN ${settings.leadTime} MIN: ${cls.title}`;
   let iconColor = '#38bdf8';
 
   if (isExam) {
-    titleText = `📝 EXAM TODAY IN ${settings.leadTime} MIN: ${cls.title}`;
+    titleText = `EXAM TODAY IN ${settings.leadTime} MIN: ${cls.title}`;
     iconColor = '#f97316';
   } else if (isOnline) {
-    titleText = `📡 ONLINE CLASS IN ${settings.leadTime} MIN: ${cls.title}`;
+    titleText = `ONLINE CLASS IN ${settings.leadTime} MIN: ${cls.title}`;
     iconColor = '#10b981';
   }
 
-  let bodyText = `📍 Location: ${isOnline ? 'Online Class' : `Room ${formatRoom(cls.room)}`}`;
-  if (cls.instructor) bodyText += ` · 👤 ${cls.instructor}`;
-  bodyText += `\n⏰ Timing: ${format12h(cls.start)} – ${format12h(cls.end)}`;
+  let bodyText = `Location: ${isOnline ? 'Online Class' : `Room ${formatRoom(cls.room)}`}`;
+  if (cls.instructor) bodyText += ` · ${cls.instructor}`;
+  bodyText += `\nTiming: ${format12h(cls.start)} – ${format12h(cls.end)}`;
 
   if (isExam) {
     let topics = cls.examTopics || '';
@@ -42,7 +42,7 @@ function buildReminderPayload(cls, settings, todayDate) {
         topics = parsed.topics || 'Not Specified';
       } catch (e) {}
     }
-    if (topics) bodyText += `\n📚 Syllabus: ${topics}`;
+    if (topics) bodyText += `\nSyllabus: ${topics}`;
   } else if (isOnline) {
     let link = '';
     if (cancelOverride && cancelOverride.announcement && cancelOverride.announcement.announcement) {
@@ -51,7 +51,7 @@ function buildReminderPayload(cls, settings, todayDate) {
         link = parsed.platform || '';
       } catch (e) {}
     }
-    if (link) bodyText += `\n📡 Link: ${link}`;
+    if (link) bodyText += `\nLink: ${link}`;
   }
 
   return { title: titleText, body: bodyText, iconColor, isExam, isOnline };
@@ -60,7 +60,15 @@ function buildReminderPayload(cls, settings, todayDate) {
 export const Notifications = {
   timeouts: [],
 
+  /**
+   * True on the web (Notification API) AND inside the native app. Android's WebView has no
+   * web Notification API, so this used to be false in the APK, which meant the app never
+   * asked for notification permission and could never register for push.
+   */
   isSupported() {
+    if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+      return !!(window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications);
+    }
     return typeof Notification !== 'undefined';
   },
 
@@ -98,15 +106,16 @@ export const Notifications = {
   async updatePermissionUI() {
     const perm = await this.getPermission();
     const badges = {
-      granted: { label: '🟢 Granted', color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
-      denied: { label: '🔴 Blocked', color: '#f43f5e', bg: 'rgba(244,63,94,0.12)' },
-      default: { label: '🟡 Not Prompted', color: '#fb923c', bg: 'rgba(251,146,60,0.12)' },
-      prompt: { label: '🟡 Not Prompted', color: '#fb923c', bg: 'rgba(251,146,60,0.12)' },
-      unsupported: { label: '⚠️ Not Supported', color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' }
+      granted: { label: 'Granted', color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
+      denied: { label: 'Blocked', color: '#f43f5e', bg: 'rgba(244,63,94,0.12)' },
+      default: { label: 'Not Prompted', color: '#fb923c', bg: 'rgba(251,146,60,0.12)' },
+      prompt: { label: 'Not Prompted', color: '#fb923c', bg: 'rgba(251,146,60,0.12)' },
+      unsupported: { label: 'Not Supported', color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' }
     };
     const bMeta = badges[perm] || { label: perm, color: '#38bdf8', bg: 'rgba(56,189,248,0.12)' };
     if (DOM.notifPermStatus) {
-      DOM.notifPermStatus.textContent = bMeta.label;
+      // Status dot is an inline SVG (UI rule: no emoji). Label strings are static, not user input.
+      DOM.notifPermStatus.innerHTML = `<svg width="7" height="7" viewBox="0 0 8 8" aria-hidden="true" style="vertical-align:0;margin-right:5px"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg>${bMeta.label}`;
       DOM.notifPermStatus.style.color = bMeta.color;
       DOM.notifPermStatus.style.background = bMeta.bg;
       DOM.notifPermStatus.style.border = `1px solid ${bMeta.color}40`;
@@ -288,6 +297,17 @@ export const Notifications = {
       if (settings.enabled) {
         this.scheduleForToday(true);
       }
+      // Offer the "enable notifications" banner once the app has settled. It was never
+      // called before, so nothing ever asked for permission. Skipped while the first-launch
+      // welcome screen is open (it re-checks after onboarding's reload).
+      setTimeout(() => {
+        const welcome = document.getElementById('welcomeModal');
+        if (welcome && welcome.classList.contains('open')) return;
+        // One prompt at a time: wait for the Android-app / install prompts to close first
+        import('../banners/prompt-gate.js')
+          .then(({ showWhenClear }) => showWhenClear('notifBanner', () => this.maybeShowBanner()))
+          .catch(() => this.maybeShowBanner());
+      }, 3000);
     } catch (e) {
       console.warn('Notifications.init error:', e);
     }

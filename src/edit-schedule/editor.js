@@ -1,14 +1,37 @@
+/**
+ * Settings → "Your routine" editor (redesigned Nov 2026).
+ * One day at a time: day chips (#stEditDays), that day's classes (#rCols), an add form and
+ * clear / restore actions. Every change is saved immediately with an Undo toast; nothing here
+ * needs the Settings "Switch" button.
+ */
 import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
 import { CONFIG, DAY_NAMES, DAY_SHORT } from '../core/config.js';
-import { getClassesForDay } from '../schedule/queries.js';
-import { toMinutes, format12h, getCurrentMinutes, formatRoom } from '../core/utils.js';
+import { toMinutes, format12h, getCurrentMinutes, formatRoom, escapeHtml } from '../core/utils.js';
 import { Storage } from '../storage/storage.js';
 import { showToast } from '../toast/toast.js';
 import { forceUpdate } from '../dashboard/update.js';
-import { normalizeSchedule } from '../schedule/normalizer.js';
 import { Notifications } from '../notifications/notifications.js';
 import { performUnifiedUpdateCheck, getActiveCacheVersion } from '../updater/apk-updater.js';
+
+const ICON_TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+
+const sortedDay = (dayIdx) =>
+  (State.schedule[dayIdx] || []).slice().sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
+
+function sortDayInPlace(dayIdx) {
+  (State.schedule[dayIdx] || []).sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
+}
+
+function commit() {
+  Storage.saveSchedule();
+  renderEditColumns();
+  forceUpdate();
+}
+
+function selectedDay() {
+  return CONFIG.activeDays.includes(State.selectedDay) ? State.selectedDay : CONFIG.activeDays[0];
+}
 
 export function populateDaySelect() {
   DOM.editDaySelect.innerHTML = '';
@@ -21,81 +44,111 @@ export function populateDaySelect() {
   }
 }
 
+/** Week total for the "Edit classes" row. */
+export function updateRoutineSummary() {
+  const el = document.getElementById('stRoutineSummary');
+  if (!el) return;
+  const total = CONFIG.activeDays.reduce((n, d) => n + (State.schedule[d] || []).length, 0);
+  el.textContent = total ? `${total} class${total === 1 ? '' : 'es'} a week · tap to edit` : 'No classes yet · tap to add';
+}
+
+function renderDayChips() {
+  const wrap = document.getElementById('stEditDays');
+  if (!wrap) return;
+  const today = new Date().getDay();
+  const sel = selectedDay();
+  wrap.innerHTML = CONFIG.activeDays.map(d => {
+    const n = (State.schedule[d] || []).length;
+    return `<button type="button" role="tab" class="st-day${d === sel ? ' active' : ''}${d === today ? ' is-today' : ''}"
+      data-day="${d}" aria-selected="${d === sel}">
+      <span class="st-day-name">${DAY_SHORT[d]}</span><span class="st-day-count">${n}</span>
+    </button>`;
+  }).join('');
+}
+
+/** Renders the selected day's classes (name kept for existing callers). */
 export function renderEditColumns() {
-  const currentMins = getCurrentMinutes();
-  const todayIdx = new Date().getDay();
-  let html = '';
+  const day = selectedDay();
+  State.selectedDay = day;
+  renderDayChips();
+  updateRoutineSummary();
 
-  CONFIG.activeDays.forEach((dayIdx, colIndex) => {
-    const entries = getClassesForDay(dayIdx);
-    const isToday = dayIdx === todayIdx;
+  const addLabel = document.getElementById('stAddLabel');
+  if (addLabel) addLabel.textContent = `Add a class to ${DAY_NAMES[day]}`;
+  const clr = document.getElementById('clrB');
+  if (clr) clr.textContent = `Clear ${DAY_NAMES[day]}`;
+  if (DOM.editDaySelect && String(DOM.editDaySelect.value) !== String(day)) DOM.editDaySelect.value = day;
 
-    html += `<div class="dc${isToday ? ' tod' : ''}" style="animation-delay:${colIndex * 0.06}s">`;
-    html += `<div class="dc-h"><span class="dn">${DAY_SHORT[dayIdx]}</span><span class="cnt">${entries.length}</span></div>`;
-    html += `<div class="dc-b">`;
+  const isToday = day === new Date().getDay();
+  const now = getCurrentMinutes();
+  const entries = sortedDay(day);
 
-    if (entries.length) {
-      entries.forEach(item => {
-        const isLive = isToday && currentMins >= toMinutes(item.start) && currentMins < toMinutes(item.end);
-        html += `
-          <div class="dc-e${isLive ? ' ac' : ''}">
-            <div class="et">${format12h(item.start)} – ${format12h(item.end)}</div>
-            <div class="en" title="${item.title}">${item.title}</div>
-            ${item.instructor ? `<div class="ei">${item.instructor}</div>` : ''}
-            <div class="er">${formatRoom(item.room)} · ${item.type}</div>
-            <button class="ed" data-day="${dayIdx}" data-ti="${encodeURIComponent(item.title)}" title="Delete">✕</button>
-          </div>`;
-      });
-    } else {
-      html += `<div class="dc-empty">No classes</div>`;
-    }
+  if (!entries.length) {
+    DOM.editCols.innerHTML = `<div class="st-empty">No classes on ${DAY_NAMES[day]}.</div>`;
+    return;
+  }
 
-    html += `</div></div>`;
-  });
+  DOM.editCols.innerHTML = entries.map((c, i) => {
+    const live = isToday && now >= toMinutes(c.start) && now < toMinutes(c.end);
+    const meta = [c.room ? formatRoom(c.room) : '', c.instructor || '', c.type || ''].filter(Boolean).map(escapeHtml).join(' · ');
+    return `<div class="st-class${live ? ' is-live' : ''}" style="--i:${i}">
+      <div class="st-class-time"><span>${format12h(c.start)}</span><span>${format12h(c.end)}</span></div>
+      <div class="st-class-main">
+        <div class="st-class-title">${escapeHtml(c.title)}</div>
+        ${meta ? `<div class="st-class-meta">${meta}</div>` : ''}
+      </div>
+      <button type="button" class="st-class-del" data-i="${i}" aria-label="Remove ${escapeHtml(c.title)}">${ICON_TRASH}</button>
+    </div>`;
+  }).join('');
 
-  DOM.editCols.innerHTML = html;
-
-  // Delete buttons
-  DOM.editCols.querySelectorAll('.ed').forEach(btn => {
+  DOM.editCols.querySelectorAll('.st-class-del').forEach(btn => {
     btn.addEventListener('click', () => {
-      const targetDay = parseInt(btn.dataset.day);
-      const title = decodeURIComponent(btn.dataset.ti);
-      const dayEntries = State.schedule[targetDay] || [];
-      const removeIdx = dayEntries.findIndex(x => x.title === title);
-      if (removeIdx === -1) return;
-
-      const removed = dayEntries[removeIdx];
-      const origIdx = removeIdx;
-      State.schedule[targetDay].splice(removeIdx, 1);
-      Storage.saveSchedule(); renderEditColumns(); forceUpdate();
-
-      showToast(`Removed "${removed.title}"`, 'info', () => {
-        State.schedule[targetDay].splice(origIdx, 0, removed);
-        State.schedule[targetDay].sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
-        Storage.saveSchedule(); renderEditColumns(); forceUpdate();
-        showToast(`Restored "${removed.title}"`, 'success');
+      const target = sortedDay(day)[Number(btn.dataset.i)];
+      const list = State.schedule[day] || [];
+      const idx = list.indexOf(target);
+      if (idx === -1) return;
+      const [removed] = list.splice(idx, 1);
+      commit();
+      showToast(`Removed ${removed.title} from ${DAY_NAMES[day]}`, 'info', () => {
+        if (!State.schedule[day]) State.schedule[day] = [];
+        State.schedule[day].push(removed);
+        sortDayInPlace(day);
+        commit();
+        showToast(`Restored ${removed.title}`, 'success');
       });
-    });
-  });
-
-  // Click day column to select it
-  DOM.editCols.querySelectorAll('.dc').forEach(col => {
-    col.addEventListener('click', e => {
-      if (e.target.closest('.ed')) return;
-      const nameEl = col.querySelector('.dn');
-      if (nameEl) {
-        const match = Object.entries(DAY_SHORT).find(([, label]) => label === nameEl.textContent.trim());
-        if (match) { State.selectedDay = parseInt(match[0]); populateDaySelect(); }
-      }
     });
   });
 }
 
-export function initEditorEvents() {
-  // Day select change
-  DOM.editDaySelect.addEventListener('change', e => { State.selectedDay = parseInt(e.target.value); });
+function setAddFormOpen(open) {
+  const form = document.getElementById('addClassForm');
+  const btn = document.getElementById('toggleAddClassBtn');
+  if (!form || !btn) return;
+  form.style.display = open ? 'block' : 'none';
+  form.classList.toggle('is-open', open);
+  btn.classList.toggle('is-open', open);
+  btn.setAttribute('aria-expanded', String(open));
+  if (open) setTimeout(() => DOM.editTitle && DOM.editTitle.focus({ preventScroll: true }), 50);
+}
+export function resetEditorUI() { setAddFormOpen(false); }
 
-  // Add entry
+export function initEditorEvents() {
+  DOM.editDaySelect.addEventListener('change', e => {
+    State.selectedDay = parseInt(e.target.value, 10);
+    renderEditColumns();
+  });
+
+  const chips = document.getElementById('stEditDays');
+  if (chips) {
+    chips.addEventListener('click', e => {
+      const b = e.target.closest('.st-day');
+      if (!b) return;
+      State.selectedDay = parseInt(b.dataset.day, 10);
+      renderEditColumns();
+    });
+  }
+
+  // Add a class
   document.getElementById('addB').addEventListener('click', () => {
     const startTime = DOM.editStart.value;
     const endTime = DOM.editEnd.value;
@@ -103,93 +156,94 @@ export function initEditorEvents() {
     const room = DOM.editRoom.value.trim();
     const instructor = DOM.editInstructor.value.trim();
     const classType = DOM.editType.value;
-    const targetDay = parseInt(DOM.editDaySelect.value);
+    const targetDay = parseInt(DOM.editDaySelect.value, 10);
 
-    if (!startTime || !endTime || !title) {
-      showToast('Please fill out Start Time, End Time, and Title.', 'warning');
-      return;
-    }
+    if (!title) { showToast('Add a subject name.', 'warning'); DOM.editTitle.focus(); return; }
+    if (!startTime || !endTime) { showToast('Set a start and end time.', 'warning'); return; }
+    if (toMinutes(endTime) <= toMinutes(startTime)) { showToast('The class has to end after it starts.', 'warning'); return; }
 
     if (!State.schedule[targetDay]) State.schedule[targetDay] = [];
     State.schedule[targetDay].push({ start: startTime, end: endTime, title, room, instructor, type: classType });
-    State.schedule[targetDay].sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
-    Storage.saveSchedule(); renderEditColumns(); forceUpdate();
+    sortDayInPlace(targetDay);
+    State.selectedDay = targetDay;
+    commit();
     Notifications.scheduleForToday();
 
     DOM.editTitle.value = ''; DOM.editRoom.value = ''; DOM.editInstructor.value = '';
-    showToast(`Added "${title}" to ${DAY_NAMES[targetDay]}`, 'success');
+    showToast(`Added ${title} to ${DAY_NAMES[targetDay]}`, 'success');
   });
 
-  // Clear day
+  // Clear the selected day
   document.getElementById('clrB').addEventListener('click', () => {
-    const targetDay = parseInt(DOM.editDaySelect.value);
-    if (!State.schedule[targetDay] || !State.schedule[targetDay].length) {
-      showToast(`${DAY_NAMES[targetDay]} is already empty.`, 'info');
+    const day = selectedDay();
+    if (!(State.schedule[day] || []).length) {
+      showToast(`${DAY_NAMES[day]} is already empty.`, 'info');
       return;
     }
-    const backup = JSON.parse(JSON.stringify(State.schedule[targetDay]));
-    State.schedule[targetDay] = [];
-    Storage.saveSchedule(); renderEditColumns(); forceUpdate();
-
-    showToast(`Cleared all classes for ${DAY_NAMES[targetDay]}`, 'info', () => {
-      State.schedule[targetDay] = backup;
-      Storage.saveSchedule(); renderEditColumns(); forceUpdate();
-      showToast(`Restored ${DAY_NAMES[targetDay]} schedule`, 'success');
+    const backup = JSON.parse(JSON.stringify(State.schedule[day]));
+    State.schedule[day] = [];
+    commit();
+    showToast(`Cleared ${DAY_NAMES[day]}`, 'info', () => {
+      State.schedule[day] = backup;
+      commit();
+      showToast(`Restored ${DAY_NAMES[day]}`, 'success');
     });
   });
 
-  // Reset to default
+  // Restore the official routine for the user's own section (with undo)
   document.getElementById('rstB').addEventListener('click', () => {
+    const sem = Storage.getSemester();
+    const sec = Storage.getSection();
     import('../modals/modal.js').then(({ showConfirm }) => {
       showConfirm(
-        'Reset to Default Schedule',
-        'Are you sure you want to reset your schedule to the default routine? Click "Save & Apply Changes" to save.',
-        () => {
-          State.schedule = JSON.parse(JSON.stringify(normalizeSchedule(CONFIG.defaultRoutine)));
-          Storage.saveSchedule();
-          renderEditColumns();
-          forceUpdate();
-          showToast('Reset to default schedule. Click "Save & Apply" to save.', 'info');
-        }
+        'Restore official routine?',
+        `Your edits are replaced with the official routine for Semester ${sem} · Section ${String(sec).toUpperCase()}. You can undo this right after.`,
+        async () => {
+          const backup = JSON.parse(JSON.stringify(State.schedule));
+          const { fetchSectionSchedule } = await import('../events/init.js');
+          const fresh = await fetchSectionSchedule(sem, sec).catch(() => null);
+          if (!fresh) { showToast('Could not load the official routine. Try again online.', 'error'); return; }
+          State.schedule = fresh;
+          commit();
+          Notifications.scheduleForToday();
+          showToast('Official routine restored', 'success', () => {
+            State.schedule = backup;
+            commit();
+            showToast('Your edits are back', 'success');
+          });
+        },
+        false,
+        'restore'
       );
     });
   });
 
-  // Toggle Foldable Edit Routine Section
-  const toggleEditRoutineCollapseBtn = document.getElementById('toggleEditRoutineCollapseBtn');
-  const collapsibleRoutineSection = document.getElementById('collapsibleRoutineSection');
-  const editRoutineChevron = document.getElementById('editRoutineChevron');
-
-  if (toggleEditRoutineCollapseBtn && collapsibleRoutineSection) {
-    toggleEditRoutineCollapseBtn.addEventListener('click', () => {
-      const isHidden = collapsibleRoutineSection.style.display === 'none';
-      collapsibleRoutineSection.style.display = isHidden ? 'block' : 'none';
-      if (editRoutineChevron) {
-        editRoutineChevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-      }
+  // Expand / collapse the editor
+  const toggle = document.getElementById('toggleEditRoutineCollapseBtn');
+  const section = document.getElementById('collapsibleRoutineSection');
+  if (toggle && section) {
+    toggle.addEventListener('click', () => {
+      const open = section.style.display === 'none';
+      section.style.display = open ? 'block' : 'none';
+      section.classList.toggle('is-open', open); // reveal animation (motion.css §10)
+      toggle.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      if (open) renderEditColumns();
     });
   }
 
-  // Toggle Add Class form
-  const toggleAddClassBtn = document.getElementById('toggleAddClassBtn');
-  const addClassForm = document.getElementById('addClassForm');
-  if (toggleAddClassBtn && addClassForm) {
-    toggleAddClassBtn.addEventListener('click', () => {
-      const isHidden = addClassForm.style.display === 'none';
-      addClassForm.style.display = isHidden ? 'block' : 'none';
-      toggleAddClassBtn.textContent = isHidden ? '✕ Hide Form' : '+ Add Class Entry';
-      toggleAddClassBtn.style.borderColor = isHidden ? 'var(--pink)' : '';
-      toggleAddClassBtn.style.color = isHidden ? 'var(--pink)' : '';
+  const addToggle = document.getElementById('toggleAddClassBtn');
+  if (addToggle) {
+    addToggle.addEventListener('click', () => {
+      const form = document.getElementById('addClassForm');
+      setAddFormOpen(form && form.style.display === 'none');
     });
   }
 
-  // Initial cache version populate
   updateEditModalCacheInfo();
 
-  // Manual Check for Updates — Unified Inspection (APK & Schedule/Web)
   const checkUpdateBtn = document.getElementById('checkUpdateBtn');
   const updateDetailsPanel = document.getElementById('updateCheckDetails');
-
   if (checkUpdateBtn) {
     checkUpdateBtn.addEventListener('click', () => {
       performUnifiedUpdateCheck(updateDetailsPanel, true);
@@ -203,22 +257,19 @@ export async function updateEditModalCacheInfo() {
   if (!versionEl) return;
 
   const currentVersion = await getActiveCacheVersion();
-  let dateFormatted = '';
-
-  const tsMatch = currentVersion.match(/routine-cache-(\d+)/);
+  let label = 'Saved on this device';
+  const tsMatch = String(currentVersion).match(/routine-cache-(\d+)/);
   if (tsMatch) {
-    const ts = parseInt(tsMatch[1]);
-    if (!isNaN(ts)) {
-      const d = new Date(ts);
-      const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-      dateFormatted = ` (${dateStr}, ${timeStr})`;
+    const d = new Date(parseInt(tsMatch[1], 10));
+    if (!isNaN(d)) {
+      label = `Updated ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
     }
   }
-
-  versionEl.textContent = `${currentVersion}${dateFormatted}`;
+  versionEl.textContent = label;
+  versionEl.title = String(currentVersion);
   if (statusEl) {
-    statusEl.textContent = navigator.onLine ? 'Online • Active' : 'Offline • Cached';
-    statusEl.style.color = navigator.onLine ? 'var(--lime)' : 'var(--amber)';
+    const online = navigator.onLine;
+    statusEl.textContent = online ? 'Online' : 'Offline';
+    statusEl.classList.toggle('is-offline', !online);
   }
 }

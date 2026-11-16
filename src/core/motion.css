@@ -1,0 +1,533 @@
+/* ==========================================================================
+   Motion & Layout System (design pass, Nov 2026)
+   --------------------------------------------------------------------------
+   Imported LAST from main.css so it can correct legacy rules in one place.
+
+   Motion principles
+   1. Every animation answers something the person did (open, switch, press,
+      expand, confirm) — except the single dashboard entrance on app launch.
+   2. One shared vocabulary: the --dur-* and --ease-* tokens below. Nothing
+      in this file hard-codes timing.
+   3. Enter = decelerate (ease-out), exit = accelerate (ease-in) and shorter.
+   4. prefers-reduced-motion collapses everything to short opacity fades.
+   ========================================================================== */
+
+:root {
+  /* Durations */
+  --dur-1: 120ms;   /* press feedback, colour changes */
+  --dur-2: 200ms;   /* small state changes, exits */
+  --dur-3: 320ms;   /* page / sheet entrances */
+  --dur-4: 520ms;   /* orchestrated entrance, progress */
+
+  /* Easing */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);       /* entrances */
+  --ease-in: cubic-bezier(0.5, 0, 0.75, 0);          /* exits */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);     /* moves between two states */
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);     /* small overshoot for icons/badges */
+
+  /* Layout */
+  --gutter: 16px;
+  --dock-clearance: calc(112px + env(safe-area-inset-bottom, 0px));
+
+  /* Primary buttons: solid accent, no gradient wash, no glow */
+  --btn-grad: var(--accent);
+  --btn-text: #07090E;
+}
+:root[data-color="light"] {
+  --btn-text: #FFFFFF;
+}
+
+/* ==========================================================================
+   1. Layout corrections
+   ========================================================================== */
+
+/* One symmetric gutter for every page (was 12px left / 2px right, so content
+   ran into the right edge and the week strip clipped). */
+.wi { padding-left: 0; padding-right: 0; }
+.app-page-view { padding: 10px var(--gutter) 0; }
+
+/* Components that patched the missing right gutter themselves */
+.page-header,
+.announce-list,
+.faculty-page-search-container,
+.faculty-full-grid { padding-right: 0; }
+#postAnnounceAppView .pa-form-scroll,
+#postAnnounceAppView [class*="scroll"] { padding-right: 0; }
+
+/* (Dashboard: the timeline (#chG) already reserves its own dock clearance, so the page
+   view itself must NOT add bottom padding — that only shrank the timeline window.) */
+
+/* Full pages (Weekly Routine, Settings): bottom content was hidden under the dock */
+.mo.mo-page > .md { padding-bottom: var(--dock-clearance); }
+
+/* Week strip: room for the corner badge stacks so they never clip */
+.strip-direction-container { padding-top: 6px; height: 71px; min-height: 71px; max-height: 71px; }
+
+/* Primary buttons: solid accent, no glow (no-glow rule) */
+#saveAllSettingsBtn,
+#saveNotifSettingsBtn,
+#pinWidgetBtn,
+#welcomeGetStartedBtn,
+.bp, .vrb, .install-btn, .notif-btn-allow, .toast .ub {
+  background: var(--accent) !important;
+  color: var(--btn-text) !important;
+  box-shadow: none !important;
+}
+
+/* Centre dock button: neutral depth instead of a coloured glow */
+.dock-raised-fab-core,
+:root[data-color="light"] .dock-raised-fab-core {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+:root[data-color="light"] .dock-raised-fab-core { box-shadow: 0 6px 16px rgba(30, 41, 59, 0.18); }
+
+/* Campus Hub "Coming soon" card */
+.apps-hub-card.is-soon { cursor: default; opacity: 0.6; }
+.apps-hub-card.is-soon:active { transform: none !important; }
+.apps-hub-soon-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--canvas);
+  border: 1px solid var(--card-border);
+  border-radius: var(--r-full);
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+/* Settings accordion chevron (was a "▼" text glyph) */
+#editRoutineChevron { display: inline-flex; transition: transform var(--dur-2) var(--ease-in-out) !important; }
+#editRoutineChevron svg { width: 16px; height: 16px; }
+
+/* Visible keyboard focus everywhere (was inconsistent / missing) */
+:where(button, a, [role="button"], input, select, textarea, .apps-hub-card, .satellite-pill):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   2. Page transitions (switchAppView adds .view-enter + data-dir)
+   ========================================================================== */
+@keyframes viewEnter {
+  from { opacity: 0; transform: translate3d(var(--enter-x, 0), var(--enter-y, 10px), 0); }
+  to   { opacity: 1; transform: none; }
+}
+.app-page-view.view-enter { animation: viewEnter var(--dur-3) var(--ease-out) both; }
+.app-page-view.view-enter[data-dir="forward"] { --enter-x: 24px; --enter-y: 0; }
+.app-page-view.view-enter[data-dir="back"]    { --enter-x: -24px; --enter-y: 0; }
+
+/* ==========================================================================
+   3. Modals & sheets: animated exit (modal.js adds .closing before hiding)
+   ========================================================================== */
+@keyframes backdropOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes sheetOut   { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(24px) scale(0.98); } }
+@keyframes pageOut    { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(24px); } }
+
+/* .closing keeps the element laid out (display) while it fades; it no longer takes input */
+.mo.closing { display: flex; pointer-events: none; animation: backdropOut var(--dur-2) var(--ease-in) both; }
+.mo.closing > .md,
+.mo.closing > div:first-child { animation: sheetOut var(--dur-2) var(--ease-in) both; }
+.mo.mo-page.closing { animation: none; }
+.mo.mo-page.closing > .md { animation: pageOut var(--dur-2) var(--ease-in) both; }
+
+/* Entrances share the same tokens */
+.mo.open { animation-duration: var(--dur-2); }
+.mo.mo-page.open > .md { animation: viewEnter var(--dur-3) var(--ease-out) both; --enter-x: 24px; --enter-y: 0; }
+
+/* ==========================================================================
+   4. Day switching: timeline content cross-fades (timeline.js adds .day-swap)
+   ========================================================================== */
+/* The week strip carries the motion (expand/collapse below), so the timeline only
+   cross-fades quietly: no slide, no direction. */
+@keyframes daySwap { from { opacity: 0; } to { opacity: 1; } }
+#chG.day-swap { animation: daySwap var(--dur-2) var(--ease-out) both; }
+
+/* Week strip: expand / collapse.
+   timeline.js (morphStripWidths) animates each day's width from its old size to its new
+   one: the tapped day widens into the focal card, the previous one narrows into a pill.
+   Only happens when the selection changes — the per-minute refresh does not animate. */
+.strip-dir-b-row.is-morphing > [data-date] { overflow: hidden; }
+.strip-dir-b-row.is-morphing .override-badge-stack { opacity: 0; }
+/* While the focal card is still narrow, its label fades in once there's room */
+@keyframes stripLabelIn { from { opacity: 0; } to { opacity: 1; } }
+.focal-day-card.is-expanding .focal-meta,
+.focal-day-card.is-expanding .focal-num-large { animation: stripLabelIn var(--dur-2) var(--ease-out) 170ms both; }
+/* No "MO…" ellipsis flash while the card is still narrow */
+.focal-day-card.is-expanding .focal-day-label,
+.focal-day-card.is-expanding .focal-day-sub { text-overflow: clip; }
+.satellite-pill.is-expanding > * { animation: stripLabelIn var(--dur-2) var(--ease-out) 80ms both; }
+.focal-meta { white-space: nowrap; }
+
+/* Colours still shift smoothly; press feedback stays quick */
+.focal-day-card,
+.satellite-pill {
+  transition:
+    background-color var(--dur-2) var(--ease-in-out),
+    border-color var(--dur-2) var(--ease-in-out),
+    color var(--dur-2) var(--ease-in-out),
+    transform var(--dur-1) var(--ease-out);
+}
+/* Strip badges and the unread dot are static: both re-render on timers (every minute /
+   every 30s poll), so an entrance animation would replay constantly. */
+@keyframes badgePop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: none; } }
+.override-badge-stack { transition: opacity var(--dur-2) var(--ease-out); }
+
+/* ==========================================================================
+   5. App-launch entrance (the one orchestrated, non-triggered moment)
+      main.js adds body.boot-enter for the first ~900ms only.
+   ========================================================================== */
+@keyframes rise { from { opacity: 0; transform: translate3d(0, 12px, 0); } to { opacity: 1; transform: none; } }
+body.boot-enter #dashboardView .top-bar,
+body.boot-enter #dashboardView .greeting-headline-row,
+body.boot-enter #dashboardView .strip-direction-container,
+body.boot-enter #dashboardView .timeline-header-row,
+body.boot-enter #chG > * {
+  animation: rise var(--dur-4) var(--ease-out) both;
+}
+body.boot-enter #dashboardView .greeting-headline-row { animation-delay: 60ms; }
+body.boot-enter #dashboardView .strip-direction-container { animation-delay: 120ms; }
+body.boot-enter #dashboardView .timeline-header-row { animation-delay: 170ms; }
+body.boot-enter #chG > *:nth-child(1) { animation-delay: 210ms; }
+body.boot-enter #chG > *:nth-child(2) { animation-delay: 250ms; }
+body.boot-enter #chG > *:nth-child(3) { animation-delay: 290ms; }
+body.boot-enter #chG > *:nth-child(4) { animation-delay: 330ms; }
+body.boot-enter #chG > *:nth-child(n+5) { animation-delay: 370ms; }
+@keyframes dockRise { from { transform: translate3d(0, 100%, 0); } to { transform: none; } }
+body.boot-enter .solid-fixed-dock-container { animation: dockRise var(--dur-4) var(--ease-out) both; }
+
+/* ==========================================================================
+   6. Press feedback: anything tappable gives way slightly under the finger
+      (:where keeps specificity at zero so component rules still win)
+   ========================================================================== */
+:where(button, .apps-hub-card, .satellite-pill, .t-card, .m-matrix-card, .announce-filter-pill,
+       .rm-room, .rm-tl-row, .faculty-app-card, .ft-list-item, .calendar-day-cell,
+       .widget-size-pill, .page-back-btn, .page-action-btn) {
+  transition-property: transform, background-color, border-color, color, opacity;
+  transition-duration: var(--dur-1);
+  transition-timing-function: var(--ease-out);
+}
+:where(button, .apps-hub-card, .t-card, .m-matrix-card, .rm-room, .rm-tl-row.is-class,
+       .faculty-app-card, .ft-list-item, .page-back-btn, .page-action-btn):active {
+  transform: scale(0.975);
+}
+:where(.satellite-pill, .announce-filter-pill, .calendar-day-cell, .widget-size-pill):active {
+  transform: scale(0.94);
+}
+
+/* ==========================================================================
+   7. Dock: active tab gets a soft pill that grows in, icon pops
+   ========================================================================== */
+.dock-icon-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -5px -14px;
+  border-radius: var(--r-full);
+  background: var(--accent-soft);
+  transform: scale(0.4);
+  opacity: 0;
+  transition: transform var(--dur-3) var(--ease-pop), opacity var(--dur-2) var(--ease-out);
+  z-index: -1;
+}
+.dock-icon-wrapper { isolation: isolate; }
+.dock-tab.active .dock-icon-wrapper::before { transform: scale(1); opacity: 1; }
+@keyframes iconPop { 0% { transform: scale(1); } 40% { transform: scale(0.82); } 100% { transform: scale(1); } }
+.dock-tab.active svg { animation: iconPop var(--dur-3) var(--ease-pop); }
+.dock-tab, .dock-tab svg, .dock-label { transition: color var(--dur-2) var(--ease-out), stroke var(--dur-2) var(--ease-out); }
+
+/* ==========================================================================
+   8. Live class: progress fills smoothly; live dot breathes (no glow)
+   ========================================================================== */
+#cBar, .cd-progress-fill, .widget-progress-fill, [class*="progress-fill"], [class*="progress-bar-fill"] {
+  transition: width var(--dur-4) var(--ease-in-out);
+}
+@keyframes livePulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); }
+  100% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+.live-dot, .pulse-dot, .t-live-dot { animation: livePulse 1.8s var(--ease-out) infinite; }
+
+/* ==========================================================================
+   9. Lists that re-render on a filter/tab change fade their new content in
+      (announcements feed, faculty grid, rooms list: JS adds .list-swap)
+   ========================================================================== */
+@keyframes listSwap { from { opacity: 0; transform: translate3d(0, 8px, 0); } to { opacity: 1; transform: none; } }
+.list-swap > * { animation: listSwap var(--dur-3) var(--ease-out) both; }
+.list-swap > *:nth-child(2) { animation-delay: 30ms; }
+.list-swap > *:nth-child(3) { animation-delay: 60ms; }
+.list-swap > *:nth-child(4) { animation-delay: 90ms; }
+.list-swap > *:nth-child(n+5) { animation-delay: 120ms; }
+
+/* ==========================================================================
+   10. Accordion (settings "Edit & Add Classes"): height animates open/closed
+   ========================================================================== */
+@keyframes accordionIn { from { opacity: 0; transform: translate3d(0, -6px, 0); } to { opacity: 1; transform: none; } }
+#collapsibleRoutineSection.is-open { animation: accordionIn var(--dur-3) var(--ease-out) both; }
+
+/* ==========================================================================
+   11. Theme switch: colours cross-fade (theme.js adds .theme-transition briefly)
+   ========================================================================== */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: background-color var(--dur-3) var(--ease-in-out),
+              border-color var(--dur-3) var(--ease-in-out),
+              color var(--dur-3) var(--ease-in-out),
+              fill var(--dur-3) var(--ease-in-out),
+              stroke var(--dur-3) var(--ease-in-out) !important;
+}
+
+/* ==========================================================================
+   12. Reduced motion: keep feedback, drop movement
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+  :where(button, .apps-hub-card, .satellite-pill, .t-card):active { transform: none; }
+}
+
+/* ==========================================================================
+   13. Component refinements (design pass)
+   ========================================================================== */
+
+/* Notices: unread dot replaces the "NEW" chip; dates read as words */
+.announce-card-title { display: flex; align-items: baseline; gap: 8px; }
+.announce-unread-dot {
+  flex-shrink: 0;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translateY(-2px);
+}
+.announce-date-pill { font-family: var(--font-ui); font-weight: 700; }
+.announce-date-pill.is-soon {
+  color: var(--accent);
+  border-color: var(--accent-border);
+  background-color: var(--accent-soft);
+}
+.announce-date-pill.is-soon svg { color: var(--accent); }
+
+/* Notices filter pills: active state glides in */
+.announce-filter-pill { transition: background-color var(--dur-2) var(--ease-out), color var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out), transform var(--dur-1) var(--ease-out); }
+
+/* Live class: elapsed-time bar along the bottom edge of the live timeline card */
+.resting-class-row.is-live-card { position: relative; overflow: hidden; }
+.live-progress {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 3px;
+  background: var(--accent-soft);
+}
+.live-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+@keyframes fillIn { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+body.boot-enter .live-progress > span { transform-origin: left center; animation: fillIn var(--dur-4) var(--ease-out) 350ms both; }
+
+/* Class detail: the time range must not wrap mid-time ("09:45 / AM") */
+#modalTiming { white-space: nowrap; font-size: clamp(13px, 3.6vw, 15px); }
+
+/* (Old Free Rooms layout fixes removed — the Rooms app was rebuilt; see src/rooms/rooms.css) */
+
+/* Override cards (exam / online / extra / rescheduled-in): the old gradients ended in a
+   hard-coded dark colour (wrong in light mode) and carried coloured glow shadows.
+   Now: the theme's own card surface with a thin tint of the override colour. */
+.resting-class-row.is-exam-override,
+:root[data-color="light"] .resting-class-row.is-exam-override {
+  background: linear-gradient(rgba(249, 115, 22, 0.07), rgba(249, 115, 22, 0.07)), var(--card-bg) !important;
+  box-shadow: none !important;
+}
+.resting-class-row.is-online-override,
+:root[data-color="light"] .resting-class-row.is-online-override {
+  background: linear-gradient(rgba(16, 185, 129, 0.07), rgba(16, 185, 129, 0.07)), var(--card-bg) !important;
+  box-shadow: none !important;
+}
+.resting-class-row.is-extra-override,
+:root[data-color="light"] .resting-class-row.is-extra-override {
+  background: linear-gradient(rgba(99, 102, 241, 0.07), rgba(99, 102, 241, 0.07)), var(--card-bg) !important;
+  box-shadow: none !important;
+}
+.resting-class-row.is-rescheduled-override,
+:root[data-color="light"] .resting-class-row.is-rescheduled-override {
+  background: linear-gradient(rgba(100, 116, 139, 0.08), rgba(100, 116, 139, 0.08)), var(--card-bg) !important;
+  box-shadow: none !important;
+}
+
+/* Cancelled / finished rows: dim the class details, keep the status badge fully legible */
+.resting-class-row.is-cancelled-override,
+.resting-class-row.is-finished { opacity: 1; }
+.resting-class-row.is-cancelled-override .resting-left,
+.resting-class-row.is-finished .resting-left { opacity: 0.55; }
+.finished-check-badge.cancelled {
+  background: rgba(244, 63, 94, 0.12);
+  color: #FDA4AF;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+:root[data-color="light"] .finished-check-badge.cancelled {
+  background: #FFF1F2;
+  color: #BE123C;
+  border-color: #FECDD3;
+}
+:root[data-color="light"] .finished-check-badge { color: #047857; background: #ECFDF5; border-color: #A7F3D0; }
+
+/* Light-mode tag colours: exam / online / cancelled used the dark-mode pastels
+   (#FDBA74, #6EE7B7) which fail contrast on cream. WCAG AA pairs below. */
+:root[data-color="light"] .resting-tag.exam   { background: #FFF7ED !important; color: #C2410C !important; border: 1px solid #FED7AA !important; }
+:root[data-color="light"] .resting-tag.online { background: #ECFDF5 !important; color: #047857 !important; border: 1px solid #A7F3D0 !important; }
+:root[data-color="light"] .resting-tag.cancelled { background: #FFF1F2 !important; color: #BE123C !important; border: 1px solid #FECDD3 !important; }
+:root[data-color="light"] .override-indicator.exam { color: #C2410C; }
+
+/* Weekly Routine accents (were dark-mode pastels in both themes) */
+:root { --m-exam-ink: #FDBA74; --m-online-ink: #6EE7B7; }
+:root[data-color="light"] { --m-exam-ink: #C2410C; --m-online-ink: #047857; }
+/* Past cards: dimmed but still readable */
+.m-matrix-card.past { opacity: 0.6 !important; }
+
+/* Form labels: readable title case instead of tracked-out all caps, and a size you can
+   read on a phone (Settings / welcome labels were set inline at 10px). */
+.post-form-group label {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.post-form-group label .char-counter { margin-left: auto; font-weight: 600; color: var(--text-muted); }
+#editModal label,
+#welcomeModal label {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: var(--text-muted) !important;
+}
+
+/* Inputs & selects: one focus treatment (accent ring, no glow) */
+input:focus-visible, select:focus-visible, textarea:focus-visible,
+select.clean-select:focus, input.clean-select:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-soft) !important;
+  outline: none;
+}
+.post-form-group input, .post-form-group select, .post-form-group textarea {
+  transition: border-color var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+}
+.post-form-auth-label, .confirm-modal-pwd-label {
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+}
+
+/* ==========================================================================
+   14. Home breathing room
+   The header block (clock, greeting, week strip) is fixed and the timeline scrolls
+   below it, so every pixel of air above comes out of the timeline. Air is added
+   BETWEEN sections and paid for by trimming the oversized band above the clock.
+   ========================================================================== */
+#dashboardView .wi, .wi { padding-top: max(18px, calc(env(safe-area-inset-top, 0px) + 12px)); }
+#dashboardView .top-bar { margin-bottom: 20px; }
+#dashboardView .greeting-headline-row { margin-bottom: 22px; }
+#dashboardView .strip-direction-container { margin-bottom: 26px; }
+#dashboardView .timeline-header-row { margin-bottom: 14px; }
+
+/* Timeline cards must never be squeezed by the scroll container (the live card was being
+   crushed to a sliver once it got overflow:hidden for its progress bar) */
+.chg > * { flex-shrink: 0; }
+.chg { gap: 14px; }
+
+/* Week strip: a little more air between days; Thu/Fri off-days take less width so
+   class days get more */
+.strip-dir-b-row { gap: 6px; }
+.satellite-pill.off-day { flex: 0.72; }
+.satellite-pill { border-radius: 12px; }
+.focal-day-card { min-width: 116px; border-radius: 14px; }
+
+/* Timeline card title row: tags wrap as whole units instead of breaking mid-word
+   ("CT-" / "2") or stranding "(EXAM)" under the title */
+.resting-title-row { flex-wrap: wrap; row-gap: 4px; column-gap: 8px; }
+.resting-code { white-space: nowrap; }
+.resting-tag, .override-indicator { white-space: nowrap; }
+.resting-code .override-indicator { margin-left: 4px; font-size: 0.62em; vertical-align: middle; }
+
+/* Install banner sat directly on top of the dock (covering Home/Routine/Notices).
+   It now floats just above the dock. */
+.install-banner { bottom: calc(env(safe-area-inset-bottom, 0px) + 104px); }
+
+/* ==========================================================================
+   15. Light mode (Printed Timetable) — component details the tokens can't express
+   ========================================================================== */
+
+/* Form fields: one field treatment. Inset paper fill + hairline on white cards,
+   white with a cobalt ring when focused. (Inputs were white while the type picker
+   and textarea used the page colour, so they looked disabled.) */
+:root[data-color="light"] .post-form-group input,
+:root[data-color="light"] .post-form-group select,
+:root[data-color="light"] .post-form-group textarea,
+:root[data-color="light"] .post-form-auth-input,
+:root[data-color="light"] .pa-type-picker-btn,
+:root[data-color="light"] select.clean-select,
+:root[data-color="light"] input.clean-select {
+  background-color: var(--surface-inset) !important;
+  border: 1px solid var(--card-border) !important;
+  color: var(--text-main) !important;
+}
+:root[data-color="light"] .post-form-group input:focus,
+:root[data-color="light"] .post-form-group textarea:focus,
+:root[data-color="light"] .post-form-auth-input:focus,
+:root[data-color="light"] .pa-type-picker-btn:focus-visible,
+:root[data-color="light"] select.clean-select:focus,
+:root[data-color="light"] input.clean-select:focus {
+  background-color: #FFFFFF !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-soft) !important;
+}
+:root[data-color="light"] ::placeholder { color: #8A94A6; }
+
+/* Selected day + live class are the two "ink" moments: solid cobalt / cobalt edge */
+:root[data-color="light"] .focal-day-card { background: var(--accent); color: #FFFFFF; }
+:root[data-color="light"] .resting-class-row.is-live-card { border-color: var(--accent) !important; }
+
+/* Dock: white sheet with a hairline edge instead of a soft blur-shadow */
+:root[data-color="light"] .solid-fixed-dock-container { border-top: 1px solid var(--card-border); box-shadow: var(--sh-dock); }
+
+/* Bottom sheets & modal surfaces: white, hairline top edge */
+:root[data-color="light"] .class-detail-bottom-sheet,
+:root[data-color="light"] .mo:not(.mo-page) > .md { background-color: #FFFFFF; }
+:root[data-color="light"] .mo.mo-page > .md { background-color: var(--canvas); }
+
+/* Post-form type picker chips: reuse the notices card light-mode pairs (they were the
+   dark-mode pastels, e.g. #7DD3FC on white) */
+:root[data-color="light"] .pa-type-indicator-pill.general      { background: #F0F9FF !important; color: #0369A1 !important; border-color: #BAE6FD !important; }
+:root[data-color="light"] .pa-type-indicator-pill.cancellation { background: #FFF1F2 !important; color: #BE123C !important; border-color: #FECDD3 !important; }
+:root[data-color="light"] .pa-type-indicator-pill.holiday      { background: #FFFBEB !important; color: #B45309 !important; border-color: #FDE68A !important; }
+:root[data-color="light"] .pa-type-indicator-pill.online_class { background: #ECFDF5 !important; color: #047857 !important; border-color: #A7F3D0 !important; }
+:root[data-color="light"] .pa-type-indicator-pill.class_test   { background: #FFF7ED !important; color: #C2410C !important; border-color: #FED7AA !important; }
+:root[data-color="light"] .pa-type-indicator-pill.rescheduled  { background: #F1F5F9 !important; color: #1E293B !important; border-color: #CBD5E1 !important; }
+:root[data-color="light"] .pa-type-indicator-pill.assignment   { background: #F3E8FF !important; color: #6B21A8 !important; border-color: #E9D5FF !important; }
+:root[data-color="light"] .pa-type-indicator-pill * { color: inherit !important; border-color: inherit; }
+
+/* Light-mode contrast fixes (automated WCAG check, Nov 2026): dark-mode pastels and
+   accent-on-accent-tint text darkened to the 700 shade of the same hue (>= 4.5:1). */
+:root[data-color="light"] .faculty-section-badge.purple,
+:root[data-color="light"] .faculty-app-card-code,
+:root[data-color="light"] .faculty-app-avatar-squircle,
+:root[data-color="light"] .faculty-status-pill.guest,
+:root[data-color="light"] .ft-admin-diff-badge,
+:root[data-color="light"] .faculty-photo-upload-btn,
+:root[data-color="light"] #facultyAppView .page-action-btn { color: #7E22CE !important; }
+:root[data-color="light"] .faculty-app-live-tag,
+:root[data-color="light"] .ft-admin-diff-after-box .ft-diff-prefix,
+:root[data-color="light"] .ft-admin-diff-input { color: #047857 !important; }
+:root[data-color="light"] .post-form-section-num { color: var(--accent-hover) !important; }
+:root[data-color="light"] .announce-subcard-orig { color: #92400E !important; }
+:root[data-color="light"] .announce-filter-pill.active,
+:root[data-color="light"] .announce-past-toggle,
+:root[data-color="light"] .page-action-btn:not(.secondary),
+:root[data-color="light"] .page-action-btn.primary { color: var(--accent-hover) !important; }

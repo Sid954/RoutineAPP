@@ -3,11 +3,29 @@ import { State } from '../core/state.js';
 import { DAY_NAMES, FULL_COURSE_NAMES } from '../core/config.js';
 import { getClassesForDay, getEffectiveClassesForDay } from '../schedule/queries.js';
 import { getOverrideFor, getOverridesByDateMap, normalizeDate, getDateForDayIndex, getExtraClassesForDate, getRescheduledClassesForDate, getDeadlinesForDate, getOverrideBadgeSlots } from '../announcements/overrides.js';
-import { toMinutes, format12h, toTimeString, getCurrentMinutes, escapeHtml, formatRoom } from '../core/utils.js';
+import { toMinutes, format12h, toTimeString, getCurrentMinutes, escapeHtml, formatRoom, LAB_LABEL_HTML } from '../core/utils.js';
 import { getFullName } from '../teachers/teacher-names.js';
 import { Storage } from '../storage/storage.js';
 
 let _lastRenderHash = '';
+let _lastSwapDayIdx = null;
+
+// Academic week order (Thu → Wed), used to tell whether a day change moved forward or back
+const ACADEMIC_ORDER = [4, 5, 6, 0, 1, 2, 3];
+
+/** Cross-fades the timeline when the viewed day changes (motion.css §4). Swipes animate themselves. */
+function playDaySwap(dayIdx) {
+  const grid = DOM.timelineGrid || document.getElementById('chG');
+  const prev = _lastSwapDayIdx;
+  _lastSwapDayIdx = dayIdx;
+  if (!grid || prev === null || prev === dayIdx) return;
+  if (grid.classList.contains('swipe-transition') || grid.classList.contains('swiping')) return;
+  grid.dataset.dir = ACADEMIC_ORDER.indexOf(dayIdx) > ACADEMIC_ORDER.indexOf(prev) ? 'next' : 'prev';
+  grid.classList.remove('day-swap');
+  void grid.offsetWidth;
+  grid.classList.add('day-swap');
+  grid.addEventListener('animationend', () => grid.classList.remove('day-swap'), { once: true });
+}
 
 const OVERRIDE_ICONS = {
   cancellation: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>',
@@ -17,6 +35,53 @@ const OVERRIDE_ICONS = {
   rescheduled: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
   assignment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>'
 };
+
+// Matches --dur-3 in src/core/motion.css
+const STRIP_MORPH_MS = 320;
+let _stripMorphTimer = null;
+
+/**
+ * Expand / collapse morph for the week strip. The strip is rebuilt as HTML, so each cell
+ * starts at the width that date had before the change and animates to its new width:
+ * the tapped day grows into the focal card while the previous focal day shrinks back
+ * into a pill. When nothing moved (e.g. the per-minute refresh) this does nothing.
+ */
+function morphStripWidths(container, previousWidths) {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cells = [...container.querySelectorAll(':scope > [data-date]')];
+  if (!cells.length || !previousWidths.size) return;
+  const finals = cells.map(c => c.getBoundingClientRect().width);
+  const starts = cells.map((c, i) => previousWidths.get(c.dataset.date) ?? finals[i]);
+  if (starts.every((w, i) => Math.abs(w - finals[i]) < 1)) return;
+
+  clearTimeout(_stripMorphTimer);
+  container.classList.add('is-morphing');
+  cells.forEach((c, i) => {
+    c.style.transition = 'none';
+    c.style.flex = '0 0 auto';
+    c.style.minWidth = '0';
+    c.style.width = `${starts[i]}px`;
+    if (starts[i] < finals[i] - 1) c.classList.add('is-expanding');
+  });
+  void container.offsetWidth; // commit the start widths
+  cells.forEach((c, i) => {
+    c.style.transition = `width ${STRIP_MORPH_MS}ms var(--ease-in-out)`;
+    c.style.width = `${finals[i]}px`;
+  });
+  _stripMorphTimer = setTimeout(() => {
+    cells.forEach(c => {
+      c.style.transition = c.style.flex = c.style.minWidth = c.style.width = '';
+      c.classList.remove('is-expanding');
+    });
+    container.classList.remove('is-morphing');
+  }, STRIP_MORPH_MS + 20);
+}
+
+/** Classes that actually take place on a date: excludes cancelled and rescheduled-away ones. */
+function countHeldClasses(dayIdx, date) {
+  return getEffectiveClassesForDay(dayIdx, date)
+    .filter(c => !c.isCancelled && !('rescheduledTo' in c)).length;
+}
 
 /**
  * Corner badge stack for a week-strip day: up to 3 override icons (highest priority first),
@@ -67,9 +132,8 @@ export function renderWeekStrip() {
     const isHoliday = override && override.type === 'holiday';
     const isOnlineClass = override && override.type === 'online_class';
 
-    // Calculate actual active class count for this specific date (excluding cancelled classes)
-    const activeClasses = getEffectiveClassesForDay(dow, d);
-    const classCount = activeClasses.filter(c => !c.isCancelled).length;
+    // Classes that actually happen on this date (same rule as the timeline header count)
+    const classCount = countHeldClasses(dow, d);
 
     // Subtext label logic
     let subText = '';
@@ -91,7 +155,7 @@ export function renderWeekStrip() {
     if (isSelected) {
       const focalBadge = renderOverrideBadges(override, 'focal');
       html += `
-        <div class="focal-day-card ${overrideClass}" onclick="if(window.openCalendarPicker) window.openCalendarPicker();" title="${DAY_NAMES[dow]} (Tap to change date)">
+        <div class="focal-day-card ${overrideClass}" data-date="${dateStr}" onclick="if(window.openCalendarPicker) window.openCalendarPicker();" title="${DAY_NAMES[dow]} (Tap to change date)">
           ${focalBadge}
           <span class="focal-num-large">${d.getDate()}</span>
           <div class="focal-meta">
@@ -103,7 +167,7 @@ export function renderWeekStrip() {
     } else {
       const satelliteBadge = renderOverrideBadges(override, 'satellite');
       html += `
-        <div class="satellite-pill ${overrideClass} ${isEffectiveOffDay ? 'off-day' : ''} ${isToday ? 'is-real-today' : ''}" onclick="window.__switchTimelineDay(${dow}, ${d.getTime()})" title="${DAY_NAMES[dow]}${override ? ` (${override.type.replace('_', ' ')})` : ''}">
+        <div class="satellite-pill ${overrideClass} ${isEffectiveOffDay ? 'off-day' : ''} ${isToday ? 'is-real-today' : ''}" data-date="${dateStr}" onclick="window.__switchTimelineDay(${dow}, ${d.getTime()})" title="${DAY_NAMES[dow]}${override ? ` (${override.type.replace('_', ' ')})` : ''}">
           ${satelliteBadge}
           <span class="satellite-name">${short3[dow]}</span>
           <span class="satellite-num">${d.getDate()}</span>
@@ -113,7 +177,12 @@ export function renderWeekStrip() {
     }
   });
 
+  // Remember every day cell width before replacing the strip, so the selected day can
+  // expand from its pill width and the previous one collapse back (morphStripWidths)
+  const previousWidths = new Map();
+  container.querySelectorAll('[data-date]').forEach(el => previousWidths.set(el.dataset.date, el.getBoundingClientRect().width));
   container.innerHTML = html;
+  morphStripWidths(container, previousWidths);
 }
 
 window.__switchTimelineDay = function(dayIdx, timestamp) {
@@ -142,11 +211,15 @@ export function renderTimeline(force = false) {
   const renderHash = `${State.currentViewDayIdx}:${isToday ? currentMins : -1}:${classes.length}`;
   if (!force && renderHash === _lastRenderHash) return;
   _lastRenderHash = renderHash;
+  playDaySwap(State.currentViewDayIdx);
 
   // Update section titles
   const isTomorrow = State.currentViewDayIdx === (realTodayIdx + 1) % 7;
   const titleText = isToday ? `Today's Schedule` : (isTomorrow ? `Tomorrow's Schedule` : `${DAY_NAMES[State.currentViewDayIdx]} Schedule`);
-  const subText = isOffDay ? 'OFF DAY' : `${classes.length} ${classes.length === 1 ? 'SESSION' : 'SESSIONS'}`;
+  // Count held classes (not the raw routine), so it agrees with the week strip:
+  // cancelled / rescheduled-away excluded, rescheduled-in and extra classes included
+  const heldCount = countHeldClasses(State.currentViewDayIdx, State.viewDate);
+  const subText = isOffDay && heldCount === 0 ? 'OFF DAY' : `${heldCount} ${heldCount === 1 ? 'SESSION' : 'SESSIONS'}`;
   
   if (DOM.timelineTitle) DOM.timelineTitle.textContent = titleText;
   if (DOM.timelineSubtitle) DOM.timelineSubtitle.textContent = subText;
@@ -513,7 +586,7 @@ function findInstructorForSubject(subj) {
     // Dynamic Card Styling Classes & Badges
     let cardModifierClass = '';
     let titleHtml = escapeHtml(c.title);
-    let tagHtml = `<span class="resting-tag ${isLab ? 'lab' : 'theory'}">${isLab ? '★ LAB' : 'THEORY'}</span>`;
+    let tagHtml = `<span class="resting-tag ${isLab ? 'lab' : 'theory'}">${isLab ? LAB_LABEL_HTML : 'THEORY'}</span>`;
     let subMetaHtml = '';
 
     if (c.isRescheduled) {
@@ -597,6 +670,10 @@ function findInstructorForSubject(subj) {
               </span>
             ` : ''}
           </div>
+          ${hasExplicitEndTime && durationMins > 0 ? `
+            <div class="live-progress" role="progressbar" aria-label="Class progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(Math.min(100, Math.max(0, (elapsed / durationMins) * 100)))}">
+              <span style="width: ${Math.min(100, Math.max(0, (elapsed / durationMins) * 100)).toFixed(1)}%"></span>
+            </div>` : ''}
         </div>
       `;
     } else {
@@ -635,7 +712,7 @@ function findInstructorForSubject(subj) {
           </div>
           <div class="resting-right-meta">
             ${effectiveCancelled ? `
-              <span class="finished-check-badge cancelled" style="background: rgba(244, 63, 94, 0.12); color: #FDA4AF; border: 1px solid rgba(244, 63, 94, 0.3);">
+              <span class="finished-check-badge cancelled">
                 CANCELLED
               </span>
             ` : isPast ? `

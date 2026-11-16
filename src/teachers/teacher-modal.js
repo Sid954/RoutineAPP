@@ -1,5 +1,5 @@
 import { DAY_NAMES, DAY_SHORT, FULL_COURSE_NAMES } from '../core/config.js';
-import { format12h, getCurrentMinutes } from '../core/utils.js';
+import { format12h, getCurrentMinutes, LAB_LABEL_HTML } from '../core/utils.js';
 import { openModal, closeModal } from '../modals/modal.js';
 import { showToast } from '../toast/toast.js';
 import { showClassDetails } from '../timeline/class-detail.js';
@@ -957,7 +957,7 @@ function renderTeacherScheduleRowsHtml(teacherKey, activeTab) {
         <div class="faculty-routine-left">
           <div class="faculty-routine-subj-row">
             <span class="faculty-routine-subj">${escapeHtml(c.subject)}</span>
-            <span class="resting-tag ${isLab ? 'lab' : 'theory'}">${isLab ? '★ LAB' : 'THEORY'}</span>
+            <span class="resting-tag ${isLab ? 'lab' : 'theory'}">${isLab ? LAB_LABEL_HTML : 'THEORY'}</span>
             ${dayChipHtml}
           </div>
           <div class="faculty-routine-meta">

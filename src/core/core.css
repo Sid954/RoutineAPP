@@ -12,7 +12,7 @@
   /* Typography Colors */
   --text-main: #F8FAFC;
   --text-muted: #94A3B8;
-  --text-sub: #71717A;
+  --text-sub: #9A9AA6;  /* was #71717A (3.2:1 on cards); now >= 4.5:1 */
 
   /* Accent & Status Tokens */
   --accent: #38BDF8;

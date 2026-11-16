@@ -244,7 +244,7 @@ export function searchTeachers(dayIdx, currentMins = getCurrentMinutes(), data =
     const nextClass = sorted.find(c => c.isFuture);
 
     if (currentClass) {
-      // 🟢 Currently in class
+      // Currently in class
       results.push({
         teacher: primaryKey,
         status: 'IN_CLASS',

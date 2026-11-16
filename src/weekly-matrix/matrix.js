@@ -4,8 +4,12 @@ import { CONFIG, DAY_NAMES, DAY_SHORT } from '../core/config.js';
 import { getClassesForDay } from '../schedule/queries.js';
 import { getOverrideFor } from '../announcements/overrides.js';
 import { getSubjectTheme } from '../schedule/themes.js';
-import { toMinutes, format12h, getCurrentMinutes, escapeHtml, formatRoom, truncateText } from '../core/utils.js';
+import { toMinutes, format12h, getCurrentMinutes, escapeHtml, formatRoom, truncateText, LAB_LABEL_HTML } from '../core/utils.js';
 import { bindCourseTitleClicks } from '../timeline/course-title.js';
+
+/** Card text colour: white on the dark palettes, the palette's own dark ink on light ones
+ *  (white on the light pastel gradients was unreadable). */
+const cardInk = theme => document.documentElement.getAttribute('data-color') === 'light' ? (theme.text || '#0f172a') : '#fff';
 
 let matrixTouchStartX = 0;
 let matrixTouchStartY = 0;
@@ -241,7 +245,7 @@ export function renderWeeklyMatrix() {
         };
 
         html += `
-          <div class="m-matrix-card${isLive ? ' live' : ''}${isPast ? ' past' : ''}" style="animation-delay:${index * 0.05}s; background:${theme.bg}; border-color:${theme.border}; color:#fff" data-detail="${escapeHtml(JSON.stringify(detailsData))}">
+          <div class="m-matrix-card${isLive ? ' live' : ''}${isPast ? ' past' : ''}" style="animation-delay:${index * 0.05}s; background:${theme.bg}; border-color:${theme.border}; color:${cardInk(theme)}" data-detail="${escapeHtml(JSON.stringify(detailsData))}">
             <div class="m-card-time" style="color:${theme.text}; text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">
               <span>${format12h(item.start)}</span>
               <span class="m-card-arrow">→</span>
@@ -251,17 +255,17 @@ export function renderWeeklyMatrix() {
               <div class="m-card-title course-click-title" data-title="${item.title}" style="text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">${escapeHtml(truncateText(item.title, 10))}</div>
               <div class="m-card-sub" style="color:${theme.text}">
                 ${isClassTest
-                  ? `<span style="color:#fdba74; font-weight:800; display:block; margin-bottom: 2px;">Click to view topics</span>
+                  ? `<span style="color:var(--m-exam-ink); font-weight:800; display:block; margin-bottom: 2px;">Click to view topics</span>
                      <span style="font-size: 11px; opacity: 0.85;">${formatRoom(item.room) ? `Room ${formatRoom(item.room)}` : 'No room'} ${item.instructor ? `· <span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(item.instructor)}" title="Click to view ${escapeHtml(item.instructor)}'s profile">${escapeHtml(item.instructor)}</span>` : ''}</span>`
                   : isOnline
-                  ? (platform ? `<span style="color:#6ee7b7; font-weight:800; display:block;">${escapeHtml(truncateText(platform, 10))}</span>` : '')
+                  ? (platform ? `<span style="color:var(--m-online-ink); font-weight:800; display:block;">${escapeHtml(truncateText(platform, 10))}</span>` : '')
                   : effectiveCancelled
                     ? `<span style="color:var(--pink); font-weight:800;">${isHolidayCancelled ? 'HOLIDAY — NO CLASS' : 'CANCELLED'}</span>`
                     : (formatRoom(item.room) ? `Room ${formatRoom(item.room)}` : 'No room')}
                 ${item.instructor && !effectiveCancelled && !isClassTest ? `· <span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(item.instructor)}" title="Click to view ${escapeHtml(item.instructor)}'s profile">${escapeHtml(item.instructor)}</span>` : ''}
               </div>
             </div>
-            <span class="m-card-badge" style="background:${theme.badge}; color:#fff">${isClassTest ? `${truncateText(examName, 10)}` : isOnline ? 'ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : item.type)}</span>
+            <span class="m-card-badge" style="background:${theme.badge}; color:${cardInk(theme)}">${isClassTest ? `${truncateText(examName, 10)}` : isOnline ? 'ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? LAB_LABEL_HTML : escapeHtml(item.type))}</span>
           </div>
         `;
       });
@@ -399,7 +403,7 @@ export function renderWeeklyMatrix() {
             <div class="t-card${isLive ? ' live' : ''}" style="grid-column: span ${spanCount}; background:${theme.bg}; border-color:${theme.border}; color:#fff" title="${effectiveCancelled ? 'Cancelled Class' : 'Click to view details'}" data-detail="${escapeHtml(JSON.stringify(detailsData))}">
               <div class="t-subj course-click-title" data-title="${match.title}" style="text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">${escapeHtml(truncateText(match.title, 10))}</div>
               ${isClassTest
-                ? `<div class="t-inst" style="color:#fdba74; font-weight:800;">Click to view topics</div>
+                ? `<div class="t-inst" style="color:var(--m-exam-ink); font-weight:800;">Click to view topics</div>
                    ${match.instructor && !effectiveCancelled ? `<div class="t-inst" style="color:${theme.text}"><span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(match.instructor)}" title="Click to view ${escapeHtml(match.instructor)}'s profile">${escapeHtml(truncateText(match.instructor, 10))}</span></div>` : ''}`
                 : match.instructor && !effectiveCancelled
                   ? `<div class="t-inst" style="color:${theme.text}"><span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(match.instructor)}" title="Click to view ${escapeHtml(match.instructor)}'s profile">${escapeHtml(truncateText(match.instructor, 10))}</span></div>`
@@ -412,7 +416,7 @@ export function renderWeeklyMatrix() {
                       ? `<span style="color:var(--pink); font-weight:800;">${isHolidayCancelled ? 'HOLIDAY' : 'CANCEL'}</span>`
                       : (formatRoom(match.room) || 'No room')}
                 </span>
-                <span class="t-badge" style="background:${theme.badge}; color:#fff">${isClassTest ? `${truncateText(examName, 10)}` : isOnline ? 'ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : match.type)}</span>
+                <span class="t-badge" style="background:${theme.badge}; color:${cardInk(theme)}">${isClassTest ? `${truncateText(examName, 10)}` : isOnline ? 'ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? LAB_LABEL_HTML : escapeHtml(match.type))}</span>
               </div>
             </div>`;
         } else {

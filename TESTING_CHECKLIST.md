@@ -78,3 +78,74 @@ Tick each box only after confirming it on a real phone. Unit and mock tests alre
 - [ ] Toasts: success, error, warning and info each show a coloured SVG icon. A plain toast shows no icon box.
 - [ ] Welcome and confirm dialogs: dark backdrop, no blur. The notification banner has no glow.
 - [ ] Release: after pushing, CI publishes `v1.5.1` and the app on 1.5.0 offers the update (it needs a reinstall once because of the signing-key change).
+
+---
+
+## PC browser run (2026-11-16): web layer verified without the phone
+Ran the app in the desktop built-in browser at phone size (375×812), against a local mock server: the real app files plus a fake API with fixture announcements, and a clock shift for the 6pm test. These checks **passed**:
+- Welcome screen: SVG icon, styled name field, "1."/"2." labels. Saving puts the name in the greeting ("Sid").
+- **Stuck-save fix:** with every API call hanging (simulated outage), saving still finished in about 9s, reloaded, applied Section B from the bundled routine, and kept the name. No "Step 2/2" hang.
+- Week strip badges: Fri past cancellation; Mon cancellation; Tue `class_test`, `rescheduled`, `+2`; Wed `holiday`, `rescheduled`.
+- Calendar: only the class-test day tinted; holiday shows dots and an amber number without a tint; at most 3 dots per day.
+- Notices: past-dated cancellation hidden behind "Show 1 past announcement"; toggle shows and hides it; pinned item stays.
+- 6pm rollover at 7:00 PM: "Tomorrow's Schedule", Tuesday selected, next-class card "DMNT · Tomorrow · 408".
+- Strip and header counts agree (fixed in this run: the header used to count the raw routine, e.g. "2 SESSIONS" vs "1 CLASS").
+- Weekly Routine and Schedule Settings open as full pages with Back; Settings name field is pre-filled.
+- Long warning toast wraps within the screen, with an amber SVG icon.
+- Android web prompt: no longer stacks on the welcome screen, and stays dismissed for the session after "Continue on Web" (fixed in this run).
+- Free Rooms: a class-card tap opens class details (ICMP); a simulated ghost tap on the Instructor tile within 450ms is ignored; a deliberate tap opens the profile.
+- Light theme: dashboard, badges and teacher sheet render correctly.
+
+**Still needs the phone:** push notifications (and the live Supabase), the home-screen widget, the APK update prompt and install, the real-touch ghost-tap behaviour, and the rotate button on the routine page.
+
+## 11. Design pass (motion + layout): check on the phone
+Verified in the PC browser at 375×812 in both themes. Still check on a real device:
+- [ ] Equal left/right margins on every page. The week strip shows all 7 days with badges uncut.
+- [ ] Page changes slide (deeper = from the right, back = from the left), and dock tabs rise in. Nothing feels laggy on the phone.
+- [ ] Weekly Routine / Settings slide in and out. While Weekly Routine is open, the dock highlights "Routine".
+- [ ] Tapping another day in the week strip: the tapped day expands into the big card while the previous one collapses into a pill, and the schedule below cross-fades. Swiping still works as before.
+- [ ] Live class card shows a thin progress bar along its bottom edge.
+- [ ] Notices: no PINNED/NEW chips; unread = accent dot before the title; dates read "Today / Tomorrow / Wed 18 Nov".
+- [ ] Free Rooms: lab names on a second line (no overlap with status); filter pills not cut off.
+- [ ] Light mode: cancelled badge, exam/online tags and Weekly Routine cards are all readable.
+- [ ] Switching theme in Settings cross-fades instead of flashing.
+- [ ] With Android "Remove animations" turned on, the app still works with no motion.
+- [ ] Home spacing: clear gaps between clock, greeting, week strip and "Today's Schedule". The live class card is full height (not a thin sliver), and at least 3 class cards fit on screen. Tags like "CT-2" never break across lines.
+
+## Device run 2026-11-17 (in progress)
+- [x] Live API back: `semesters_sections` and `announcements` return 200 in 2–3s. The deployed CORS uses the shared helper (`*` origin, no credentials header).
+- [x] Live data: 16 announcements for Semester 2, Section C, all dated before today. Notices should show "Show 16 past announcements" with nothing current.
+- Found: the installed app rotates into landscape, where no class cards are visible. **Fixed in code:** MainActivity is locked to portrait (needs the next APK).
+- Found: "Good night" showed a sun icon. **Fixed:** the icon follows the time of day (sun, sunset, moon).
+- [x] New design in the phone's Chrome (adb reverse to the mock server; frame timing measured through Chrome remote debugging, 90 Hz display):
+  - Day expand/collapse, page transitions and the Routine page all hold an 11.1 ms median frame. 1–6 dropped frames at the start of each, during the content re-render; Notices is the heaviest (it re-renders the feed on open).
+  - Home spacing, gutters, live progress bar and light-mode Weekly Routine look right on the real screen.
+- [x] **Free Rooms real-touch:** 4/4 finger taps on class cards (subject, time, duration, empty area) opened class details; 0 opened the profile. Tapping the teacher pill opens the profile.
+- [x] Installed v1.5.1 with live data: Notices shows "Show 16 past announcements" and no unread dot.
+- Found and **fixed:** in the native app the notification banner never showed (isSupported() checked only the web Notification API, and maybeShowBanner() was never called; the settings button for the toggle doesn't exist in the HTML). So the APK never asked for notification permission, and push could not register. Needs the next APK, then: allow notifications, check a `device_tokens` row, and post a test announcement.
+- Found and **fixed:** the install banner covered the dock; it now sits above it.
+- Found and **fixed:** up to three prompts appeared at once (notifications, Android app, install). They now show one at a time.
+- Changed: the notification banner's Enable button no longer switches on class-start reminders (backlog #9); it only enables announcement push. The banner text now says that.
+
+## 12. Light mode redesign ("Printed Timetable")
+- [ ] Light mode: cool grey-white page, white cards with thin borders, dark navy text. The selected day and the live class stand out in cobalt.
+- [ ] Readable outdoors in sunlight: muted text, tags, Free Rooms status, Faculty codes. (All passed an automated WCAG AA check on PC.)
+- [ ] Post Announcement: every field has the same grey-inset look and turns white with a blue ring when tapped.
+- [ ] Switching between light and dark in Settings cross-fades smoothly. Dark mode is unchanged, apart from class end times, which are now slightly brighter.
+
+## 13. Rooms redesign (replaces Free Rooms)
+- [ ] Apps → Rooms opens on today in live mode ("Now · time", green dot). The subtitle reads "X of 33 free right now", and the list shows free rooms grouped by floor.
+- [ ] Each room card shows its status on the right (Free all day / Free until X / Free in Xm / Busy until X) and a day strip below it: grey = class, green = the free window from the chosen time, blue tick = the chosen time.
+- [ ] Dragging the time slider moves through the class day (8 AM to 4:30 PM). The readout, counts and list update as you drag, and "Now" brings it back to live time.
+- [ ] Free / Soon / All buttons filter the list and their counts are correct. Search ("40", "lab", a room name) and Rooms/Labs narrow it further; the "×" clears the search.
+- [ ] Day chips: Thu/Fri are dimmed (off days) and show every room free. Another weekday keeps the chosen time.
+- [ ] Tapping a room opens its sheet: status box, day chips, a large strip, then a timeline of classes and free gaps. Cancelled, moved-online and rescheduled classes appear struck through with a reason tag.
+- [ ] In the sheet, tapping a class opens class details and tapping the teacher opens their profile. The sheet closes on × and by tapping the backdrop. (The Android back button is not wired anywhere in the app yet, so it will not close the sheet.)
+- [ ] In class details, tapping the room tile opens Rooms on that day with that room's sheet open. Back reads "Home" if you came from Home and "Apps" otherwise, and goes there.
+- [ ] Check both themes. Light mode was checked on PC at 390×844, and the search field has no white box inside it.
+
+## 14. Dock closes open pages
+- [ ] Open Schedule Settings, then tap each dock button (Home, Routine, centre, Notices, Apps). Settings closes and you land on that tab; Routine opens the Weekly Routine instead.
+- [ ] Same with the Weekly Routine (Matrix) open: Home, Notices, Apps and the centre button all close it, and the right dock tab is highlighted afterwards.
+- [ ] With Settings open on Home, the centre button closes Settings and does not pop up the calendar.
+- [ ] In the Weekly Routine, open a class, then tap its room. Rooms opens with that room's sheet, and the Weekly Routine is no longer underneath.

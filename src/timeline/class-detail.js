@@ -1,6 +1,6 @@
 import { State } from '../core/state.js';
 import { FULL_COURSE_NAMES, DAY_NAMES } from '../core/config.js';
-import { format12h, formatRoom, escapeHtml } from '../core/utils.js';
+import { format12h, formatRoom, escapeHtml, LAB_LABEL_HTML } from '../core/utils.js';
 import { getTeacherInfo } from '../teachers/teacher-names.js';
 import { openModal, closeModal } from '../modals/modal.js';
 import { Storage } from '../storage/storage.js';
@@ -337,7 +337,7 @@ export function showClassDetails(data) {
       badgeEl.textContent = 'EXTRA CLASS';
       badgeEl.className = 'resting-tag extra';
     } else {
-      badgeEl.textContent = isLab ? '★ LAB' : 'THEORY';
+      if (isLab) badgeEl.innerHTML = LAB_LABEL_HTML; else badgeEl.textContent = 'THEORY';
       badgeEl.className = `resting-tag ${isLab ? 'lab' : 'theory'}`;
     }
   }
