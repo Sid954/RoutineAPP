@@ -171,3 +171,20 @@ Verified in the PC browser at 375×812 in both themes. Still check on a real dev
 - [ ] The shield button → admin password → pending edits list still approves and rejects.
 - [ ] Teacher names tapped anywhere else (Home cards, Weekly Routine, Rooms sheet) still open the new profile.
 - [ ] Check both themes.
+
+## 17. Notices rebuild
+- [ ] Notices opens with "My section" selected. The subtitle reads "Semester X · Section Y". Department shows every section's notices, each tagged with who it is for (e.g. "3-A", "Sem 2 · all", "Everyone").
+- [ ] "Coming up" shows dated items for the next two weeks as cards with a countdown ("Today", "Tomorrow", "in 3 days"). A multi-day holiday appears once. Tapping a card opens the notice.
+- [ ] Search finds by course, title, author, room or link ("meet"). Filter chips show counts and only types that exist. Coming up hides while searching or filtering.
+- [ ] Feed sections: Pinned, Today, Tomorrow, This week, Later, Notices (undated), then "Show N past".
+- [ ] New notices show a dot. "N new notices · Mark all read" clears them, and so does scrolling past a card for about a second. The dock dot updates.
+- [ ] Tapping a notice opens the sheet: type, audience, title, date with countdown, a facts grid, text, a green "Join class" button for links, and Posted by.
+- [ ] Sheet actions: Calendar (APK: opens Google Calendar with the event filled in; browser: downloads an .ics), In routine (jumps Home to that date), Share (share sheet, or copies text).
+- [ ] Manage: enter the password, then a banner shows. In a notice: Pin/Unpin, Edit and Delete work. Done exits.
+- [ ] Post: the 7 type tiles switch the fields. The live preview matches the feed card, and errors show under the preview.
+- [ ] Audience: My section / Other sections (several chips) / Whole semester / Everyone. Class-tied types (cancel, class, test, reschedule, assignment) allow only one section and load THAT section's course list.
+- [ ] Posting to 3 sections says "Publish to 3 sections", and each section sees it. A multi-day holiday to several sections posts every day for every section.
+- [ ] Online/extra class: the end time and teacher are saved. Picking a course fills its usual start time, end time and teacher.
+- [ ] Editing a department-wide or another section's notice keeps its audience (it used to switch to your own section). The audience shows as locked when editing.
+- [ ] Your name is remembered for the next post. The password is pre-filled after the first successful post or unlock.
+- [ ] Check both themes.

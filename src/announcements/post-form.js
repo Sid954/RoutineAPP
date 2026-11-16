@@ -1,1210 +1,652 @@
+/**
+ * Post / edit a notice (#postAnnounceAppView, redesigned Nov 2026).
+ *  1. Type: seven tiles
+ *  2. For: my section, other section(s), a whole semester, or everyone. Class-tied types
+ *     (cancel, class, test, reschedule, assignment) go to ONE section, because their course
+ *     list comes from that section's routine.
+ *  3. Details for the type (course lists come from the target section's routine)
+ *  4. Live preview using the feed's own card
+ *  5. Name (remembered), admin password, optional pin, Publish
+ * Payloads go through validateAnnouncementPayload, exactly as before.
+ */
 import { State } from '../core/state.js';
+import { Storage } from '../storage/storage.js';
 import { showToast } from '../toast/toast.js';
 import { escapeHtml, format12h, parseTo24h, toMinutes, localDateStr } from '../core/utils.js';
+import { DAY_NAMES } from '../core/config.js';
+import { Notifications } from '../notifications/notifications.js';
 import { Announcements } from './announcements.js';
-import { getClassesForDay } from '../schedule/queries.js';
-import {
-  ANNOUNCEMENT_LIMITS,
-  collapseNewlines,
-  cleanString,
-  validateField,
-  validateAnnouncementPayload
-} from './validation.js';
+import { ANNOUNCEMENT_LIMITS, collapseNewlines, validateAnnouncementPayload } from './validation.js';
+import { toNotice } from './notice-model.js';
+import { cardHtml, ICONS } from './notices-view.js';
 
-/** 'YYYY-MM-DD' -> next calendar day, computed in local time. */
+const AUTHOR_KEY = 'routine_notice_author';
+const CLASS_TIED = new Set(['cancellation', 'online_class', 'class_test', 'rescheduled', 'assignment']);
+
+const TYPES = [
+  { id: 'general', tone: 'general', label: 'Notice', desc: 'Anything else to tell the class' },
+  { id: 'class_test', tone: 'exam', label: 'Class test', desc: 'Exam date, course and syllabus' },
+  { id: 'assignment', tone: 'task', label: 'Assignment', desc: 'Task with a due date and time' },
+  { id: 'cancellation', tone: 'cancel', label: 'Cancel a class', desc: 'Marks the class cancelled in the routine' },
+  { id: 'online_class', tone: 'online', label: 'Online / extra class', desc: 'Adds a session to the routine' },
+  { id: 'rescheduled', tone: 'moved', label: 'Reschedule', desc: 'Moves a class to a new time' },
+  { id: 'holiday', tone: 'holiday', label: 'Holiday', desc: 'Day off: one day or a range' }
+];
+
+const st = {
+  type: 'general',
+  aud: 'mine',            // mine | sections | semester | all
+  sem: '',
+  secs: new Set(),
+  classMode: 'online',    // online | extra
+  editId: '',
+  editRow: null,
+  routine: null,          // routine (dayIdx -> classes) of the class-tied target section
+  routineKey: ''
+};
+const routineCache = new Map();
+
+const $ = id => document.getElementById(id);
+const val = id => ($(id) ? $(id).value : '');
+const mySem = () => String(Storage.getSemester() || '');
+const mySec = () => String(Storage.getSection() || '').toLowerCase();
+
 function nextDayStr(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   d.setDate(d.getDate() + 1);
   return localDateStr(d);
 }
+const dayIdxOf = ymd => { const [y, m, d] = String(ymd).split('-').map(Number); return new Date(y, m - 1, d).getDay(); };
 
-let counterUpdateCallbacks = [];
-// Tracks the is_pinned state of the announcement being edited — preserved on update
-let _editIsPinned = false;
+/* ── Audience ──────────────────────────────────────────────────────────── */
+async function structure() {
+  const { loadCachedStructure } = await import('../events/init.js');
+  return loadCachedStructure() || {};
+}
 
-function setupCharCounter(inputEl, counterEl, maxLimit) {
-  if (!inputEl || !counterEl) return;
-  const update = () => {
-    const len = inputEl.value.trim().length;
-    counterEl.textContent = `${len}/${maxLimit}`;
-    if (len >= maxLimit) {
-      counterEl.classList.add('limit');
-      counterEl.classList.remove('warning');
-    } else if (len >= maxLimit - 2 && len > 0) {
-      counterEl.classList.add('warning');
-      counterEl.classList.remove('limit');
-    } else {
-      counterEl.classList.remove('warning', 'limit');
-    }
+/** {semester, section} pairs this post goes to. */
+export function audienceTargets(state = st, me = { sem: mySem(), sec: mySec() }) {
+  switch (state.aud) {
+    case 'sections': return Array.from(state.secs).map(sec => ({ semester: state.sem, section: sec }));
+    case 'semester': return state.sem ? [{ semester: state.sem, section: '' }] : [];
+    case 'all': return [{ semester: '', section: '' }];
+    default: return [{ semester: me.sem, section: me.sec }];
+  }
+}
+
+function targetsLabel(targets) {
+  if (!targets.length) return 'Pick who it is for';
+  if (targets.length === 1) {
+    const t = targets[0];
+    if (!t.semester) return 'Everyone in the department';
+    if (!t.section) return `Semester ${t.semester}, all sections`;
+    const isMine = t.semester === mySem() && t.section === mySec();
+    return `Semester ${t.semester} · Section ${t.section.toUpperCase()}${isMine ? ' (yours)' : ''}`;
+  }
+  return `${targets.length} sections in semester ${targets[0].semester}`;
+}
+
+async function renderAudience() {
+  const box = $('paAudBox');
+  if (!box) return;
+  const seg = $('paAudSeg');
+  const locked = $('paAudLocked');
+  const pick = $('paAudPick');
+  const note = $('paAudNote');
+  const tied = CLASS_TIED.has(st.type);
+
+  if (st.editId) {
+    seg.hidden = true; pick.hidden = true;
+    locked.hidden = false;
+    const r = st.editRow || {};
+    locked.textContent = `For: ${targetsLabel([{ semester: String(r.semester || ''), section: String(r.section || '').toLowerCase() }])}`;
+    note.textContent = 'The audience of a published notice cannot be changed. Delete it and post again instead.';
+    return;
+  }
+  locked.hidden = true;
+  seg.hidden = false;
+  if (tied && (st.aud === 'semester' || st.aud === 'all')) st.aud = 'mine';
+  if (tied && st.secs.size > 1) st.secs = new Set([Array.from(st.secs)[0]]);
+  seg.querySelectorAll('button').forEach(b => {
+    const a = b.dataset.aud;
+    b.classList.toggle('active', a === st.aud);
+    b.setAttribute('aria-pressed', String(a === st.aud));
+    b.disabled = tied && (a === 'semester' || a === 'all');
+    if (a === 'sections') b.textContent = tied ? 'Another section' : 'Other sections';
+  });
+
+  pick.hidden = !(st.aud === 'sections' || st.aud === 'semester');
+  if (!pick.hidden) {
+    const s = await structure();
+    const sems = Object.keys(s).sort((a, b) => Number(a) - Number(b));
+    if (!st.sem || !s[st.sem]) st.sem = sems.includes(mySem()) ? mySem() : (sems[0] || '');
+    const semSel = $('paAudSem');
+    semSel.innerHTML = sems.map(x => `<option value="${x}"${x === st.sem ? ' selected' : ''}>Semester ${x}</option>`).join('');
+    const secWrap = $('paAudSecs');
+    secWrap.hidden = st.aud !== 'sections';
+    const secs = (s[st.sem] || []).map(x => String(x).toLowerCase());
+    st.secs = new Set(Array.from(st.secs).filter(x => secs.includes(x)));
+    secWrap.innerHTML = secs.map(x => `<button type="button" class="pa-sec${st.secs.has(x) ? ' active' : ''}" data-sec="${x}" aria-pressed="${st.secs.has(x)}">${x.toUpperCase()}${st.sem === mySem() && x === mySec() ? '<span>yours</span>' : ''}</button>`).join('');
+  }
+  const targets = audienceTargets();
+  note.textContent = tied
+    ? `${targetsLabel(targets)}. Course lists below come from that section's routine.`
+    : targetsLabel(targets);
+  await loadTargetRoutine();
+}
+
+async function loadTargetRoutine() {
+  const tied = CLASS_TIED.has(st.type);
+  const t = audienceTargets();
+  let key = 'mine';
+  if (tied && st.aud === 'sections') key = t.length === 1 ? `${t[0].semester}/${t[0].section}` : '';
+  if (key === st.routineKey && st.routine) return;
+  st.routineKey = key;
+  if (key === 'mine') { st.routine = State.schedule || {}; refreshCourseLists(); return; }
+  if (!key) { st.routine = {}; refreshCourseLists(); return; }
+  if (routineCache.has(key)) { st.routine = routineCache.get(key); refreshCourseLists(); return; }
+  st.routine = {};
+  refreshCourseLists('Loading routine…');
+  try {
+    const { fetchSectionSchedule } = await import('../events/init.js');
+    const r = await fetchSectionSchedule(t[0].semester, t[0].section);
+    if (st.routineKey !== key) return;
+    st.routine = r || {};
+    routineCache.set(key, st.routine);
+  } catch (e) {
+    st.routine = {};
+  }
+  refreshCourseLists();
+}
+
+/* ── Course lists from the target routine ──────────────────────────────── */
+const dayClasses = ymd => (ymd ? ((st.routine || {})[dayIdxOf(ymd)] || []) : []);
+function allCourses() {
+  const set = new Set();
+  Object.values(st.routine || {}).forEach(list => (list || []).forEach(c => { if (c.title) set.add(c.title); }));
+  return Array.from(set).sort();
+}
+function fillSelect(id, values, selected, emptyText, withNone = false) {
+  const el = $(id);
+  if (!el) return;
+  const keep = selected !== undefined ? selected : el.value;
+  if (!values.length && !withNone) {
+    el.innerHTML = `<option value="">${escapeHtml(emptyText)}</option>`;
+    return;
+  }
+  el.innerHTML = (withNone ? '<option value="">None</option>' : '') +
+    values.map(v => `<option value="${escapeHtml(v)}"${v === keep ? ' selected' : ''}>${escapeHtml(v)}</option>`).join('');
+  if (keep && values.includes(keep)) el.value = keep;
+}
+
+function refreshCourseLists(loadingText) {
+  const wait = loadingText || '';
+  const daySubjects = (dateId, allId) => {
+    const all = $(allId) && $(allId).checked;
+    return all ? allCourses() : Array.from(new Set(dayClasses(val(dateId)).map(c => c.title).filter(Boolean))).sort();
   };
-  inputEl.addEventListener('input', update);
-  inputEl.addEventListener('change', update);
-  counterUpdateCallbacks.push(update);
+  const noClass = dateId => wait || (val(dateId) ? `No classes on ${DAY_NAMES[dayIdxOf(val(dateId))]}` : 'Pick a date first');
+
+  fillSelect('paSubject', allCourses(), undefined, '', true);
+  fillSelect('paCancelSubject', daySubjects('paCancelDate'), undefined, noClass('paCancelDate'));
+  fillSelect('paClassSubject', allCourses(), undefined, wait || 'No courses in this routine');
+  fillSelect('paTestSubject', daySubjects('paTestDate', 'paTestAll'), undefined, noClass('paTestDate'));
+  fillSelect('paTaskSubject', daySubjects('paTaskDate', 'paTaskAll'), undefined, noClass('paTaskDate'));
+
+  // Reschedule: the classes on the original day, with their times
+  const mv = $('paMoveClass');
+  if (mv) {
+    const keep = mv.value;
+    const list = dayClasses(val('paMoveFromDate'));
+    mv.innerHTML = list.length
+      ? list.map(c => {
+          const start = c.start ? format12h(c.start) : '';
+          const end = c.end ? format12h(c.end) : '';
+          const label = `${c.title}${start ? ` · ${start}${end ? `–${end}` : ''}` : ''}${c.room ? ` · ${c.room}` : ''}`;
+          return `<option value="${escapeHtml(c.title)}" data-start="${escapeHtml(start)}" data-room="${escapeHtml(c.room || '')}"${c.title === keep ? ' selected' : ''}>${escapeHtml(label)}</option>`;
+        }).join('')
+      : `<option value="">${escapeHtml(noClass('paMoveFromDate'))}</option>`;
+  }
+  autofillClassTime();
+  checkMoveOverlap();
+  renderPreview();
 }
 
-function refreshAllCounters() {
-  counterUpdateCallbacks.forEach(fn => fn());
-}
-
-const TYPE_THEMES = {
-  general: {
-    label: 'General',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
-    sectionTitle: 'Notice Details & Content'
-  },
-  cancellation: {
-    label: 'Cancelled',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>',
-    sectionTitle: 'Class Cancellation Override'
-  },
-  holiday: {
-    label: 'Holiday',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-    sectionTitle: 'Holiday / Day Off Override'
-  },
-  online_class: {
-    label: 'Add a Class',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>',
-    sectionTitle: 'Add a Class Details'
-  },
-  class_test: {
-    label: 'Class Test',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>',
-    sectionTitle: 'Class Test & Exam Parameters'
-  },
-  rescheduled: {
-    label: 'Rescheduled',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-    sectionTitle: 'Rescheduled Class Parameters'
-  },
-  assignment: {
-    label: 'Assignment',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>',
-    sectionTitle: 'Assignment / Deadline Details'
-  }
-};
-
-export function updateCancelSubjectsList(selectedVal = '') {
-  const paCancelDate = document.getElementById('paCancelDate');
-  const paCancelSubjectSelect = document.getElementById('paCancelSubjectSelect');
-  if (!paCancelDate || !paCancelSubjectSelect) return;
-  const dateVal = paCancelDate.value;
-  if (!dateVal) {
-    paCancelSubjectSelect.innerHTML = '<option value="">Select a date first</option>';
-    return;
-  }
-  const [y, m, d] = dateVal.split('-').map(Number);
-  const dayIdx = new Date(y, m - 1, d).getDay();
-  const classes = getClassesForDay(dayIdx);
-  const subjs = Array.from(new Set(classes.map(c => c.title).filter(Boolean)));
-
-  if (subjs.length === 0) {
-    paCancelSubjectSelect.innerHTML = '<option value="">No classes scheduled on this day</option>';
-  } else {
-    paCancelSubjectSelect.innerHTML = subjs
-      .sort()
-      .map(sub => `<option value="${escapeHtml(sub)}" ${sub === selectedVal ? 'selected' : ''}>${escapeHtml(sub)}</option>`)
-      .join('');
+function autofillClassTime() {
+  const d = val('paClassDate'), s = val('paClassSubject');
+  if (!d || !s || st.editId) return;
+  const match = dayClasses(d).find(c => String(c.title).toUpperCase() === s.toUpperCase());
+  if (match) {
+    if ($('paClassStart')) $('paClassStart').value = parseTo24h(match.start) || $('paClassStart').value;
+    if ($('paClassEnd') && match.end) $('paClassEnd').value = parseTo24h(match.end) || '';
+    if ($('paClassTeacher') && !$('paClassTeacher').value && match.instructor) $('paClassTeacher').value = match.instructor;
   }
 }
 
-export function updateClassTestSubjectsList(selectedVal = '') {
-  const paClassTestDate = document.getElementById('paClassTestDate');
-  const paClassTestSubjectSelect = document.getElementById('paClassTestSubjectSelect');
-  const paClassTestShowAllSubjects = document.getElementById('paClassTestShowAllSubjects');
-  if (!paClassTestDate || !paClassTestSubjectSelect) return;
-  const dateVal = paClassTestDate.value;
-  if (!dateVal) {
-    paClassTestSubjectSelect.innerHTML = '<option value="">Select a date first</option>';
-    return;
-  }
-  const [y, m, d] = dateVal.split('-').map(Number);
-  const dayIdx = new Date(y, m - 1, d).getDay();
-  const showAll = paClassTestShowAllSubjects && paClassTestShowAllSubjects.checked;
-
-  let subjs = [];
-  if (showAll) {
-    const allSubjs = new Set();
-    Object.values(State.schedule).forEach(dayClasses => {
-      dayClasses.forEach(c => { if (c.title) allSubjs.add(c.title); });
-    });
-    subjs = Array.from(allSubjs);
-  } else {
-    const classes = getClassesForDay(dayIdx);
-    subjs = Array.from(new Set(classes.map(c => c.title).filter(Boolean)));
-  }
-
-  if (subjs.length === 0) {
-    paClassTestSubjectSelect.innerHTML = `<option value="">No classes on this ${showAll ? 'schedule' : 'day'}</option>`;
-  } else {
-    paClassTestSubjectSelect.innerHTML = subjs
-      .sort()
-      .map(sub => `<option value="${escapeHtml(sub)}" ${sub === selectedVal ? 'selected' : ''}>${escapeHtml(sub)}</option>`)
-      .join('');
-  }
-}
-
-export function updateAssignmentSubjectsList(selectedVal = '') {
-  const paAssignmentDueDate = document.getElementById('paAssignmentDueDate');
-  const paAssignmentSubjectSelect = document.getElementById('paAssignmentSubjectSelect');
-  const paAssignmentShowAllSubjects = document.getElementById('paAssignmentShowAllSubjects');
-  if (!paAssignmentDueDate || !paAssignmentSubjectSelect) return;
-  const dateVal = paAssignmentDueDate.value;
-  if (!dateVal) {
-    paAssignmentSubjectSelect.innerHTML = '<option value="">Select a date first</option>';
-    return;
-  }
-  const [y, m, d] = dateVal.split('-').map(Number);
-  const dayIdx = new Date(y, m - 1, d).getDay();
-  const showAll = paAssignmentShowAllSubjects && paAssignmentShowAllSubjects.checked;
-
-  let subjs = [];
-  if (showAll) {
-    const allSubjs = new Set();
-    Object.values(State.schedule).forEach(dayClasses => {
-      dayClasses.forEach(c => { if (c.title) allSubjs.add(c.title); });
-    });
-    subjs = Array.from(allSubjs);
-  } else {
-    const classes = getClassesForDay(dayIdx);
-    subjs = Array.from(new Set(classes.map(c => c.title).filter(Boolean)));
-  }
-
-  if (subjs.length === 0) {
-    paAssignmentSubjectSelect.innerHTML = `<option value="">No classes on this ${showAll ? 'schedule' : 'day'}</option>`;
-  } else {
-    paAssignmentSubjectSelect.innerHTML = subjs
-      .sort()
-      .map(sub => `<option value="${escapeHtml(sub)}" ${sub === selectedVal ? 'selected' : ''}>${escapeHtml(sub)}</option>`)
-      .join('');
-  }
-}
-
-export function updateRescheduleSubjectsList(selectedVal = '') {
-  const paRescheduleOrigDate = document.getElementById('paRescheduleOrigDate');
-  const paRescheduleSubjectSelect = document.getElementById('paRescheduleSubjectSelect');
-  if (!paRescheduleOrigDate || !paRescheduleSubjectSelect) return;
-  const dateVal = paRescheduleOrigDate.value;
-  if (!dateVal) {
-    paRescheduleSubjectSelect.innerHTML = '<option value="">Select an original date first</option>';
-    return;
-  }
-  const [y, m, d] = dateVal.split('-').map(Number);
-  const dayIdx = new Date(y, m - 1, d).getDay();
-  const classes = getClassesForDay(dayIdx);
-
-  if (classes.length === 0) {
-    const isWeekend = (dayIdx === 4 || dayIdx === 5);
-    paRescheduleSubjectSelect.innerHTML = `<option value="">No classes scheduled (${isWeekend ? 'Weekend' : 'Off-day'})</option>`;
-  } else {
-    paRescheduleSubjectSelect.innerHTML = classes
-      .map(c => {
-        const title = c.title || c.subject || 'Class';
-        const start = c.start ? format12h(c.start) : '';
-        const end = c.end ? format12h(c.end) : '';
-        const room = c.room || '';
-        const timeLabel = start && end ? `${start} – ${end}` : (start ? `Starts at ${start}` : '');
-        const label = `${title} (${timeLabel}${room ? ` · Room ${room}` : ''})`;
-        return `<option value="${escapeHtml(title)}" data-start="${escapeHtml(start)}" data-room="${escapeHtml(room)}" ${title === selectedVal ? 'selected' : ''}>${escapeHtml(label)}</option>`;
-      })
-      .join('');
-  }
-}
-
-export function checkRescheduleOverlap() {
-  const paRescheduleNewDate = document.getElementById('paRescheduleNewDate');
-  const paRescheduleNewStart = document.getElementById('paRescheduleNewStart');
-  const warningEl = document.getElementById('paRescheduleOverlapWarning');
-  const warningTextEl = document.getElementById('paRescheduleOverlapWarningText');
-
-  if (!paRescheduleNewDate || !paRescheduleNewStart || !warningEl || !warningTextEl) return;
-
-  const dateVal = paRescheduleNewDate.value;
-  const startVal = paRescheduleNewStart.value;
-
-  if (!dateVal || !startVal) {
-    warningEl.style.display = 'none';
-    return;
-  }
-
-  const [y, m, d] = dateVal.split('-').map(Number);
-  const dayIdx = new Date(y, m - 1, d).getDay();
-  const startMins = toMinutes(format12h(startVal));
-  const endMins = startMins + 75; // Standard 75 min class slot
-
-  const existingClasses = getClassesForDay(dayIdx);
-  const conflict = existingClasses.find(c => {
-    const cStart = toMinutes(c.start);
-    const cEnd = c.end ? toMinutes(c.end) : (cStart + 75);
-    return startMins < cEnd && endMins > cStart;
+function checkMoveOverlap() {
+  const warn = $('paMoveWarn');
+  if (!warn) return;
+  const d = val('paMoveToDate'), t = val('paMoveToStart');
+  if (!d || !t) { warn.hidden = true; return; }
+  const s = toMinutes(t), e = s + 75;
+  const clash = dayClasses(d).find(c => {
+    const cs = toMinutes(c.start), ce = c.end ? toMinutes(c.end) : cs + 75;
+    return s < ce && e > cs && !(d === val('paMoveFromDate') && c.title === val('paMoveClass'));
   });
-
-  if (conflict) {
-    warningEl.style.display = 'flex';
-    warningTextEl.textContent = `Note: ${format12h(startVal)} overlaps with scheduled class ${conflict.title || conflict.subject} (${conflict.start}${conflict.end ? ` – ${conflict.end}` : ''}) on the new date.`;
-  } else {
-    warningEl.style.display = 'none';
-  }
+  warn.hidden = !clash;
+  if (clash) warn.textContent = `Overlaps ${clash.title} (${format12h(clash.start)}${clash.end ? `–${format12h(clash.end)}` : ''}) on that day.`;
 }
 
-export function setSectionVisibility(type) {
-  const theme = TYPE_THEMES[type] || TYPE_THEMES.general;
+/* ── Type ──────────────────────────────────────────────────────────────── */
+function renderTypeGrid() {
+  const grid = $('paTypeGrid');
+  if (!grid) return;
+  grid.innerHTML = TYPES.map(t => `<button type="button" role="radio" class="pa-type tone-${t.tone}${t.id === st.type ? ' active' : ''}" data-type="${t.id}" aria-checked="${t.id === st.type}"${st.editId && t.id !== st.type ? ' disabled' : ''}>
+    <span class="nt-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[t.tone]}</svg></span>
+    <span class="pa-type-text"><strong>${t.label}</strong><span>${t.desc}</span></span>
+  </button>`).join('');
+}
 
-  // Update type indicator pill in form header
-  const pill = document.getElementById('paTypeIndicatorPill');
-  if (pill) {
-    pill.className = `pa-type-indicator-pill ${type}`;
-    pill.innerHTML = `${theme.icon}<span>${theme.label}</span>`;
-  }
+function setType(type) {
+  st.type = type;
+  if ($('paType')) $('paType').value = type;
+  renderTypeGrid();
+  document.querySelectorAll('#paFields [data-for]').forEach(fs => { fs.hidden = fs.dataset.for !== type; });
+  renderAudience();
+  updateSubmitLabel();
+  renderPreview();
+}
 
-  const detailsHeader = document.getElementById('paDetailsSectionHeader');
-  if (detailsHeader) {
-    detailsHeader.textContent = theme.sectionTitle;
-  }
-
-  // Update active highlight in type picker menu
-  const menuItems = document.querySelectorAll('.pa-type-option-item');
-  menuItems.forEach(item => {
-    if (item.getAttribute('data-type') === type) {
-      item.classList.add('active');
-    } else {
-      item.classList.remove('active');
-    }
+function setClassMode(mode) {
+  st.classMode = mode === 'extra' ? 'extra' : 'online';
+  document.querySelectorAll('#paClassMode button').forEach(b => {
+    const on = b.dataset.mode === st.classMode;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', String(on));
   });
-
-  const paGeneralSection = document.getElementById('paGeneralSection');
-  const paCancellationSection = document.getElementById('paCancellationSection');
-  const paHolidaySection = document.getElementById('paHolidaySection');
-  const paOnlineSection = document.getElementById('paOnlineSection');
-  const paClassTestSection = document.getElementById('paClassTestSection');
-  const paRescheduledSection = document.getElementById('paRescheduledSection');
-  const paAssignmentSection = document.getElementById('paAssignmentSection');
-
-  if (paGeneralSection) paGeneralSection.style.display = type === 'general' ? 'block' : 'none';
-  if (paCancellationSection) paCancellationSection.style.display = type === 'cancellation' ? 'block' : 'none';
-  if (paHolidaySection) paHolidaySection.style.display = type === 'holiday' ? 'block' : 'none';
-  if (paOnlineSection) paOnlineSection.style.display = type === 'online_class' ? 'block' : 'none';
-  if (paClassTestSection) paClassTestSection.style.display = type === 'class_test' ? 'block' : 'none';
-  if (paRescheduledSection) paRescheduledSection.style.display = type === 'rescheduled' ? 'block' : 'none';
-  if (paAssignmentSection) paAssignmentSection.style.display = type === 'assignment' ? 'block' : 'none';
+  if ($('paClassLinkRow')) $('paClassLinkRow').hidden = st.classMode !== 'online';
+  if ($('paClassRoomRow')) $('paClassRoomRow').hidden = st.classMode !== 'extra';
+  renderPreview();
 }
 
-let _currentClassMode = 'online'; // 'online' | 'offline'
-
-export function setClassMode(mode) {
-  _currentClassMode = mode === 'offline' ? 'offline' : 'online';
-  const onlineBtn = document.getElementById('paModeOnlineBtn');
-  const offlineBtn = document.getElementById('paModeOfflineBtn');
-  const onlinePlatformContainer = document.getElementById('paOnlinePlatformContainer');
-  const offlineRoomContainer = document.getElementById('paOfflineRoomContainer');
-
-  if (onlineBtn) onlineBtn.classList.toggle('active', _currentClassMode === 'online');
-  if (offlineBtn) offlineBtn.classList.toggle('active', _currentClassMode === 'offline');
-  if (onlinePlatformContainer) onlinePlatformContainer.style.display = _currentClassMode === 'online' ? 'block' : 'none';
-  if (offlineRoomContainer) offlineRoomContainer.style.display = _currentClassMode === 'offline' ? 'block' : 'none';
+/* ── Payloads ──────────────────────────────────────────────────────────── */
+function holidayDates() {
+  const start = val('paHolidayStart');
+  if (!start) return [];
+  if (!($('paHolidayMulti') && $('paHolidayMulti').checked) || st.editId) return [start];
+  const end = val('paHolidayEnd');
+  if (!end || end < start) return [start];
+  const out = [];
+  for (let d = new Date(start + 'T00:00:00'), last = new Date(end + 'T00:00:00'); d <= last; d.setDate(d.getDate() + 1)) out.push(localDateStr(d));
+  return out;
 }
 
-export function openPostForm(existingAnnouncement = null) {
-  const paEditId = document.getElementById('paEditId');
-  const paFormTitle = document.getElementById('postAnnounceFormTitle');
-  const paFormSubtitle = document.getElementById('postAnnounceFormSubtitle');
-  const paSubmitLabel = document.getElementById('postAnnounceSubmitLabel');
+const fmtDay = ymd => new Date(ymd + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-  const paName = document.getElementById('paName');
-  const paType = document.getElementById('paType');
-  const paTitle = document.getElementById('paTitle');
-  const paSubject = document.getElementById('paSubject');
-  const paContent = document.getElementById('paContent');
-  const paPassword = document.getElementById('paPassword');
-
-  const paCancelDate = document.getElementById('paCancelDate');
-  const paHolidayRangeType = document.getElementById('paHolidayRangeType');
-  const paHolidayStartDate = document.getElementById('paHolidayStartDate');
-  const paHolidayEndDateContainer = document.getElementById('paHolidayEndDateContainer');
-  const paHolidayEndDate = document.getElementById('paHolidayEndDate');
-  const paHolidayDetails = document.getElementById('paHolidayDetails');
-
-  const paOnlineDate = document.getElementById('paOnlineDate');
-  const paOnlineSubjectSelect = document.getElementById('paOnlineSubjectSelect');
-  const paOnlineStart = document.getElementById('paOnlineStart');
-  const paOnlineLink = document.getElementById('paOnlineLink');
-
-  const paClassTestDate = document.getElementById('paClassTestDate');
-  const paClassTestName = document.getElementById('paClassTestName');
-  const paClassTestTopics = document.getElementById('paClassTestTopics');
-
-  // Populate Subject dropdowns from schedule
-  const subjects = new Set();
-  Object.values(State.schedule).forEach(dayClasses => {
-    dayClasses.forEach(c => { if (c.title) subjects.add(c.title); });
-  });
-  const subjectOptions = Array.from(subjects)
-    .sort()
-    .map(sub => `<option value="${escapeHtml(sub)}">${escapeHtml(sub)}</option>`)
-    .join('');
-
-  if (paOnlineSubjectSelect) paOnlineSubjectSelect.innerHTML = subjectOptions;
-
-  const todayStr = localDateStr();
-
-  if (existingAnnouncement) {
-    // EDIT MODE
-    const item = existingAnnouncement;
-    _editIsPinned = !!item.is_pinned; // preserve pin state across edits
-    if (paEditId) paEditId.value = item.id;
-    if (paFormTitle) paFormTitle.textContent = 'Edit Announcement';
-    if (paFormSubtitle) paFormSubtitle.textContent = 'Modify announcement details and timetable overrides';
-    if (paSubmitLabel) paSubmitLabel.textContent = 'Save Changes';
-
-    if (paName) paName.value = item.name || '';
-    if (paType) paType.value = item.type || 'general';
-    if (paPassword) paPassword.value = State.sessionDeletePassword || '';
-
-    const type = item.type || 'general';
-    setSectionVisibility(type);
-
-    if (type === 'general') {
-      if (paTitle) paTitle.value = item.title || '';
-      if (paSubject) paSubject.value = item.subject || '';
-      if (paContent) paContent.value = item.announcement || '';
-    } else if (type === 'cancellation') {
-      if (paCancelDate) paCancelDate.value = item.date_override || todayStr;
-      updateCancelSubjectsList(item.subject_override || item.subject || '');
-    } else if (type === 'holiday') {
-      if (paHolidayRangeType) paHolidayRangeType.value = 'single';
-      if (paHolidayEndDateContainer) paHolidayEndDateContainer.style.display = 'none';
-      if (paHolidayStartDate) paHolidayStartDate.value = item.date_override || todayStr;
-      if (paHolidayDetails) paHolidayDetails.value = (item.title || '').replace(/^Holiday:\s*/i, '');
-    } else if (type === 'online_class') {
-      if (paOnlineDate) paOnlineDate.value = item.date_override || todayStr;
-      if (paOnlineSubjectSelect) paOnlineSubjectSelect.value = item.subject_override || item.subject || '';
-      try {
-        const parsed = JSON.parse(item.announcement);
-        const isOnline = parsed.is_online !== false;
-        setClassMode(isOnline ? 'online' : 'offline');
-        if (paOnlineLink) paOnlineLink.value = parsed.platform || '';
-        const paOnlineRoom = document.getElementById('paOnlineRoom');
-        if (paOnlineRoom) paOnlineRoom.value = parsed.room || '';
-        if (paOnlineStart) paOnlineStart.value = parseTo24h(parsed.start_time) || '09:45';
-      } catch (e) {
-        setClassMode('online');
-        if (paOnlineLink) paOnlineLink.value = item.announcement || '';
-      }
-    } else if (type === 'class_test') {
-      if (paClassTestDate) paClassTestDate.value = item.date_override || todayStr;
-      updateClassTestSubjectsList(item.subject_override || item.subject || '');
-      try {
-        const parsed = JSON.parse(item.announcement);
-        if (paClassTestName) paClassTestName.value = parsed.exam_name || '';
-        if (paClassTestTopics) paClassTestTopics.value = parsed.topics || '';
-      } catch (e) {}
-    } else if (type === 'rescheduled') {
-      const paRescheduleOrigDate = document.getElementById('paRescheduleOrigDate');
-      const paRescheduleNewDate = document.getElementById('paRescheduleNewDate');
-      const paRescheduleNewStart = document.getElementById('paRescheduleNewStart');
-      const paRescheduleNewRoom = document.getElementById('paRescheduleNewRoom');
-      const paRescheduleReason = document.getElementById('paRescheduleReason');
-
-      try {
-        const parsed = JSON.parse(item.announcement);
-        const origDate = parsed.original_date || item.date_override || todayStr;
-        const newDate = parsed.new_date || origDate;
-        if (paRescheduleOrigDate) paRescheduleOrigDate.value = origDate;
-        if (paRescheduleNewDate) paRescheduleNewDate.value = newDate;
-        updateRescheduleSubjectsList(parsed.target_subject || item.subject_override || item.subject || '');
-        if (paRescheduleNewStart) paRescheduleNewStart.value = parseTo24h(parsed.new_start_time) || '15:00';
-        if (paRescheduleNewRoom) paRescheduleNewRoom.value = parsed.new_room || '';
-        if (paRescheduleReason) paRescheduleReason.value = parsed.reason || '';
-      } catch (e) {
-        if (paRescheduleOrigDate) paRescheduleOrigDate.value = item.date_override || todayStr;
-        if (paRescheduleNewDate) paRescheduleNewDate.value = item.date_override || todayStr;
-        updateRescheduleSubjectsList(item.subject_override || item.subject || '');
-      }
-      checkRescheduleOverlap();
-    } else if (type === 'assignment') {
-      const paAssignmentDueDate = document.getElementById('paAssignmentDueDate');
-      if (paAssignmentDueDate) paAssignmentDueDate.value = item.date_override || todayStr;
-      updateAssignmentSubjectsList(item.subject_override || item.subject || '');
-      try {
-        const parsed = JSON.parse(item.announcement);
-        const paAssignmentTitle = document.getElementById('paAssignmentTitle');
-        if (paAssignmentTitle) paAssignmentTitle.value = parsed.task_title || '';
-        const paAssignmentDueTime = document.getElementById('paAssignmentDueTime');
-        if (paAssignmentDueTime) paAssignmentDueTime.value = parseTo24h(parsed.due_time) || '23:59';
-        const paAssignmentDescription = document.getElementById('paAssignmentDescription');
-        if (paAssignmentDescription) paAssignmentDescription.value = parsed.description || '';
-      } catch (e) {}
+/** One validated payload for the current type (date = first/only date). */
+function buildPayload(name, dateOverride) {
+  const type = st.type;
+  switch (type) {
+    case 'general':
+      return validateAnnouncementPayload({ name, type, title: val('paTitle'), announcement: val('paContent'), subject: val('paSubject') });
+    case 'cancellation': {
+      const subject = val('paCancelSubject'), date = val('paCancelDate');
+      const note = collapseNewlines(val('paCancelNote'));
+      const text = note || (subject && date ? `The ${subject} class on ${fmtDay(date)} is cancelled.` : '');
+      return validateAnnouncementPayload({ name, type, title: `${subject} Class`, announcement: text, subject, date_override: date, subject_override: subject });
     }
-  } else {
-    // CREATE MODE
-    _editIsPinned = false;
-    if (paEditId) paEditId.value = '';
-    if (paFormTitle) paFormTitle.textContent = 'Post Announcement';
-    if (paFormSubtitle) paFormSubtitle.textContent = 'Publish notice & notify your section';
-    if (paSubmitLabel) paSubmitLabel.textContent = 'Publish & Notify';
-
-    if (paName) paName.value = '';
-    if (paType) paType.value = 'general';
-    if (paTitle) paTitle.value = '';
-    if (paSubject) paSubject.value = '';
-    if (paContent) paContent.value = '';
-    if (paPassword) paPassword.value = State.sessionDeletePassword || '';
-
-    if (paCancelDate) { paCancelDate.value = todayStr; paCancelDate.min = todayStr; }
-    if (paHolidayStartDate) { paHolidayStartDate.value = todayStr; paHolidayStartDate.min = todayStr; }
-    if (paHolidayEndDate) { paHolidayEndDate.value = nextDayStr(todayStr); paHolidayEndDate.min = nextDayStr(todayStr); }
-    if (paHolidayDetails) paHolidayDetails.value = '';
-    if (paHolidayRangeType) paHolidayRangeType.value = 'single';
-    if (paHolidayEndDateContainer) paHolidayEndDateContainer.style.display = 'none';
-
-    setClassMode('online');
-    if (paOnlineDate) { paOnlineDate.value = todayStr; paOnlineDate.min = todayStr; }
-    if (paOnlineLink) paOnlineLink.value = '';
-    const paOnlineRoom = document.getElementById('paOnlineRoom');
-    if (paOnlineRoom) paOnlineRoom.value = '';
-    if (paOnlineStart) paOnlineStart.value = '09:45';
-
-    if (paClassTestDate) { paClassTestDate.value = todayStr; paClassTestDate.min = todayStr; }
-    if (paClassTestName) paClassTestName.value = '';
-    if (paClassTestTopics) paClassTestTopics.value = '';
-    if (paClassTestShowAllSubjects) paClassTestShowAllSubjects.checked = false;
-
-    const paRescheduleOrigDate = document.getElementById('paRescheduleOrigDate');
-    const paRescheduleNewDate = document.getElementById('paRescheduleNewDate');
-    const paRescheduleNewStart = document.getElementById('paRescheduleNewStart');
-    const paRescheduleNewRoom = document.getElementById('paRescheduleNewRoom');
-    const paRescheduleReason = document.getElementById('paRescheduleReason');
-    const paRescheduleWarning = document.getElementById('paRescheduleOverlapWarning');
-
-    if (paRescheduleOrigDate) { paRescheduleOrigDate.value = todayStr; paRescheduleOrigDate.min = todayStr; }
-    if (paRescheduleNewDate) { paRescheduleNewDate.value = todayStr; paRescheduleNewDate.min = todayStr; }
-    if (paRescheduleNewStart) paRescheduleNewStart.value = '15:00';
-    if (paRescheduleNewRoom) paRescheduleNewRoom.value = '';
-    if (paRescheduleReason) paRescheduleReason.value = '';
-    if (paRescheduleWarning) paRescheduleWarning.style.display = 'none';
-
-    const paAssignmentDueDate = document.getElementById('paAssignmentDueDate');
-    const paAssignmentTitle = document.getElementById('paAssignmentTitle');
-    const paAssignmentDueTime = document.getElementById('paAssignmentDueTime');
-    const paAssignmentDescription = document.getElementById('paAssignmentDescription');
-    const paAssignmentShowAllSubjects = document.getElementById('paAssignmentShowAllSubjects');
-    if (paAssignmentDueDate) { paAssignmentDueDate.value = todayStr; paAssignmentDueDate.min = todayStr; }
-    if (paAssignmentTitle) paAssignmentTitle.value = '';
-    if (paAssignmentDueTime) paAssignmentDueTime.value = '23:59';
-    if (paAssignmentDescription) paAssignmentDescription.value = '';
-    if (paAssignmentShowAllSubjects) paAssignmentShowAllSubjects.checked = false;
-
-    setSectionVisibility('general');
-    updateCancelSubjectsList();
-    updateClassTestSubjectsList();
-    updateRescheduleSubjectsList();
-    updateAssignmentSubjectsList();
-  }
-
-  // Refresh character counts after populating fields
-  refreshAllCounters();
-}
-
-let isPostFormInitialized = false;
-
-export function initPostForm() {
-  window.__openPostAnnounceForm = (announcementItem) => {
-    openPostForm(announcementItem);
-  };
-
-  if (isPostFormInitialized) return;
-  isPostFormInitialized = true;
-
-  const paName = document.getElementById('paName');
-  const paTitle = document.getElementById('paTitle');
-  const paHolidayDetails = document.getElementById('paHolidayDetails');
-  const paOnlineLink = document.getElementById('paOnlineLink');
-  const paOnlineRoom = document.getElementById('paOnlineRoom');
-  const paClassTestName = document.getElementById('paClassTestName');
-  const paClassTestTopics = document.getElementById('paClassTestTopics');
-  const paContent = document.getElementById('paContent');
-
-  // Mode Toggle Buttons
-  const modeOnlineBtn = document.getElementById('paModeOnlineBtn');
-  const modeOfflineBtn = document.getElementById('paModeOfflineBtn');
-  if (modeOnlineBtn) modeOnlineBtn.addEventListener('click', () => setClassMode('online'));
-  if (modeOfflineBtn) modeOfflineBtn.addEventListener('click', () => setClassMode('offline'));
-
-  // Bind real-time character counters
-  setupCharCounter(paName, document.getElementById('paNameCounter'), ANNOUNCEMENT_LIMITS.AUTHOR_NAME);
-  setupCharCounter(paTitle, document.getElementById('paTitleCounter'), ANNOUNCEMENT_LIMITS.TITLE);
-  setupCharCounter(paHolidayDetails, document.getElementById('paHolidayDetailsCounter'), ANNOUNCEMENT_LIMITS.HOLIDAY_NAME);
-  setupCharCounter(paOnlineLink, document.getElementById('paOnlineLinkCounter'), ANNOUNCEMENT_LIMITS.PLATFORM_LINK);
-  setupCharCounter(paOnlineRoom, document.getElementById('paOnlineRoomCounter'), ANNOUNCEMENT_LIMITS.ROOM);
-  setupCharCounter(paClassTestName, document.getElementById('paClassTestNameCounter'), ANNOUNCEMENT_LIMITS.EXAM_NAME);
-  setupCharCounter(paClassTestTopics, document.getElementById('paClassTestTopicsCounter'), ANNOUNCEMENT_LIMITS.TOPICS);
-  const paRescheduleNewRoom = document.getElementById('paRescheduleNewRoom');
-  const paRescheduleReason = document.getElementById('paRescheduleReason');
-  setupCharCounter(paRescheduleNewRoom, document.getElementById('paRescheduleRoomCounter'), ANNOUNCEMENT_LIMITS.ROOM);
-  setupCharCounter(paRescheduleReason, document.getElementById('paRescheduleReasonCounter'), ANNOUNCEMENT_LIMITS.REASON);
-
-  const paAssignmentTitle = document.getElementById('paAssignmentTitle');
-  const paAssignmentDescription = document.getElementById('paAssignmentDescription');
-  setupCharCounter(paAssignmentTitle, document.getElementById('paAssignmentTitleCounter'), ANNOUNCEMENT_LIMITS.TASK_TITLE);
-  setupCharCounter(paAssignmentDescription, document.getElementById('paAssignmentDescCounter'), ANNOUNCEMENT_LIMITS.ASSIGNMENT_DESC);
-
-  // Multi-line newline collapse on blur / change
-  if (paContent) {
-    paContent.addEventListener('blur', () => {
-      paContent.value = collapseNewlines(paContent.value);
-    });
-  }
-  if (paClassTestTopics) {
-    paClassTestTopics.addEventListener('blur', () => {
-      paClassTestTopics.value = collapseNewlines(paClassTestTopics.value);
-      refreshAllCounters();
-    });
-  }
-  if (paRescheduleReason) {
-    paRescheduleReason.addEventListener('blur', () => {
-      paRescheduleReason.value = collapseNewlines(paRescheduleReason.value);
-      refreshAllCounters();
-    });
-  }
-  if (paAssignmentDescription) {
-    paAssignmentDescription.addEventListener('blur', () => {
-      paAssignmentDescription.value = collapseNewlines(paAssignmentDescription.value);
-      refreshAllCounters();
-    });
-  }
-
-  const paType = document.getElementById('paType');
-  const paGeneralSection = document.getElementById('paGeneralSection');
-  const paCancellationSection = document.getElementById('paCancellationSection');
-  const paHolidaySection = document.getElementById('paHolidaySection');
-  const paOnlineSection = document.getElementById('paOnlineSection');
-  const paClassTestSection = document.getElementById('paClassTestSection');
-  const paRescheduledSection = document.getElementById('paRescheduledSection');
-  const paAssignmentSection = document.getElementById('paAssignmentSection');
-
-  const paHolidayRangeType = document.getElementById('paHolidayRangeType');
-  const paHolidayEndDateContainer = document.getElementById('paHolidayEndDateContainer');
-
-  const paCancelDate = document.getElementById('paCancelDate');
-  const paCancelSubjectSelect = document.getElementById('paCancelSubjectSelect');
-
-  const paClassTestDate = document.getElementById('paClassTestDate');
-  const paClassTestSubjectSelect = document.getElementById('paClassTestSubjectSelect');
-  const paClassTestShowAllSubjects = document.getElementById('paClassTestShowAllSubjects');
-
-  const paRescheduleOrigDate = document.getElementById('paRescheduleOrigDate');
-  const paRescheduleNewDate = document.getElementById('paRescheduleNewDate');
-  const paRescheduleNewStart = document.getElementById('paRescheduleNewStart');
-
-  const paOnlineSubjectSelect = document.getElementById('paOnlineSubjectSelect');
-  const paOnlineDate = document.getElementById('paOnlineDate');
-  const paOnlineStart = document.getElementById('paOnlineStart');
-
-  function autoFillOnlineTimes() {
-    if (!paOnlineDate || !paOnlineSubjectSelect || !paOnlineStart) return;
-    const dateVal = paOnlineDate.value;
-    const subjectVal = paOnlineSubjectSelect.value;
-    if (!dateVal || !subjectVal) return;
-
-    const [y, m, d] = dateVal.split('-').map(Number);
-    const dayIdx = new Date(y, m - 1, d).getDay();
-
-    const classes = State.schedule[dayIdx] || [];
-    const match = classes.find(c => c.title && c.title.toUpperCase() === subjectVal.toUpperCase());
-    if (match) {
-      paOnlineStart.value = match.start;
+    case 'holiday': {
+      const dates = holidayDates();
+      const holidayName = val('paHolidayName');
+      const first = dates[0], last = dates[dates.length - 1];
+      const text = dates.length > 1
+        ? `Holiday from ${fmtDay(first)} to ${fmtDay(last)}. All classes are off.`
+        : (first ? `Holiday on ${fmtDay(first)}. All classes are off.` : '');
+      return validateAnnouncementPayload({ name, type, title: holidayName.trim() || 'Holiday', holiday_name: holidayName, announcement: text, date_override: dateOverride || first || '' });
     }
-  }
-
-  if (paOnlineSubjectSelect) paOnlineSubjectSelect.addEventListener('change', autoFillOnlineTimes);
-  if (paOnlineDate) paOnlineDate.addEventListener('change', autoFillOnlineTimes);
-
-  if (paCancelDate) paCancelDate.addEventListener('change', () => updateCancelSubjectsList());
-  if (paClassTestDate) paClassTestDate.addEventListener('change', () => updateClassTestSubjectsList());
-  if (paClassTestShowAllSubjects) paClassTestShowAllSubjects.addEventListener('change', () => updateClassTestSubjectsList());
-
-  if (paRescheduleOrigDate) paRescheduleOrigDate.addEventListener('change', () => updateRescheduleSubjectsList());
-  if (paRescheduleNewDate) paRescheduleNewDate.addEventListener('change', checkRescheduleOverlap);
-  if (paRescheduleNewStart) {
-    paRescheduleNewStart.addEventListener('input', checkRescheduleOverlap);
-    paRescheduleNewStart.addEventListener('change', checkRescheduleOverlap);
-  }
-
-  const paAssignmentDueDate = document.getElementById('paAssignmentDueDate');
-  const paAssignmentShowAllSubjects = document.getElementById('paAssignmentShowAllSubjects');
-  if (paAssignmentDueDate) paAssignmentDueDate.addEventListener('change', () => updateAssignmentSubjectsList());
-  if (paAssignmentShowAllSubjects) paAssignmentShowAllSubjects.addEventListener('change', () => updateAssignmentSubjectsList());
-
-  // Custom Popover Type Picker Binding
-  const typePickerBtn = document.getElementById('paTypePickerBtn');
-  const typeDropdownMenu = document.getElementById('paTypeDropdownMenu');
-
-  function closeTypeDropdown() {
-    if (typeDropdownMenu) typeDropdownMenu.style.display = 'none';
-    if (typePickerBtn) {
-      typePickerBtn.classList.remove('open');
-      typePickerBtn.setAttribute('aria-expanded', 'false');
-    }
-  }
-
-  function toggleTypeDropdown() {
-    if (!typeDropdownMenu) return;
-    const isOpen = typeDropdownMenu.style.display === 'flex';
-    if (isOpen) {
-      closeTypeDropdown();
-    } else {
-      typeDropdownMenu.style.display = 'flex';
-      if (typePickerBtn) {
-        typePickerBtn.classList.add('open');
-        typePickerBtn.setAttribute('aria-expanded', 'true');
-      }
-    }
-  }
-
-  if (typePickerBtn) {
-    typePickerBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleTypeDropdown();
-    });
-  }
-
-  if (typeDropdownMenu) {
-    typeDropdownMenu.addEventListener('click', (e) => {
-      const item = e.target.closest('.pa-type-option-item');
-      if (!item) return;
-      const selectedType = item.getAttribute('data-type');
-      if (paType) paType.value = selectedType;
-      if (paType) paType.dispatchEvent(new Event('change'));
-      closeTypeDropdown();
-    });
-  }
-
-  document.addEventListener('click', (e) => {
-    if (typeDropdownMenu && !typeDropdownMenu.contains(e.target) && typePickerBtn && !typePickerBtn.contains(e.target)) {
-      closeTypeDropdown();
-    }
-  });
-
-  if (paType) {
-    paType.addEventListener('change', () => {
-      const val = paType.value;
-      const card = document.getElementById('paFormCard');
-      if (card) card.setAttribute('data-type', val);
-
-      const theme = TYPE_THEMES[val] || TYPE_THEMES.general;
-      const pill = document.getElementById('paTypeIndicatorPill');
-      if (pill) {
-        pill.innerHTML = `${theme.icon}<span>${theme.label}</span>`;
-      }
-
-      const detailsHeader = document.getElementById('paDetailsSectionHeader');
-      if (detailsHeader) {
-        detailsHeader.textContent = theme.sectionTitle;
-      }
-
-      const menuItems = document.querySelectorAll('.pa-type-option-item');
-      menuItems.forEach(item => {
-        if (item.getAttribute('data-type') === val) {
-          item.classList.add('active');
-        } else {
-          item.classList.remove('active');
-        }
+    case 'online_class': {
+      const online = st.classMode === 'online';
+      const subject = val('paClassSubject');
+      return validateAnnouncementPayload({
+        name, type, title: `${subject} ${online ? 'Online Class' : 'Extra Class'}`,
+        platform: online ? val('paClassLink') : '', room: online ? '' : val('paClassRoom'),
+        teacher: val('paClassTeacher'),
+        start_time: val('paClassStart') ? format12h(val('paClassStart')) : '',
+        end_time: val('paClassEnd') ? format12h(val('paClassEnd')) : '',
+        is_extra_class: true, is_online: online,
+        date_override: val('paClassDate'), subject_override: subject
       });
-
-      if (paGeneralSection) paGeneralSection.style.display = val === 'general' ? 'block' : 'none';
-      if (paCancellationSection) paCancellationSection.style.display = val === 'cancellation' ? 'block' : 'none';
-      if (paHolidaySection) paHolidaySection.style.display = val === 'holiday' ? 'block' : 'none';
-      if (paOnlineSection) paOnlineSection.style.display = val === 'online_class' ? 'block' : 'none';
-      if (paClassTestSection) paClassTestSection.style.display = val === 'class_test' ? 'block' : 'none';
-      if (paRescheduledSection) paRescheduledSection.style.display = val === 'rescheduled' ? 'block' : 'none';
-      if (paAssignmentSection) paAssignmentSection.style.display = val === 'assignment' ? 'block' : 'none';
-    });
+    }
+    case 'class_test':
+      return validateAnnouncementPayload({ name, type, exam_name: val('paTestName') || 'Class Test', topics: val('paTestTopics'), date_override: val('paTestDate'), subject_override: val('paTestSubject') });
+    case 'rescheduled': {
+      const sel = $('paMoveClass');
+      const opt = sel && sel.options[sel.selectedIndex];
+      const subject = val('paMoveClass');
+      return validateAnnouncementPayload({
+        name, type, title: `Rescheduled: ${subject}`,
+        date_override: val('paMoveFromDate'), subject_override: subject,
+        original_date: val('paMoveFromDate'),
+        original_start_time: opt ? opt.getAttribute('data-start') || '' : '',
+        original_room: opt ? opt.getAttribute('data-room') || '' : '',
+        new_date: val('paMoveToDate'),
+        new_start_time: val('paMoveToStart') ? format12h(val('paMoveToStart')) : '',
+        new_room: val('paMoveRoom'), reason: val('paMoveReason')
+      });
+    }
+    case 'assignment':
+      return validateAnnouncementPayload({ name, type, date_override: val('paTaskDate'), subject_override: val('paTaskSubject'), task_title: val('paTaskTitle') || 'Assignment', due_time: val('paTaskDue') ? format12h(val('paTaskDue')) : '11:59 PM', description: val('paTaskNotes') });
   }
+  return { valid: false, error: 'Pick a type.' };
+}
 
-  // Multi-day holiday: end date must be after start; default it to the day after start
-  const syncHolidayEndDate = () => {
-    const startEl = document.getElementById('paHolidayStartDate');
-    const endEl = document.getElementById('paHolidayEndDate');
-    if (!startEl || !endEl || !startEl.value) return;
-    const minEnd = nextDayStr(startEl.value);
-    endEl.min = minEnd;
-    if (!endEl.value || endEl.value < minEnd) endEl.value = minEnd;
-  };
-  document.getElementById('paHolidayStartDate')?.addEventListener('change', syncHolidayEndDate);
-
-  if (paHolidayRangeType) {
-    paHolidayRangeType.addEventListener('change', () => {
-      const val = paHolidayRangeType.value;
-      if (paHolidayEndDateContainer) paHolidayEndDateContainer.style.display = val === 'multiple' ? 'block' : 'none';
-      if (val === 'multiple') syncHolidayEndDate();
-    });
-  }
-
-  // Back / Cancel Buttons
-  const backBtn = document.getElementById('postAnnounceBackBtn');
-  if (backBtn) {
-    backBtn.addEventListener('click', () => {
-      if (window.switchAppView) window.switchAppView('announcements');
-    });
-  }
-
-  const cancelBtn = document.getElementById('postAnnounceCancel');
-  if (cancelBtn) {
-    cancelBtn.addEventListener('click', () => {
-      if (window.switchAppView) window.switchAppView('announcements');
-    });
-  }
-
-  // Submit Handler (Create & Update)
-  const submitBtn = document.getElementById('postAnnounceSubmit');
-  if (submitBtn) {
-    submitBtn.addEventListener('click', async () => {
-      const editId = document.getElementById('paEditId')?.value;
-      const isEdit = Boolean(editId);
-
-      const name = document.getElementById('paName')?.value || '';
-      const type = document.getElementById('paType')?.value || 'general';
-      const password = document.getElementById('paPassword')?.value;
-      const todayStr = localDateStr();
-
-      if (!name.trim() || !password) {
-        showToast('Please fill out Name and Password.', 'warning');
-        return;
-      }
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = isEdit ? 'Saving...' : 'Publishing...';
-
-      let success = false;
-
-      if (type === 'general') {
-        const title = document.getElementById('paTitle')?.value || '';
-        const content = document.getElementById('paContent')?.value || '';
-        const subject = document.getElementById('paSubject')?.value || '';
-
-        const validation = validateAnnouncementPayload({
-          name,
-          title,
-          announcement: content,
-          subject,
-          type: 'general'
-        });
-
-        if (!validation.valid) {
-          showToast(validation.error, 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
-          return;
-        }
-
-        const s = validation.sanitized;
-        if (isEdit) {
-          success = await Announcements.update(editId, s.name, s.title, s.announcement, password, { subject: s.subject, type: 'general', is_pinned: _editIsPinned });
-        } else {
-          success = await Announcements.publish(s.name, s.title, s.announcement, password, { subject: s.subject, type: 'general' });
-        }
-
-      } else if (type === 'cancellation') {
-        const subject = document.getElementById('paCancelSubjectSelect')?.value;
-        const date = document.getElementById('paCancelDate')?.value;
-
-        if (!subject || !date) {
-          showToast('Please select a Subject and Date.', 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
-          return;
-        }
-
-        if (!isEdit && date < todayStr) {
-          showToast('Cannot schedule class cancellations for past dates.', 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Publish & Notify';
-          return;
-        }
-
-        const formattedDate = new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        const title = `${subject} Class`;
-        const content = `Reminding you that the ${subject} class scheduled for ${formattedDate} is cancelled.`;
-
-        const validation = validateAnnouncementPayload({
-          name,
-          title,
-          announcement: content,
-          subject,
-          type: 'cancellation',
-          date_override: date,
-          subject_override: subject
-        });
-
-        if (!validation.valid) {
-          showToast(validation.error, 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
-          return;
-        }
-
-        const s = validation.sanitized;
-        if (isEdit) {
-          success = await Announcements.update(editId, s.name, s.title, s.announcement, password, {
-            subject: s.subject,
-            type: 'cancellation',
-            date_override: s.date_override,
-            subject_override: s.subject_override,
-            is_pinned: _editIsPinned
-          });
-        } else {
-          success = await Announcements.publish(s.name, s.title, s.announcement, password, {
-            subject: s.subject,
-            type: 'cancellation',
-            date_override: s.date_override,
-            subject_override: s.subject_override
-          });
-        }
-
-      } else if (type === 'holiday') {
-        const rangeType = document.getElementById('paHolidayRangeType')?.value;
-        const startDate = document.getElementById('paHolidayStartDate')?.value;
-        const holidayName = document.getElementById('paHolidayDetails')?.value || 'Holiday';
-
-        if (!startDate) {
-          showToast('Please select a Start Date.', 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
-          return;
-        }
-
-        if (!isEdit && startDate < todayStr) {
-          showToast('Cannot schedule holidays for past dates.', 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Publish & Notify';
-          return;
-        }
-
-        if (rangeType === 'single' || isEdit) {
-          const formattedDate = new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-          const title = holidayName.trim() || 'Holiday';
-          const content = `Holiday / Day Off declared on ${formattedDate}. All classes are suspended.`;
-
-          const validation = validateAnnouncementPayload({
-            name,
-            title,
-            announcement: content,
-            holiday_name: holidayName,
-            type: 'holiday',
-            date_override: startDate
-          });
-
-          if (!validation.valid) {
-            showToast(validation.error, 'warning');
-            submitBtn.disabled = false;
-            submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
-            return;
-          }
-
-          const s = validation.sanitized;
-          if (isEdit) {
-            success = await Announcements.update(editId, s.name, s.title, s.announcement, password, {
-              type: 'holiday',
-              date_override: s.date_override,
-              is_pinned: _editIsPinned
-            });
-          } else {
-            success = await Announcements.publish(s.name, s.title, s.announcement, password, {
-              type: 'holiday',
-              date_override: s.date_override
-            });
-          }
-        } else {
-          const endDate = document.getElementById('paHolidayEndDate')?.value;
-          if (!endDate || endDate < startDate) {
-            showToast('Please select a valid End Date.', 'warning');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Publish & Notify';
-            return;
-          }
-
-          const formattedStart = new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-          const formattedEnd = new Date(endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-          const title = holidayName.trim() || 'Holiday';
-          const content = `Holiday / Day Off declared from ${formattedStart} to ${formattedEnd}. All classes are suspended.`;
-
-          const validation = validateAnnouncementPayload({
-            name,
-            title,
-            announcement: content,
-            holiday_name: holidayName,
-            type: 'holiday',
-            date_override: startDate
-          });
-
-          if (!validation.valid) {
-            showToast(validation.error, 'warning');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Publish & Notify';
-            return;
-          }
-
-          const dates = [];
-          // Parse as LOCAL midnight; 'YYYY-MM-DD' alone parses as UTC midnight
-          let curr = new Date(startDate + 'T00:00:00');
-          const last = new Date(endDate + 'T00:00:00');
-          while (curr <= last) {
-            dates.push(localDateStr(curr));
-            curr.setDate(curr.getDate() + 1);
-          }
-
-          const s = validation.sanitized;
-          for (let i = 0; i < dates.length; i++) {
-            const pubSuccess = await Announcements.publish(s.name, s.title, s.announcement, password, {
-              type: 'holiday',
-              date_override: dates[i]
-            });
-            if (pubSuccess) success = true;
-          }
-        }
-
-      } else if (type === 'online_class') {
-        const subject = document.getElementById('paOnlineSubjectSelect')?.value;
-        const date = document.getElementById('paOnlineDate')?.value;
-        const isOnline = _currentClassMode === 'online';
-        const platform = isOnline ? (document.getElementById('paOnlineLink')?.value || '') : '';
-        const room = !isOnline ? (document.getElementById('paOnlineRoom')?.value || '') : '';
-        const startTime = document.getElementById('paOnlineStart')?.value || '09:45';
-
-        if (!subject || !date || !startTime) {
-          showToast('Please select Subject, Date, and Start Time.', 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
-          return;
-        }
-
-        if (!isEdit && date < todayStr) {
-          showToast('Cannot schedule classes for past dates.', 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Publish & Notify';
-          return;
-        }
-
-        const formattedStart = format12h(startTime);
-
-        const validation = validateAnnouncementPayload({
-          name,
-          title: !isOnline ? `${subject} Extra Class` : `${subject} Online Class`,
-          platform,
-          room,
-          start_time: formattedStart,
-          is_extra_class: true,
-          is_online: isOnline,
-          type: 'online_class',
-          date_override: date,
-          subject_override: subject
-        });
-
-        if (!validation.valid) {
-          showToast(validation.error, 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
-          return;
-        }
-
-        const s = validation.sanitized;
-        if (isEdit) {
-          success = await Announcements.update(editId, s.name, s.title, s.announcement, password, {
-            type: 'online_class',
-            date_override: s.date_override,
-            subject_override: s.subject_override,
-            is_pinned: _editIsPinned
-          });
-        } else {
-          success = await Announcements.publish(s.name, s.title, s.announcement, password, {
-            type: 'online_class',
-            date_override: s.date_override,
-            subject_override: s.subject_override
-          });
-        }
-
-      } else if (type === 'class_test') {
-        const subject = document.getElementById('paClassTestSubjectSelect')?.value;
-        const date = document.getElementById('paClassTestDate')?.value;
-        const examName = document.getElementById('paClassTestName')?.value || 'Class Test';
-        const topics = document.getElementById('paClassTestTopics')?.value || '';
-
-        if (!subject || !date) {
-          showToast('Please select a Subject and Date.', 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
-          return;
-        }
-
-        if (!isEdit && date < todayStr) {
-          showToast('Cannot schedule exams for past dates.', 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Publish & Notify';
-          return;
-        }
-
-        const validation = validateAnnouncementPayload({
-          name,
-          exam_name: examName,
-          topics,
-          type: 'class_test',
-          date_override: date,
-          subject_override: subject
-        });
-
-        if (!validation.valid) {
-          showToast(validation.error, 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
-          return;
-        }
-
-        const s = validation.sanitized;
-        if (isEdit) {
-          success = await Announcements.update(editId, s.name, s.title, s.announcement, password, {
-            type: 'class_test',
-            date_override: s.date_override,
-            subject_override: s.subject_override,
-            is_pinned: _editIsPinned
-          });
-        } else {
-          success = await Announcements.publish(s.name, s.title, s.announcement, password, {
-            type: 'class_test',
-            date_override: s.date_override,
-            subject_override: s.subject_override
-          });
-        }
-
-      } else if (type === 'rescheduled') {
-        const origDate = document.getElementById('paRescheduleOrigDate')?.value;
-        const newDate = document.getElementById('paRescheduleNewDate')?.value;
-        const selectEl = document.getElementById('paRescheduleSubjectSelect');
-        const subject = selectEl?.value;
-        const selectedOption = selectEl?.options[selectEl.selectedIndex];
-        const origStart = selectedOption?.getAttribute('data-start') || '';
-        const origRoom = selectedOption?.getAttribute('data-room') || '';
-        const newStart = document.getElementById('paRescheduleNewStart')?.value;
-        const newRoom = document.getElementById('paRescheduleNewRoom')?.value || '';
-        const reason = document.getElementById('paRescheduleReason')?.value || '';
-
-        if (!origDate || !newDate || !subject || !newStart) {
-          showToast('Please select Original Date, Class, New Date, and New Start Time.', 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
-          return;
-        }
-
-        if (!isEdit && origDate < todayStr) {
-          showToast('Cannot reschedule classes for past dates.', 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Publish & Notify';
-          return;
-        }
-
-        const formattedStart = format12h(newStart);
-
-        const validation = validateAnnouncementPayload({
-          name,
-          title: `Rescheduled: ${subject}`,
-          type: 'rescheduled',
-          date_override: origDate,
-          subject_override: subject,
-          original_date: origDate,
-          original_start_time: origStart ? format12h(origStart) : '',
-          original_room: origRoom,
-          new_date: newDate,
-          new_start_time: formattedStart,
-          new_room: newRoom,
-          reason
-        });
-
-        if (!validation.valid) {
-          showToast(validation.error, 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
-          return;
-        }
-
-        const s = validation.sanitized;
-        if (isEdit) {
-          success = await Announcements.update(editId, s.name, s.title, s.announcement, password, {
-            type: 'rescheduled',
-            date_override: s.date_override,
-            subject_override: s.subject_override,
-            is_pinned: _editIsPinned
-          });
-        } else {
-          success = await Announcements.publish(s.name, s.title, s.announcement, password, {
-            type: 'rescheduled',
-            date_override: s.date_override,
-            subject_override: s.subject_override
-          });
-        }
-
-      } else if (type === 'assignment') {
-        const date = document.getElementById('paAssignmentDueDate')?.value;
-        const subject = document.getElementById('paAssignmentSubjectSelect')?.value || '';
-        const taskTitle = document.getElementById('paAssignmentTitle')?.value || 'Assignment';
-        const dueTime = document.getElementById('paAssignmentDueTime')?.value || '23:59';
-        const desc = document.getElementById('paAssignmentDescription')?.value || '';
-
-        if (!date || !subject || !taskTitle) {
-          showToast('Please select a Due Date, Subject, and Task Title.', 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
-          return;
-        }
-
-        if (!isEdit && date < todayStr) {
-          showToast('Cannot post assignments with a past due date.', 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Publish & Notify';
-          return;
-        }
-
-        const formattedDueTime = format12h(dueTime);
-
-        const validation = validateAnnouncementPayload({
-          name,
-          type: 'assignment',
-          date_override: date,
-          subject_override: subject,
-          task_title: taskTitle,
-          due_time: formattedDueTime,
-          description: desc
-        });
-
-        if (!validation.valid) {
-          showToast(validation.error, 'warning');
-          submitBtn.disabled = false;
-          submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
-          return;
-        }
-
-        const s = validation.sanitized;
-        if (isEdit) {
-          success = await Announcements.update(editId, s.name, s.title, s.announcement, password, {
-            type: 'assignment',
-            date_override: s.date_override,
-            subject_override: s.subject_override,
-            is_pinned: _editIsPinned
-          });
-        } else {
-          success = await Announcements.publish(s.name, s.title, s.announcement, password, {
-            type: 'assignment',
-            date_override: s.date_override,
-            subject_override: s.subject_override
-          });
-        }
-      }
-
-      submitBtn.disabled = false;
-      submitBtn.textContent = isEdit ? 'Save Changes' : 'Publish & Notify';
-
-      if (success) {
-        if (window.switchAppView) window.switchAppView('announcements');
-      }
-    });
+/** The dates a notice affects, for the "past date" guard. */
+function primaryDate() {
+  switch (st.type) {
+    case 'cancellation': return val('paCancelDate');
+    case 'holiday': return val('paHolidayStart');
+    case 'online_class': return val('paClassDate');
+    case 'class_test': return val('paTestDate');
+    case 'rescheduled': return val('paMoveFromDate');
+    case 'assignment': return val('paTaskDate');
+    default: return '';
   }
 }
 
+/* ── Preview + submit label ────────────────────────────────────────────── */
+function renderPreview() {
+  const box = $('paPreview');
+  if (!box) return;
+  const name = (val('paName') || 'You').trim();
+  const v = buildPayload(name);
+  const t = audienceTargets()[0] || { semester: mySem(), section: mySec() };
+  let row;
+  if (v.valid) {
+    const s = v.sanitized;
+    row = { id: 'preview', name: s.name, title: s.title, announcement: s.announcement, type: st.type, subject: s.subject || '', date_override: s.date_override || '', subject_override: s.subject_override || '', semester: t.semester, section: t.section, created_at: new Date().toISOString() };
+  } else {
+    const meta = TYPES.find(x => x.id === st.type);
+    row = { id: 'preview', name, title: st.type === 'general' ? (val('paTitle') || 'Your title') : (meta ? meta.label : 'Notice'), announcement: val('paContent') || '', type: st.type, date_override: primaryDate(), semester: t.semester, section: t.section, created_at: new Date().toISOString() };
+  }
+  const n = toNotice(row, { semester: mySem().toLowerCase(), section: mySec() });
+  n.pinned = !!($('paPin') && $('paPin').checked);
+  box.innerHTML = cardHtml(n, false, 0).replace('<button', '<div').replace(/<\/button>\s*$/, '</div>');
+  const err = $('paPreviewNote');
+  if (err) { err.textContent = v.valid ? '' : v.error; err.hidden = v.valid; }
+}
+
+function postCount() {
+  const targets = st.editId ? 1 : audienceTargets().length;
+  const days = st.type === 'holiday' && !st.editId ? holidayDates().length || 1 : 1;
+  return { targets, days, total: targets * days };
+}
+
+function updateSubmitLabel() {
+  const label = $('postAnnounceSubmitLabel');
+  if (!label) return;
+  if (st.editId) { label.textContent = 'Save changes'; return; }
+  const { targets, total } = postCount();
+  label.textContent = targets > 1 ? `Publish to ${targets} sections` : (total > 1 ? `Publish (${total} days)` : 'Publish');
+}
+
+/* ── Open ──────────────────────────────────────────────────────────────── */
+function resetFields(today) {
+  ['paTitle', 'paContent', 'paCancelNote', 'paHolidayName', 'paClassLink', 'paClassRoom', 'paClassTeacher', 'paTestName', 'paTestTopics', 'paMoveRoom', 'paMoveReason', 'paTaskTitle', 'paTaskNotes']
+    .forEach(id => { if ($(id)) $(id).value = ''; });
+  ['paCancelDate', 'paHolidayStart', 'paClassDate', 'paTestDate', 'paMoveFromDate', 'paMoveToDate', 'paTaskDate']
+    .forEach(id => { if ($(id)) { $(id).value = today; $(id).min = today; } });
+  if ($('paHolidayEnd')) { $('paHolidayEnd').value = nextDayStr(today); $('paHolidayEnd').min = nextDayStr(today); }
+  ['paHolidayMulti', 'paTestAll', 'paTaskAll', 'paPin'].forEach(id => { if ($(id)) $(id).checked = false; });
+  if ($('paHolidayEndRow')) $('paHolidayEndRow').hidden = true;
+  if ($('paClassStart')) $('paClassStart').value = '09:45';
+  if ($('paClassEnd')) $('paClassEnd').value = '';
+  if ($('paMoveToStart')) $('paMoveToStart').value = '15:00';
+  if ($('paTaskDue')) $('paTaskDue').value = '23:59';
+}
+
+export function openPostForm(existing = null) {
+  const today = localDateStr();
+  resetFields(today);
+  st.routine = null; st.routineKey = '';
+  st.editId = existing ? String(existing.id) : '';
+  st.editRow = existing || null;
+  st.aud = 'mine'; st.secs = new Set(); st.sem = '';
+  if ($('paEditId')) $('paEditId').value = st.editId;
+
+  let author = '';
+  try { author = localStorage.getItem(AUTHOR_KEY) || ''; } catch (e) {}
+  if ($('paName')) $('paName').value = existing ? (existing.name || '') : author;
+  if ($('paPassword')) $('paPassword').value = State.sessionDeletePassword || '';
+
+  if ($('postAnnounceFormTitle')) $('postAnnounceFormTitle').textContent = existing ? 'Edit notice' : 'New notice';
+  if ($('postAnnounceFormSubtitle')) $('postAnnounceFormSubtitle').textContent = existing
+    ? 'Changes apply for everyone it was sent to'
+    : 'Everyone it is for gets a notification';
+
+  setClassMode('online');
+  if (existing) {
+    const p = (() => { try { return JSON.parse(existing.announcement); } catch (e) { return {}; } })() || {};
+    const subj = existing.subject_override || existing.subject || '';
+    const date = existing.date_override || today;
+    ['paCancelDate', 'paHolidayStart', 'paClassDate', 'paTestDate', 'paMoveFromDate', 'paMoveToDate', 'paTaskDate'].forEach(id => { if ($(id)) $(id).min = ''; });
+    if ($('paPin')) $('paPin').checked = existing.is_pinned === true;
+    const type = existing.type || 'general';
+    st.type = type;
+    // Class-tied edits use the routine of the section the notice was sent to
+    if (CLASS_TIED.has(type) && existing.semester && existing.section &&
+        !(String(existing.semester) === mySem() && String(existing.section).toLowerCase() === mySec())) {
+      st.aud = 'sections'; st.sem = String(existing.semester); st.secs = new Set([String(existing.section).toLowerCase()]);
+    }
+    switch (type) {
+      case 'general':
+        $('paTitle').value = existing.title || '';
+        $('paContent').value = existing.announcement || '';
+        $('paSubject').dataset.keep = existing.subject || '';
+        break;
+      case 'cancellation':
+        $('paCancelDate').value = date;
+        $('paCancelSubject').dataset.keep = subj;
+        $('paCancelNote').value = /^(The|Reminding you that the) .* (class|scheduled)/.test(existing.announcement || '') ? '' : (existing.announcement || '');
+        break;
+      case 'holiday':
+        $('paHolidayStart').value = date;
+        $('paHolidayName').value = String(existing.title || '').replace(/^Holiday:\s*/i, '');
+        break;
+      case 'online_class':
+        setClassMode(p.is_online === false ? 'extra' : 'online');
+        $('paClassDate').value = date;
+        $('paClassSubject').dataset.keep = subj;
+        $('paClassStart').value = parseTo24h(p.start_time) || '09:45';
+        $('paClassEnd').value = parseTo24h(p.end_time) || '';
+        $('paClassLink').value = p.platform || '';
+        $('paClassRoom').value = p.room || '';
+        $('paClassTeacher').value = p.teacher || '';
+        break;
+      case 'class_test':
+        $('paTestDate').value = date;
+        $('paTestSubject').dataset.keep = subj;
+        $('paTestAll').checked = true;
+        $('paTestName').value = p.exam_name || '';
+        $('paTestTopics').value = p.topics && p.topics !== 'Not Specified' ? p.topics : '';
+        break;
+      case 'rescheduled':
+        $('paMoveFromDate').value = p.original_date || date;
+        $('paMoveToDate').value = p.new_date || p.original_date || date;
+        $('paMoveToStart').value = parseTo24h(p.new_start_time) || '15:00';
+        $('paMoveRoom').value = p.new_room || '';
+        $('paMoveReason').value = p.reason || '';
+        $('paMoveClass').dataset.keep = subj;
+        break;
+      case 'assignment':
+        $('paTaskDate').value = date;
+        $('paTaskSubject').dataset.keep = subj;
+        $('paTaskAll').checked = true;
+        $('paTaskTitle').value = p.task_title || '';
+        $('paTaskDue').value = parseTo24h(p.due_time) || '23:59';
+        $('paTaskNotes').value = p.description || '';
+        break;
+    }
+  } else {
+    st.type = 'general';
+  }
+  setType(st.type);
+  // Restore course selections once the lists exist
+  const restore = () => document.querySelectorAll('#paFields select[data-keep]').forEach(sel => {
+    const k = sel.dataset.keep;
+    if (k && !Array.from(sel.options).some(o => o.value === k)) sel.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`);
+    if (k) sel.value = k;
+    delete sel.dataset.keep;
+  });
+  loadTargetRoutine().then(() => { restore(); refreshCounters(); renderPreview(); });
+  refreshCounters();
+  const scroller = document.querySelector('#postAnnounceAppView .pa-scroll');
+  if (scroller) scroller.scrollTop = 0;
+}
+
+/* ── Counters ──────────────────────────────────────────────────────────── */
+function refreshCounters() {
+  document.querySelectorAll('#postAnnounceAppView [data-max]').forEach(el => {
+    const c = el.closest('.pa-field') && el.closest('.pa-field').querySelector('.pa-count');
+    if (!c) return;
+    const max = Number(el.dataset.max), len = el.value.trim().length;
+    c.textContent = `${len}/${max}`;
+    c.classList.toggle('is-near', len >= max - 2 && len < max);
+    c.classList.toggle('is-full', len >= max);
+  });
+}
+
+/* ── Submit ────────────────────────────────────────────────────────────── */
+async function submit() {
+  const btn = $('postAnnounceSubmit');
+  const name = val('paName').trim();
+  const password = val('paPassword');
+  if (!name) { showToast('Add your name.', 'warning'); $('paName').focus(); return; }
+  if (!password) { showToast('Enter the posting password.', 'warning'); $('paPassword').focus(); return; }
+
+  const today = localDateStr();
+  const d = primaryDate();
+  if (!st.editId && d && d < today) { showToast('That date has already passed.', 'warning'); return; }
+  if (st.type === 'holiday' && $('paHolidayMulti').checked && !st.editId && val('paHolidayEnd') < val('paHolidayStart')) {
+    showToast('The last day must be after the first.', 'warning'); return;
+  }
+  const targets = st.editId ? [] : audienceTargets();
+  if (!st.editId && !targets.length) { showToast('Pick at least one section.', 'warning'); return; }
+
+  const first = buildPayload(name);
+  if (!first.valid) { showToast(first.error, 'warning'); return; }
+  try { localStorage.setItem(AUTHOR_KEY, name); } catch (e) {}
+
+  const pin = !!($('paPin') && $('paPin').checked);
+  const label = $('postAnnounceSubmitLabel');
+  btn.disabled = true;
+  const restoreBtn = () => { btn.disabled = false; updateSubmitLabel(); };
+
+  if (st.editId) {
+    if (label) label.textContent = 'Saving…';
+    const s = first.sanitized;
+    const ok = await Announcements.update(st.editId, s.name, s.title, s.announcement, password, {
+      type: st.type, subject: s.subject || '', date_override: s.date_override || '', subject_override: s.subject_override || '', is_pinned: pin
+    });
+    restoreBtn();
+    if (ok && window.switchAppView) window.switchAppView('announcements');
+    return;
+  }
+
+  const dates = st.type === 'holiday' ? holidayDates() : [null];
+  const jobs = [];
+  targets.forEach(t => dates.forEach(date => jobs.push({ t, date })));
+  let done = 0;
+  try {
+    for (const job of jobs) {
+      if (label) label.textContent = jobs.length > 1 ? `Publishing ${done + 1} of ${jobs.length}…` : 'Publishing…';
+      const v = job.date ? buildPayload(name, job.date) : first;
+      if (!v.valid) throw new Error(v.error);
+      const s = v.sanitized;
+      await Announcements.publish(s.name, s.title, s.announcement, password, {
+        type: st.type, subject: s.subject || '', date_override: s.date_override || '', subject_override: s.subject_override || '',
+        semester: job.t.semester, section: job.t.section, is_pinned: pin, quiet: true
+      });
+      done++;
+    }
+  } catch (err) {
+    showToast(done ? `Published ${done} of ${jobs.length}. Stopped: ${err.message}` : (err.message || 'Could not publish'), 'error');
+    restoreBtn();
+    if (done) Announcements.fetchAll();
+    return;
+  }
+  showToast(jobs.length > 1 ? `Published ${jobs.length} notices` : 'Notice published', 'success');
+  Notifications.scheduleForToday();
+  await Announcements.fetchAll();
+  restoreBtn();
+  if (window.switchAppView) window.switchAppView('announcements');
+}
+
+/* ── Init ──────────────────────────────────────────────────────────────── */
+let _inited = false;
+export function initPostForm() {
+  window.__openPostAnnounceForm = item => openPostForm(item || null);
+  if (_inited) return;
+  _inited = true;
+
+  const page = $('postAnnounceAppView');
+  if (!page) return;
+  $('postAnnounceBackBtn')?.addEventListener('click', () => window.switchAppView && window.switchAppView('announcements'));
+
+  $('paTypeGrid')?.addEventListener('click', e => {
+    const b = e.target.closest('.pa-type');
+    if (b && !b.disabled && b.dataset.type !== st.type) setType(b.dataset.type);
+  });
+  $('paAudSeg')?.addEventListener('click', e => {
+    const b = e.target.closest('button[data-aud]');
+    if (!b || b.disabled || b.dataset.aud === st.aud) return;
+    st.aud = b.dataset.aud;
+    renderAudience().then(() => { updateSubmitLabel(); renderPreview(); });
+  });
+  $('paAudSem')?.addEventListener('change', e => {
+    st.sem = e.target.value; st.secs = new Set();
+    renderAudience().then(() => { updateSubmitLabel(); renderPreview(); });
+  });
+  $('paAudSecs')?.addEventListener('click', e => {
+    const b = e.target.closest('.pa-sec');
+    if (!b) return;
+    const s = b.dataset.sec;
+    if (CLASS_TIED.has(st.type)) st.secs = new Set([s]);
+    else if (st.secs.has(s)) st.secs.delete(s); else st.secs.add(s);
+    renderAudience().then(() => { updateSubmitLabel(); renderPreview(); });
+  });
+  $('paClassMode')?.addEventListener('click', e => {
+    const b = e.target.closest('button[data-mode]');
+    if (b) setClassMode(b.dataset.mode);
+  });
+  $('paHolidayMulti')?.addEventListener('change', e => {
+    $('paHolidayEndRow').hidden = !e.target.checked;
+    if (e.target.checked && val('paHolidayEnd') <= val('paHolidayStart')) $('paHolidayEnd').value = nextDayStr(val('paHolidayStart'));
+    updateSubmitLabel(); renderPreview();
+  });
+  $('paHolidayStart')?.addEventListener('change', () => {
+    const min = nextDayStr(val('paHolidayStart'));
+    $('paHolidayEnd').min = min;
+    if (val('paHolidayEnd') < min) $('paHolidayEnd').value = min;
+  });
+
+  ['paCancelDate', 'paTestDate', 'paTaskDate', 'paMoveFromDate', 'paTestAll', 'paTaskAll'].forEach(id => $(id)?.addEventListener('change', () => refreshCourseLists()));
+  ['paClassDate', 'paClassSubject'].forEach(id => $(id)?.addEventListener('change', () => { autofillClassTime(); renderPreview(); }));
+  ['paMoveToDate', 'paMoveToStart', 'paMoveClass'].forEach(id => $(id)?.addEventListener('input', checkMoveOverlap));
+
+  let t = null;
+  page.addEventListener('input', e => {
+    if (e.target.matches('[data-max]')) refreshCounters();
+    clearTimeout(t);
+    t = setTimeout(() => { updateSubmitLabel(); renderPreview(); }, 120);
+  });
+  page.addEventListener('change', () => { updateSubmitLabel(); renderPreview(); });
+  page.querySelectorAll('textarea').forEach(ta => ta.addEventListener('blur', () => { ta.value = collapseNewlines(ta.value); refreshCounters(); }));
+
+  $('postAnnounceSubmit')?.addEventListener('click', submit);
+
+  // Limits come from validation.js so the counters never disagree with the validator
+  const L = ANNOUNCEMENT_LIMITS;
+  const limits = { paName: L.AUTHOR_NAME, paTitle: L.TITLE, paHolidayName: L.HOLIDAY_NAME, paClassLink: L.PLATFORM_LINK, paClassRoom: L.ROOM,
+    paTestName: L.EXAM_NAME, paTestTopics: L.TOPICS, paMoveRoom: L.ROOM, paMoveReason: L.REASON, paTaskTitle: L.TASK_TITLE, paTaskNotes: L.ASSIGNMENT_DESC, paCancelNote: L.REASON };
+  Object.entries(limits).forEach(([id, max]) => { const el = $(id); if (el) { el.dataset.max = max; el.maxLength = max; } });
+}

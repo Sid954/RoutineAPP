@@ -280,54 +280,66 @@
           </div>
         </div>
 
-        <!-- 4. Full-Page View: Notices & Announcements -->
-        <div id="announcementsAppView" class="app-page-view" style="display: none;">
+        <!-- 4. Full-Page View: Notices (redesigned Nov 2026 — src/announcements/notices-view.js) -->
+        <div id="announcementsAppView" class="app-page-view nt-page" style="display: none;">
           <div class="page-container">
-            <div class="page-header">
+            <div class="page-header nt-header">
               <div class="page-header-top">
                 <button class="page-back-btn" id="announcePageBackBtn" title="Back to Home">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"></polyline></svg>
                   <span>Home</span>
                 </button>
                 <div class="page-actions">
-                  <button id="adminNoticeModeBtn" class="page-action-btn secondary" title="Unlock Admin Edit Mode">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    <span id="adminNoticeModeLabel">Edit</span>
+                  <button id="adminNoticeModeBtn" class="page-action-btn secondary" aria-pressed="false" title="Pin, edit or delete notices (admin)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span id="adminNoticeModeLabel">Manage</span>
                   </button>
-                  <button id="newAnnounceBtn" class="page-action-btn primary" title="Post new announcement">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    <span>Post Notice</span>
+                  <button id="newAnnounceBtn" class="page-action-btn primary" title="Post a notice">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <span>Post</span>
                   </button>
                 </div>
               </div>
-
               <div class="page-title-group">
-                <h1 class="page-title">Notices & Updates</h1>
-                <span class="page-subtitle" id="announceSubtitle">2nd Semester - Section C</span>
-              </div>
-
-              <!-- Category Filter Pills Bar (6 pills) -->
-              <div id="announceFilterBar" class="announce-filter-bar">
-                <button class="announce-filter-pill active" data-filter="all">All</button>
-                <button class="announce-filter-pill" data-filter="general">General</button>
-                <button class="announce-filter-pill" data-filter="cancellation">Cancelled</button>
-                <button class="announce-filter-pill" data-filter="holiday">Holiday</button>
-                <button class="announce-filter-pill" data-filter="online_class">Online</button>
-                <button class="announce-filter-pill" data-filter="class_test">Exams</button>
+                <h1 class="page-title">Notices</h1>
+                <span class="page-subtitle" id="announceSubtitle"></span>
               </div>
             </div>
 
-            <!-- Scrollable Announcements Feed -->
-            <div class="announce-full-feed" id="announceList">
-              <div class="skeleton-card" style="height: 80px;"></div>
-              <div class="skeleton-card" style="height: 80px;"></div>
+            <div class="nt-scope" id="ntScope" role="tablist" aria-label="Show notices for">
+              <button type="button" role="tab" data-scope="mine" class="active" aria-selected="true">My section</button>
+              <button type="button" role="tab" data-scope="dept" aria-selected="false">Department</button>
             </div>
+
+            <div class="nt-admin-bar" id="ntAdminBar" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>Manage mode. Open a notice to pin, edit or delete it.</span>
+              <button type="button" id="ntAdminExit">Done</button>
+            </div>
+
+            <section class="nt-upcoming" id="ntUpcoming" aria-label="Coming up" hidden></section>
+
+            <label class="nt-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="search" id="ntSearch" placeholder="Search notices" autocomplete="off" enterkeyhint="search" />
+              <button type="button" id="ntSearchClear" class="nt-search-clear" aria-label="Clear search" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </label>
+
+            <div class="nt-filters" id="announceFilterBar" role="tablist" aria-label="Type"></div>
+
+            <div class="nt-unread" id="ntUnreadBar" hidden>
+              <span class="nt-dot" aria-hidden="true"></span>
+              <span id="ntUnreadText">New notices</span>
+              <button type="button" id="ntMarkAll">Mark all read</button>
+            </div>
+
+            <div class="nt-feed" id="announceList"></div>
           </div>
         </div>
 
-        <!-- 5. Full-Page View: Post / Edit Announcement -->
-        <div id="postAnnounceAppView" class="app-page-view" style="display: none;">
-          <div class="page-container">
+        <!-- 5. Full-Page View: Post / Edit Notice (src/announcements/post-form.js) -->
+        <div id="postAnnounceAppView" class="app-page-view pa-page" style="display: none;">
+          <div class="page-container pa-scroll">
             <div class="page-header">
               <div class="page-header-top">
                 <button class="page-back-btn" id="postAnnounceBackBtn" title="Back to Notices">
@@ -335,405 +347,116 @@
                   <span>Notices</span>
                 </button>
               </div>
-
               <div class="page-title-group">
-                <h1 class="page-title" id="postAnnounceFormTitle">Post Announcement</h1>
-                <span class="page-subtitle" id="postAnnounceFormSubtitle">Publish notice & notify your section</span>
+                <h1 class="page-title" id="postAnnounceFormTitle">New notice</h1>
+                <span class="page-subtitle" id="postAnnounceFormSubtitle">Everyone it is for gets a notification</span>
               </div>
             </div>
+            <input type="hidden" id="paEditId" value="" />
+            <input type="hidden" id="paType" value="general" />
 
-            <!-- Form Content -->
-            <div class="post-announce-form-scroll">
-              <input type="hidden" id="paEditId" value="" />
+            <section class="pa-sec">
+              <h2 class="pa-sec-title"><span class="pa-step">1</span>What are you posting?</h2>
+              <div class="pa-types" id="paTypeGrid" role="radiogroup" aria-label="Type"></div>
+            </section>
 
-              <div class="post-form-unified-card" id="paFormCard">
-                <!-- Section 1: Author & Category -->
-                <div class="post-form-section-header">
-                  <div class="post-form-section-num">1</div>
-                  <div class="post-form-section-title">Author & Category</div>
-                </div>
-
-                <div class="post-form-row">
-                  <div class="post-form-group">
-                    <label>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                      <span>Your Name</span>
-                      <span class="char-counter" id="paNameCounter">0/15</span>
-                    </label>
-                    <input type="text" id="paName" placeholder="e.g. Dr. John Doe" maxlength="15" required />
-                  </div>
-                  <div class="post-form-group">
-                    <label>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
-                      <span>Announcement Type</span>
-                    </label>
-                    <div class="pa-type-picker-wrapper">
-                      <select id="paType" class="clean-select" style="display: none;">
-                        <option value="general">General</option>
-                        <option value="cancellation">Class Cancellation</option>
-                        <option value="holiday">Holiday</option>
-                        <option value="online_class">Add a Class</option>
-                        <option value="class_test">Class Test / Exam</option>
-                        <option value="rescheduled">Rescheduled Class</option>
-                        <option value="assignment">Assignment / Deadline</option>
-                      </select>
-
-                      <button type="button" class="pa-type-picker-btn" id="paTypePickerBtn" aria-expanded="false" aria-haspopup="listbox">
-                        <div class="pa-type-picker-current">
-                          <span class="pa-type-indicator-pill" id="paTypeIndicatorPill">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                            <span>General</span>
-                          </span>
-                        </div>
-                        <div class="pa-type-picker-chevron">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
-                        </div>
-                      </button>
-
-                      <!-- Popover Menu with all 7 types -->
-                      <div class="pa-type-dropdown-menu" id="paTypeDropdownMenu" style="display: none;">
-                        <div class="pa-type-option-item active" data-type="general">
-                          <div class="pa-type-option-pill general">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                            <span>General</span>
-                          </div>
-                          <span class="pa-type-option-desc">Broadcast or routine update</span>
-                        </div>
-                        <div class="pa-type-option-item" data-type="cancellation">
-                          <div class="pa-type-option-pill cancellation">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                            <span>Cancelled</span>
-                          </div>
-                          <span class="pa-type-option-desc">Cancel scheduled class</span>
-                        </div>
-                        <div class="pa-type-option-item" data-type="holiday">
-                          <div class="pa-type-option-pill holiday">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                            <span>Holiday</span>
-                          </div>
-                          <span class="pa-type-option-desc">University day off</span>
-                        </div>
-                        <div class="pa-type-option-item" data-type="online_class">
-                          <div class="pa-type-option-pill online_class">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
-                            <span>Add a Class</span>
-                          </div>
-                          <span class="pa-type-option-desc">Schedule extra or online class</span>
-                        </div>
-                        <div class="pa-type-option-item" data-type="class_test">
-                          <div class="pa-type-option-pill class_test">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                            <span>Class Test</span>
-                          </div>
-                          <span class="pa-type-option-desc">Exam, CT or quiz syllabus</span>
-                        </div>
-                        <div class="pa-type-option-item" data-type="rescheduled">
-                          <div class="pa-type-option-pill rescheduled">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            <span>Rescheduled</span>
-                          </div>
-                          <span class="pa-type-option-desc">Move class to new time</span>
-                        </div>
-                        <div class="pa-type-option-item" data-type="assignment">
-                          <div class="pa-type-option-pill assignment">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-                            <span>Assignment</span>
-                          </div>
-                          <span class="pa-type-option-desc">Task or project due date</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="post-form-section-divider"></div>
-
-                <!-- Section 2: Details & Dynamic Overrides -->
-                <div class="post-form-section-header">
-                  <div class="post-form-section-num">2</div>
-                  <div class="post-form-section-title" id="paDetailsSectionHeader">Notice Details & Overrides</div>
-                </div>
-
-                <!-- Sub-Section: General -->
-                <div id="paGeneralSection" class="post-form-subpanel">
-                  <div class="post-form-row">
-                    <div class="post-form-group">
-                      <label>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                        <span>Title</span>
-                        <span class="char-counter" id="paTitleCounter">0/15</span>
-                      </label>
-                      <input type="text" id="paTitle" placeholder="e.g. Special Guest Lecture" maxlength="15" />
-                    </div>
-                    <div class="post-form-group">
-                      <label>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                        <span>Subject (Optional)</span>
-                      </label>
-                      <input type="text" id="paSubject" placeholder="e.g. EDC" />
-                    </div>
-                  </div>
-                  <div class="post-form-group" style="margin-top: 10px;">
-                    <label>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
-                      <span>Announcement Content</span>
-                    </label>
-                    <textarea id="paContent" placeholder="Write notice details and instructions here..."></textarea>
-                  </div>
-                </div>
-
-                <!-- Sub-Section: Cancellation -->
-                <div id="paCancellationSection" class="post-form-subpanel" style="display: none;">
-                  <div class="post-form-banner warning" style="margin-bottom: 12px;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                    <span>Marks this specific class as cancelled on the timeline routine for that day.</span>
-                  </div>
-                  <div class="post-form-row">
-                    <div class="post-form-group">
-                      <label>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                        <span>Cancel Date</span>
-                      </label>
-                      <input type="date" id="paCancelDate" />
-                    </div>
-                    <div class="post-form-group">
-                      <label>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                        <span>Subject to Cancel</span>
-                      </label>
-                      <select id="paCancelSubjectSelect" class="clean-select"></select>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Sub-Section: Holiday -->
-                <div id="paHolidaySection" class="post-form-subpanel" style="display: none;">
-                  <div class="post-form-banner info" style="margin-bottom: 12px;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <span>Declares a university holiday or day off. All physical classes will be marked suspended.</span>
-                  </div>
-                  <div class="post-form-row">
-                    <div class="post-form-group">
-                      <label>Duration</label>
-                      <select id="paHolidayRangeType" class="clean-select">
-                        <option value="single">Single Day</option>
-                        <option value="multiple">Multiple Days</option>
-                      </select>
-                    </div>
-                    <div class="post-form-group">
-                      <label>Start Date</label>
-                      <input type="date" id="paHolidayStartDate" />
-                    </div>
-                  </div>
-                  <div class="post-form-group" id="paHolidayEndDateContainer" style="display: none; margin-top: 10px;">
-                    <label>End Date (Inclusive)</label>
-                    <input type="date" id="paHolidayEndDate" />
-                  </div>
-                  <div class="post-form-group" style="margin-top: 10px;">
-                    <label>
-                      <span>Holiday Name / Reason</span>
-                      <span class="char-counter" id="paHolidayDetailsCounter">0/15</span>
-                    </label>
-                    <input type="text" id="paHolidayDetails" placeholder="e.g. Eid Vacation / University Day" maxlength="15" />
-                  </div>
-                </div>
-
-                <!-- Sub-Section: Add a Class (Online / Offline) -->
-                <div id="paOnlineSection" class="post-form-subpanel" style="display: none;">
-                  <!-- Prominent Mode Toggle: Online vs In-Person -->
-                  <div class="pa-mode-toggle-wrap" style="margin-bottom: 14px;">
-                    <div class="pa-mode-toggle" id="paClassModeToggle">
-                      <button type="button" class="pa-mode-toggle-btn active" data-mode="online" id="paModeOnlineBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
-                        <span>Online</span>
-                      </button>
-                      <button type="button" class="pa-mode-toggle-btn" data-mode="offline" id="paModeOfflineBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                        <span>In-Person (Offline)</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="post-form-row">
-                    <div class="post-form-group">
-                      <label>Class Date</label>
-                      <input type="date" id="paOnlineDate" />
-                    </div>
-                    <div class="post-form-group">
-                      <label>Subject</label>
-                      <select id="paOnlineSubjectSelect" class="clean-select"></select>
-                    </div>
-                  </div>
-                  <div class="post-form-row" style="margin-top: 10px;">
-                    <div class="post-form-group" style="flex: 1;">
-                      <label>Start Time</label>
-                      <input type="time" id="paOnlineStart" value="09:45" />
-                    </div>
-                  </div>
-
-                  <!-- Dynamic Field for Online Mode -->
-                  <div class="post-form-group" id="paOnlinePlatformContainer" style="margin-top: 10px;">
-                    <label>
-                      <span>Platform / Join Link</span>
-                      <span class="char-counter" id="paOnlineLinkCounter">0/100</span>
-                    </label>
-                    <input type="text" id="paOnlineLink" placeholder="e.g. Google Meet URL or Zoom link" maxlength="100" />
-                  </div>
-
-                  <!-- Dynamic Field for Offline Mode -->
-                  <div class="post-form-group" id="paOfflineRoomContainer" style="margin-top: 10px; display: none;">
-                    <label>
-                      <span>Room Number (Optional)</span>
-                      <span class="char-counter" id="paOnlineRoomCounter">0/20</span>
-                    </label>
-                    <input type="text" id="paOnlineRoom" placeholder="e.g. Room 404 (Optional)" maxlength="20" />
-                  </div>
-                </div>
-
-                <!-- Sub-Section: Class Test -->
-                <div id="paClassTestSection" class="post-form-subpanel" style="display: none;">
-                  <div class="post-form-banner warning" style="margin-bottom: 12px;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    <span>Schedules a test or exam. The timeline routine card will display exam styling.</span>
-                  </div>
-                  <div class="post-form-row">
-                    <div class="post-form-group">
-                      <label>Test Date</label>
-                      <input type="date" id="paClassTestDate" />
-                    </div>
-                    <div class="post-form-group">
-                      <label>Subject</label>
-                      <select id="paClassTestSubjectSelect" class="clean-select"><option value="">Select a date first</option></select>
-                      <label class="post-form-checkbox-label">
-                        <input type="checkbox" id="paClassTestShowAllSubjects" /> <span>Subject not in this day's routine</span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="post-form-group" style="margin-top: 10px;">
-                    <label>
-                      <span>Exam / Test Name</span>
-                      <span class="char-counter" id="paClassTestNameCounter">0/15</span>
-                    </label>
-                    <input type="text" id="paClassTestName" placeholder="e.g. CT-1 (Diode Circuits)" maxlength="15" />
-                  </div>
-                  <div class="post-form-group" style="margin-top: 10px;">
-                    <label>
-                      <span>Syllabus / Topics (Optional)</span>
-                      <span class="char-counter" id="paClassTestTopicsCounter">0/50</span>
-                    </label>
-                    <textarea id="paClassTestTopics" placeholder="e.g. Chapter 1-3, Clipper & Clamper, Diode Models..." maxlength="50"></textarea>
-                  </div>
-                </div>
-
-                <!-- Sub-Section: Rescheduled Class -->
-                <div id="paRescheduledSection" class="post-form-subpanel" style="display: none;">
-                  <div class="post-form-banner warning" style="margin-bottom: 12px;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span>Moves a scheduled class to a different date or time slot. Leaves a tappable ghost banner at the original slot.</span>
-                  </div>
-                  <div class="post-form-row">
-                    <div class="post-form-group">
-                      <label>Original Date</label>
-                      <input type="date" id="paRescheduleOrigDate" />
-                    </div>
-                    <div class="post-form-group">
-                      <label>Class to Reschedule</label>
-                      <select id="paRescheduleSubjectSelect" class="clean-select"><option value="">Select an original date first</option></select>
-                    </div>
-                  </div>
-                  <div class="post-form-row" style="margin-top: 10px;">
-                    <div class="post-form-group">
-                      <label>New Date</label>
-                      <input type="date" id="paRescheduleNewDate" />
-                    </div>
-                    <div class="post-form-group">
-                      <label>New Start Time</label>
-                      <input type="time" id="paRescheduleNewStart" value="15:00" />
-                    </div>
-                  </div>
-                  <div id="paRescheduleOverlapWarning" class="post-form-banner warning" style="display: none; margin-top: 10px;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    <span id="paRescheduleOverlapWarningText">Warning: Time slot overlaps with an existing class on the new date.</span>
-                  </div>
-                  <div class="post-form-group" style="margin-top: 10px;">
-                    <label>
-                      <span>New Room Number (Optional)</span>
-                      <span class="char-counter" id="paRescheduleRoomCounter">0/20</span>
-                    </label>
-                    <input type="text" id="paRescheduleNewRoom" placeholder="e.g. Room 502 (Leave blank for same room)" maxlength="20" />
-                  </div>
-                  <div class="post-form-group" style="margin-top: 10px;">
-                    <label>
-                      <span>Reason / Instructions (Optional)</span>
-                      <span class="char-counter" id="paRescheduleReasonCounter">0/50</span>
-                    </label>
-                    <textarea id="paRescheduleReason" placeholder="e.g. Lab equipment maintenance / Moved to afternoon" maxlength="50"></textarea>
-                  </div>
-                </div>
-
-                <!-- Sub-Section: Assignment / Deadline -->
-                <div id="paAssignmentSection" class="post-form-subpanel" style="display: none;">
-                  <div class="post-form-banner info" style="margin-bottom: 12px;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-                    <span>Displays an inline deadline reminder banner on the timeline for that date.</span>
-                  </div>
-                  <div class="post-form-row">
-                    <div class="post-form-group">
-                      <label>Due Date</label>
-                      <input type="date" id="paAssignmentDueDate" />
-                    </div>
-                    <div class="post-form-group">
-                      <label>Course / Subject</label>
-                      <select id="paAssignmentSubjectSelect" class="clean-select"><option value="">Select a date first</option></select>
-                      <label class="post-form-checkbox-label">
-                        <input type="checkbox" id="paAssignmentShowAllSubjects" /> <span>Subject not in this day's routine</span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="post-form-row" style="margin-top: 10px;">
-                    <div class="post-form-group">
-                      <label>
-                        <span>Task Title</span>
-                        <span class="char-counter" id="paAssignmentTitleCounter">0/15</span>
-                      </label>
-                      <input type="text" id="paAssignmentTitle" placeholder="e.g. Lab Report #3" maxlength="15" />
-                    </div>
-                    <div class="post-form-group">
-                      <label>Due Time</label>
-                      <input type="time" id="paAssignmentDueTime" value="23:59" />
-                    </div>
-                  </div>
-                  <div class="post-form-group" style="margin-top: 10px;">
-                    <label>
-                      <span>Notes / Submission Info (Optional)</span>
-                      <span class="char-counter" id="paAssignmentDescCounter">0/50</span>
-                    </label>
-                    <textarea id="paAssignmentDescription" placeholder="e.g. Submit PDF file to Google Classroom before midnight" maxlength="50"></textarea>
-                  </div>
-                </div>
-
-                <div class="post-form-section-divider"></div>
-
-                <!-- Section 3: Integrated Authorization & Action Bar -->
-                <div class="post-form-integrated-footer">
-                  <div class="post-form-auth-row">
-                    <label class="post-form-auth-label">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                      <span>Admin Password</span>
-                    </label>
-                    <input type="password" id="paPassword" class="post-form-auth-input" placeholder="Required to authorize" required />
-                  </div>
-                  <div class="post-form-actions-row">
-                    <button type="button" class="post-form-btn secondary" id="postAnnounceCancel">Cancel</button>
-                    <button type="button" class="post-form-btn primary" id="postAnnounceSubmit">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                      <span id="postAnnounceSubmitLabel">Publish & Notify</span>
-                    </button>
-                  </div>
-                </div>
-
+            <section class="pa-sec" id="paAudBox">
+              <h2 class="pa-sec-title"><span class="pa-step">2</span>Who is it for?</h2>
+              <div class="pa-seg" id="paAudSeg">
+                <button type="button" data-aud="mine" class="active" aria-pressed="true">My section</button>
+                <button type="button" data-aud="sections" aria-pressed="false">Other sections</button>
+                <button type="button" data-aud="semester" aria-pressed="false">Whole semester</button>
+                <button type="button" data-aud="all" aria-pressed="false">Everyone</button>
               </div>
-            </div>
+              <div class="pa-aud-locked" id="paAudLocked" hidden></div>
+              <div class="pa-aud-pick" id="paAudPick" hidden>
+                <span class="pa-select"><select id="paAudSem" class="pa-input" aria-label="Semester"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+                <div class="pa-secs" id="paAudSecs" aria-label="Sections"></div>
+              </div>
+              <p class="pa-note" id="paAudNote"></p>
+            </section>
+
+            <section class="pa-sec" id="paFields">
+              <h2 class="pa-sec-title"><span class="pa-step">3</span>Details</h2>
+
+              <div class="pa-grid" data-for="general">
+                <label class="pa-field pa-span"><span class="pa-label"><span>Title</span><span class="pa-count"></span></span><input type="text" id="paTitle" class="pa-input" placeholder="e.g. Lab report format" autocomplete="off" /></label>
+                <label class="pa-field pa-span"><span class="pa-label"><span>Message</span></span><textarea id="paContent" class="pa-input pa-textarea" rows="4" placeholder="What should everyone know?"></textarea></label>
+                <label class="pa-field pa-span"><span class="pa-label"><span>Course (optional)</span></span><span class="pa-select"><select id="paSubject" class="pa-input"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></label>
+              </div>
+
+              <div class="pa-grid" data-for="cancellation" hidden>
+                <label class="pa-field"><span class="pa-label"><span>Date</span></span><input type="date" id="paCancelDate" class="pa-input" autocomplete="off" /></label>
+                <label class="pa-field"><span class="pa-label"><span>Class</span></span><span class="pa-select"><select id="paCancelSubject" class="pa-input"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></label>
+                <label class="pa-field pa-span"><span class="pa-label"><span>Note (optional)</span><span class="pa-count"></span></span><input type="text" id="paCancelNote" class="pa-input" placeholder="e.g. Teacher is on leave" autocomplete="off" /></label>
+              </div>
+
+              <div class="pa-grid" data-for="holiday" hidden>
+                <label class="pa-field pa-span"><span class="pa-label"><span>Name</span><span class="pa-count"></span></span><input type="text" id="paHolidayName" class="pa-input" placeholder="e.g. Victory Day" autocomplete="off" /></label>
+                <label class="pa-field"><span class="pa-label"><span>Date</span></span><input type="date" id="paHolidayStart" class="pa-input" autocomplete="off" /></label>
+                <label class="pa-field" id="paHolidayEndRow" hidden><span class="pa-label"><span>Last day</span></span><input type="date" id="paHolidayEnd" class="pa-input" autocomplete="off" /></label>
+                <label class="pa-check"><input type="checkbox" id="paHolidayMulti" /><span>More than one day</span></label>
+              </div>
+
+              <div class="pa-grid" data-for="online_class" hidden>
+                <div class="pa-seg pa-span" id="paClassMode">
+                  <button type="button" data-mode="online" class="active" aria-pressed="true">Online</button>
+                  <button type="button" data-mode="extra" aria-pressed="false">Extra class in a room</button>
+                </div>
+                <label class="pa-field"><span class="pa-label"><span>Date</span></span><input type="date" id="paClassDate" class="pa-input" autocomplete="off" /></label>
+                <label class="pa-field"><span class="pa-label"><span>Course</span></span><span class="pa-select"><select id="paClassSubject" class="pa-input"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></label>
+                <label class="pa-field"><span class="pa-label"><span>Starts</span></span><input type="time" id="paClassStart" class="pa-input" autocomplete="off" /></label>
+                <label class="pa-field"><span class="pa-label"><span>Ends (optional)</span></span><input type="time" id="paClassEnd" class="pa-input" autocomplete="off" /></label>
+                <label class="pa-field pa-span" id="paClassLinkRow"><span class="pa-label"><span>Link or platform</span><span class="pa-count"></span></span><input type="url" id="paClassLink" class="pa-input" placeholder="https://meet.google.com/…" autocomplete="off" inputmode="url" /></label>
+                <label class="pa-field pa-span" id="paClassRoomRow" hidden><span class="pa-label"><span>Room</span><span class="pa-count"></span></span><input type="text" id="paClassRoom" class="pa-input" placeholder="e.g. 905" autocomplete="off" /></label>
+                <label class="pa-field pa-span"><span class="pa-label"><span>Teacher (optional)</span></span><input type="text" id="paClassTeacher" class="pa-input" placeholder="e.g. MHE" autocomplete="off" /></label>
+              </div>
+
+              <div class="pa-grid" data-for="class_test" hidden>
+                <label class="pa-field"><span class="pa-label"><span>Date</span></span><input type="date" id="paTestDate" class="pa-input" autocomplete="off" /></label>
+                <label class="pa-field"><span class="pa-label"><span>Course</span></span><span class="pa-select"><select id="paTestSubject" class="pa-input"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></label>
+                <label class="pa-check"><input type="checkbox" id="paTestAll" /><span>Show every course, not just that day</span></label>
+                <label class="pa-field pa-span"><span class="pa-label"><span>Test name</span><span class="pa-count"></span></span><input type="text" id="paTestName" class="pa-input" placeholder="e.g. CT-2" autocomplete="off" /></label>
+                <label class="pa-field pa-span"><span class="pa-label"><span>Syllabus (optional)</span><span class="pa-count"></span></span><textarea id="paTestTopics" class="pa-input pa-textarea" rows="2" placeholder="Chapters or topics"></textarea></label>
+              </div>
+
+              <div class="pa-grid" data-for="rescheduled" hidden>
+                <label class="pa-field"><span class="pa-label"><span>Original date</span></span><input type="date" id="paMoveFromDate" class="pa-input" autocomplete="off" /></label>
+                <label class="pa-field"><span class="pa-label"><span>Class</span></span><span class="pa-select"><select id="paMoveClass" class="pa-input"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></label>
+                <label class="pa-field"><span class="pa-label"><span>New date</span></span><input type="date" id="paMoveToDate" class="pa-input" autocomplete="off" /></label>
+                <label class="pa-field"><span class="pa-label"><span>New time</span></span><input type="time" id="paMoveToStart" class="pa-input" autocomplete="off" /></label>
+                <label class="pa-field pa-span"><span class="pa-label"><span>New room (optional)</span><span class="pa-count"></span></span><input type="text" id="paMoveRoom" class="pa-input" placeholder="e.g. 704" autocomplete="off" /></label>
+                <label class="pa-field pa-span"><span class="pa-label"><span>Reason (optional)</span><span class="pa-count"></span></span><input type="text" id="paMoveReason" class="pa-input" placeholder="e.g. Teacher at a seminar" autocomplete="off" /></label>
+                <p class="pa-warn pa-span" id="paMoveWarn" hidden></p>
+              </div>
+
+              <div class="pa-grid" data-for="assignment" hidden>
+                <label class="pa-field"><span class="pa-label"><span>Due date</span></span><input type="date" id="paTaskDate" class="pa-input" autocomplete="off" /></label>
+                <label class="pa-field"><span class="pa-label"><span>Due time</span></span><input type="time" id="paTaskDue" class="pa-input" autocomplete="off" /></label>
+                <label class="pa-field pa-span"><span class="pa-label"><span>Course</span></span><span class="pa-select"><select id="paTaskSubject" class="pa-input"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></label>
+                <label class="pa-check"><input type="checkbox" id="paTaskAll" /><span>Show every course, not just that day</span></label>
+                <label class="pa-field pa-span"><span class="pa-label"><span>Task</span><span class="pa-count"></span></span><input type="text" id="paTaskTitle" class="pa-input" placeholder="e.g. Report 3" autocomplete="off" /></label>
+                <label class="pa-field pa-span"><span class="pa-label"><span>Notes (optional)</span><span class="pa-count"></span></span><textarea id="paTaskNotes" class="pa-input pa-textarea" rows="2" placeholder="How to submit, format…"></textarea></label>
+              </div>
+            </section>
+
+            <section class="pa-sec">
+              <h2 class="pa-sec-title"><span class="pa-step">4</span>Preview</h2>
+              <div class="pa-preview" id="paPreview" aria-live="polite"></div>
+              <p class="pa-note pa-preview-note" id="paPreviewNote" hidden></p>
+            </section>
+
+            <section class="pa-sec pa-publish">
+              <div class="pa-grid">
+                <label class="pa-field"><span class="pa-label"><span>Your name</span><span class="pa-count"></span></span><input type="text" id="paName" class="pa-input" placeholder="Shown on the notice" autocomplete="off" /></label>
+                <label class="pa-field"><span class="pa-label"><span>Posting password</span></span><input type="password" id="paPassword" class="pa-input" autocomplete="current-password" /></label>
+              </div>
+                <label class="pa-check"><input type="checkbox" id="paPin" /><span>Pin to the top for everyone</span></label>
+              <button type="button" class="pa-submit" id="postAnnounceSubmit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                <span id="postAnnounceSubmitLabel">Publish</span>
+              </button>
+            </section>
           </div>
         </div>
 
@@ -1401,6 +1124,15 @@
       </div>
 
       <div id="teacherApprovalListBox" class="fd-review-list" style="display: none;"></div>
+    </div>
+  </div>
+
+  <!-- Notice detail sheet (src/announcements/notices-view.js) -->
+  <div class="class-sheet-modal-overlay nt-sheet-overlay" id="ntSheet">
+    <div class="nt-sheet" role="dialog" aria-modal="true" aria-labelledby="ntSheetTitle">
+      <div class="nt-grip" aria-hidden="true"></div>
+      <button type="button" class="nt-sheet-close" id="ntSheetClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <div class="nt-sheet-body" id="ntSheetBody"></div>
     </div>
   </div>
 
