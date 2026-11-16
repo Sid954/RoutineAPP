@@ -15,7 +15,7 @@ html[data-theme="dark"],
 
   --text-main: #F8FAFC;
   --text-muted: #94A3B8;
-  --text-sub: #71717A;
+  --text-sub: #9A9AA6;  /* was #71717A (3.2:1 on cards) */
 
   --accent: #38BDF8;
   --accent-hover: #7DD3FC;
@@ -71,58 +71,61 @@ body {
   color: var(--text-main) !important;
 }
 
-/* 2. Light Mode: Alabaster Ivory & Cobalt Ultramarine */
+/* 2. Light Mode: Printed Timetable — cool paper, white surfaces, ink navy, cobalt
+      (Nov 2026 redesign; replaced the warm ivory, whose cards barely separated from the page).
+      Separation comes from tone + hairlines, not drop shadows. */
 html[data-theme="light"],
 :root[data-color="light"] {
-  --bg: #F7F4EB;
-  --canvas: #F7F4EB;
-  --card-bg: #faf7f0;
-  --card-border: rgba(45, 35, 25, 0.09);
-  --card-border-subtle: rgba(45, 35, 25, 0.04);
+  --bg: #EEF1F6;
+  --canvas: #EEF1F6;
+  --card-bg: #FFFFFF;
+  --surface-inset: #F5F7FA;
+  --card-border: #DCE2EB;
+  --card-border-subtle: #E9EDF3;
 
-  --text-main: #1C1917;
-  --text-muted: #78716C;
-  --text-sub: #57534E;
+  --text-main: #0E1726;
+  --text-muted: #556173;  /* >= 4.5:1 on white, canvas and tinted pills */
+  --text-sub: #3B4659;
 
   --accent: #2563EB;
   --accent-hover: #1D4ED8;
-  --accent-soft: rgba(37, 99, 235, 0.08);
-  --accent-subtle: rgba(37, 99, 235, 0.08);
-  --accent-border: rgba(37, 99, 235, 0.20);
-  --success: #10B981;
-  --warning: #F59E0B;
-  --danger: #EF4444;
+  --accent-soft: rgba(37, 99, 235, 0.09);
+  --accent-subtle: rgba(37, 99, 235, 0.09);
+  --accent-border: rgba(37, 99, 235, 0.28);
+  --success: #059669;
+  --warning: #D97706;
+  --danger: #DC2626;
 
-  --chip-bg: #EFEBE0;
+  --chip-bg: #F5F7FA;
 
-  --btn-bg: #EFF6FF;
-  --btn-border: #DBEAFE;
-  --btn-color: #2563EB;
+  --btn-bg: #EFF4FF;
+  --btn-border: #D6E2FF;
+  --btn-color: #1D4ED8;
 
   --live-card-bg: #FFFFFF;
   --live-card-border: #2563EB;
-  --live-card-shadow: 0 2px 6px rgba(37, 99, 235, 0.08), 0 8px 24px rgba(45, 35, 25, 0.09);
-  --live-ring-track: #E7E2D6;
+  --live-card-shadow: none;
+  --live-ring-track: #E3E8F0;
   --live-ring-fill: #2563EB;
 
-  --resting-card-bg: #FFF;
-  --resting-card-border: rgba(45, 35, 25, 0.08);
-  --resting-card-shadow: 0 1px 3px rgba(45, 35, 25, 0.06), 0 4px 12px rgba(45, 35, 25, 0.05);
+  --resting-card-bg: #FFFFFF;
+  --resting-card-border: #DCE2EB;
+  --resting-card-shadow: none;
 
-  --tag-theory-bg: #EFF6FF;
+  --tag-theory-bg: #EFF4FF;
   --tag-theory-text: #1D4ED8;
-  --tag-theory-border: #DBEAFE;
-  --tag-lab-bg: #FAF5FF;
-  --tag-lab-text: #7E22CE;
-  --tag-lab-border: #F3E8FF;
+  --tag-theory-border: #D6E2FF;
+  --tag-lab-bg: #F6F0FF;
+  --tag-lab-text: #6D28D9;
+  --tag-lab-border: #E6D9FF;
 
-  --sh-card: 0 1px 3px rgba(45, 35, 25, 0.06), 0 4px 12px rgba(45, 35, 25, 0.05);
-  --sh-dock: 0 -2px 8px rgba(45, 35, 25, 0.04), 0 -8px 24px rgba(45, 35, 25, 0.09);
-  --sh-modal: 0 4px 16px rgba(45, 35, 25, 0.08), 0 16px 48px rgba(45, 35, 25, 0.16);
+  --sh-card: none;
+  --sh-dock: 0 -1px 0 #DCE2EB, 0 -6px 20px rgba(14, 23, 38, 0.06);
+  --sh-modal: 0 -1px 0 #DCE2EB, 0 -12px 32px rgba(14, 23, 38, 0.10);
 
   /* Legacy mappings */
   --card: var(--card-bg);
-  --card2: var(--canvas);
+  --card2: var(--surface-inset);
   --text: var(--text-main);
   --dim: var(--text-muted);
   --border: var(--card-border);

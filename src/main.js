@@ -32,8 +32,41 @@ setParticlesRef(Particles);
 document.getElementById('vrB').addEventListener('click', () => openModal(DOM.viewModal, renderWeeklyMatrix));
 document.getElementById('vcC').addEventListener('click', () => closeModal(DOM.viewModal));
 
+/* ── Pages that sit under the dock ───────────────────────────
+   These .mo pages leave the dock tappable, so any navigation must close them first or the new
+   view opens underneath. (Sheets and dialogs above z-index 1000 cover the dock and are closed by
+   their own controls.) Returns true if anything was open. */
+const DOCK_REACHABLE_PAGES = ['viewModal', 'editModal', 'notifModal', 'androidAppModal'];
+export function closeDockReachablePages({ except } = {}) {
+  let closedAny = false;
+  for (const id of DOCK_REACHABLE_PAGES) {
+    if (id === except) continue;
+    const el = document.getElementById(id);
+    if (!el) continue;
+    if (id === 'androidAppModal') {
+      // Shown via inline display (not .open); its own close handler records the dismissal
+      if (el.style.display !== 'flex') continue;
+      closedAny = true;
+      const btn = document.getElementById('androidAppModalClose');
+      if (btn) btn.click(); else el.style.display = 'none';
+      continue;
+    }
+    if (!el.classList.contains('open')) continue;
+    closedAny = true;
+    closeModal(el);
+  }
+  return closedAny;
+}
+
+const DOCK_BTN_FOR_VIEW = {
+  home: 'dockHomeBtn', apps: 'dockAppsBtn', faculty: 'dockAppsBtn', free_rooms: 'dockAppsBtn',
+  announcements: 'dockNoticesBtn', post_announcement: 'dockNoticesBtn'
+};
+
 /* ── Main View Switching & Dock State Manager ───────────────── */
 export function switchAppView(viewId, payload) {
+  closeDockReachablePages();
+
   const dashboardView = document.getElementById('dashboardView');
   const appsHubView = document.getElementById('appsHubView');
   const facultyAppView = document.getElementById('facultyAppView');
@@ -45,6 +78,7 @@ export function switchAppView(viewId, payload) {
   const dockAppsBtn = document.getElementById('dockAppsBtn');
   const dockNoticesBtn = document.getElementById('dockNoticesBtn');
 
+  const previousViewId = window.__currentAppViewId;
   window.__currentAppViewId = viewId;
 
   // Hide all view panels
@@ -106,9 +140,49 @@ export function switchAppView(viewId, payload) {
       window.__renderFreeRooms();
     }
   }
+
+  animateViewEnter(viewId, previousViewId);
+}
+
+/* Page transition: deeper pages slide in from the right, going back slides from the left,
+   same-level switches (dock tabs) rise in. Timing lives in src/core/motion.css. */
+const VIEW_ELEMENT_IDS = {
+  home: 'dashboardView', apps: 'appsHubView', faculty: 'facultyAppView',
+  announcements: 'announcementsAppView', post_announcement: 'postAnnounceAppView', free_rooms: 'freeRoomsAppView'
+};
+const VIEW_DEPTH = { home: 0, apps: 1, announcements: 1, faculty: 2, free_rooms: 2, post_announcement: 2 };
+function animateViewEnter(viewId, previousViewId) {
+  if (!previousViewId || previousViewId === viewId) return;
+  const el = document.getElementById(VIEW_ELEMENT_IDS[viewId]);
+  if (!el) return;
+  const from = VIEW_DEPTH[previousViewId] ?? 0;
+  const to = VIEW_DEPTH[viewId] ?? 0;
+  el.dataset.dir = to > from ? 'forward' : (to < from ? 'back' : 'same');
+  el.classList.remove('view-enter');
+  void el.offsetWidth; // restart the animation
+  el.classList.add('view-enter');
+  el.addEventListener('animationend', () => el.classList.remove('view-enter'), { once: true });
 }
 window.__currentAppViewId = 'home';
 window.switchAppView = switchAppView;
+
+/* Dock reflects the Weekly Routine page while it is open (it's a .mo-page, not an app view).
+   On close it highlights the tab for the current view, which may have changed if the page was
+   closed by navigating (observer callbacks run after switchAppView has already updated it). */
+(function syncDockWithRoutinePage() {
+  const routinePage = DOM.viewModal;
+  if (!routinePage) return;
+  const ids = ['dockHomeBtn', 'dockRoutineBtn', 'dockNoticesBtn', 'dockAppsBtn'];
+  let wasOpen = false;
+  new MutationObserver(() => {
+    const isOpen = routinePage.classList.contains('open');
+    if (isOpen === wasOpen) return;
+    wasOpen = isOpen;
+    const btns = ids.map(id => document.getElementById(id)).filter(Boolean);
+    const activeId = isOpen ? 'dockRoutineBtn' : DOCK_BTN_FOR_VIEW[window.__currentAppViewId || 'home'];
+    btns.forEach(b => b.classList.toggle('active', b.id === activeId));
+  }).observe(routinePage, { attributes: true, attributeFilter: ['class'] });
+})();
 
 // Set default active tab
 const dockHomeBtn = document.getElementById('dockHomeBtn');
@@ -119,7 +193,10 @@ if (dockHomeBtn) {
 
 const dockRoutineBtn = document.getElementById('dockRoutineBtn');
 if (dockRoutineBtn) {
-  dockRoutineBtn.addEventListener('click', () => openModal(DOM.viewModal, renderWeeklyMatrix));
+  dockRoutineBtn.addEventListener('click', () => {
+    closeDockReachablePages({ except: 'viewModal' });
+    openModal(DOM.viewModal, renderWeeklyMatrix);
+  });
 }
 
 const dockCenterFab = document.getElementById('dockCenterFab');
@@ -128,11 +205,10 @@ if (dockCenterFab) {
     e.preventDefault();
     e.stopPropagation();
 
-    const isModalOpen = DOM.viewModal && DOM.viewModal.classList.contains('open');
     const currentView = window.__currentAppViewId || 'home';
 
-    if (isModalOpen) {
-      closeModal(DOM.viewModal);
+    // A page was open over the current view: close it and land on Home, don't open the calendar
+    if (closeDockReachablePages()) {
       switchAppView('home');
       return;
     }
@@ -209,22 +285,20 @@ if (notifModalClose) {
 
 /* ── Dynamic feature imports (parallel for faster boot) ───────── */
 await Promise.all([
-  FEATURES.editSchedule ? import('./edit-schedule/editor.js').then(({ populateDaySelect, renderEditColumns, initEditorEvents, updateEditModalCacheInfo }) => {
+  FEATURES.editSchedule ? Promise.all([
+    import('./edit-schedule/editor.js'),
+    import('./settings/settings-page.js')
+  ]).then(([{ populateDaySelect, renderEditColumns, initEditorEvents, updateEditModalCacheInfo, resetEditorUI }, { initSettingsPage, onSettingsOpen }]) => {
     initEditorEvents();
+    initSettingsPage();
     document.getElementById('editBtn').addEventListener('click', () => {
       openModal(DOM.editModal, () => {
         State.selectedDay = CONFIG.activeDays.includes(new Date().getDay()) ? new Date().getDay() : CONFIG.activeDays[0];
         populateDaySelect();
         renderEditColumns();
         updateEditModalCacheInfo();
-        const addForm = document.getElementById('addClassForm');
-        const addBtn = document.getElementById('toggleAddClassBtn');
-        if (addForm && addBtn) {
-          addForm.style.display = 'none';
-          addBtn.textContent = '+ Add Class';
-          addBtn.style.borderColor = '';
-          addBtn.style.color = '';
-        }
+        resetEditorUI();
+        onSettingsOpen();
       });
     });
     document.getElementById('ecC').addEventListener('click', () => closeModal(DOM.editModal));
@@ -287,6 +361,9 @@ import { initCalendarPicker } from './timeline/calendar-picker.js';
 
 /* ── Boot ─────────────────────────────────────────────────────── */
 initPullToRefresh();
+// App-launch entrance: the one orchestrated, non-triggered animation (see motion.css §5).
+document.body.classList.add('boot-enter');
+setTimeout(() => document.body.classList.remove('boot-enter'), 1100);
 initializeApp();
 // Silently (re-)register for announcement pushes when permission was already granted.
 // Runs every launch, so the server's semester/section targeting stays current after a section change.

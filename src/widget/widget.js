@@ -466,26 +466,24 @@ export function initWidgetPinningUI() {
                 showToast('Widget prompt opened! Tap "Add automatically".', 'success');
                 if (feedbackBox) {
                   feedbackBox.style.display = 'block';
-                  feedbackBox.style.background = 'rgba(16, 185, 129, 0.12)';
-                  feedbackBox.style.border = '1px solid rgba(16, 185, 129, 0.35)';
-                  feedbackBox.style.color = '#34d399';
+                  feedbackBox.className = 'st-note is-ok';
                   feedbackBox.innerHTML = `
-                    <div style="font-weight: 800; font-size: 13px; margin-bottom: 4px;">Widget Pin Prompt Displayed!</div>
-                    <div>Tap <strong>"Add automatically"</strong> in the Android system popup to place the widget on your Home Screen.</div>
+                    <strong>Almost there</strong>
+                    <span>Tap <b>Add automatically</b> in the Android popup to place the widget on your Home Screen.</span>
                   `;
                 }
               } else {
                 showToast('Dynamic pinning blocked by launcher. See manual steps below.', 'info');
                 if (feedbackBox) {
                   feedbackBox.style.display = 'block';
-                  feedbackBox.style.background = 'rgba(251, 191, 36, 0.12)';
-                  feedbackBox.style.border = '1px solid rgba(251, 191, 36, 0.35)';
-                  feedbackBox.style.color = '#fbbf24';
+                  feedbackBox.className = 'st-note is-warn';
                   feedbackBox.innerHTML = `
-                    <div style="font-weight: 800; font-size: 13px; margin-bottom: 6px;">How to Add Widget Manually:</div>
-                    <div style="margin-bottom: 4px;">1. Go to your Android Home Screen</div>
-                    <div style="margin-bottom: 4px;">2. Touch & hold empty space → Tap <strong>Widgets</strong></div>
-                    <div>3. Scroll to <strong>My Routine</strong> and drag your favorite widget onto your screen!</div>
+                    <strong>Add it by hand</strong>
+                    <ol>
+                      <li>Go to your Android Home Screen</li>
+                      <li>Touch and hold an empty space, then tap <b>Widgets</b></li>
+                      <li>Find <b>My Routine</b> and drag a widget onto your screen</li>
+                    </ol>
                   `;
                 }
               }

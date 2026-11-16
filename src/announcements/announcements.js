@@ -8,6 +8,32 @@ import { Notifications } from "../notifications/notifications.js";
 import { formatAnnouncementTitle } from "./validation.js";
 import { isPastAnnouncement } from "./overrides.js";
 
+/**
+ * Human date for the card chip: "Today" / "Tomorrow" / "Yesterday", else "Wed, 18 Nov".
+ * isSoon highlights today/tomorrow.
+ */
+function formatChipDate(dateStr) {
+  const m = String(dateStr || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return { label: String(dateStr || ''), isSoon: false };
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diff = Math.round((d - today) / 86400000);
+  if (diff === 0) return { label: 'Today', isSoon: true };
+  if (diff === 1) return { label: 'Tomorrow', isSoon: true };
+  if (diff === -1) return { label: 'Yesterday', isSoon: false };
+  return { label: d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }), isSoon: false };
+}
+
+/** Re-plays the list reveal (motion.css §9) after a filter/toggle re-render. */
+function replayListSwap(el) {
+  if (!el) return;
+  el.classList.remove("list-swap");
+  void el.offsetWidth;
+  el.classList.add("list-swap");
+  setTimeout(() => el.classList.remove("list-swap"), 600);
+}
+
 export const Announcements = {
   list: [],
   activeFilter: "all",
@@ -333,11 +359,11 @@ export const Announcements = {
       : "";
     const bindPastToggle = () => {
       const btn = document.getElementById("announcePastToggle");
-      if (btn) btn.addEventListener("click", () => { this.showPast = !this.showPast; this.renderFeed(); });
+      if (btn) btn.addEventListener("click", () => { this.showPast = !this.showPast; this.renderFeed(); replayListSwap(feed); });
     };
 
     if (filteredList.length === 0) {
-      feed.innerHTML = `<div class="announce-empty">${pastCount > 0 ? "No current announcements." : "No announcements under this category."}</div>${pastToggleHtml}`;
+      feed.innerHTML = `<div class="announce-empty">${pastCount > 0 ? "You're all caught up. New notices for your section will appear here." : "Nothing in this category yet."}</div>${pastToggleHtml}`;
       bindPastToggle();
       return;
     }
@@ -670,20 +696,22 @@ export const Announcements = {
         <div class="announce-card ${isUnread ? "unread" : ""} ${isPinned ? "pinned" : ""}" data-id="${item.id}">
           <div class="announce-card-h">
             <div style="flex: 1; min-width: 0;">
+              <!-- Pinned / new are already conveyed by the section headers; unread shows as a dot -->
               <div class="announce-badges-row">
-                ${isPinned ? `<span class="announce-pin-badge"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="10" height="10"><path d="M18 17H6l2-6V4H7V2h10v2h-1v7l2 6z"/><line x1="12" y1="17" x2="12" y2="22" stroke="currentColor" stroke-width="2"/></svg>PINNED</span>` : ""}
-                ${isUnread ? `<span class="announce-semantic-pill general">NEW</span>` : ""}
                 <span class="announce-semantic-pill ${badgeCss}">
                   ${badgeIcon}
                   <span>${badgeLabel}</span>
                 </span>
-                ${item.date_override ? `
-                  <span class="announce-date-pill">
+                ${item.date_override ? (() => {
+                  const chip = formatChipDate(item.date_override);
+                  return `
+                  <span class="announce-date-pill ${chip.isSoon ? "is-soon" : ""}" title="${escapeHtml(item.date_override)}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <span>${escapeHtml(item.date_override)}</span>
-                  </span>` : ""}
+                    <span>${escapeHtml(chip.label)}</span>
+                  </span>`;
+                })() : ""}
               </div>
-              <div class="announce-card-title">${escapeHtml(formatAnnouncementTitle(item))}</div>
+              <div class="announce-card-title">${isUnread ? `<span class="announce-unread-dot" aria-label="Unread"></span>` : ""}<span>${escapeHtml(formatAnnouncementTitle(item))}</span></div>
             </div>
             ${adminActionsHtml}
           </div>
@@ -1208,6 +1236,7 @@ export function initAnnouncementEvents() {
       btn.classList.add("active");
       Announcements.activeFilter = btn.dataset.filter || "all";
       Announcements.renderFeed();
+      replayListSwap(document.getElementById("announceList"));
     });
   }
 

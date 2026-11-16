@@ -2,7 +2,7 @@ import { Storage } from '../storage/storage.js';
 
 export const THEME_COLORS = {
   dark:  { name: 'Dark Mode',  desc: 'Refined Charcoal & Luminescent Sky', bg: '#18191E', card: '#23252C', accent: '#38BDF8', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>' },
-  light: { name: 'Light Mode', desc: 'Warm Cream Linen & Cobalt Ultramarine', bg: '#F7F4EB', card: '#FFFFFF', accent: '#2563EB', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>' },
+  light: { name: 'Light Mode', desc: 'Cool Paper & Cobalt Ink', bg: '#EEF1F6', card: '#FFFFFF', accent: '#2563EB', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>' },
 };
 
 export const THEME_STYLES = {
@@ -15,6 +15,13 @@ export function applyTheme(style, color) {
   const activeStyle = 'solid';
 
   const root = document.documentElement;
+  // Cross-fade colours when the user switches theme (not on the very first apply at boot)
+  const previousColor = root.getAttribute('data-color');
+  if (previousColor && previousColor !== activeColor) {
+    root.classList.add('theme-transition');
+    clearTimeout(applyTheme._fadeTimer);
+    applyTheme._fadeTimer = setTimeout(() => root.classList.remove('theme-transition'), 450);
+  }
   root.setAttribute('data-style', activeStyle);
   root.setAttribute('data-color', activeColor);
   root.setAttribute('data-theme', activeColor);
@@ -64,21 +71,29 @@ export function renderThemePaletteGrid() {
   const container = document.getElementById('themePaletteGrid');
   if (!container) return;
 
-  const currentColor = Storage.getThemeColor();
+  const currentColor = Storage.getThemeColor() === 'light' ? 'light' : 'dark';
+  const labels = { dark: 'Dark', light: 'Light' };
+  // Settings → Appearance: a tiny phone preview drawn in each theme's own colours
   container.innerHTML = Object.entries(THEME_COLORS).map(([k, v]) => {
     const isActive = k === currentColor;
+    const line = k === 'light' ? '#D5DCE6' : 'rgba(255,255,255,0.14)';
     return `
-      <div class="theme-palette-card ${isActive ? 'active' : ''}" data-color-id="${k}" title="${v.name} — ${v.desc}">
-        ${isActive ? '<span class="theme-check-icon">✓</span>' : ''}
-        <div class="theme-palette-preview">
-          <div class="theme-preview-body" style="background: ${v.card};"></div>
-          <div class="theme-preview-accent" style="background: ${v.accent};"></div>
-        </div>
-        <div>
-          <div class="theme-palette-title">${v.icon} ${v.name}</div>
-          <div class="theme-palette-desc">${v.desc}</div>
-        </div>
-      </div>
+      <button type="button" role="radio" aria-checked="${isActive}" class="theme-palette-card st-theme ${isActive ? 'active' : ''}" data-color-id="${k}" title="${v.name}: ${v.desc}">
+        <span class="st-theme-preview" style="background: ${v.bg};">
+          <span class="st-theme-card" style="background: ${v.card};">
+            <span class="st-theme-dot" style="background: ${v.accent};"></span>
+            <span class="st-theme-line" style="background: ${line};"></span>
+            <span class="st-theme-line short" style="background: ${line};"></span>
+          </span>
+          <span class="st-theme-card" style="background: ${v.card};">
+            <span class="st-theme-line" style="background: ${line};"></span>
+          </span>
+        </span>
+        <span class="st-theme-label">
+          <span class="st-theme-radio" aria-hidden="true"></span>
+          ${v.icon}<span>${labels[k] || v.name}</span>
+        </span>
+      </button>
     `;
   }).join('');
 }

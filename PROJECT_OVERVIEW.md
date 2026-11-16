@@ -155,11 +155,19 @@ Other hard boundaries:
 
 Do not deviate without explicit user approval.
 
-- **Light theme:** `#F7F4EB` / `#FAF7F0` (intentionally warmed ivory) + Cobalt Ultramarine `#2563EB`
+- **Light theme ("Printed Timetable", redesigned Nov 2026 at the user's request; replaced warm ivory whose cards barely separated from the page):** page `#EEF1F6` (cool paper), surfaces `#FFFFFF`, inset fields and chips `#F5F7FA` (`--surface-inset`), hairline borders `#DCE2EB`, text `#0E1726` / `#3B4659` / muted `#556173`, accent Cobalt `#2563EB` (hover `#1D4ED8`). Separation comes from tone and hairlines, with no card drop shadows. Text on any light tint uses the 700 shade of its hue. All main screens pass WCAG AA (automated check, 548 text elements).
 - **Dark theme:** `#18191E` / `#23252C` + Luminescent Sky `#38BDF8`
 - **Fonts:** Plus Jakarta Sans (UI), JetBrains Mono (times/metrics)
 - **Icon badges:** squircle — 42×42px, `border-radius: 13px` (NOT `clip-path`)
 - **No glassmorphism / glow / backdrop-filter anywhere** — recurring regression
+- **Layout:** one 16px gutter (`--gutter`) set on `.app-page-view`. Never patch a missing gutter per component with `padding-right`. Anything that scrolls under the floating dock needs `--dock-clearance` at the bottom.
+- **Primary buttons:** solid accent (`--btn-grad` = `--accent`, text `--btn-text`), no gradient washes, no coloured shadows.
+- **Motion** lives in `src/core/motion.css` (imported last). Use its tokens: `--dur-1/2/3/4` (120/200/320/520ms) and `--ease-out` (enter), `--ease-in` (exit), `--ease-in-out` (state change), `--ease-pop` (small icon/badge overshoot). Rules:
+  - Animate in response to an action: page change (`switchAppView` → `.view-enter` + `data-dir`), day change (`#chG.day-swap`), sheet open/close (`closeModal` adds `.closing`), press feedback, expand, theme switch (`html.theme-transition`).
+  - The only animation that isn't triggered by an action is the dashboard entrance on app launch (`body.boot-enter`).
+  - Don't animate things that re-render every minute (e.g. the live progress bar).
+  - `prefers-reduced-motion` collapses everything to near-instant changes. Keep it working.
+- **Light theme colours:** every pastel used on dark surfaces needs a light-mode pair (see the tag and Weekly Routine ink rules in `motion.css`). Never hard-code white text on palette backgrounds.
 - **No emoji as UI icons — SVG only** — recurring regression
 - **Two themes only** (light/dark) — all other palettes deleted, do not reintroduce
 
@@ -183,7 +191,7 @@ Announcement type color identity:
 - Core redesign: dashboard, class detail sheet, faculty profile, apps hub nav — all full-page conversions
 - Announcements system: 8-type system, all known bugs fixed
 - Faculty data in Supabase: 42 CSE + 51 stub rows, RLS configured, approval-queue workflow active
-- Free Rooms Stages 1 & 2: full rebuild, announcement override sync working, on-device tested
+- Free Rooms Stages 1 & 2: full rebuild, announcement override sync working, on-device tested (superseded by the Nov 17 Rooms redesign below)
 - Schedule Supabase migration: 518 sessions seeded, 3-tier consumers migrated, offline fallbacks simulation-verified
 - CI builds a **signed release APK** (Node 22, JDK 21, tests gate the build) and publishes `v<versionName>` from `version.json`. The first run succeeded on Nov 16, 2026, so backlog #8 is done.
 
@@ -193,6 +201,7 @@ Nothing below has been physically tested on the user's phone yet. Do not call th
 - Security: `checkPassword()` everywhere, no `secret123` fallback, hardened photo uploads, cron fails closed, shared CORS without credentials.
 - Offline/perf: stable SW cache keys, 8s fetch timeouts, hidden-tab polling paused, 300-row announcements cap, 120-entry image cache.
 - Features: widget respects overrides; past announcements hidden behind a toggle; 6pm rollover to tomorrow; multi-override badges plus calendar tint priority; holiday end date defaults to the next day; section list loaded from the API (settings + onboarding); per-user greeting name (was hardcoded); Weekly Routine and Schedule Settings shown as full pages (`.mo-page`); Free Rooms ghost-tap guard and copy fixes; emoji icons → SVG and `backdrop-filter` removed app-wide (emoji kept only inside OS notification text).
+- **Rooms redesign (Nov 17, 2026):** the Free Rooms page and its three sheets (day/time picker, floor picker, room schedule) were replaced by one Rooms page: a day row, a time scrubber (`#rmTimeRange`, 8:00 AM–4:30 PM, live "Now" mode re-ticks every 30s), Free/Soon/All status filter with counts, search and a Rooms/Labs filter, rooms grouped by floor with a per-room day strip, and a single room sheet (`#roomScheduleSheet`, status, day chips, strip, timeline with tappable classes and teachers). All UI is in `src/rooms/rooms-view.js` + `rooms.css` (`rm-` prefix); the engine (`room-engine.js`, `room-overrides.js`) is unchanged. Entry points kept: `window.__renderFreeRooms`, `openRoomInFreeRooms(roomId, dayIdx, returnView)`, `refreshFreeRoomsIfVisible()`; view id is still `freeRoomsAppView` / `free_rooms`. Checklist §13.
 - The schedule migration (`9ba2156`) device test is also still outstanding: dashboard, Teacher Finder, Free Rooms, airplane mode.
 
 ### Backlog

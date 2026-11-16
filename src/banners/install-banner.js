@@ -2,13 +2,17 @@ import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
 import { Storage } from '../storage/storage.js';
 import { showToast } from '../toast/toast.js';
+import { showWhenClear } from './prompt-gate.js';
 
 export function initInstallBanner() {
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     State.deferredInstallPrompt = e;
     if (!Storage.isBannerDismissed(Storage.INSTALL_DISMISS_KEY)) {
-      DOM.installBanner.classList.add('show');
+      // Wait for any other prompt (welcome, Android app, notifications) to close first
+      showWhenClear('installBanner', () => {
+        if (State.deferredInstallPrompt) DOM.installBanner.classList.add('show');
+      });
     }
   });
 

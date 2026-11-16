@@ -1,958 +1,656 @@
-import { DAY_NAMES, MONTHS, FULL_MONTHS } from '../core/config.js';
+/**
+ * Rooms app (redesigned Nov 2026).
+ *
+ * Job: "which room is free now — or at the time I pick — and for how long?"
+ *  - A time scrubber across the class day + this week's day chips set the moment.
+ *  - Every room shows a day strip: busy blocks, the free window from the selected time
+ *    (green), and a marker at that time — so "free until when" is visible without tapping.
+ *  - The status summary (Free / Soon / All) is also the filter; rooms are grouped by floor.
+ *  - A room sheet shows that room's day as a timeline of classes and free gaps.
+ *
+ * Occupancy logic stays in room-engine.js / room-overrides.js / room-date-lifecycle.js
+ * (all covered by tests). This file is presentation + interaction only.
+ *
+ * External contract (unchanged): initFreeRoomsUI(), window.__renderFreeRooms,
+ * window.openRoomInFreeRooms(roomId, dayIdx, returnView), window.refreshFreeRoomsIfVisible.
+ */
+import { DAY_NAMES } from '../core/config.js';
 import { getCurrentMinutes, escapeHtml } from '../core/utils.js';
 import { getTeacherInfo } from '../teachers/teacher-names.js';
 import { showClassDetails } from '../timeline/class-detail.js';
 import { openTeacherDetailByCode } from '../teachers/teacher-modal.js';
-import { normalizeDate, getDateForDayIndex } from '../announcements/overrides.js';
+import { normalizeDate } from '../announcements/overrides.js';
 import {
   loadMasterRoomsData,
-  searchAllRoomsAvailability,
   searchAllRoomsAvailabilityWithOverrides,
-  computeFloorVacancyStats,
-  getRoomDayTimeline,
-  getRoomDaySchedule,
   getEffectiveRoomDaySchedule,
+  evaluateRoomStatus,
+  getRoomDayTimeline,
   formatMinuteTo12h,
   formatDuration,
   getFloorLabel
 } from './room-engine.js';
-import {
-  resolveFreeRoomsSelection,
-  createCustomFreeRoomsSelection,
-  createNowFreeRoomsSelection
-} from './room-date-lifecycle.js';
+import { resolveFreeRoomsSelection } from './room-date-lifecycle.js';
 
-// State
-let _selectedDate = new Date();
-let _calViewMonth = new Date().getMonth();
-let _calViewYear = new Date().getFullYear();
-let _targetMode = 'NOW'; // 'NOW' | 'CUSTOM'
-let _customMinute = getCurrentMinutes();
-let _selectedFloor = 'ALL'; // 'ALL' | 4 | 5 | 6 | 9 | 10
-let _selectedType = 'ALL'; // 'ALL' | 'classroom' | 'lab'
-let _searchQuery = '';
-let _liveTickerTimer = null;
-let _currentOpenRoomData = null;
-let _sheetLocalDayIdx = new Date().getDay();
-let _isFilterDrawerOpen = false;
-let _freeRoomsReturnView = null;
+// ── Constants ────────────────────────────────────────────────────────────────
+const DAY_START = 480;   // 8:00 AM — strip & scrubber range (classes run 8:30–4:00)
+const DAY_END = 990;     // 4:30 PM
+const SOON_MINS = 30;    // "freeing soon" = busy but free within this many minutes
+const OFF_DAYS = [4, 5]; // Thu, Fri
+const SHORT_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-// Campus Floors & Academic Days
-const CAMPUS_FLOORS = [4, 5, 6, 9, 10];
-const ACADEMIC_DAYS = [6, 0, 1, 2, 3, 4, 5]; // Sat, Sun, Mon, Tue, Wed, Thu, Fri
+// ── State ────────────────────────────────────────────────────────────────────
+let _dayOffset = 0;          // 0 = today … 6
+let _mode = 'NOW';           // 'NOW' (live clock) | 'CUSTOM' (scrubbed / other day)
+let _minute = getCurrentMinutes();
+let _statusFilter = 'free';  // 'free' | 'soon' | 'all'
+let _typeFilter = 'all';     // 'all' | 'classroom' | 'lab'
+let _query = '';
+let _returnView = null;
+let _sheetRoom = null;       // room meta of the open sheet
+let _sheetOffset = 0;        // day offset shown in the sheet
+let _tickTimer = null;
+let _renderQueued = false;
 
-function getActiveFreeRoomsSelection() {
-  return resolveFreeRoomsSelection(_targetMode, _selectedDate, _customMinute);
+// ── Small helpers ────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const pct = m => `${(((Math.min(DAY_END, Math.max(DAY_START, m)) - DAY_START) / (DAY_END - DAY_START)) * 100).toFixed(2)}%`;
+const clampMinute = m => Math.min(DAY_END, Math.max(DAY_START, m));
+
+function dateForOffset(offset) {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
 }
 
-function applyFreeRoomsSelection(selection) {
-  _selectedDate = selection.selectedDate;
-  _targetMode = selection.targetMode;
-  _customMinute = selection.customMinute;
-  if (typeof selection.calViewMonth === 'number') _calViewMonth = selection.calViewMonth;
-  if (typeof selection.calViewYear === 'number') _calViewYear = selection.calViewYear;
+/** The moment being looked at: { date, minute, isLive } */
+function getMoment() {
+  const date = dateForOffset(_dayOffset);
+  if (_mode === 'NOW' && _dayOffset === 0) {
+    const sel = resolveFreeRoomsSelection('NOW', date, _minute);
+    return { date: sel.date, minute: sel.targetMinute, isLive: true };
+  }
+  return { date, minute: _minute, isLive: false };
 }
 
-/**
- * Initializes Free Rooms UI event listeners and controls.
- */
-export function initFreeRoomsUI() {
-  const backBtn = document.getElementById('freeRoomsPageBackBtn');
-  if (backBtn) {
-    backBtn.addEventListener('click', () => {
-      const dest = _freeRoomsReturnView || 'apps';
-      _freeRoomsReturnView = null;
-      if (window.switchAppView) window.switchAppView(dest);
-    });
+function shortTime(m) {
+  // "10:30 AM" -> "10:30" style is too terse for status lines; keep the engine's 12h format
+  return formatMinuteTo12h(m).replace(/^0/, '');
+}
+
+function occupyingClasses(classes) {
+  return (classes || []).filter(c => !c.isCancelled && !c.isMovedOnline && !c.isRescheduled);
+}
+
+/** Freed classes (cancelled / moved online / rescheduled away) — shown as freed slots */
+function freedClasses(classes) {
+  return (classes || []).filter(c => c.isCancelled || c.isMovedOnline || c.isRescheduled);
+}
+
+function roomLabel(room) {
+  const hasName = room.name && room.name !== `Room ${room.id}`;
+  return { num: room.id, name: hasName ? room.name : (room.type === 'lab' ? 'Lab' : 'Classroom') };
+}
+
+/** Status bucket + human copy for one evaluated room */
+function describe(item, minute) {
+  if (item.status === 'FREE') {
+    const noClassesAtAll = item.subText === 'No classes scheduled';
+    const text = item.isFreeRestOfDay
+      ? (noClassesAtAll ? 'Free all day' : 'Free for the rest of the day')
+      : `Free until ${shortTime(item.freeUntilMins)}`;
+    return { bucket: 'free', text, detail: item.isFreeRestOfDay ? '' : formatDuration(item.freeDurationMins) };
   }
-
-  const refreshBtn = document.getElementById('freeRoomsRefreshBtn');
-  if (refreshBtn) {
-    refreshBtn.addEventListener('click', async () => {
-      refreshBtn.style.opacity = '0.6';
-      await loadMasterRoomsData();
-      renderFreeRoomsView();
-      setTimeout(() => { refreshBtn.style.opacity = '1'; }, 300);
-    });
-  }
-
-  // 1. Search Bar Interaction
-  const searchInput = document.getElementById('frSearchInput');
-  const searchClear = document.getElementById('frSearchClear');
-  if (searchInput) {
-    searchInput.addEventListener('input', () => {
-      _searchQuery = searchInput.value.trim().toLowerCase();
-      if (searchClear) searchClear.style.display = _searchQuery ? 'block' : 'none';
-      renderFreeRoomsView();
-    });
-  }
-
-  if (searchClear) {
-    searchClear.addEventListener('click', () => {
-      if (searchInput) searchInput.value = '';
-      _searchQuery = '';
-      searchClear.style.display = 'none';
-      renderFreeRoomsView();
-    });
-  }
-
-  // 2. Day/Time Pill Popover Trigger
-  const dayTimeTriggerBtn = document.getElementById('frDayTimeTriggerBtn');
-  if (dayTimeTriggerBtn) {
-    dayTimeTriggerBtn.addEventListener('click', () => {
-      openDayTimePickerSheet();
-    });
-  }
-
-  // 3. Floor Filter Button Trigger
-  const floorFilterBtn = document.getElementById('frFloorFilterBtn');
-  if (floorFilterBtn) {
-    floorFilterBtn.addEventListener('click', () => {
-      openFloorPickerSheet();
-    });
-  }
-
-  // 4. Secondary Room Type Filter Drawer Toggle
-  const toggleFilterBtn = document.getElementById('frToggleFilterBtn');
-  const filterDrawer = document.getElementById('frFilterDrawer');
-  if (toggleFilterBtn && filterDrawer) {
-    toggleFilterBtn.addEventListener('click', () => {
-      _isFilterDrawerOpen = !_isFilterDrawerOpen;
-      filterDrawer.style.display = _isFilterDrawerOpen ? 'flex' : 'none';
-      toggleFilterBtn.classList.toggle('active', _isFilterDrawerOpen);
-    });
-  }
-
-  // Room Type Filter Toggle
-  const typeToggleGroup = document.getElementById('frTypeToggleGroup');
-  if (typeToggleGroup) {
-    typeToggleGroup.querySelectorAll('.fr-type-toggle-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        typeToggleGroup.querySelectorAll('.fr-type-toggle-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        _selectedType = btn.dataset.type || 'ALL';
-
-        const filterDot = document.getElementById('frFilterActiveDot');
-        if (filterDot) filterDot.style.display = _selectedType !== 'ALL' ? 'inline-block' : 'none';
-
-        renderFreeRoomsView();
-      });
-    });
-  }
-
-  // 5. Date & Time Picker Sheet Controls
-  initDayTimePickerEvents();
-
-  // 6. Floor Picker Sheet Controls
-  initFloorPickerEvents();
-
-  // 7. Room Schedule Bottom Sheet & In-Sheet Day Switcher Events
-  initRoomScheduleSheetEvents();
-
-  // 60-second ticker keeps the active view current; CUSTOM mode remains pinned by its selection.
-  if (_liveTickerTimer) clearInterval(_liveTickerTimer);
-  _liveTickerTimer = setInterval(() => {
-    if (window.__currentAppViewId === 'free_rooms') {
-      renderFreeRoomsView();
-      if (_currentOpenRoomData) {
-        renderRoomScheduleSheetTimeline(_currentOpenRoomData.roomMeta, _sheetLocalDayIdx);
-      }
-    }
-  }, 60000);
-
-  // Global render trigger
-  window.__renderFreeRooms = async function() {
-    await loadMasterRoomsData();
-    renderFreeRoomsView();
+  const soon = item.minsUntilFree > 0 && item.minsUntilFree <= SOON_MINS;
+  return {
+    bucket: soon ? 'soon' : 'busy',
+    text: soon ? `Free in ${formatDuration(item.minsUntilFree)}` : `Busy until ${shortTime(item.occupiedUntilMins)}`,
+    detail: item.hasConflict ? 'Double-booked' : ''
   };
 }
 
+// ── Day strip (the signature element) ────────────────────────────────────────
 /**
- * Initializes Date + Time Picker Sheet controls & calendar navigation.
+ * Busy blocks across the class day, the free window from the selected minute up to the
+ * next busy block (or the busy streak containing it), and a marker at the minute.
  */
-function initDayTimePickerEvents() {
-  const sheet = document.getElementById('frDayTimePickerSheet');
-  const closeBtn = document.getElementById('frDayTimePickerCloseBtn');
-  const applyBtn = document.getElementById('frDayTimePickerApplyBtn');
-  const quickNowBtn = document.getElementById('frQuickRightNowBtn');
-  const prevMonthBtn = document.getElementById('frCalPrevMonthBtn');
-  const nextMonthBtn = document.getElementById('frCalNextMonthBtn');
-  const timeInput = document.getElementById('frSheetTimePickerInput');
+function stripHtml(classes, minute, { large = false } = {}) {
+  const busy = occupyingClasses(classes).slice().sort((a, b) => a.startM - b.startM);
+  const blocks = busy.map(c =>
+    `<span class="rm-strip-busy" style="left:${pct(c.startM)};width:calc(${pct(c.endM)} - ${pct(c.startM)})"></span>`
+  ).join('');
 
-  if (closeBtn) closeBtn.addEventListener('click', closeDayTimePickerSheet);
-  if (applyBtn) {
-    applyBtn.addEventListener('click', () => {
-      closeDayTimePickerSheet();
-      renderFreeRoomsView();
-    });
-  }
-  if (sheet) {
-    sheet.addEventListener('click', e => {
-      if (e.target === sheet) closeDayTimePickerSheet();
-    });
-  }
-
-  // Quick "Right Now" Shortcut
-  if (quickNowBtn) {
-    quickNowBtn.addEventListener('click', () => {
-      applyFreeRoomsSelection(createNowFreeRoomsSelection());
-
-      syncDayTimeSheetState();
-      renderDayTimeCalendarGrid();
-    });
-  }
-
-  // Month navigation
-  if (prevMonthBtn) {
-    prevMonthBtn.addEventListener('click', () => {
-      _calViewMonth--;
-      if (_calViewMonth < 0) {
-        _calViewMonth = 11;
-        _calViewYear--;
-      }
-      renderDayTimeCalendarGrid();
-    });
-  }
-
-  if (nextMonthBtn) {
-    nextMonthBtn.addEventListener('click', () => {
-      _calViewMonth++;
-      if (_calViewMonth > 11) {
-        _calViewMonth = 0;
-        _calViewYear++;
-      }
-      renderDayTimeCalendarGrid();
-    });
-  }
-
-  // Time picker input change
-  if (timeInput) {
-    timeInput.addEventListener('change', () => {
-      if (timeInput.value) {
-        const [h, m] = timeInput.value.split(':').map(Number);
-        if (!isNaN(h) && !isNaN(m)) {
-          _targetMode = 'CUSTOM';
-          _customMinute = h * 60 + m;
-          syncDayTimeSheetState();
-        }
-      }
-    });
-  }
-}
-
-function openDayTimePickerSheet() {
-  const sheet = document.getElementById('frDayTimePickerSheet');
-  if (!sheet) return;
-
-  const { date } = getActiveFreeRoomsSelection();
-  _calViewMonth = date.getMonth();
-  _calViewYear = date.getFullYear();
-
-  syncDayTimeSheetState();
-  renderDayTimeCalendarGrid();
-
-  sheet.classList.add('open');
-}
-
-function closeDayTimePickerSheet() {
-  const sheet = document.getElementById('frDayTimePickerSheet');
-  if (sheet) sheet.classList.remove('open');
-}
-
-function syncDayTimeSheetState() {
-  const quickNowBtn = document.getElementById('frQuickRightNowBtn');
-  const timeInput = document.getElementById('frSheetTimePickerInput');
-  const timeFormattedLabel = document.getElementById('frSheetTimeFormattedLabel');
-
-  const { targetMinute: currentMin } = getActiveFreeRoomsSelection();
-  const isLiveNow = _targetMode === 'NOW';
-
-  if (quickNowBtn) quickNowBtn.classList.toggle('active', isLiveNow);
-
-  if (timeInput) {
-    const hh = String(Math.floor(currentMin / 60)).padStart(2, '0');
-    const mm = String(currentMin % 60).padStart(2, '0');
-    timeInput.value = `${hh}:${mm}`;
-  }
-
-  if (timeFormattedLabel) {
-    timeFormattedLabel.textContent = formatMinuteTo12h(currentMin);
-  }
-}
-
-/**
- * Renders the calendar month date-picker grid inside #frDayTimePickerSheet.
- */
-function renderDayTimeCalendarGrid() {
-  const monthLabel = document.getElementById('frCalMonthLabel');
-  const daysGrid = document.getElementById('frCalDaysGrid');
-  if (!monthLabel || !daysGrid) return;
-
-  monthLabel.textContent = `${FULL_MONTHS[_calViewMonth] || MONTHS[_calViewMonth]} ${_calViewYear}`;
-
-  const firstDay = new Date(_calViewYear, _calViewMonth, 1);
-  const lastDay = new Date(_calViewYear, _calViewMonth + 1, 0);
-  const realToday = new Date();
-  const { date: activeDate } = getActiveFreeRoomsSelection();
-
-  // Academic week starts Saturday (Sat=6 => 0, Sun=0 => 1, Mon=1 => 2, ..., Fri=5 => 6)
-  const firstDaySatIndex = (firstDay.getDay() === 6) ? 0 : (firstDay.getDay() + 1);
-
-  let gridHtml = '';
-
-  for (let i = 0; i < firstDaySatIndex; i++) {
-    gridHtml += `<div class="fr-cal-day-cell other-month"></div>`;
-  }
-
-  for (let day = 1; day <= lastDay.getDate(); day++) {
-    const thisDate = new Date(_calViewYear, _calViewMonth, day);
-    const dow = thisDate.getDay();
-    const isOff = (dow === 4 || dow === 5);
-    const isSelected = isSameCalendarDay(thisDate, activeDate);
-    const isToday = isSameCalendarDay(thisDate, realToday);
-
-    gridHtml += `
-      <div class="fr-cal-day-cell ${isSelected ? 'is-selected' : ''} ${isToday ? 'is-today' : ''} ${isOff ? 'is-offday' : ''}"
-           data-year="${_calViewYear}" data-month="${_calViewMonth}" data-day="${day}">
-        <span>${day}</span>
-      </div>
-    `;
-  }
-
-  daysGrid.innerHTML = gridHtml;
-
-  // Wire day cell clicks
-  daysGrid.querySelectorAll('.fr-cal-day-cell:not(.other-month)').forEach(cell => {
-    cell.addEventListener('click', () => {
-      const year = parseInt(cell.dataset.year, 10);
-      const month = parseInt(cell.dataset.month, 10);
-      const day = parseInt(cell.dataset.day, 10);
-
-      applyFreeRoomsSelection(createCustomFreeRoomsSelection(new Date(year, month, day)));
-      syncDayTimeSheetState();
-      renderDayTimeCalendarGrid();
-    });
-  });
-}
-
-function isSameCalendarDay(d1, d2) {
-  if (!d1 || !d2) return false;
-  return d1.getFullYear() === d2.getFullYear() &&
-         d1.getMonth() === d2.getMonth() &&
-         d1.getDate() === d2.getDate();
-}
-
-/**
- * Initializes Floor Picker Sheet.
- */
-function initFloorPickerEvents() {
-  const sheet = document.getElementById('frFloorPickerSheet');
-  const closeBtn = document.getElementById('frFloorPickerCloseBtn');
-
-  if (closeBtn) closeBtn.addEventListener('click', closeFloorPickerSheet);
-  if (sheet) {
-    sheet.addEventListener('click', e => {
-      if (e.target === sheet) closeFloorPickerSheet();
-    });
-  }
-}
-
-function openFloorPickerSheet() {
-  const sheet = document.getElementById('frFloorPickerSheet');
-  const optionsContainer = document.getElementById('frFloorPickerOptions');
-  if (!sheet || !optionsContainer) return;
-
-  const { date, targetMinute } = getActiveFreeRoomsSelection();
-  const dayName = DAY_NAMES[date.getDay()] || 'Saturday';
-  const allEvaluated = searchAllRoomsAvailability(dayName, targetMinute);
-  const floorStats = computeFloorVacancyStats(allEvaluated);
-
-  const totalFree = allEvaluated.filter(r => r.status === 'FREE').length;
-  const totalRooms = allEvaluated.length;
-
-  let optionsHtml = `
-    <button class="fr-floor-option-btn ${_selectedFloor === 'ALL' ? 'active' : ''}" data-floor="ALL">
-      <span>All Floors</span>
-      <span class="fr-floor-opt-badge ${totalFree > 0 ? 'is-free' : 'is-occupied'}">${totalFree}/${totalRooms} Free</span>
-    </button>
-  `;
-
-  CAMPUS_FLOORS.forEach(floorNum => {
-    const stat = floorStats.get(floorNum) || { total: 0, free: 0 };
-    const isActive = _selectedFloor === floorNum;
-    optionsHtml += `
-      <button class="fr-floor-option-btn ${isActive ? 'active' : ''}" data-floor="${floorNum}">
-        <span>${getFloorLabel(floorNum)}</span>
-        <span class="fr-floor-opt-badge ${stat.free > 0 ? 'is-free' : 'is-occupied'}">${stat.free}/${stat.total} Free</span>
-      </button>
-    `;
-  });
-
-  optionsContainer.innerHTML = optionsHtml;
-
-  // Wire option clicks
-  optionsContainer.querySelectorAll('.fr-floor-option-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const floorVal = btn.dataset.floor;
-      _selectedFloor = floorVal === 'ALL' ? 'ALL' : parseInt(floorVal, 10);
-      closeFloorPickerSheet();
-      renderFreeRoomsView();
-    });
-  });
-
-  sheet.classList.add('open');
-}
-
-function closeFloorPickerSheet() {
-  const sheet = document.getElementById('frFloorPickerSheet');
-  if (sheet) sheet.classList.remove('open');
-}
-
-/**
- * Initializes Room Schedule Sheet and In-Sheet Day Switcher controls.
- */
-function initRoomScheduleSheetEvents() {
-  const sheet = document.getElementById('roomScheduleSheet');
-  const sheetCloseBtn = document.getElementById('roomSheetCloseBtn');
-  const prevDayBtn = document.getElementById('frSheetPrevDayBtn');
-  const nextDayBtn = document.getElementById('frSheetNextDayBtn');
-  const dayPillsContainer = document.getElementById('frSheetDayPills');
-
-  if (sheetCloseBtn) {
-    sheetCloseBtn.addEventListener('click', closeRoomScheduleSheet);
-  }
-  if (sheet) {
-    sheet.addEventListener('click', e => {
-      if (e.target === sheet) closeRoomScheduleSheet();
-    });
-  }
-
-  // Previous Day in Sheet
-  if (prevDayBtn) {
-    prevDayBtn.addEventListener('click', () => {
-      if (!_currentOpenRoomData) return;
-      const currIdx = ACADEMIC_DAYS.indexOf(_sheetLocalDayIdx);
-      const newIdx = (currIdx - 1 + ACADEMIC_DAYS.length) % ACADEMIC_DAYS.length;
-      _sheetLocalDayIdx = ACADEMIC_DAYS[newIdx];
-      _currentOpenRoomData.dayIdx = _sheetLocalDayIdx;
-      syncSheetDayPills();
-      renderRoomScheduleSheetTimeline(_currentOpenRoomData.roomMeta, _sheetLocalDayIdx);
-    });
-  }
-
-  // Next Day in Sheet
-  if (nextDayBtn) {
-    nextDayBtn.addEventListener('click', () => {
-      if (!_currentOpenRoomData) return;
-      const currIdx = ACADEMIC_DAYS.indexOf(_sheetLocalDayIdx);
-      const newIdx = (currIdx + 1) % ACADEMIC_DAYS.length;
-      _sheetLocalDayIdx = ACADEMIC_DAYS[newIdx];
-      _currentOpenRoomData.dayIdx = _sheetLocalDayIdx;
-      syncSheetDayPills();
-      renderRoomScheduleSheetTimeline(_currentOpenRoomData.roomMeta, _sheetLocalDayIdx);
-    });
-  }
-
-  // Day Pill Click in Sheet
-  if (dayPillsContainer) {
-    dayPillsContainer.querySelectorAll('.fr-sheet-day-pill').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (!_currentOpenRoomData) return;
-        const dayVal = parseInt(btn.dataset.day, 10);
-        _sheetLocalDayIdx = dayVal;
-        _currentOpenRoomData.dayIdx = _sheetLocalDayIdx;
-        syncSheetDayPills();
-        renderRoomScheduleSheetTimeline(_currentOpenRoomData.roomMeta, _sheetLocalDayIdx);
-      });
-    });
-  }
-}
-
-function syncSheetDayPills() {
-  const dayPills = document.getElementById('frSheetDayPills');
-  if (dayPills) {
-    dayPills.querySelectorAll('.fr-sheet-day-pill').forEach(btn => {
-      const dayVal = parseInt(btn.dataset.day, 10);
-      btn.classList.toggle('active', dayVal === _sheetLocalDayIdx);
-    });
-  }
-}
-
-/**
- * Main render function for the flat Free Rooms view.
- */
-export function renderFreeRoomsView() {
-  const flatContainer = document.getElementById('frFlatRoomsListContainer');
-  const dayTimeLabel = document.getElementById('frDayTimeLabel');
-  const floorFilterBtn = document.getElementById('frFloorFilterBtn');
-  const floorFilterLabel = document.getElementById('frFloorFilterLabel');
-  if (!flatContainer) return;
-
-  const { date, targetMinute } = getActiveFreeRoomsSelection();
-  const dayName = DAY_NAMES[date.getDay()] || 'Saturday';
-  const isRealToday = isSameCalendarDay(date, new Date());
-
-  // 1. Evaluate availability for all department rooms with announcement overrides
-  const dateStr = normalizeDate(date);
-  const allEvaluated = searchAllRoomsAvailabilityWithOverrides(dayName, targetMinute, dateStr);
-
-  // 2. Update Compact Day/Time Pill Label
-  if (dayTimeLabel) {
-    const timeStr = _targetMode === 'NOW' ? 'Right Now' : formatMinuteTo12h(targetMinute);
-    const dateStr = isRealToday
-      ? 'Today'
-      : `${date.getDate()} ${MONTHS[date.getMonth()] || ''}`;
-    dayTimeLabel.textContent = `${dateStr} · ${timeStr}`;
-  }
-
-  // 3. Update Floor Filter Pill Label
-  if (floorFilterLabel && floorFilterBtn) {
-    const floorLabel = _selectedFloor === 'ALL' ? 'All Floors' : getFloorLabel(_selectedFloor);
-    floorFilterLabel.textContent = floorLabel;
-    floorFilterBtn.classList.toggle('active', _selectedFloor !== 'ALL');
-  }
-
-  // 4. Filter flat room list
-  let filteredRooms = allEvaluated.filter(item => {
-    // Floor filter
-    if (_selectedFloor !== 'ALL' && item.room.floor !== _selectedFloor) return false;
-
-    // Room Type filter
-    if (_selectedType !== 'ALL' && item.room.type !== _selectedType) return false;
-
-    // Search query
-    if (_searchQuery) {
-      const matchId = (item.room.id || '').toLowerCase().includes(_searchQuery);
-      const matchName = (item.room.name || '').toLowerCase().includes(_searchQuery);
-      const matchFloor = `${item.room.floor}`.includes(_searchQuery);
-      if (!matchId && !matchName && !matchFloor) return false;
+  let windowHtml = '';
+  const inBusy = busy.some(c => minute >= c.startM && minute < c.endM);
+  if (!inBusy && minute < DAY_END) {
+    const next = busy.find(c => c.startM > minute);
+    const end = next ? next.startM : DAY_END;
+    if (end > Math.max(minute, DAY_START)) {
+      windowHtml = `<span class="rm-strip-free" style="left:${pct(minute)};width:calc(${pct(end)} - ${pct(minute)})"></span>`;
     }
+  }
+  const showMarker = minute >= DAY_START && minute <= DAY_END;
+  const marker = showMarker ? `<span class="rm-strip-marker" style="left:${pct(minute)}"></span>` : '';
+  return `<div class="rm-strip${large ? ' is-large' : ''}" aria-hidden="true">${blocks}${windowHtml}${marker}</div>`;
+}
 
-    return true;
+function hourTicksHtml() {
+  const ticks = [];
+  for (let m = 540; m <= 960; m += 120) {
+    const h = Math.floor(m / 60);
+    const label = h === 12 ? '12' : String(h % 12);
+    ticks.push(`<span style="left:${pct(m)}">${label}</span>`);
+  }
+  return ticks.join('');
+}
+
+// ── Main render ──────────────────────────────────────────────────────────────
+function scheduleRender() {
+  if (_renderQueued) return;
+  _renderQueued = true;
+  requestAnimationFrame(() => { _renderQueued = false; renderFreeRoomsView(); });
+}
+
+export function renderFreeRoomsView() {
+  const list = $('rmList');
+  if (!list) return;
+
+  const { date, minute, isLive } = getMoment();
+  const dayName = DAY_NAMES[date.getDay()] || 'Saturday';
+  const dateStr = normalizeDate(date);
+
+  renderDays($('rmDays'), _dayOffset, offset => {
+    // Today returns to live mode; other days keep the same time of day ("same time tomorrow"),
+    // clamped into class hours
+    const keepMinute = clampMinute(getMoment().minute);
+    _dayOffset = offset;
+    if (offset === 0) { _mode = 'NOW'; _minute = getCurrentMinutes(); }
+    else { _mode = 'CUSTOM'; _minute = keepMinute; }
+    renderFreeRoomsView();
   });
+  renderWhen(minute, isLive);
 
-  // Empty state when search or filter yields nothing
-  if (filteredRooms.length === 0) {
-    flatContainer.innerHTML = `
-      <div class="fr-empty-state">
-        <svg style="width: 36px; height: 36px; color: var(--text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <div class="fr-empty-title">No Rooms Found</div>
-        <div class="fr-empty-sub">No classrooms or laboratories match the selected filters.</div>
-      </div>
-    `;
+  const evaluated = searchAllRoomsAvailabilityWithOverrides(dayName, minute, dateStr).map(item => ({
+    ...item,
+    classes: getEffectiveRoomDaySchedule(dayName, item.room.id, dateStr),
+    view: describe(item, minute)
+  }));
+
+  // Counts reflect type + search (not the status filter), so the summary stays honest
+  const matchesFind = item => {
+    if (_typeFilter !== 'all' && item.room.type !== _typeFilter) return false;
+    if (!_query) return true;
+    const hay = `${item.room.id} ${item.room.name || ''} ${getFloorLabel(item.room.floor)}`.toLowerCase();
+    return hay.includes(_query);
+  };
+  const pool = evaluated.filter(matchesFind);
+  const counts = { free: 0, soon: 0, busy: 0 };
+  pool.forEach(i => { counts[i.view.bucket]++; });
+  renderStatusSeg(counts, pool.length);
+
+  const visible = pool.filter(i => _statusFilter === 'all' ? true
+    : _statusFilter === 'free' ? i.view.bucket === 'free'
+    : i.view.bucket === 'soon');
+
+  const subtitle = $('rmSubtitle');
+  if (subtitle) {
+    const when = isLive ? 'right now' : `${_dayOffset === 0 ? 'today' : SHORT_DAYS[date.getDay()]} at ${shortTime(minute)}`;
+    subtitle.textContent = `${counts.free} of ${pool.length} free ${when}`;
+  }
+
+  if (visible.length === 0) {
+    list.innerHTML = emptyStateHtml(pool, counts, minute);
+    bindEmptyState(list);
     return;
   }
 
-  // 5. 3-Tier Sort: Free rooms (tier 1) -> Freeing Soon (tier 2, <= 30m) -> Occupied (tier 3)
-  function getTierRank(item) {
-    if (item.status === 'FREE') return 1;
-    if (item.status === 'OCCUPIED' && item.minsUntilFree > 0 && item.minsUntilFree <= 30) return 2;
-    return 3;
-  }
+  // Group by floor (ascending), free first within a floor, then soonest-free, then busy
+  const rank = { free: 0, soon: 1, busy: 2 };
+  const floors = [...new Set(visible.map(i => i.room.floor))].sort((a, b) => a - b);
+  const html = floors.map(floor => {
+    const inFloor = visible.filter(i => i.room.floor === floor).sort((a, b) =>
+      (rank[a.view.bucket] - rank[b.view.bucket]) ||
+      (a.view.bucket === 'soon' ? a.minsUntilFree - b.minsUntilFree : 0) ||
+      a.room.id.localeCompare(b.room.id, undefined, { numeric: true }));
+    const floorAll = pool.filter(i => i.room.floor === floor);
+    const floorFree = floorAll.filter(i => i.view.bucket === 'free').length;
+    return `
+      <section class="rm-floor" aria-label="${escapeHtml(getFloorLabel(floor))}">
+        <header class="rm-floor-head">
+          <span class="rm-floor-name">${escapeHtml(getFloorLabel(floor))}</span>
+          <span class="rm-floor-count">${floorFree} of ${floorAll.length} free</span>
+        </header>
+        ${inFloor.map(item => roomCardHtml(item, minute)).join('')}
+      </section>`;
+  }).join('');
 
-  filteredRooms.sort((a, b) => {
-    const rankA = getTierRank(a);
-    const rankB = getTierRank(b);
-    if (rankA !== rankB) return rankA - rankB;
-    // Within Freeing Soon tier, sort by soonest freeing first
-    if (rankA === 2 && rankB === 2) {
-      if (a.minsUntilFree !== b.minsUntilFree) {
-        return a.minsUntilFree - b.minsUntilFree;
-      }
-    }
-    return a.room.id.localeCompare(b.room.id, undefined, { numeric: true });
+  list.innerHTML = html;
+  list.querySelectorAll('.rm-room').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = evaluated.find(i => i.room.id === btn.dataset.roomId);
+      if (item) openRoomScheduleSheet(item.room, _dayOffset);
+    });
   });
+}
 
-  // 6. Render minimal room cards in a single flat scrolling list
-  const cardsHtml = filteredRooms.map(item => {
-    const r = item.room;
-    const isFree = item.status === 'FREE';
-    const isFreeingSoon = item.status === 'OCCUPIED' && item.minsUntilFree > 0 && item.minsUntilFree <= 30;
-    const isConflict = item.hasConflict;
+function roomCardHtml(item, minute) {
+  const { num, name } = roomLabel(item.room);
+  const v = item.view;
+  return `
+    <button type="button" class="rm-room is-${v.bucket}" data-room-id="${escapeHtml(item.room.id)}">
+      <span class="rm-room-id">
+        <span class="rm-room-num">${escapeHtml(num)}</span>
+        <span class="rm-room-name">${escapeHtml(name)}</span>
+      </span>
+      <span class="rm-room-state">
+        <span class="rm-room-status">${escapeHtml(v.text)}</span>
+        ${v.detail ? `<span class="rm-room-detail">${escapeHtml(v.detail)}</span>` : ''}
+      </span>
+      ${stripHtml(item.classes, minute)}
+    </button>`;
+}
 
-    let cardStatusClass = 'is-occupied';
-    if (isConflict) {
-      cardStatusClass = 'has-conflict';
-    } else if (isFree) {
-      cardStatusClass = 'is-free';
-    } else if (isFreeingSoon) {
-      cardStatusClass = 'is-freeing-soon';
-    }
+function emptyStateHtml(pool, counts, minute) {
+  if (pool.length === 0) {
+    return `
+      <div class="rm-empty">
+        <div class="rm-empty-title">No rooms match “${escapeHtml(_query || (_typeFilter === 'lab' ? 'Labs' : 'Rooms'))}”</div>
+        <div class="rm-empty-sub">Try another room number, or clear the search.</div>
+        <button type="button" class="rm-empty-action" data-action="clear">Clear search</button>
+      </div>`;
+  }
+  // Nothing in the chosen bucket: point at what *is* useful
+  const soonest = pool.filter(i => i.status === 'OCCUPIED')
+    .sort((a, b) => a.minsUntilFree - b.minsUntilFree)[0];
+  const hint = soonest
+    ? `${escapeHtml(soonest.room.id)} frees up first, at ${escapeHtml(shortTime(soonest.occupiedUntilMins))}.`
+    : '';
+  const title = _statusFilter === 'free'
+    ? `Every room is busy at ${escapeHtml(shortTime(minute))}`
+    : 'No rooms are about to free up';
+  return `
+    <div class="rm-empty">
+      <div class="rm-empty-title">${title}</div>
+      ${hint ? `<div class="rm-empty-sub">${hint}</div>` : ''}
+      <button type="button" class="rm-empty-action" data-action="all">Show all ${pool.length} rooms</button>
+    </div>`;
+}
 
-    // Title: Room number leading + Lab name in parens if it's a lab
-    let roomLabel = r.id;
-    if (r.type === 'lab' && r.name && r.name !== `Room ${r.id}`) {
-      roomLabel = `${r.id} <span class="fr-card-lab-name">(${escapeHtml(r.name)})</span>`;
-    }
-
-    // Shortened, scannable status text (end-time only, no duration parenthetical)
-    let statusText = '';
-    if (isConflict) {
-      statusText = 'Conflict';
-    } else if (isFree) {
-      if (item.isFreeRestOfDay) {
-        statusText = item.currentClasses && item.currentClasses.length === 0 && !item.nextClass && !isRealToday
-          ? 'All day'
-          : 'Rest of day';
-      } else if (item.freeUntilStr) {
-        statusText = `Until ${item.freeUntilStr}`;
-      } else {
-        statusText = 'Free';
-      }
-    } else if (isFreeingSoon) {
-      statusText = `Free in ${item.minsUntilFree}m`;
+function bindEmptyState(list) {
+  const btn = list.querySelector('.rm-empty-action');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    if (btn.dataset.action === 'clear') {
+      _query = '';
+      const input = $('rmSearch');
+      if (input) input.value = '';
+      syncSearchClear();
     } else {
-      statusText = `Occupied until ${item.occupiedUntilStr || 'End'}`;
+      _statusFilter = 'all';
     }
+    renderFreeRoomsView();
+  });
+}
 
-    return `
-      <div class="fr-room-card ${cardStatusClass}" data-room-id="${escapeHtml(r.id)}">
-        <div class="fr-card-left">
-          <span class="fr-card-room-num">${roomLabel}</span>
-        </div>
-        <div class="fr-card-right">
-          <span class="fr-card-status-text">${escapeHtml(statusText)}</span>
-          <svg class="fr-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </div>
-      </div>
-    `;
-  }).join('');
+// ── "When" controls ──────────────────────────────────────────────────────────
+function renderDays(container, activeOffset, onPick) {
+  if (!container) return;
+  const html = [];
+  for (let o = 0; o < 7; o++) {
+    const d = dateForOffset(o);
+    const off = OFF_DAYS.includes(d.getDay());
+    const label = o === 0 ? 'Today' : SHORT_DAYS[d.getDay()];
+    html.push(`
+      <button type="button" role="tab" class="rm-day${o === activeOffset ? ' active' : ''}${off ? ' is-off' : ''}"
+        data-offset="${o}" aria-selected="${o === activeOffset}" title="${DAY_NAMES[d.getDay()]}${off ? ' (off day)' : ''}">
+        <span class="rm-day-name">${label}</span>
+        <span class="rm-day-num">${d.getDate()}</span>
+      </button>`);
+  }
+  container.innerHTML = html.join('');
+  container.querySelectorAll('.rm-day').forEach(btn => {
+    btn.addEventListener('click', () => onPick(Number(btn.dataset.offset)));
+  });
+}
 
-  flatContainer.innerHTML = cardsHtml;
+function renderWhen(minute, isLive) {
+  const readout = $('rmTimeReadout');
+  const range = $('rmTimeRange');
+  const nowBtn = $('rmNowBtn');
+  const when = $('rmWhen');
+  if (readout) {
+    const outside = minute < DAY_START || minute > DAY_END;
+    readout.innerHTML = isLive
+      ? `<span class="rm-live-dot" aria-hidden="true"></span>Now · ${escapeHtml(shortTime(minute))}${outside ? ' <span class="rm-readout-note">outside class hours</span>' : ''}`
+      : escapeHtml(shortTime(minute));
+  }
+  if (range && document.activeElement !== range) range.value = String(clampMinute(minute));
+  if (range) range.style.setProperty('--fill', pct(clampMinute(minute)));
+  if (nowBtn) nowBtn.hidden = isLive;
+  if (when) when.classList.toggle('is-live', isLive);
+}
 
-  // Wire room card clicks to open Room Schedule Sheet
-  flatContainer.querySelectorAll('.fr-room-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const roomId = card.dataset.roomId;
-      const targetRoom = allEvaluated.find(i => i.room.id === roomId);
-      if (targetRoom) {
-        openRoomScheduleSheet(targetRoom.room, date.getDay());
-      }
+function renderStatusSeg(counts, total) {
+  const seg = $('rmStatusSeg');
+  if (!seg) return;
+  const items = [
+    { key: 'free', label: 'Free', n: counts.free },
+    { key: 'soon', label: 'Soon', n: counts.soon },
+    { key: 'all', label: 'All', n: total }
+  ];
+  seg.innerHTML = items.map(it => `
+    <button type="button" role="tab" data-status="${it.key}" class="rm-status-btn is-${it.key}${_statusFilter === it.key ? ' active' : ''}"
+      aria-selected="${_statusFilter === it.key}">
+      <span class="rm-status-n">${it.n}</span><span class="rm-status-label">${it.label}</span>
+    </button>`).join('');
+  seg.querySelectorAll('.rm-status-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _statusFilter = btn.dataset.status;
+      renderFreeRoomsView();
+      replayListReveal();
     });
   });
 }
 
+function replayListReveal() {
+  const list = $('rmList');
+  if (!list) return;
+  list.classList.remove('list-swap');
+  void list.offsetWidth;
+  list.classList.add('list-swap'); // motion.css §9
+  setTimeout(() => list.classList.remove('list-swap'), 600);
+}
+
+function syncSearchClear() {
+  const clear = $('rmSearchClear');
+  if (clear) clear.hidden = !_query;
+}
+
+// ── Room sheet ───────────────────────────────────────────────────────────────
 /**
- * Opens the Room Daily Schedule Detail Bottom Sheet.
- *
- * @param {Object} roomMeta - Room metadata
- * @param {number} dayIdx - Day of the week index (0..6)
+ * Opens a room's day. dayIdxOrOffset: a day offset (0–6) from the list, or a weekday
+ * index (0=Sun…6=Sat) from deep links — resolved to the next occurrence of that weekday.
  */
-export function openRoomScheduleSheet(roomMeta, dayIdx) {
-  const sheet = document.getElementById('roomScheduleSheet');
-  const titleEl = document.getElementById('roomSheetTitle');
-  const metaEl = document.getElementById('roomSheetMeta');
+export function openRoomScheduleSheet(roomMeta, dayIdxOrOffset = 0, { isWeekday = false } = {}) {
+  const sheet = $('roomScheduleSheet');
   if (!sheet || !roomMeta) return;
-
-  const resolvedDayIdx = typeof dayIdx === 'number' ? dayIdx : getActiveFreeRoomsSelection().date.getDay();
-  _currentOpenRoomData = { roomMeta, dayIdx: resolvedDayIdx };
-  dayIdx = resolvedDayIdx;
-  _sheetLocalDayIdx = dayIdx;
-
-  let sheetTitle = roomMeta.name || `Room ${roomMeta.id}`;
-  if (roomMeta.type === 'lab' && roomMeta.name && roomMeta.name !== `Room ${roomMeta.id}`) {
-    sheetTitle = `${roomMeta.id} (${roomMeta.name})`;
-  } else if (!sheetTitle.startsWith('Room ')) {
-    sheetTitle = `Room ${roomMeta.id}`;
-  }
-  if (titleEl) titleEl.textContent = sheetTitle;
-  if (metaEl) {
-    const typeLabel = roomMeta.type === 'lab' ? 'Laboratory' : 'Lecture Classroom';
-    metaEl.textContent = `${getFloorLabel(roomMeta.floor)} · ${typeLabel}`;
-  }
-
-  // Sync In-Sheet Day Switcher Pills
-  syncSheetDayPills();
-
-  // Render Timeline Blocks
-  renderRoomScheduleSheetTimeline(roomMeta, _sheetLocalDayIdx);
-
+  _sheetRoom = roomMeta;
+  _sheetOffset = isWeekday
+    ? (dayIdxOrOffset - new Date().getDay() + 7) % 7
+    : Math.max(0, Math.min(6, Number(dayIdxOrOffset) || 0));
+  renderRoomSheet();
   sheet.classList.add('open');
+  sheet.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+  setTimeout(() => $('rmSheetClose')?.focus({ preventScroll: true }), 50);
 }
 
-/**
- * Renders the room schedule timeline list for the requested local day.
- */
-function renderRoomScheduleSheetTimeline(roomMeta, dayIdx) {
-  const listEl = document.getElementById('roomSheetTimelineList');
-  if (!listEl || !roomMeta) return;
+export function closeRoomScheduleSheet() {
+  const sheet = $('roomScheduleSheet');
+  if (!sheet || !sheet.classList.contains('open')) return;
+  sheet.classList.remove('open');
+  sheet.setAttribute('aria-hidden', 'true');
+  _sheetRoom = null;
+  if (!document.querySelector('.mo.open, .class-sheet-modal-overlay.open')) {
+    document.body.classList.remove('modal-open');
+  }
+}
 
-  const dayName = DAY_NAMES[dayIdx] || 'Saturday';
-  const { date, targetMinute: currentMinute } = getActiveFreeRoomsSelection();
-  const dateStr = getDateForDayIndex(dayIdx, date);
-  const rawClasses = getEffectiveRoomDaySchedule(dayName, roomMeta.id, dateStr);
-  const timelineBlocks = getRoomDayTimeline(roomMeta, rawClasses, currentMinute);
+function renderRoomSheet() {
+  if (!_sheetRoom) return;
+  const room = _sheetRoom;
+  const date = dateForOffset(_sheetOffset);
+  const dayIdx = date.getDay();
+  const dayName = DAY_NAMES[dayIdx];
+  const dateStr = normalizeDate(date);
+  const page = getMoment();
+  // Same day as the page → use the page's moment; other days → start of class day
+  const minute = _sheetOffset === _dayOffset ? page.minute : (_sheetOffset === 0 ? getCurrentMinutes() : DAY_START + 30);
 
-  listEl.innerHTML = timelineBlocks.map((block, idx) => {
-    if (block.isGap) {
-      let timeText = `${escapeHtml(block.startStr)} – ${escapeHtml(block.endStr)}`;
-      if (block.startStr === 'All Day') {
-        timeText = '';
-      } else if (block.endStr === 'Rest of Day') {
-        timeText = `${escapeHtml(block.startStr)} – Rest of Day`;
-      } else if (block.startStr === 'Start of Day') {
-        timeText = `Start of Day – ${escapeHtml(block.endStr)}`;
-      }
+  const classes = getEffectiveRoomDaySchedule(dayName, room.id, dateStr);
+  const status = evaluateRoomStatus(room, classes, minute);
+  const v = describe(status, minute);
+  const { num, name } = roomLabel(room);
 
-      let durLabel = `${formatDuration(block.durationMins)} Free`;
-      if (block.startStr === 'All Day') {
-        durLabel = 'Free All Day';
-      } else if (block.endStr === 'Rest of Day') {
-        durLabel = 'Rest of Day';
-      }
+  $('rmSheetTitle').textContent = `${num}${name && room.type === 'lab' ? ` · ${name}` : ''}`;
+  const meta = [getFloorLabel(room.floor), room.type === 'lab' ? 'Lab' : 'Classroom'];
+  if (room.capacity) meta.push(`${room.capacity} seats`);
+  $('rmSheetMeta').textContent = meta.join(' · ');
 
+  const whenLabel = _sheetOffset === _dayOffset && page.isLive ? 'Right now' : `${_sheetOffset === 0 ? 'Today' : DAY_NAMES[dayIdx]} at ${shortTime(minute)}`;
+  $('rmSheetStatus').className = `rm-sheet-status is-${v.bucket}`;
+  $('rmSheetStatus').innerHTML = `
+    <span class="rm-sheet-status-text">${escapeHtml(v.text)}</span>
+    <span class="rm-sheet-status-when">${escapeHtml(whenLabel)}${v.detail ? ` · ${escapeHtml(v.detail)}` : ''}</span>`;
+
+  renderDays($('rmSheetDays'), _sheetOffset, offset => { _sheetOffset = offset; renderRoomSheet(); });
+
+  $('rmSheetStrip').innerHTML = `${stripHtml(classes, minute, { large: true })}<div class="rm-ticks">${hourTicksHtml()}</div>`;
+  renderSheetTimeline(room, classes, minute, dayIdx);
+}
+
+function renderSheetTimeline(room, classes, minute, dayIdx) {
+  const container = $('rmSheetTimeline');
+  const blocks = getRoomDayTimeline(room, occupyingClasses(classes), minute);
+  const freed = freedClasses(classes).map(c => ({
+    freed: true,
+    startM: c.startM,
+    endM: c.endM,
+    subject: c.subject || c.title || 'Class',
+    reason: c.isCancelled ? 'Cancelled' : c.isMovedOnline ? 'Moved online' : 'Rescheduled'
+  }));
+  const rows = [...blocks, ...freed].sort((a, b) => a.startM - b.startM || (a.freed ? 1 : -1));
+
+  if (rows.length === 1 && rows[0].isGap && rows[0].startM === 0) {
+    container.innerHTML = `<div class="rm-tl-empty">No classes in this room ${dayIdx === new Date().getDay() && _sheetOffset === 0 ? 'today' : `on ${DAY_NAMES[dayIdx]}`}. It's free all day.</div>`;
+    return;
+  }
+
+  container.innerHTML = rows.map((b, i) => {
+    // Start over end, stacked (a single line wrapped mid-range: '9:45 AM – 11:00 / AM')
+    const time = `<span class="rm-tl-start">${escapeHtml(shortTime(b.startM))}</span><span class="rm-tl-end">${escapeHtml(shortTime(b.endM))}</span>`;
+    if (b.freed) {
       return `
-        <div class="fr-tl-gap-card ${block.startStr === 'All Day' ? 'is-all-day' : ''}">
-          <div class="fr-tl-gap-left">
-            <div class="fr-tl-gap-icon-wrap">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-              </svg>
-            </div>
-            <div class="fr-tl-gap-info">
-              <div class="fr-tl-gap-title">${escapeHtml(block.label)}</div>
-              ${timeText ? `<div class="fr-tl-gap-time">${escapeHtml(timeText)}</div>` : ''}
-            </div>
+        <div class="rm-tl-row is-freed">
+          <span class="rm-tl-time">${time}</span>
+          <div class="rm-tl-body">
+            <span class="rm-tl-title">${escapeHtml(b.subject)} <span class="rm-tl-tag">${escapeHtml(b.reason)}</span></span>
+            <span class="rm-tl-sub">Room is free during this slot</span>
           </div>
-          <div class="fr-tl-gap-right">
-            <span class="fr-tl-gap-pill">${escapeHtml(durLabel)}</span>
+        </div>`;
+    }
+    if (b.isGap) {
+      const isNow = minute >= b.startM && minute < b.endM;
+      return `
+        <div class="rm-tl-row is-gap${isNow ? ' is-now' : ''}">
+          <span class="rm-tl-time">${time}</span>
+          <div class="rm-tl-body">
+            <span class="rm-tl-title">Free · ${escapeHtml(formatDuration(b.durationMins))}</span>
           </div>
-        </div>
-      `;
+        </div>`;
     }
-
-    // Class block
-    const isLive = block.state === 'current';
-    const isPast = block.state === 'past';
-    const stateClass = isPast ? 'is-past' : (isLive ? 'is-current' : 'is-upcoming');
-    const isLab = (block.type || '').toLowerCase() === 'lab';
-    const isCancelled = Boolean(block.isCancelled);
-    const isRescheduled = Boolean(block.isRescheduled);
-    const isMovedOnline = Boolean(block.isMovedOnline);
-    const isExtra = Boolean(block.isExtraClass);
-
-    let overrideCardClass = '';
-    let overrideBadgeHtml = '';
-
-    if (isCancelled) {
-      overrideCardClass = 'is-cancelled-override cancelled';
-      overrideBadgeHtml = `<span class="fr-tl-override-badge cancelled">CANCELLED</span>`;
-    } else if (isRescheduled) {
-      overrideCardClass = 'is-rescheduled-override rescheduled';
-      overrideBadgeHtml = `<span class="fr-tl-override-badge rescheduled">RESCHEDULED</span>`;
-    } else if (isMovedOnline) {
-      overrideCardClass = 'is-online-override online';
-      overrideBadgeHtml = `<span class="fr-tl-override-badge online">ONLINE</span>`;
-    } else if (isExtra) {
-      overrideCardClass = 'is-extra-override extra';
-      overrideBadgeHtml = `<span class="fr-tl-override-badge extra">EXTRA CLASS</span>`;
-    }
-
-    const teacherCode = (block.instructor || '').trim();
-    const info = getTeacherInfo(teacherCode);
-    const teacherDisplayName = info?.name || teacherCode || 'TBA';
-    const initials = (teacherDisplayName || teacherCode).split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    const semSec = block.semSec || (block.semester && block.section ? `${block.semester}-${block.section.toUpperCase()}` : '');
-
+    const info = b.instructor ? getTeacherInfo(b.instructor) : null;
+    const teacherName = info?.name || b.instructor || '';
     return `
-      <div class="fr-tl-card ${stateClass} ${isLab ? 'is-lab' : 'is-theory'} ${overrideCardClass} fr-tl-class-card" data-block-idx="${idx}">
-        <!-- Top Row: Subject + Badges + Time -->
-        <div class="fr-tl-top-row">
-          <div class="fr-tl-subject-group">
-            <span class="fr-tl-subject-code ${isCancelled ? 'cancelled-text' : ''}">${escapeHtml(block.subject || 'Class')}</span>
-            <span class="fr-tl-type-badge ${isLab ? 'lab' : 'theory'}">${isLab ? 'LAB' : 'THEORY'}</span>
-            ${overrideBadgeHtml}
-            ${semSec ? `<span class="fr-tl-semsec-badge">${escapeHtml(semSec)}</span>` : ''}
-          </div>
-          <div class="fr-tl-time-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>${escapeHtml(block.startStr)} – ${escapeHtml(block.endStr)}</span>
-          </div>
+      <div class="rm-tl-row is-class is-${b.state}" role="button" tabindex="0" data-idx="${i}">
+        <span class="rm-tl-time">${time}</span>
+        <div class="rm-tl-body">
+          <span class="rm-tl-title">${escapeHtml(b.subject)}
+            <span class="rm-tl-tag ${(b.type || '').toLowerCase() === 'lab' ? 'is-lab' : ''}">${escapeHtml((b.type || 'Theory').toLowerCase() === 'lab' ? 'Lab' : 'Theory')}</span>
+            ${b.semSec ? `<span class="rm-tl-tag is-muted">${escapeHtml(b.semSec)}</span>` : ''}
+            ${b.state === 'current' ? '<span class="rm-tl-tag is-now">Now</span>' : ''}
+          </span>
+          ${teacherName ? `<button type="button" class="rm-tl-teacher" data-teacher="${escapeHtml(b.instructor)}">${escapeHtml(teacherName)}</button>` : ''}
         </div>
-
-        <!-- Bottom Row: Teacher Button (separate tap) + Duration + Arrow -->
-        <div class="fr-tl-bottom-row">
-          <div class="fr-tl-teacher-wrapper">
-            ${teacherCode && teacherCode !== 'TBA' && teacherCode !== '—' ? `
-              <button class="fr-tl-teacher-pill" data-teacher="${escapeHtml(teacherCode)}" title="View ${escapeHtml(teacherDisplayName)} profile">
-                <span class="fr-tl-teacher-avatar">${escapeHtml(initials)}</span>
-                <span class="fr-tl-teacher-name">${escapeHtml(teacherDisplayName)}</span>
-              </button>
-            ` : `
-              <span class="fr-tl-teacher-tba">Instructor TBA</span>
-            `}
-          </div>
-          <div class="fr-tl-card-right-group">
-            <span class="fr-tl-duration-chip">${formatDuration(block.durationMins)}</span>
-            <svg class="fr-tl-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-        </div>
-      </div>
-    `;
+      </div>`;
   }).join('');
 
-  // 1. Wire entire class card click -> opens class detail modal
-  listEl.querySelectorAll('.fr-tl-class-card').forEach(card => {
-    card.addEventListener('click', (e) => {
-      // Guard: if tap originated on or inside the teacher button, ignore it here
-      if (e.target.closest('.fr-tl-teacher-pill')) return;
-
-      const idx = parseInt(card.dataset.blockIdx, 10);
-      const block = timelineBlocks[idx];
-      if (!block || block.isGap) return;
-
-      const semMatch = String(block.semSec || '').match(/Sem\s*(\d+)(?:-([A-Za-z0-9]+))?/i);
-      const semester = semMatch ? semMatch[1] : (block.semester || '');
-      const section = semMatch ? semMatch[2] : (block.section || '');
-
-      const classData = {
-        code: block.subject,
-        title: block.subject,
-        subject: block.subject,
-        room: roomMeta.id,
-        instructor: block.instructor,
-        teacher: block.instructor,
-        instructorName: block.instructor,
-        start: block.startStr,
-        end: block.endStr,
-        timing: `${block.startStr} – ${block.endStr}`,
-        type: block.type,
-        duration: formatDuration(block.durationMins),
-        hasExplicitEndTime: true,
-        dayIdx: _sheetLocalDayIdx,
-        dayName: DAY_NAMES[_sheetLocalDayIdx],
-        semSec: block.semSec || '',
-        semester: semester,
-        section: section,
-        isCancelled: Boolean(block.isCancelled),
-        cancelReason: block.cancelReason || '',
-        isRescheduled: Boolean(block.isRescheduled),
-        rescheduledReason: block.rescheduledReason || '',
-        isOnline: Boolean(block.isMovedOnline),
-        isFromRoom: true
-      };
-
-      if (typeof showClassDetails === 'function') {
-        showClassDetails(classData);
-      } else if (typeof window.openClassDetailSheet === 'function') {
-        window.openClassDetailSheet(classData);
-      }
-    });
+  container.querySelectorAll('.rm-tl-row.is-class').forEach(row => {
+    const open = e => {
+      if (e.target.closest('.rm-tl-teacher')) return;
+      const b = rows[Number(row.dataset.idx)];
+      openClassDetailFor(b, room, dayIdx);
+    };
+    row.addEventListener('click', open);
+    row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(e); } });
   });
-
-  // 2. Wire teacher profile button click -> opens teacher profile with stopPropagation & preventDefault
-  listEl.querySelectorAll('.fr-tl-teacher-pill').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+  container.querySelectorAll('.rm-tl-teacher').forEach(btn => {
+    btn.addEventListener('click', e => {
       e.stopPropagation();
-      e.preventDefault();
-      const teacherCode = btn.dataset.teacher;
-      if (!teacherCode) return;
-      if (typeof openTeacherDetailByCode === 'function') {
-        openTeacherDetailByCode(teacherCode);
-      } else if (typeof window.openTeacherDetailByCode === 'function') {
-        window.openTeacherDetailByCode(teacherCode);
-      }
+      if (btn.dataset.teacher) openTeacherDetailByCode(btn.dataset.teacher);
     });
   });
 }
 
-/**
- * Closes the Room Daily Schedule Bottom Sheet without modifying main list day.
- */
-export function closeRoomScheduleSheet() {
-  const sheet = document.getElementById('roomScheduleSheet');
-  if (sheet) sheet.classList.remove('open');
-  _currentOpenRoomData = null;
+function openClassDetailFor(b, room, dayIdx) {
+  const semMatch = String(b.semSec || '').match(/Sem\s*(\d+)(?:-([A-Za-z0-9]+))?/i);
+  showClassDetails({
+    code: b.subject,
+    title: b.subject,
+    subject: b.subject,
+    room: room.id,
+    instructor: b.instructor,
+    teacher: b.instructor,
+    instructorName: b.instructor,
+    start: b.startStr,
+    end: b.endStr,
+    timing: `${b.startStr} – ${b.endStr}`,
+    type: b.type,
+    duration: formatDuration(b.durationMins),
+    hasExplicitEndTime: true,
+    dayIdx,
+    dayName: DAY_NAMES[dayIdx],
+    semSec: b.semSec || '',
+    semester: semMatch ? semMatch[1] : (b.semester || ''),
+    section: semMatch ? (semMatch[2] || '') : (b.section || ''),
+    isCancelled: Boolean(b.isCancelled),
+    isRescheduled: Boolean(b.isRescheduled),
+    isOnline: Boolean(b.isMovedOnline),
+    isFromRoom: true
+  });
+}
+
+// ── Init & external hooks ────────────────────────────────────────────────────
+export function initFreeRoomsUI() {
+  const ticks = $('rmTicks');
+  if (ticks) ticks.innerHTML = hourTicksHtml();
+
+  $('freeRoomsPageBackBtn')?.addEventListener('click', () => {
+    const target = _returnView || 'apps';
+    _returnView = null;
+    closeRoomScheduleSheet();
+    if (typeof window.switchAppView === 'function') window.switchAppView(target);
+  });
+
+  $('rmRefreshBtn')?.addEventListener('click', async () => {
+    const btn = $('rmRefreshBtn');
+    btn.classList.add('is-spinning');
+    try { await loadMasterRoomsData(); } catch (e) {}
+    renderFreeRoomsView();
+    setTimeout(() => btn.classList.remove('is-spinning'), 500);
+  });
+
+  const range = $('rmTimeRange');
+  range?.addEventListener('input', () => {
+    _mode = 'CUSTOM';
+    _minute = Number(range.value);
+    scheduleRender();
+  });
+
+  $('rmNowBtn')?.addEventListener('click', () => {
+    _mode = 'NOW';
+    _dayOffset = 0;
+    _minute = getCurrentMinutes();
+    renderFreeRoomsView();
+  });
+
+  const search = $('rmSearch');
+  search?.addEventListener('input', () => {
+    _query = search.value.trim().toLowerCase();
+    syncSearchClear();
+    scheduleRender();
+  });
+  $('rmSearchClear')?.addEventListener('click', () => {
+    _query = '';
+    if (search) { search.value = ''; search.focus(); }
+    syncSearchClear();
+    renderFreeRoomsView();
+  });
+
+  $('rmTypeSeg')?.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _typeFilter = btn.dataset.type;
+      $('rmTypeSeg').querySelectorAll('button').forEach(b => {
+        b.classList.toggle('active', b === btn);
+        b.setAttribute('aria-selected', String(b === btn));
+      });
+      renderFreeRoomsView();
+      replayListReveal();
+    });
+  });
+
+  // Sheet: close button, backdrop tap, Escape
+  $('rmSheetClose')?.addEventListener('click', closeRoomScheduleSheet);
+  $('roomScheduleSheet')?.addEventListener('click', e => {
+    if (e.target.id === 'roomScheduleSheet') closeRoomScheduleSheet();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && $('roomScheduleSheet')?.classList.contains('open')) closeRoomScheduleSheet();
+  });
+
+  window.__renderFreeRooms = async function () {
+    await loadMasterRoomsData();
+    renderFreeRoomsView();
+    startLiveTick();
+  };
+}
+
+/** While the page is open in live mode, keep statuses current (minute-level). */
+function startLiveTick() {
+  clearInterval(_tickTimer);
+  _tickTimer = setInterval(() => {
+    if (window.__currentAppViewId !== 'free_rooms') { clearInterval(_tickTimer); return; }
+    if (document.hidden) return;
+    if (_mode === 'NOW' && _dayOffset === 0) {
+      renderFreeRoomsView();
+      if (_sheetRoom && _sheetOffset === 0) renderRoomSheet();
+    }
+  }, 30000);
 }
 
 /**
- * Deep-links into the Free Rooms page for a specific room and day.
- * Pre-filters the search bar, opens the room's schedule sheet, and tracks return view.
- *
- * @param {string} rawRoomId - e.g. "1002" or "Room 1002"
- * @param {number} dayIdx - Optional day index (0..6)
- * @param {string} returnView - Optional view ID to return to when backing out
+ * Deep link (e.g. the Room tile in class details): opens the Rooms page on that room's day.
+ * dayIdx is a weekday index (0=Sun…6=Sat); returnView is where Back should go.
  */
 export function openRoomInFreeRooms(rawRoomId, dayIdx = null, returnView = null) {
-  if (!returnView) {
-    returnView = (window.__currentAppViewId === 'faculty_directory')
-      ? 'faculty_directory'
-      : ((window.__currentAppViewId === 'home') ? 'home' : 'apps');
-  }
-  _freeRoomsReturnView = returnView;
+  _returnView = returnView || (window.__currentAppViewId === 'home' ? 'home' : 'apps');
+  const backLabel = $('rmBackLabel');
+  if (backLabel) backLabel.textContent = _returnView === 'home' ? 'Home' : 'Apps';
 
-  // Dismiss stacked modals
-  if (typeof window.closeClassDetailSheet === 'function') {
-    window.closeClassDetailSheet();
-  }
-  if (typeof window.closeTeacherDetailModal === 'function') {
-    window.closeTeacherDetailModal();
-  }
+  if (typeof window.closeClassDetailSheet === 'function') window.closeClassDetailSheet();
+  if (typeof window.closeTeacherDetailModal === 'function') window.closeTeacherDetailModal();
+  if (typeof window.switchAppView === 'function') window.switchAppView('free_rooms');
 
-  // Navigate to Free Rooms app page
-  if (typeof window.switchAppView === 'function') {
-    window.switchAppView('free_rooms');
-  }
+  const hasDay = typeof dayIdx === 'number' && !isNaN(dayIdx);
+  const offset = hasDay ? (dayIdx - new Date().getDay() + 7) % 7 : 0;
+  _dayOffset = offset;
+  _mode = offset === 0 ? 'NOW' : 'CUSTOM';
+  _minute = offset === 0 ? getCurrentMinutes() : DAY_START + 30;
+  _statusFilter = 'all'; // show the room even if it's busy
 
-  // Synchronize Free Rooms date and sheet day to the requested dayIdx
-  const activeDate = getActiveFreeRoomsSelection().date;
-  const resolvedDayIdx = typeof dayIdx === 'number' && !isNaN(dayIdx) ? dayIdx : activeDate.getDay();
-  if (typeof dayIdx === 'number' && !isNaN(dayIdx)) {
-    const diff = (resolvedDayIdx - activeDate.getDay() + 7) % 7;
-    applyFreeRoomsSelection(createCustomFreeRoomsSelection(
-      new Date(activeDate.getFullYear(), activeDate.getMonth(), activeDate.getDate() + diff)
-    ));
-  }
-  _sheetLocalDayIdx = resolvedDayIdx;
-
-  const cleanRoom = String(rawRoomId || '').replace(/^room\s*/i, '').trim();
-  const searchInput = document.getElementById('frSearchInput');
-  const searchClear = document.getElementById('frSearchClear');
-
-  if (cleanRoom && cleanRoom.toLowerCase() !== 'tba' && cleanRoom.toLowerCase() !== 'online') {
-    if (searchInput) {
-      searchInput.value = cleanRoom;
-      if (searchClear) searchClear.style.display = 'block';
-    }
-    _searchQuery = cleanRoom.toLowerCase();
-  }
-
+  const cleanRoom = String(rawRoomId || '').replace(/^room\s*/i, '').trim().toLowerCase();
   loadMasterRoomsData().then(master => {
     renderFreeRoomsView();
-    if (cleanRoom && cleanRoom.toLowerCase() !== 'tba' && cleanRoom.toLowerCase() !== 'online') {
-      const rooms = master?.rooms || [];
-      const target = rooms.find(r => r.id.toLowerCase() === cleanRoom.toLowerCase() || (r.name && r.name.toLowerCase() === cleanRoom.toLowerCase()));
-      if (target) {
-        openRoomScheduleSheet(target, resolvedDayIdx);
-      }
-    }
+    if (!cleanRoom || cleanRoom === 'tba' || cleanRoom === 'online') return;
+    const target = (master?.rooms || []).find(r =>
+      r.id.toLowerCase() === cleanRoom || (r.name && r.name.toLowerCase() === cleanRoom));
+    if (target) openRoomScheduleSheet(target, offset);
   });
 }
-
 window.openRoomInFreeRooms = openRoomInFreeRooms;
 
-/**
- * In-place refresh of Free Rooms flat list and currently open Room Schedule Sheet.
- * Triggered automatically whenever new announcements/overrides are fetched.
- */
+/** In-place refresh when announcements/overrides change. */
 export function refreshFreeRoomsIfVisible() {
-  const isFreeRoomsActive = (window.__currentAppViewId === 'free_rooms') ||
-    (document.getElementById('freeRoomsAppView') && document.getElementById('freeRoomsAppView').classList.contains('active'));
-
-  if (isFreeRoomsActive) {
-    renderFreeRoomsView();
-  }
-
-  // If a room schedule sheet is currently open, refresh its timeline in-place
-  const sheet = document.getElementById('roomScheduleSheet');
-  if (sheet && sheet.classList.contains('open') && _currentOpenRoomData && _currentOpenRoomData.roomMeta) {
-    renderRoomScheduleSheetTimeline(_currentOpenRoomData.roomMeta, _sheetLocalDayIdx);
-  }
+  if (window.__currentAppViewId === 'free_rooms') renderFreeRoomsView();
+  if (_sheetRoom && $('roomScheduleSheet')?.classList.contains('open')) renderRoomSheet();
 }
-
 window.refreshFreeRoomsIfVisible = refreshFreeRoomsIfVisible;

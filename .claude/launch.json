@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "routine-mock",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["C:/Users/Sid/AppData/Local/Temp/claude/019c5cb179306894/c2eaabca-2e34-41d4-8c26-3051f8469583/scratchpad/mock-server/server.js", "D:/sid/STUDY/Coding/RoutineAPP", "4317"],
+      "port": 4317
+    }
+  ]
+}

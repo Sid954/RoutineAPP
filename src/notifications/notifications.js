@@ -60,7 +60,15 @@ function buildReminderPayload(cls, settings, todayDate) {
 export const Notifications = {
   timeouts: [],
 
+  /**
+   * True on the web (Notification API) AND inside the native app. Android's WebView has no
+   * web Notification API, so this used to be false in the APK, which meant the app never
+   * asked for notification permission and could never register for push.
+   */
   isSupported() {
+    if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+      return !!(window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications);
+    }
     return typeof Notification !== 'undefined';
   },
 
@@ -288,6 +296,17 @@ export const Notifications = {
       if (settings.enabled) {
         this.scheduleForToday(true);
       }
+      // Offer the "enable notifications" banner once the app has settled. It was never
+      // called before, so nothing ever asked for permission. Skipped while the first-launch
+      // welcome screen is open (it re-checks after onboarding's reload).
+      setTimeout(() => {
+        const welcome = document.getElementById('welcomeModal');
+        if (welcome && welcome.classList.contains('open')) return;
+        // One prompt at a time: wait for the Android-app / install prompts to close first
+        import('../banners/prompt-gate.js')
+          .then(({ showWhenClear }) => showWhenClear('notifBanner', () => this.maybeShowBanner()))
+          .catch(() => this.maybeShowBanner());
+      }, 3000);
     } catch (e) {
       console.warn('Notifications.init error:', e);
     }
