@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const { SUPABASE_OPTIONS } = require('./_lib/supabase-options.js');
 const { applyCors } = require('./_lib/cors.js');
 const { getClientIp, checkPassword } = require('./_lib/security.js');
 const { VALID_TEACHER_CODES } = require('./_lib/teacher-codes.js');
@@ -10,7 +11,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 let supabase = null;
 
 if (supabaseUrl && supabaseServiceKey) {
-  supabase = createClient(supabaseUrl, supabaseServiceKey);
+  supabase = createClient(supabaseUrl, supabaseServiceKey, SUPABASE_OPTIONS);
 }
 
 function sanitizeString(str) {

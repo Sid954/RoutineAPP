@@ -3,6 +3,7 @@
  * Runs weekly (every Friday at 03:00 UTC = 09:00 Bangladesh Time, UTC+6).
  */
 const { createClient } = require('@supabase/supabase-js');
+const { SUPABASE_OPTIONS } = require('../_lib/supabase-options.js');
 const { applyCors } = require('../_lib/cors.js');
 const { syncFacultyWithSupabase } = require('../_lib/faculty-scraper.js');
 const { safeEqual } = require('../_lib/security.js');
@@ -32,7 +33,7 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: 'Server environment missing Supabase credentials.' });
   }
 
-  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const supabase = createClient(supabaseUrl, supabaseServiceKey, SUPABASE_OPTIONS);
 
   // 3. Execute Sync
   try {

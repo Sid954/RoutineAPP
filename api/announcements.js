@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const { SUPABASE_OPTIONS } = require('./_lib/supabase-options.js');
 const { applyCors } = require('./_lib/cors.js');
 const admin = require('firebase-admin');
 const { checkPassword } = require('./_lib/security.js');
@@ -9,7 +10,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 let supabase = null;
 
 if (supabaseUrl && supabaseServiceKey) {
-  supabase = createClient(supabaseUrl, supabaseServiceKey);
+  supabase = createClient(supabaseUrl, supabaseServiceKey, SUPABASE_OPTIONS);
 }
 
 // Initialize Firebase Admin SDK

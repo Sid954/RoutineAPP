@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const { SUPABASE_OPTIONS } = require('./_lib/supabase-options.js');
 const { applyCors } = require('./_lib/cors.js');
 const { handlePhotoUpload } = require('./_lib/photo-upload.js');
 
@@ -7,7 +8,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 let supabase = null;
 
 if (supabaseUrl && supabaseServiceKey) {
-  supabase = createClient(supabaseUrl, supabaseServiceKey);
+  supabase = createClient(supabaseUrl, supabaseServiceKey, SUPABASE_OPTIONS);
 }
 
 module.exports = async (req, res) => {
