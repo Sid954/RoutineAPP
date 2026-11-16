@@ -1172,3 +1172,69 @@ html[data-theme="light"] .resting-tag.rescheduled {
 }
 
 
+
+/* ==========================================================================
+   Polish (Nov 2026): next-class countdown, current break, up-next line,
+   end-of-day strip, next-class link on empty days, "Today" pill
+   ========================================================================== */
+.timeline-header-right { display: flex; align-items: center; gap: 6px; }
+.timeline-header-right [hidden] { display: none !important; }
+.timeline-today-pill {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent-border);
+  padding: 3px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.timeline-today-pill:active { transform: scale(0.95); }
+
+.finished-check-badge.is-next {
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border-color: var(--accent-border);
+}
+:root[data-color="light"] .finished-check-badge.is-next {
+  color: var(--accent-hover);
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+}
+
+.break-transition-strip.is-now {
+  border-style: solid;
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+:root[data-color="light"] .break-transition-strip.is-now { color: var(--accent-hover); }
+
+.meta-line-item.up-next { color: var(--accent); font-weight: 700; }
+:root[data-color="light"] .meta-line-item.up-next { color: var(--accent-hover); }
+.meta-line-item.cancel-reason { color: var(--danger, #F43F5E); }
+:root[data-color="light"] .meta-line-item.cancel-reason { color: #BE123C; }
+
+.day-done-strip { border-style: solid; }
+.day-done-strip .break-left svg { color: #10b981; }
+.day-done-strip.tappable { cursor: pointer; }
+.day-done-strip.tappable:active { transform: scale(0.99); }
+
+.timeline-deadline-banner.tappable { cursor: pointer; }
+.timeline-deadline-banner.tappable:active { transform: scale(0.99); }
+
+.off-day-next {
+  margin-top: 4px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent-border);
+  padding: 7px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.off-day-next strong { font-weight: 800; }
+:root[data-color="light"] .off-day-next { color: var(--accent-hover); }

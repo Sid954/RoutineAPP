@@ -189,23 +189,14 @@ Verified in the PC browser at 375×812 in both themes. Still check on a real dev
 - [ ] Your name is remembered for the next post. The password is pre-filled after the first successful post or unlock.
 - [ ] Check both themes.
 
-## 18. Home / Routine rebuild
-- [ ] Header: "Good morning/afternoon/evening" with a matching icon, your name, "Nth semester · Section X", the clock and the Settings button.
-- [ ] Now card, checked at different times of day:
-  - [ ] Before the first class: "First class today", the course, room and teacher, and a countdown ("in 1h 05m").
-  - [ ] During a class: "In class now", the course, "2 of 4", time left, a progress bar, and "Then X at …".
-  - [ ] In a break: "Free right now", the next class and the countdown.
-  - [ ] After classes: "Done for today", time spent in class, and the next class (tomorrow or the next class day).
-  - [ ] Thu/Fri: "Off day" with the next class.
-  - [ ] Holiday: the holiday name, highlighted in amber.
-- [ ] A class test or assignment due today shows as an alert inside the now card. Tapping the card opens class details. Tapping a teacher's name opens their profile.
-- [ ] An online class with a link shows "Join class".
-- [ ] Heads up: tests, assignments, cancellations, holidays and moves in the next 7 days. Tapping one opens the notice, and "All notices" opens Notices.
-- [ ] Week strip (Thu → Wed): counts of held classes, a coloured dot for holiday/test/cancel/assignment, and a ring around today. Tap a day to switch. Swiping the timeline left/right still changes day.
-- [ ] The date pill opens the calendar. "Back to today" appears on any other day.
-- [ ] Day header: "Today/Tomorrow/<day>" with the class count and time span. Stats chips: time in class, longest break, labs, tests, cancelled.
-- [ ] Timeline: time column; Now/Next/done badges; a live progress bar. Breaks of 10 minutes or more appear between classes, and the current break is highlighted ("Free now · 25m left"). Deadlines appear at their due time.
-- [ ] Cancelled and moved-away classes stay in the list, dashed and struck through, with the reason. Tapping a moved class jumps to its new date.
-- [ ] After 6pm the page opens on tomorrow, but the now card still describes today.
-- [ ] The home-screen widget still updates (it reads the schedule, not this page).
-- [ ] Check both themes and a small phone (360px).
+## 18. Home: original design restored + polish
+- [ ] Home looks exactly as before v1.5.4 (clock, greeting, focal week strip, timeline cards).
+- [ ] The next class today shows an "in 40m" badge on its card.
+- [ ] During a break, the break strip turns blue and reads "Free now · 25m left".
+- [ ] The live class card has an "Up next: X · time (Nm break)" line, or "Last class today".
+- [ ] After the last class, a strip at the bottom reads "All done for today · Next: X · Tomorrow 9:45 AM". Tapping it jumps to that day.
+- [ ] Holiday and no-class days show a "Next class: X · <day>, time" button that jumps there.
+- [ ] A cancelled class shows its reason (from the notice) under the card.
+- [ ] Tapping an assignment deadline banner opens that notice.
+- [ ] On any day other than today, a "Today" pill appears next to the session count and jumps back.
+- [ ] Picking the same weekday next week in the calendar no longer shows today's live progress or "done" badges.

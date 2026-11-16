@@ -75,43 +75,60 @@
     <div class="w" id="app">
       <div class="wi">
 
-        <!-- 1. Full-Page View: Home / Routine (redesigned Nov 2026 — src/home/home-view.js) -->
-        <div id="dashboardView" class="app-page-view active hm-page">
-          <header class="hm-head" id="greeting">
-            <div class="hm-hello">
-              <span class="hm-salute"><svg class="salutation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/></svg><span id="greetSalutation">Hello</span></span>
-              <h1 class="hm-name" id="greetText">Student</h1>
-              <span class="hm-sub" id="greetSub"></span>
+        <!-- 1. Full-Page View: Schedule Dashboard (Home) -->
+        <div id="dashboardView" class="app-page-view active">
+          <!-- Header: Clock, Date Badge Pill, Controls -->
+          <header class="top-bar">
+            <div class="top-date-time-col">
+              <div class="digital-clock">
+                <span class="clock-time" id="hD">12</span>:<span id="mD">30</span>
+                <span class="clock-period" id="apD">PM</span>
+              </div>
+              <!-- Sleek Interactive Date Button (Line 2 under Clock) -->
+              <button class="date-badge-pill" id="dateBadgeBtn" title="Current Academic Date">
+                <svg class="cal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span id="dateD">Saturday, 19 August</span>
+                <svg class="cal-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
             </div>
-            <div class="hm-head-side">
-              <div class="hm-clock" aria-label="Current time"><span id="hD">12</span>:<span id="mD">00</span><span class="hm-clock-ap" id="apD">PM</span></div>
-              <button type="button" class="hd-btn hm-icon-btn" id="editBtn" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+            <div class="top-actions">
+              <button class="hd-btn" id="editBtn" title="Settings" aria-label="Settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </button>
             </div>
           </header>
 
-          <section class="hm-now-wrap" id="homeNow" aria-live="polite"></section>
-
-          <section class="hm-alerts" id="homeAlerts" aria-label="Heads up" hidden></section>
-
-          <section class="hm-week" aria-label="This week">
-            <div class="hm-week-head">
-              <button type="button" class="hm-date" id="dateBadgeBtn" title="Pick a date">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                <span id="dateD">Today</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <button type="button" class="hm-today-btn" id="homeTodayBtn" hidden>Back to today</button>
+          <!-- 2. Headline Greeting (Line 1: Salutation with Sun SVG, Line 2: Sid, Line 3: Caption) -->
+          <div class="greeting-headline-row" id="greeting">
+            <div class="greeting-text-group">
+              <div class="greeting-salutation-line">
+                <span id="greetSalutation">Good afternoon</span>
+                <svg class="salutation-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              </div>
+              <h1 class="greeting-user-name" id="greetText">Student</h1>
+              <span class="greeting-caption" id="greetSub">2 sessions scheduled</span>
             </div>
-            <div class="hm-days" id="focalStripContainer"></div>
+          </div>
+
+          <!-- Direction B: Focal Day Anchor Strip -->
+          <section class="strip-direction-container">
+            <div class="strip-dir-b-row" id="focalStripContainer">
+              <!-- Rendered dynamically -->
+            </div>
           </section>
 
-          <section class="hm-day" aria-label="Schedule">
-            <div class="hm-day-head">
-              <h2 class="hm-day-title" id="timelineTitle">Today</h2>
-              <span class="hm-day-sub" id="timelineSubtitle"></span>
+          <!-- Unified Spacious Timeline Cards -->
+          <section class="cs">
+            <div class="timeline-header-row">
+              <div class="timeline-title-text" id="timelineTitle">Today's Schedule</div>
+              <div class="timeline-header-right">
+                <button type="button" class="timeline-today-pill" id="timelineTodayBtn" hidden onclick="var t=new Date(); window.__pickCalendarDate && window.__pickCalendarDate(t.getFullYear(), t.getMonth(), t.getDate());">Today</button>
+                <div class="timeline-count-badge" id="timelineSubtitle">Loading...</div>
+              </div>
             </div>
-            <div class="hm-stats" id="homeDayStats" hidden></div>
-            <div class="hm-tl" id="chG"></div>
+            <div class="chg" id="chG">
+              <!-- Timeline Cards injected via renderTimeline() -->
+            </div>
           </section>
 
           <!-- Compatibility Hidden Containers for Background Updates -->
