@@ -351,7 +351,7 @@ initKeyboard();
 initVisibility();
 initServiceWorker();
 
-import { initPullToRefresh } from './events/pull-to-refresh.js';
+import { initMotion } from './core/motion-engine.js';
 import { checkFirstTimeOnboarding } from './events/onboarding.js';
 import { initAndroidPrompt } from './banners/android-prompt.js';
 import { initWidgetPinningUI } from './widget/widget.js';
@@ -360,7 +360,9 @@ import { initTeacherFinderUI } from './teachers/teacher-modal.js';
 import { initCalendarPicker } from './timeline/calendar-picker.js';
 
 /* ── Boot ─────────────────────────────────────────────────────── */
-initPullToRefresh();
+// Motion v2: ripples, haptics, staggers, sheet drag, pull-to-refresh (soft refresh, no reload).
+// Replaces events/pull-to-refresh.js, which reloaded the whole app on any downward swipe.
+initMotion();
 // App-launch entrance: the one orchestrated, non-triggered animation (see motion.css §5).
 document.body.classList.add('boot-enter');
 setTimeout(() => document.body.classList.remove('boot-enter'), 1100);

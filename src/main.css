@@ -26,4 +26,5 @@
 @import './settings/settings.css';
 @import './updater/updater.css';
 
-@import './core/motion.css'; /* motion + layout system — keep LAST */
+@import './core/motion.css'; /* motion + layout system */
+@import './core/motion-plus.css'; /* motion v2 tiers (motion-engine.js) — keep LAST */

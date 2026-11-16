@@ -81,7 +81,7 @@
           <header class="top-bar">
             <div class="top-date-time-col">
               <div class="digital-clock">
-                <span class="clock-time" id="hD">12</span>:<span id="mD">30</span>
+                <span class="clock-time" id="hD">12</span><span class="clock-colon" aria-hidden="true">:</span><span id="mD">30</span>
                 <span class="clock-period" id="apD">PM</span>
               </div>
               <!-- Sleek Interactive Date Button (Line 2 under Clock) -->
@@ -641,6 +641,23 @@
         <section class="st-group">
           <h3 class="st-group-title">Appearance</h3>
           <div class="st-theme-grid" id="themePaletteGrid" role="radiogroup" aria-label="Theme"></div>
+          <div class="st-card st-motion">
+            <div class="st-motion-head">
+              <span class="st-label">Animations</span>
+              <span class="st-hint" id="stMotionHint">Auto</span>
+            </div>
+            <div class="st-motion-seg" id="stMotionSeg" role="radiogroup" aria-label="Animations">
+              <button type="button" role="radio" data-motion-pref="auto">Auto</button>
+              <button type="button" role="radio" data-motion-pref="full">Full</button>
+              <button type="button" role="radio" data-motion-pref="lite">Lite</button>
+              <button type="button" role="radio" data-motion-pref="off">Off</button>
+            </div>
+            <label class="st-switch-row">
+              <span><strong>Vibrate on tap</strong><span>Light haptic feedback on buttons and actions</span></span>
+              <input type="checkbox" id="stHaptics" class="st-switch-input">
+              <span class="st-switch-ui" aria-hidden="true"></span>
+            </label>
+          </div>
         </section>
 
         <!-- Android home screen widgets (shown by widget.js in the native app) -->

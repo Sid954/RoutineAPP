@@ -1,0 +1,249 @@
+/* ==========================================================================
+   Motion v2 (Nov 2026) — src/core/motion-engine.js sets html[data-motion]:
+     full  rich: springs, staggered entrances, decorative loops, celebrations
+     lite  quick fades + ripples, no loops or bursts (slower phones, data saver)
+     off   reduced motion: instant states, feedback by colour only
+   Transform / opacity only (GPU-composited). Imported after motion.css.
+   ========================================================================== */
+
+:root {
+  --mx-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --mx-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --mx-stagger: 34ms;
+  --mx-rise: 12px;
+}
+html[data-motion="lite"] { --mx-stagger: 18ms; --mx-rise: 6px; }
+
+/* ── 1. Ripple ─────────────────────────────────────────────────────────── */
+.mx-ripple-layer {
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.mx-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  transform: scale(0);
+  animation: mxRipple 620ms var(--mx-soft) forwards;
+}
+@keyframes mxRipple {
+  0% { transform: scale(0); opacity: 0.16; }
+  60% { opacity: 0.1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+html[data-motion="off"] .mx-ripple-layer { display: none; }
+
+/* ── 2. Press: sink under the finger, spring back on release ──────────── */
+html:not([data-motion="off"]) :is(button, a[href], [role="button"], [role="tab"], .apps-hub-card, .resting-class-row, .rm-room, .fd-row, .fd-tl-row, .nt-card, .nt-up, .hm-cls, .calendar-day-cell, .theme-palette-card, .st-row, .st-class, .widget-size-pill, .t-card, .m-matrix-card) {
+  transition-property: transform, background-color, border-color, color, opacity, box-shadow;
+  transition-duration: 420ms, var(--dur-2), var(--dur-2), var(--dur-2), var(--dur-2), var(--dur-2);
+  transition-timing-function: var(--mx-spring), ease, ease, ease, ease, ease;
+}
+html:not([data-motion="off"]) .mx-pressed:not(.satellite-pill):not(.focal-day-card):not(.dock-center-raised-fab) {
+  transform: scale(0.965);
+  transition-duration: 90ms;
+  transition-timing-function: ease-out;
+}
+html:not([data-motion="off"]) .apps-hub-card.mx-pressed { transform: scale(0.975); }
+.apps-hub-card .apps-hub-card-icon-squircle,
+.apps-hub-card .apps-hub-card-arrow { transition: transform 420ms var(--mx-spring); }
+html:not([data-motion="off"]) .apps-hub-card.mx-pressed .apps-hub-card-icon-squircle { transform: rotate(-8deg) scale(1.1); }
+html:not([data-motion="off"]) .apps-hub-card.mx-pressed .apps-hub-card-arrow { transform: translateX(4px); }
+
+/* ── 3. Staggered entrances (engine adds .mx-enter when a list changes) ── */
+@keyframes mxRise {
+  from { opacity: 0; transform: translate3d(0, var(--mx-rise), 0) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mxFade { from { opacity: 0; } to { opacity: 1; } }
+html[data-motion="full"] .mx-enter > *:not(.mx-ripple-layer) {
+  animation: mxRise 440ms var(--mx-soft) both;
+  animation-delay: calc(var(--mx-i, 0) * var(--mx-stagger));
+}
+html[data-motion="lite"] .mx-enter > *:not(.mx-ripple-layer) {
+  animation: mxFade 220ms ease-out both;
+  animation-delay: calc(var(--mx-i, 0) * var(--mx-stagger));
+}
+/* Progress bars fill in when their list enters */
+@keyframes mxFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+html[data-motion="full"] .mx-enter :is(.live-progress > span, .fd-now-bar > span, .hm-bar > span, .up-progress > span) {
+  transform-origin: left center;
+  animation: mxFill 700ms var(--mx-soft) 180ms both;
+}
+
+/* ── 4. Pages: shared-axis slide with depth ───────────────────────────── */
+@keyframes mxViewEnter {
+  from { opacity: 0; transform: translate3d(var(--enter-x, 0), var(--enter-y, 8px), 0) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+html[data-motion="full"] .app-page-view.view-enter { animation: mxViewEnter 380ms var(--mx-soft) both; }
+html[data-motion="full"] .app-page-view.view-enter[data-dir="forward"] { --enter-x: 28px; --enter-y: 0; }
+html[data-motion="full"] .app-page-view.view-enter[data-dir="back"] { --enter-x: -28px; --enter-y: 0; }
+
+/* ── 5. Sheets & modals ───────────────────────────────────────────────── */
+html[data-motion="full"] :is(.rm-sheet, .fd-sheet, .nt-sheet, .up-sheet, .class-detail-bottom-sheet) {
+  transition-duration: 460ms !important;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.mx-dragging { transition: none !important; }
+.mx-snap { transition: transform 360ms var(--mx-soft) !important; }
+@keyframes mxModalIn {
+  from { opacity: 0; transform: translate3d(0, 18px, 0) scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+html[data-motion="full"] .mo.open > .md:not(.view-md) { animation: mxModalIn 380ms var(--mx-spring) both; }
+/* Sheet content cascades in after the sheet arrives */
+html[data-motion="full"] .class-sheet-modal-overlay.open :is(.nt-sheet-body, .fd-sheet-body, .up-body) > * {
+  animation: mxRise 420ms var(--mx-soft) both;
+}
+html[data-motion="full"] .class-sheet-modal-overlay.open :is(.nt-sheet-body, .fd-sheet-body, .up-body) > *:nth-child(2) { animation-delay: 40ms; }
+html[data-motion="full"] .class-sheet-modal-overlay.open :is(.nt-sheet-body, .fd-sheet-body, .up-body) > *:nth-child(3) { animation-delay: 80ms; }
+html[data-motion="full"] .class-sheet-modal-overlay.open :is(.nt-sheet-body, .fd-sheet-body, .up-body) > *:nth-child(n+4) { animation-delay: 120ms; }
+/* Grips hint that sheets can be dragged */
+:is(.rm-sheet-grip, .fd-grip, .nt-grip, .up-grip, .sheet-drag-handle) { transition: transform 300ms var(--mx-spring), background-color 200ms ease; }
+.mx-dragging :is(.rm-sheet-grip, .fd-grip, .nt-grip, .up-grip, .sheet-drag-handle) { transform: scaleX(1.4); background-color: var(--accent); }
+
+/* ── 6. Toasts ────────────────────────────────────────────────────────── */
+@keyframes mxPop { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); } }
+html:not([data-motion="off"]) .toast.show .toast-icon { animation: mxPop 420ms var(--mx-spring) 80ms both; }
+
+/* ── 7. Dock ──────────────────────────────────────────────────────────── */
+.dock-raised-fab-core svg { transition: transform 460ms var(--mx-spring); }
+html:not([data-motion="off"]) .dock-center-raised-fab.mx-pressed .dock-raised-fab-core { transform: scale(0.9); }
+html:not([data-motion="off"]) .dock-center-raised-fab.mx-pressed .dock-raised-fab-core svg { transform: rotate(90deg); }
+html[data-motion="full"] .dock-tab.active .dock-icon-wrapper svg { animation: mxPop 460ms var(--mx-spring) both; }
+
+/* ── 8. Live & status details ─────────────────────────────────────────── */
+@keyframes mxRing { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(2.6); opacity: 0; } }
+html[data-motion="full"] :is(.rm-live-dot, .hm-live-dot) { position: relative; }
+html[data-motion="full"] :is(.rm-live-dot, .hm-live-dot)::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background: currentColor; color: inherit;
+  background: var(--rm-free-ink, #34D399);
+  animation: mxRing 1.8s ease-out infinite;
+}
+/* Unread dots pop when a list enters */
+html[data-motion="full"] .mx-enter :is(.nt-dot, .announce-unread-dot) { animation: mxPop 460ms var(--mx-spring) 260ms both; }
+/* "in 40m" next-class badge breathes gently */
+@keyframes mxNudge { 0%, 100% { transform: none; } 50% { transform: translateY(-1px) scale(1.04); } }
+html[data-motion="full"] .finished-check-badge.is-next { animation: mxNudge 2.4s ease-in-out infinite; }
+/* Done ticks draw themselves when the timeline enters */
+html[data-motion="full"] .mx-enter .finished-check-badge:not(.is-next):not(.cancelled) svg polyline {
+  stroke-dasharray: 24; stroke-dashoffset: 24;
+  animation: mxDraw 500ms var(--mx-soft) 300ms forwards;
+}
+@keyframes mxDraw { to { stroke-dashoffset: 0; } }
+/* Current break strip: steam rises from the cup */
+@keyframes mxSteam { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-2px); opacity: 0.4; } }
+html[data-motion="full"] .break-transition-strip.is-now svg line { animation: mxSteam 1.2s ease-in-out infinite alternate; }
+html[data-motion="full"] .break-transition-strip.is-now svg line:nth-of-type(2) { animation-delay: 0.3s; }
+html[data-motion="full"] .break-transition-strip.is-now svg line:nth-of-type(3) { animation-delay: 0.6s; }
+
+/* ── 9. Art: greeting icon and empty states come alive ────────────────── */
+@keyframes mxSpin { to { transform: rotate(360deg); } }
+@keyframes mxFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes mxBob { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-2px) rotate(-6deg); } }
+html[data-motion="full"] .salutation-icon[data-icon="sun"] { animation: mxSpin 28s linear infinite; }
+html[data-motion="full"] .salutation-icon[data-icon="moon"] { animation: mxBob 5s ease-in-out infinite; transform-origin: 50% 60%; }
+html[data-motion="full"] .salutation-icon[data-icon="sunset"] { animation: mxFloat 4s ease-in-out infinite; }
+html[data-motion="full"] :is(.off-day-icon, .fd-empty-icon, .nt-empty-icon, .rm-empty-icon, .hm-empty-icon, .up-icon) { animation: mxFloat 3.6s ease-in-out infinite; }
+/* Greeting name slides in on launch */
+@keyframes mxNameIn { from { opacity: 0; transform: translate3d(-10px, 0, 0); letter-spacing: 0.04em; } to { opacity: 1; transform: none; } }
+html[data-motion="full"] body.boot-enter #greetText { animation: mxNameIn 620ms var(--mx-soft) 120ms both; }
+
+/* ── 10. Chips, tabs, segmented controls: selected state springs in ───── */
+html:not([data-motion="off"]) :is(.nt-chip, .fd-chip, .hm-day, .st-day, .fd-day, .rm-day, .pa-type, .pa-seg button, .nt-scope button, .pa-secs button).active,
+html:not([data-motion="off"]) .pa-type[aria-checked="true"] {
+  animation: mxSelect 360ms var(--mx-spring);
+}
+@keyframes mxSelect { 0% { transform: scale(0.94); } 100% { transform: scale(1); } }
+
+/* ── 11. Loading skeletons shimmer ────────────────────────────────────── */
+.skeleton-card { position: relative; overflow: hidden; }
+html:not([data-motion="off"]) .skeleton-card::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+  transform: translateX(-100%);
+  animation: mxShimmer 1.3s ease-in-out infinite;
+}
+:root[data-color="light"] .skeleton-card::after { background: linear-gradient(90deg, transparent, rgba(14, 23, 38, 0.05), transparent); }
+@keyframes mxShimmer { to { transform: translateX(100%); } }
+
+/* ── 12. Pull to refresh ──────────────────────────────────────────────── */
+.mx-pull {
+  position: fixed; top: calc(env(safe-area-inset-top, 0px) + 6px); left: 50%;
+  width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--card-bg); color: var(--text-muted);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  transform: translate(-50%, -60px);
+  opacity: 0; z-index: 99990; pointer-events: none;
+  transition: transform 300ms var(--mx-soft), opacity 200ms ease, color 200ms ease;
+}
+.mx-pull svg { width: 18px; height: 18px; }
+.mx-pull.is-visible { transition: color 200ms ease; }
+.mx-pull.is-armed { color: var(--accent); }
+.mx-pull.is-spinning { opacity: 1 !important; color: var(--accent); transition: transform 300ms var(--mx-soft); }
+.mx-pull.is-spinning svg { animation: mxSpin 700ms linear infinite; }
+
+/* ── 13. Celebration burst ────────────────────────────────────────────── */
+.mx-burst { position: fixed; width: 0; height: 0; z-index: 99995; pointer-events: none; }
+.mx-burst i {
+  position: absolute; left: -3px; top: -3px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  animation: mxBurst 760ms var(--mx-soft) forwards;
+}
+.mx-burst i:nth-child(3n) { background: #34D399; }
+.mx-burst i:nth-child(3n+1) { background: #FBBF24; }
+@keyframes mxBurst {
+  0% { transform: rotate(var(--a)) translateX(0) scale(0.4); opacity: 1; }
+  100% { transform: rotate(var(--a)) translateX(var(--d)) scale(1); opacity: 0; }
+}
+
+/* ── 14. Off tier: keep it calm ───────────────────────────────────────── */
+html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="off"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ── 15. Page touches (pass 2) ─────────────────────────────────────────── */
+/* Home clock: the colon ticks */
+@keyframes mxTick { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.25; } }
+html[data-motion="full"] .clock-colon { animation: mxTick 2s steps(1, end) infinite; }
+/* Focal week strip: the strip itself already morphs; don't stagger its pills */
+#focalStripContainer.mx-enter > * { animation: none !important; }
+html[data-motion="full"] #focalStripContainer.mx-first.mx-enter > * { animation: mxRise 440ms var(--mx-soft) both !important; animation-delay: calc(var(--mx-i, 0) * 30ms) !important; }
+/* Filter chip rows: only the first render cascades in */
+#fdFilters.mx-enter:not(.mx-first) > *, #announceFilterBar.mx-enter:not(.mx-first) > * { animation: none !important; }
+/* Live class progress: a light sheen sweeps across the fill */
+@keyframes mxSheen { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
+html[data-motion="full"] :is(.live-progress > span, .fd-now-bar > span, .hm-bar > span) { position: relative; overflow: hidden; display: block; }
+html[data-motion="full"] :is(.live-progress > span, .fd-now-bar > span, .hm-bar > span)::after {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  animation: mxSheen 2.6s ease-in-out infinite;
+}
+/* Faculty photos pop in with their rows */
+html[data-motion="full"] .mx-enter .fd-avatar { animation: mxPop 460ms var(--mx-spring) both; animation-delay: calc(var(--mx-i, 0) * var(--mx-stagger) + 120ms); }
+/* Error toasts shake once */
+@keyframes mxShake { 0%, 100% { margin-left: 0; } 20% { margin-left: -6px; } 40% { margin-left: 6px; } 60% { margin-left: -4px; } 80% { margin-left: 3px; } }
+html:not([data-motion="off"]) .toast.toast-error.show { animation: mxShake 420ms ease-in-out 120ms; }
+/* Rooms time slider: thumb grows while dragging */
+html:not([data-motion="off"]) .rm-range:active::-webkit-slider-thumb { transform: scale(1.25); }
+/* Calendar picker: days pop in */
+html[data-motion="full"] #calendarDaysGrid.mx-enter > * { animation: mxPop 360ms var(--mx-spring) both; animation-delay: calc(var(--mx-i, 0) * 12ms); }
+/* Theme cards: the chosen one bounces */
+html:not([data-motion="off"]) .theme-palette-card.active { animation: mxSelect 420ms var(--mx-spring); }
+/* Settings switch bar slides up from below */
+html[data-motion="full"] .st-switch.is-entering { animation: mxRise 420ms var(--mx-spring) both; }
+/* Back buttons: chevron nudges left on press */
+.page-back-btn svg { transition: transform 360ms var(--mx-spring); }
+html:not([data-motion="off"]) .page-back-btn.mx-pressed svg { transform: translateX(-4px); }

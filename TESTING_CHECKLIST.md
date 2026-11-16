@@ -232,3 +232,14 @@ Add the widgets again after updating (long-press the home screen → Widgets →
 - [ ] Week widget: rows Sat–Wed with dates, today highlighted, live and done states. It reloads (the old version could stay stale).
 - [ ] The refresh buttons update instantly. Tapping a title opens the app.
 - [ ] Battery: no noticeable drain overnight. The widgets refresh at midnight, and otherwise at most every 3 hours outside class time.
+
+## 21. Motion v2 (animations, haptics, gestures)
+- [ ] Every button, card, chip and tab sinks under your finger, springs back, and shows a ripple from where you touched. Hub cards tilt their icon and nudge the arrow.
+- [ ] Light vibration on taps, a "tick" on tabs/chips/day picks, and a stronger pattern on success/error toasts. Settings → Appearance → "Vibrate on tap" turns it off.
+- [ ] Lists cascade in when they change (timeline on a day change, notices, faculty, rooms, matrix, calendar days). They do NOT replay every minute or while dragging the Rooms slider.
+- [ ] Pages slide in with depth. Sheets (class details, notice, faculty profile, room, update) glide up, and can be dragged down from the top to close.
+- [ ] Pull down at the top of Home, Notices, Faculty or Rooms: a spinner follows your finger, ticks when armed, and refreshes WITHOUT reloading the app. Pulling down while scrolled inside a list does nothing (the old version reloaded the whole app).
+- [ ] Small details: the clock colon ticks, the greeting sun turns slowly (moon bobs at night), live dots pulse a ring, the "in 40m" badge breathes, the current break's coffee steams, progress bars fill in with a sheen, done ticks draw themselves, error toasts shake, and empty-state icons float.
+- [ ] "All done for today" gives a small burst once per day.
+- [ ] Settings → Animations: Auto shows what it picked ("Auto · using Full"). Lite = quick fades only. Off = no movement. The phone's "Remove animations" accessibility setting forces Off in Auto.
+- [ ] Nothing feels laggy on your phone. If it does, note where, and whether Lite fixes it.

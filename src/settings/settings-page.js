@@ -67,6 +67,23 @@ function saveNameNow() {
   }
 }
 
+/* ── Motion & haptics (motion-engine.js) ── */
+const TIER_LABEL = { full: 'Full', lite: 'Lite', off: 'Off' };
+function refreshMotion() {
+  const M = window.__motion;
+  if (!M) return;
+  const pref = M.pref();
+  document.querySelectorAll('#stMotionSeg [data-motion-pref]').forEach(b => {
+    const on = b.dataset.motionPref === pref;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-checked', String(on));
+  });
+  const hint = $('stMotionHint');
+  if (hint) hint.textContent = pref === 'auto' ? `Auto · using ${TIER_LABEL[M.tier] || M.tier}` : 'Fixed';
+  const hap = $('stHaptics');
+  if (hap) hap.checked = M.hapticsOn();
+}
+
 /** Called every time the page opens. */
 export function onSettingsOpen() {
   const input = $('displayNameInput');
@@ -74,6 +91,7 @@ export function onSettingsOpen() {
   refreshProfile();
   refreshSubtitle();
   refreshSwitchBar();
+  refreshMotion();
   const ver = $('stAppVersion');
   if (ver) ver.textContent = `Version ${CONFIG.appVersionName || ''}`.trim();
   const upd = $('updateCheckDetails');
@@ -112,6 +130,16 @@ export function initSettingsPage() {
       }, 0);
     });
   }
+
+  const seg = $('stMotionSeg');
+  if (seg) seg.addEventListener('click', e => {
+    const btn = e.target.closest('[data-motion-pref]');
+    if (!btn || !window.__motion) return;
+    window.__motion.setPref(btn.dataset.motionPref);
+    refreshMotion();
+  });
+  const hap = $('stHaptics');
+  if (hap) hap.addEventListener('change', () => { if (window.__motion) window.__motion.setHaptics(hap.checked); });
 
   onSettingsOpen();
 }
