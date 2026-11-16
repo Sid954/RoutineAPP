@@ -51,6 +51,46 @@
 }
 .mo.rotated-mode .tw { flex: 1; height: 100%; padding: 24px; margin: 0; }
 
+/* ==========================================================================
+   Full-page presentation for Weekly Routine + Schedule Settings (backlog #7)
+   Same element IDs and open/close logic as modals; visually matches the
+   Faculty / Announcements / Free Rooms full pages.
+   ========================================================================== */
+.mo.mo-page {
+  padding: 0;
+  align-items: stretch;
+  justify-content: stretch;
+  background: var(--canvas);
+}
+.mo.mo-page > .md {
+  max-width: none;
+  max-height: none;
+  height: 100%;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
+  animation: pageIn 0.25s ease;
+}
+@keyframes pageIn { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+@media (min-width: 1024px) {
+  .mo.mo-page > .md.md-wide { max-width: none; }
+}
+.mo.mo-page .md-h.page-style-header {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 16px 20px 4px;
+}
+/* Rotate FAB sits in the page header row on the right */
+.mo.mo-page #mobileRotateFab { top: calc(16px + env(safe-area-inset-top)); right: 16px; }
+.mo.mo-page #mobileRotateFab svg { display: block; margin: auto; }
+/* Rotated landscape matrix keeps its own fullscreen transform (rules above use !important) */
+.mo.mo-page.rotated-mode > .md { padding-top: 0; padding-bottom: 0; animation: none; }
+
 /* Modal Headers */
 .md-h { padding: 20px 20px 0; display: flex; justify-content: space-between; align-items: center; }
 .md-h h2 { font-size: 18px; font-weight: 800; color: var(--text-main); margin: 0; }

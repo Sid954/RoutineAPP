@@ -208,7 +208,7 @@ function isValidStructure(obj) {
     Object.values(obj).every(v => Array.isArray(v) && v.length > 0 && v.every(x => typeof x === 'string'));
 }
 
-function loadCachedStructure() {
+export function loadCachedStructure() {
   try {
     const parsed = JSON.parse(localStorage.getItem(ROUTINE_STRUCTURE_CACHE_KEY) || 'null');
     if (isValidStructure(parsed)) return parsed;
@@ -216,7 +216,7 @@ function loadCachedStructure() {
   return DEFAULT_ROUTINE_STRUCTURE;
 }
 
-async function fetchRoutineStructure() {
+export async function fetchRoutineStructure() {
   try {
     const res = await fetchWithTimeout(`${CONFIG.apiBase}/api/schedule?action=semesters_sections`);
     if (!res.ok) return null;
@@ -253,6 +253,8 @@ export async function saveAllSettings() {
     }, 7000);
 
     try {
+      const nameInput = document.getElementById('displayNameInput');
+      if (nameInput) Storage.saveDisplayName(nameInput.value);
       Storage.saveSemester(sem);
       Storage.saveSection(sec);
 
@@ -316,6 +318,9 @@ function initRoutineSelector() {
   const semSelect = DOM.routineSemesterSelect;
   const secSelect = DOM.routineSectionSelect;
   if (!semSelect || !secSelect) return;
+
+  const nameInput = document.getElementById('displayNameInput');
+  if (nameInput) nameInput.value = Storage.getDisplayName();
 
   let structure = loadCachedStructure();
 

@@ -67,3 +67,13 @@ Tick each box only after confirming it on a real phone. Unit and mock tests alre
 - [ ] In the class detail sheet, the Instructor and Room tiles still work when tapped normally (after about half a second).
 - [ ] Empty states: a free room reads "No classes scheduled" on both the room card and its schedule sheet, including for a custom future day.
 - [ ] Lab rooms: card and sheet headers lead with the number, e.g. "503 (Microprocessor & Multimedia Lab)". This was already in the code; just confirm it.
+
+## 10. Batch 7 (v1.5.1: name, full pages, UI rule sweep)
+- [ ] Settings: enter your name in "Your Name" and tap Save. The greeting shows it. With an empty name it shows "Student".
+- [ ] First launch (clear app data): the welcome screen has a name field, and the semester/section list matches Supabase.
+- [ ] Weekly Routine opens as a full page with a "Back" button and title, covering the screen edge to edge with safe-area padding. The rotate button still rotates to landscape and back.
+- [ ] Schedule Settings opens as a full page titled "Schedule Settings"; Back closes it. All settings still save.
+- [ ] Emoji are gone from labels and buttons (settings, welcome screen, Android app modal, banners, toasts). Icons render as SVG in both themes.
+- [ ] Toasts: success, error, warning and info each show a coloured SVG icon. A plain toast shows no icon box.
+- [ ] Welcome and confirm dialogs: dark backdrop, no blur. The notification banner has no glow.
+- [ ] Release: after pushing, CI publishes `v1.5.1` and the app on 1.5.0 offers the update (it needs a reinstall once because of the signing-key change).

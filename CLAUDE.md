@@ -45,7 +45,7 @@ node build.js --scrape-faculty            # optional faculty scrape during build
 - **Widgets:** the Java `AppWidgetProvider`s in `android-custom/java/com/routine/app/` include `RoutineScheduleEngine`. `WidgetPlugin.java` bridges them to the web layer. Web CSS changes do not affect them.
 - **API auth and secrets:** every password check goes through `checkPassword()` in `api/_lib/security.js`, which compares in constant time, throttles by IP and fails closed. Never add hardcoded fallback passwords. Photo uploads go through `api/_lib/photo-upload.js`.
 - **Push and signing:** FCM tokens live in the `device_tokens` table. `NativePush.init()` checks `WidgetPlugin.isFirebaseConfigured()` before calling `register()`, because builds without `google-services.json` would otherwise crash. Release APKs must always be signed with the same keystore (CI gets it from GitHub secrets, and the local copy sits in the gitignored `secrets/` folder), or Android refuses to install updates.
-- **DOM IDs are a contract.** JS and native code look up elements by ID, including `clockTrigger`, `cc`, `cT`, `cR`, `cBar`, `nc`, `nT`, `chG`, `prevDayBtn`, `nextDayBtn`, `findTeacherFab` and `freeRoomsFab`. Restyle freely, but never rename these IDs.
+- **DOM IDs are a contract.** JS and native code look up elements by ID, including `cc`, `cT`, `cR`, `cBar`, `nc`, `nT`, `chG`, `prevDayBtn`, `nextDayBtn`, `vcC` and `ecC` (`clockTrigger`, `findTeacherFab` and `freeRoomsFab` no longer exist). Restyle freely, but never rename these IDs.
 
 ## Standing rules (from PROJECT_OVERVIEW.md, enforced by the user)
 

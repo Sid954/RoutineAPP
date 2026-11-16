@@ -108,7 +108,7 @@ async function showApkUpdatePermissionModal(apkVersionData) {
   const remoteVerClean = apkVersionData.versionName || (apkVersionData.versionCode ? `${apkVersionData.versionCode}` : '');
 
   modal.innerHTML = `
-    <div class="md" style="max-width: 360px; padding: 26px 20px; text-align: center; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); border: 1.5px solid rgba(56, 189, 248, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56,189,248,0.15); border-radius: 20px;">
+    <div class="md" style="max-width: 360px; padding: 26px 20px; text-align: center; background: var(--card, #23252C); border: 1.5px solid rgba(56, 189, 248, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56,189,248,0.15); border-radius: 20px;">
       <div style="font-size: 40px; margin-bottom: 4px; filter: drop-shadow(0 0 10px rgba(56,189,248,0.5));"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
       <h2 style="font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 4px; letter-spacing: -0.3px;">New Version Available!</h2>
       

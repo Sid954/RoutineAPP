@@ -591,7 +591,7 @@ export function renderFreeRoomsView() {
     // Shortened, scannable status text (end-time only, no duration parenthetical)
     let statusText = '';
     if (isConflict) {
-      statusText = '⚠️ Conflict';
+      statusText = 'Conflict';
     } else if (isFree) {
       if (item.isFreeRestOfDay) {
         statusText = item.currentClasses && item.currentClasses.length === 0 && !item.nextClass && !isRealToday
@@ -662,7 +662,7 @@ export function openRoomScheduleSheet(roomMeta, dayIdx) {
   }
   if (titleEl) titleEl.textContent = sheetTitle;
   if (metaEl) {
-    const typeLabel = roomMeta.type === 'lab' ? '🧪 Laboratory' : '🏢 Lecture Classroom';
+    const typeLabel = roomMeta.type === 'lab' ? 'Laboratory' : 'Lecture Classroom';
     metaEl.textContent = `${getFloorLabel(roomMeta.floor)} · ${typeLabel}`;
   }
 

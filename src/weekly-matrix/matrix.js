@@ -162,7 +162,7 @@ export function renderWeeklyMatrix() {
     if (isHoliday && !hasOnlineClasses) {
       html += `
         <div class="m-matrix-empty" style="border: 1.5px dashed var(--pink) !important; color: var(--pink2); background: rgba(244, 63, 94, 0.05) !important; padding: 25px 15px; border-radius: var(--rx); text-align: center;">
-          <span style="font-size: 24px; display: block; margin-bottom: 6px;">🎉</span>
+          <span style="font-size: 24px; display: block; margin-bottom: 6px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
           <span style="font-weight: 800; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase;">HOLIDAY / DAY OFF</span>
           <div style="font-size: 13px; color: var(--text); font-weight: bold; margin-top: 4px;">${escapeHtml(holidayOverride.announcement.title)}</div>
         </div>
@@ -261,7 +261,7 @@ export function renderWeeklyMatrix() {
                 ${item.instructor && !effectiveCancelled && !isClassTest ? `· <span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(item.instructor)}" title="Click to view ${escapeHtml(item.instructor)}'s profile">${escapeHtml(item.instructor)}</span>` : ''}
               </div>
             </div>
-            <span class="m-card-badge" style="background:${theme.badge}; color:#fff">${isClassTest ? `📝 ${truncateText(examName, 10)}` : isOnline ? '📡 ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : item.type)}</span>
+            <span class="m-card-badge" style="background:${theme.badge}; color:#fff">${isClassTest ? `${truncateText(examName, 10)}` : isOnline ? 'ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : item.type)}</span>
           </div>
         `;
       });
@@ -308,7 +308,7 @@ export function renderWeeklyMatrix() {
       if (isHoliday && !hasOnlineClasses) {
         html += `
           <div style="grid-column: span ${intervals.length}; display: flex; align-items: center; justify-content: center; background: rgba(244, 63, 94, 0.05); color: var(--pink2); border: 1.5px dashed var(--pink); font-size: 12px; font-weight: bold; padding: 10px; text-transform: uppercase;" title="${escapeHtml(holidayOverride.announcement.announcement)}">
-            🎉 HOLIDAY: ${escapeHtml(holidayOverride.announcement.title)}
+            HOLIDAY: ${escapeHtml(holidayOverride.announcement.title)}
           </div>
         `;
         return;
@@ -407,12 +407,12 @@ export function renderWeeklyMatrix() {
               <div class="t-meta">
                 <span style="color:${theme.text}">
                   ${isClassTest ? (formatRoom(match.room) || 'No room') : isOnline
-                    ? '📡 ONLINE'
+                    ? 'ONLINE'
                     : effectiveCancelled
                       ? `<span style="color:var(--pink); font-weight:800;">${isHolidayCancelled ? 'HOLIDAY' : 'CANCEL'}</span>`
                       : (formatRoom(match.room) || 'No room')}
                 </span>
-                <span class="t-badge" style="background:${theme.badge}; color:#fff">${isClassTest ? `📝 ${truncateText(examName, 10)}` : isOnline ? '📡 ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : match.type)}</span>
+                <span class="t-badge" style="background:${theme.badge}; color:#fff">${isClassTest ? `${truncateText(examName, 10)}` : isOnline ? 'ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? '★ LAB' : match.type)}</span>
               </div>
             </div>`;
         } else {

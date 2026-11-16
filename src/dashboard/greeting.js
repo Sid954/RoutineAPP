@@ -29,6 +29,7 @@ export function updateGreeting() {
   const sub = `${formattedSemester} - ${sectionText}`;
   
   if (salutationEl) salutationEl.textContent = salutation;
-  if (DOM.greetText) DOM.greetText.textContent = 'Siddd';
+  // Per-user name from Settings / onboarding (was hardcoded, so every user saw the developer's name)
+  if (DOM.greetText) DOM.greetText.textContent = Storage.getDisplayName() || 'Student';
   if (DOM.greetSub) DOM.greetSub.textContent = sub;
 }

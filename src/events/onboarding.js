@@ -1,18 +1,7 @@
 import { Storage } from '../storage/storage.js';
 import { THEME_STYLES, THEME_COLORS, applyTheme } from '../core/theme.js';
 import { openModal, closeModal } from '../modals/modal.js';
-import { saveAllSettings } from './init.js';
-
-const ROUTINE_STRUCTURE = {
-  '1': ['a', 'b', 'c', 'd', 'e', 'f'],
-  '2': ['a', 'b', 'c', 'd', 'e', 'f'],
-  '3': ['a', 'b', 'c', 'd', 'e', 'f'],
-  '4': ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
-  '5': ['a', 'b', 'c'],
-  '6': ['a', 'b', 'c', 'd', 'e', 'f'],
-  '7': ['a', 'b'],
-  '8': ['a', 'b', 'c', 'd', 'e']
-};
+import { saveAllSettings, loadCachedStructure, fetchRoutineStructure } from './init.js';
 
 export function checkFirstTimeOnboarding() {
   if (Storage.isOnboardingCompleted()) return;
@@ -31,13 +20,20 @@ export function checkFirstTimeOnboarding() {
   const currentStyle = Storage.getThemeStyle();
   const currentColor = Storage.getThemeColor();
 
-  // Populate Semesters
-  semSelect.innerHTML = Object.keys(ROUTINE_STRUCTURE)
-    .map(sem => `<option value="${sem}"${sem === currentSem ? ' selected' : ''}>Semester ${sem}</option>`)
-    .join('');
+  // Shared, API-backed section list (cached / bundled fallback), refreshed in the background
+  let structure = loadCachedStructure();
+
+  function populateSemesters(selectedSem) {
+    semSelect.innerHTML = Object.keys(structure)
+      .sort((a, b) => Number(a) - Number(b))
+      .map(sem => `<option value="${sem}"${sem === selectedSem ? ' selected' : ''}>Semester ${sem}</option>`)
+      .join('');
+  }
+
+  populateSemesters(currentSem);
 
   function populateSections(sem, selectedSec) {
-    const sections = ROUTINE_STRUCTURE[sem] || [];
+    const sections = structure[sem] || [];
     secSelect.innerHTML = sections
       .map(sec => `<option value="${sec}"${sec === selectedSec ? ' selected' : ''}>Section ${sec.toUpperCase()}</option>`)
       .join('');
@@ -45,9 +41,18 @@ export function checkFirstTimeOnboarding() {
 
   populateSections(currentSem, currentSec);
 
+  fetchRoutineStructure().then(fresh => {
+    if (!fresh || JSON.stringify(fresh) === JSON.stringify(structure)) return;
+    structure = fresh;
+    const sem = structure[semSelect.value] ? semSelect.value : Object.keys(structure)[0];
+    const sec = (structure[sem] || []).includes(secSelect.value) ? secSelect.value : (structure[sem] || [])[0];
+    populateSemesters(sem);
+    populateSections(sem, sec);
+  });
+
   semSelect.addEventListener('change', () => {
     const sem = semSelect.value;
-    const availableSections = ROUTINE_STRUCTURE[sem] || [];
+    const availableSections = structure[sem] || [];
     let sec = secSelect.value;
     if (!availableSections.includes(sec)) {
       sec = availableSections[0] || 'a';
@@ -81,6 +86,8 @@ export function checkFirstTimeOnboarding() {
     const color = colorSelect.value;
 
     // Save preferences
+    const nameInput = document.getElementById('welcomeNameInput');
+    if (nameInput) Storage.saveDisplayName(nameInput.value);
     Storage.saveSemester(sem);
     Storage.saveSection(sec);
     Storage.saveThemeStyle(style);
@@ -94,6 +101,8 @@ export function checkFirstTimeOnboarding() {
     const mainSecSelect = document.getElementById('routineSectionSelect');
     if (mainSemSelect) mainSemSelect.value = sem;
     if (mainSecSelect) mainSecSelect.value = sec;
+    const mainNameInput = document.getElementById('displayNameInput');
+    if (mainNameInput) mainNameInput.value = Storage.getDisplayName();
 
     // Execute saveAllSettings to load section routine & reload
     saveAllSettings();

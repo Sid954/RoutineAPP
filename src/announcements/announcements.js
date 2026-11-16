@@ -707,7 +707,7 @@ export const Announcements = {
     if (pinned.length > 0) {
       html += `
         <div class="page-separator">
-          <span>📌 Pinned</span>
+          <span>Pinned</span>
           <span class="announce-group-badge">${pinned.length}</span>
         </div>
       `;
@@ -899,32 +899,32 @@ export const Announcements = {
       showToast("Announcement published successfully!", "success");
 
       // Fire push notification / alert
-      let notifTitle = "📢 New Announcement";
+      let notifTitle = "New Announcement";
       let notifBody = `${name}: ${title}`;
       let notifType = extras.type || "general";
 
       if (extras.type === "cancellation") {
-        notifTitle = "🚫 Class Cancelled";
+        notifTitle = "Class Cancelled";
         notifBody = `${extras.subject_override || "A class"} on ${extras.date_override || "upcoming"} has been cancelled: ${title}`;
       } else if (extras.type === "holiday") {
-        notifTitle = "🎉 Holiday Declared!";
+        notifTitle = "Holiday Declared!";
         notifBody = `${extras.date_override || "Upcoming"}: ${title} — ${announcement}`;
       } else if (extras.type === "online_class") {
-        notifTitle = "📡 Online Class Scheduled";
+        notifTitle = "Online Class Scheduled";
         notifBody = `${extras.subject_override || "A class"} on ${extras.date_override || "upcoming"} will be online.`;
         try {
           const parsed = JSON.parse(announcement);
           notifBody += ` Platform: ${parsed.platform || "Online"}\nTime: ${parsed.start_time || "—"} – ${parsed.end_time || "—"}`;
         } catch (e) {}
       } else if (extras.type === "class_test") {
-        notifTitle = "📝 Class Test Scheduled";
+        notifTitle = "Class Test Scheduled";
         notifBody = `${extras.subject_override || "A class"} on ${extras.date_override || "upcoming"} has an exam.`;
         try {
           const parsed = JSON.parse(announcement);
           notifBody += ` Exam: ${parsed.exam_name || "Class Test"}\nTopics: ${parsed.topics || "Not Specified"}`;
         } catch (e) {}
       } else if (extras.type === "rescheduled") {
-        notifTitle = "🔄 Class Rescheduled";
+        notifTitle = "Class Rescheduled";
         try {
           const parsed = JSON.parse(announcement);
           const subject = parsed.target_subject || extras.subject_override || extras.subject || "Class";
@@ -935,7 +935,7 @@ export const Announcements = {
           notifBody = announcement;
         }
       } else if (extras.type === "assignment") {
-        notifTitle = "📌 Assignment Due";
+        notifTitle = "Assignment Due";
         try {
           const parsed = JSON.parse(announcement);
           const taskTitle = parsed.task_title || "Assignment";
@@ -945,7 +945,7 @@ export const Announcements = {
           notifBody = announcement;
         }
       } else {
-        notifTitle = `📢 ${title || "New Announcement"}`;
+        notifTitle = `${title || "New Announcement"}`;
         notifBody = announcement;
       }
 

@@ -11,6 +11,19 @@ export const Storage = {
   THEME_STYLE_KEY: 'routine_theme_style',
   THEME_COLOR_KEY: 'routine_theme_color',
   ONBOARDING_KEY: 'routine_onboarding_completed',
+  DISPLAY_NAME_KEY: 'routine_display_name',
+
+  /** Name shown in the dashboard greeting; '' when the user hasn't set one. */
+  getDisplayName() {
+    try { return (localStorage.getItem(this.DISPLAY_NAME_KEY) || '').trim(); } catch { return ''; }
+  },
+  saveDisplayName(name) {
+    try {
+      const clean = String(name || '').trim().slice(0, 24);
+      if (clean) localStorage.setItem(this.DISPLAY_NAME_KEY, clean);
+      else localStorage.removeItem(this.DISPLAY_NAME_KEY);
+    } catch {}
+  },
 
   isOnboardingCompleted() {
     try { return localStorage.getItem(this.ONBOARDING_KEY) === 'true'; } catch { return false; }

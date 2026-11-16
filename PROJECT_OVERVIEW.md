@@ -1,6 +1,6 @@
 ﻿# RoutineAPP — Agent Briefing
 
-> Read this fully before touching any code. Last updated: **Sep 23, 2026** (commit `9ba2156`).  
+> Read this fully before touching any code. Last updated: **Nov 16, 2026** (v1.5.1 work, after commit `cb1b146`).  
 > If significant time has passed since that date, treat this doc as background context and verify current state with `git log --oneline -20` + `git status`.
 
 ---
@@ -118,7 +118,12 @@ src/timeline/timeline.js    Week strip + daily timeline (override-aware)
 src/notifications/          notifications.js (skips cancelled classes)
 api/schedule.js             Unified Vercel serverless for all routine data
 api/teachers.js             Faculty directory and edit suggestion workflow
-api/announcements.js        Supabase-backed announcement fetch/post
+api/announcements.js        Supabase-backed announcement fetch/post + FCM push (device_tokens)
+api/_lib/security.js        checkPassword() (constant-time, per-IP throttle, fail-closed), safeEqual, rate limiter
+api/_lib/cors.js            applyCors(): shared CORS for every function
+api/_lib/photo-upload.js    Shared faculty photo upload (whitelist, magic bytes, size cap, rate limit)
+src/notifications/native-push.js  FCM registration (guarded by WidgetPlugin.isFirebaseConfigured())
+src/widget/widget.js        Native widget sync; buildWidgetScheduleJson() sends override-aware 7-day schedule
 scripts/seed-schedule.js    One-time seeder for schedule tables (has --dry-run flag)
 supabase_schedule_schema.sql DDL for all 7 schedule tables + RLS + indexes
 build.js                    Compiles /src → /www/ for deployment
@@ -128,15 +133,15 @@ build.js                    Compiles /src → /www/ for deployment
 
 - Test suites live in `tests/` (tracked in git — moved out of the old gitignored `scratch/` on Sep 23, 2026)
 - Run all: `npm test` (executes `tests/run.js`, which runs every `tests/test_*.js` with a 60s per-test timeout)
-- 8/10 suites pass as of Sep 23, 2026. The two exceptions are environment-dependent, not logic failures:
-  - `test_direct_fetch.js` — requires a real local `.env` with Supabase credentials (reads `../.env`; only `.env.example` ships in the repo), so it hangs without them
-  - `test_init_schedule_resilience.js` — hits a Node DOM-mock gap (`toast.js:48` `addEventListener` on null) and then hangs on dangling handles; needs a fuller DOM mock
+- 15/15 suites pass as of Nov 16, 2026 (needs `npm install`; verified passing without `.env`, since every suite mocks the network). CI runs `npm test` before building the APK.
+- On-device checks still pending for the v1.5.1 work are tracked in `TESTING_CHECKLIST.md`.
 
 ### Critical DOM IDs & UI Constraints
 
 JavaScript modules query specific DOM elements by ID — renaming an ID silently breaks event listeners and update cycles (and anything deep-linking or bridged to native code that depends on exact IDs). Markup structure and CSS classes can be redesigned freely, but **DOM element IDs must be preserved**:
 
-- `clockTrigger`, `cc`, `cT`, `cR`, `cBar`, `nc`, `nT`, `chG`, `prevDayBtn`, `nextDayBtn`, `findTeacherFab`, `freeRoomsFab`
+- `cc`, `cT`, `cR`, `cBar`, `nc`, `nT`, `chG`, `prevDayBtn`, `nextDayBtn`, `vcC`, `ecC`, `viewModal`, `editModal`
+- (`clockTrigger`, `findTeacherFab`, `freeRoomsFab` were removed in an earlier redesign; nothing references them)
 
 Other hard boundaries:
 
@@ -172,7 +177,7 @@ Announcement type color identity:
 
 ---
 
-## Current State (Sep 23, 2026)
+## Current State (Nov 16, 2026, v1.5.1)
 
 ### Stable and confirmed
 - Core redesign: dashboard, class detail sheet, faculty profile, apps hub nav — all full-page conversions
@@ -180,36 +185,32 @@ Announcement type color identity:
 - Faculty data in Supabase: 42 CSE + 51 stub rows, RLS configured, approval-queue workflow active
 - Free Rooms Stages 1 & 2: full rebuild, announcement override sync working, on-device tested
 - Schedule Supabase migration: 518 sessions seeded, 3-tier consumers migrated, offline fallbacks simulation-verified
+- CI builds a **signed release APK** (Node 22, JDK 21, tests gate the build) and publishes `v<versionName>` from `version.json`. The first run succeeded on Nov 16, 2026, so backlog #8 is done.
 
-### Needs on-device verification
-The schedule migration (`9ba2156`, Aug 31 2026) was committed and pushed but **has not yet been physically tested on the user's phone**. This is the immediate next action — have the user push (if not done) and test:
-- Dashboard loads correct routine from Supabase
-- Teacher Finder loads
-- Free Rooms loads
-- **Airplane mode test:** confirm offline fallback works on a real device
+### Done in code, needs on-device verification (see `TESTING_CHECKLIST.md`)
+Nothing below has been physically tested on the user's phone yet. Do not call these "fixed" until the checklist is ticked.
+- Critical: OTA updater no longer overwrites the user's routine with the legacy `schedule.json`. FCM push is wired end to end (`device_tokens`, awaited sends, dead-token pruning). Release signing uses a stable keystore (secrets in GitHub; local backup in the gitignored `secrets/` folder).
+- Security: `checkPassword()` everywhere, no `secret123` fallback, hardened photo uploads, cron fails closed, shared CORS without credentials.
+- Offline/perf: stable SW cache keys, 8s fetch timeouts, hidden-tab polling paused, 300-row announcements cap, 120-entry image cache.
+- Features: widget respects overrides; past announcements hidden behind a toggle; 6pm rollover to tomorrow; multi-override badges plus calendar tint priority; holiday end date defaults to the next day; section list loaded from the API (settings + onboarding); per-user greeting name (was hardcoded); Weekly Routine and Schedule Settings shown as full pages (`.mo-page`); Free Rooms ghost-tap guard and copy fixes; emoji icons → SVG and `backdrop-filter` removed app-wide (emoji kept only inside OS notification text).
+- The schedule migration (`9ba2156`) device test is also still outstanding: dashboard, Teacher Finder, Free Rooms, airplane mode.
 
 ### Backlog
 
-1. Holiday date-range picker: end date should default to day-after start date
-2. Week-strip/timeline multi-override icons: show up to 3 + "3+" badge (currently only shows first)
-3. Calendar month-view color priority: only `class_test` and `assignment` get background coloring; explicit priority order when multiple types land on same day
-4. Past announcements: stop showing once their date has passed
-5. 6pm schedule rollover: after 6pm, show tomorrow's schedule; update greeting and day-header accordingly
-6. Announcement icon overflow: cap visible icons at ~5, collapse rest behind a "+N" circular button (WhatsApp chip-row pattern)
-7. Routine Matrix + Schedule Settings: need same full-page conversion as Faculty/Announcements/Free Rooms
-8. Real Android/Gradle APK build: never verified end-to-end
-9. Class-start/pre-class briefing notifications: rebuild from scratch (old scaffolding intentionally removed — do NOT restore from git)
-10. Free Rooms polish:
-    - Lab room header should lead with room number: `"503 (Microprocessor & Multimedia Lab)"`
-    - Verify "No Class Scheduled" copy is consistent
-    - Class-card tap opens instructor profile instead of class-detail — needs proper fix (prior attempt failed)
-11. Schedule admin/edit flow: build an admin-facing UI to edit schedule data without requiring a re-seed
+Done (Nov 16, 2026): #1 holiday end date, #2 multi-override icons, #3 calendar colour priority, #4 past announcements, #5 6pm rollover (greeting text unchanged), #7 full-page Matrix/Settings, #8 APK build verified in CI, #10 Free Rooms polish (tap fix unconfirmed on device).
+
+Still open:
+6. Announcement icon overflow (cap ~5, "+N" chip). No such icon row was found besides the week-strip badges, which now cap at 3 with "+N". Confirm with the user which screen was meant.
+9. Class-start/pre-class briefing notifications: rebuild from scratch (old scaffolding intentionally removed — do NOT restore from git). Needs product decisions first: lead times, which types, quiet hours.
+11. Schedule admin/edit flow: build an admin-facing UI to edit schedule data without a re-seed. Needs an auth design (reuse `checkPassword()` / `ADMIN_PASSWORD`, or Supabase Auth).
+
+Feature ideas (not committed to): `.ics` / Google Calendar export, exam and assignment countdown, attendance tracker, "where's my teacher now", section free-slot compare.
 
 ---
 
 ## Suggested First Steps for a New Agent
 
 1. Run `git log --oneline -15` and `git status` — confirm actual repo state.
-2. Ask the user if the `9ba2156` push + Vercel deployment is done and device-tested. If not, that's the only immediate priority.
-3. Once device test is confirmed, ask which backlog item to tackle next.
+2. Ask the user how far they've got through `TESTING_CHECKLIST.md`. Fix anything that failed on device before starting new work.
+3. Then ask which open backlog item to tackle (#6 needs clarification; #9 and #11 need design decisions).
 4. Before touching the overrides system, re-read the Architecture section above — it has a history of subtle regressions.

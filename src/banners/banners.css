@@ -23,8 +23,7 @@
   border: 1px solid var(--accent);
   border-radius: var(--rs);
   padding: 16px 20px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 20px var(--ag);
-  backdrop-filter: blur(12px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
 }
 .notif-banner-icon { font-size: 28px; flex-shrink: 0; }
 .notif-banner-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }

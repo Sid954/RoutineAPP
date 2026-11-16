@@ -113,7 +113,7 @@ export function initTeacherFinderUI() {
         }
         if (suggestRemovePhotoBtn) suggestRemovePhotoBtn.style.display = 'inline-block';
         if (suggestUploadBtnText) suggestUploadBtnText.textContent = 'Change Photo';
-        if (suggestPhotoStatus) suggestPhotoStatus.innerHTML = '<span style="color: #34d399; font-weight: 700;">✅ Photo attached</span>';
+        if (suggestPhotoStatus) suggestPhotoStatus.innerHTML = '<span style="color: #34d399; font-weight: 700;">Photo attached</span>';
       } else {
         if (suggestPhotoPreview) {
           suggestPhotoPreview.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 20px; height: 20px; color: var(--dim);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
@@ -513,7 +513,7 @@ export function initTeacherFinderUI() {
           if (!adminListBox.children.length) {
             adminListBox.innerHTML = `
               <div style="text-align: center; padding: 40px 20px; color: var(--dim);">
-                <div style="font-size: 32px; margin-bottom: 8px;">🎉</div>
+                <div style="font-size: 32px; margin-bottom: 8px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
                 <div style="font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 4px;">All Caught Up!</div>
                 <div style="font-size: 12px;">No pending faculty suggestions to review.</div>
               </div>
@@ -522,7 +522,7 @@ export function initTeacherFinderUI() {
         } catch (err) {
           showToast(err.message || 'Action failed.', 'error');
           actionBtn.disabled = false;
-          actionBtn.textContent = action === 'approve' ? 'Approve ✅' : 'Reject ❌';
+          actionBtn.textContent = action === 'approve' ? 'Approve' : 'Reject';
         }
       });
     }
@@ -584,7 +584,7 @@ async function loadAdminPendingList(password) {
   if (!pending || pending.length === 0) {
     adminListBox.innerHTML = `
       <div style="text-align: center; padding: 40px 20px; color: var(--dim);">
-        <div style="font-size: 32px; margin-bottom: 8px;">🎉</div>
+        <div style="font-size: 32px; margin-bottom: 8px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
         <div style="font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 4px;">All Caught Up!</div>
         <div style="font-size: 12px;">No pending faculty suggestions to review.</div>
       </div>
@@ -688,7 +688,7 @@ async function loadAdminPendingList(password) {
 
     const isScraper = item.source === 'build_scraper';
     const sourceBadge = isScraper
-      ? `<span class="faculty-code-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px; font-weight: 700;">🤖 Scraper Finding</span>`
+      ? `<span class="faculty-code-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 10px; font-weight: 700;">Scraper Finding</span>`
       : '';
 
     html += `
@@ -707,8 +707,8 @@ async function loadAdminPendingList(password) {
         </div>
 
         <div class="ft-admin-card-actions">
-          <button type="button" class="ft-admin-reject-btn btn" title="Reject this suggestion">Reject ❌</button>
-          <button type="button" class="ft-admin-approve-btn btn" title="Approve and apply live to all users">Approve ✅</button>
+          <button type="button" class="ft-admin-reject-btn btn" title="Reject this suggestion">Reject</button>
+          <button type="button" class="ft-admin-approve-btn btn" title="Approve and apply live to all users">Approve</button>
         </div>
       </div>
     `;
@@ -734,13 +734,13 @@ export function renderTeacherFinderModal() {
   let filtered = allTeachers.filter(t => matchesTeacherQuery(t, _searchQuery));
 
   if (summaryEl) {
-    summaryEl.innerHTML = `Showing <strong>${filtered.length}</strong> of ${allTeachers.length} faculty ${inClassCount > 0 ? `· <span style="color:#34d399; font-weight:800;">🟢 ${inClassCount} in class now</span>` : ''}`;
+    summaryEl.innerHTML = `Showing <strong>${filtered.length}</strong> of ${allTeachers.length} faculty ${inClassCount > 0 ? `· <span style="color:#34d399; font-weight:800;">${inClassCount} in class now</span>` : ''}`;
   }
 
   if (filtered.length === 0) {
     container.innerHTML = `
       <div style="text-align: center; padding: 40px 20px; color: var(--dim);">
-        <div style="font-size: 32px; margin-bottom: 8px;">👨‍🏫</div>
+        <div style="font-size: 32px; margin-bottom: 8px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
         <div style="font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 4px;">No faculty match "${escapeHtml(_searchQuery)}"</div>
         <div style="font-size: 12px;">Try searching another faculty name or code.</div>
       </div>
@@ -799,7 +799,7 @@ export function renderTeacherFinderModal() {
             </div>
           </div>
           <div class="faculty-app-live-tag">
-            <span>🟢 ${roomStr}</span>
+            <span>${roomStr}</span>
           </div>
         </div>
       `;
@@ -939,7 +939,7 @@ function renderTeacherScheduleRowsHtml(teacherKey, activeTab) {
 
   if (!filtered || filtered.length === 0) {
     return {
-      html: `<div class="faculty-empty-state">🌴 No Classes Scheduled on ${escapeHtml(activeTab)}</div>`,
+      html: `<div class="faculty-empty-state">No Classes Scheduled on ${escapeHtml(activeTab)}</div>`,
       filtered: []
     };
   }

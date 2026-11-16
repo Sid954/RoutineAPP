@@ -26,7 +26,7 @@ export function renderCurrentClass() {
       roomPill.parentElement.style.display = 'flex';
       timePill.style.display = 'inline-block';
 
-      DOM.currentTitle.textContent = 'Holiday / Day Off 🎉';
+      DOM.currentTitle.textContent = 'Holiday / Day Off';
       roomPill.textContent = 'HOLIDAY';
       timePill.textContent = 'All classes suspended';
       DOM.currentElapsed.textContent = 'Classes off';
@@ -56,7 +56,7 @@ export function renderCurrentClass() {
           link = cancelOverride.announcement.announcement;
         }
       }
-      DOM.currentTitle.textContent = `${activeItem.title} (ONLINE 📡)`;
+      DOM.currentTitle.textContent = `${activeItem.title} (ONLINE)`;
       roomPill.textContent = 'ONLINE';
       timePill.textContent = `${format12h(activeItem.start)} – ${format12h(activeItem.end)}`;
       DOM.currentElapsed.textContent = 'Virtual class';
@@ -95,7 +95,7 @@ export function renderCurrentClass() {
     progressSection.style.display = 'none';
     roomPill.parentElement.style.display = 'none';
     timePill.style.display = 'none';
-    DOM.currentTitle.textContent = 'Free Time 🌴';
+    DOM.currentTitle.textContent = 'Free Time';
     if (DOM.currentCard) {
       DOM.currentCard.classList.add('free-time');
       DOM.currentCard.classList.remove('in-class');

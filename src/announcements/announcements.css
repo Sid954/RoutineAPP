@@ -1026,7 +1026,6 @@ html[data-theme="light"] .announce-subcard-orig {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  backdrop-filter: blur(20px);
   animation: fadeInDown 0.15s ease;
 }
 
