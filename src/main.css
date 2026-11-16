@@ -19,6 +19,7 @@
 @import './announcements/announcements.css';
 @import './rooms/rooms.css';
 @import './teachers/teachers.css';
+@import './teachers/faculty.css';
 @import './themes/themes.css';
 @import './widget/widget.css';
 @import './settings/settings.css';

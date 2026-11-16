@@ -1,47 +1,20 @@
-import { DAY_NAMES, DAY_SHORT, FULL_COURSE_NAMES } from '../core/config.js';
-import { format12h, getCurrentMinutes, LAB_LABEL_HTML } from '../core/utils.js';
+/**
+ * Faculty: wiring for the directory page, the profile sheet, and the Suggest-edit /
+ * Admin-review modals. Directory UI: faculty-directory.js. Profile sheet: faculty-profile.js.
+ * Data/status helpers: faculty-data.js.
+ */
 import { openModal, closeModal } from '../modals/modal.js';
 import { showToast } from '../toast/toast.js';
-import { showClassDetails } from '../timeline/class-detail.js';
-import { loadMasterTeacherData, searchTeachers, getTeacherClassesForDay, getTeacherWeeklySubjects } from './teacher-finder.js';
+import { loadMasterTeacherData } from './teacher-finder.js';
 import { initTeacherNames, getTeacherInfo, resolveTeacherCode, submitNameSuggestion, fetchPendingSubmissions, reviewSubmission, uploadFacultyPhoto, getAllFacultyKeys } from './teacher-names.js';
+import { initFacultyDirectory, renderFacultyDirectory } from './faculty-directory.js';
+import { initTeacherProfile, openTeacherProfile, closeTeacherProfile, refreshTeacherProfileIfOpen } from './faculty-profile.js';
 
-let _searchQuery = '';
-let _lastTeacherResults = [];
 let _adminSessionPass = '';
-let _currentOpenTeacherData = null;
-let _selectedTeacherDetailDay = new Date().getDay();
 
 export function initTeacherFinderUI() {
-  const backBtn = document.getElementById('facultyPageBackBtn');
-  const searchInput = document.getElementById('teacherFinderSearchInput');
-  const searchClear = document.getElementById('teacherFinderSearchClear');
-
-  if (backBtn) {
-    backBtn.addEventListener('click', () => {
-      if (window.switchAppView) window.switchAppView('apps');
-    });
-  }
-
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      _searchQuery = e.target.value.trim();
-      if (searchClear) searchClear.style.display = _searchQuery ? 'block' : 'none';
-      renderTeacherFinderModal();
-    });
-  }
-
-  if (searchClear) {
-    searchClear.addEventListener('click', () => {
-      if (searchInput) {
-        searchInput.value = '';
-        _searchQuery = '';
-      }
-      searchClear.style.display = 'none';
-      renderTeacherFinderModal();
-    });
-  }
-
+  initFacultyDirectory(code => openTeacherProfile(code));
+  initTeacherProfile();
   window.__renderFacultyDirectory = renderTeacherFinderModal;
 
   // Suggest / Edit modal
@@ -77,29 +50,6 @@ export function initTeacherFinderUI() {
   const adminLoginBtn = document.getElementById('teacherApprovalLoginBtn');
   const adminAuthBox = document.getElementById('teacherApprovalAuthBox');
   const adminListBox = document.getElementById('teacherApprovalListBox');
-
-  // Teacher detail modal
-  const detailModal = document.getElementById('teacherDetailModal');
-  const detailCloseBtn = document.getElementById('teacherDetailCloseBtn');
-  const dayNav = document.getElementById('teacherDetailDayNav');
-
-  if (detailCloseBtn && detailModal) detailCloseBtn.addEventListener('click', () => closeModal(detailModal));
-  if (detailModal) {
-    detailModal.addEventListener('click', (e) => {
-      if (e.target === detailModal) closeModal(detailModal);
-    });
-  }
-
-  if (dayNav) {
-    dayNav.addEventListener('click', (e) => {
-      const btn = e.target.closest('.ft-day-btn');
-      if (!btn || !_currentOpenTeacherData) return;
-      const dayIdx = parseInt(btn.dataset.day, 10);
-      _selectedTeacherDetailDay = dayIdx;
-      dayNav.querySelectorAll('.ft-day-btn').forEach(b => b.classList.toggle('active', b === btn));
-      renderTeacherTimelineForDay(_currentOpenTeacherData.teacher, _selectedTeacherDetailDay);
-    });
-  }
 
   // 2. Suggest / Edit Info Handler
   if (suggestBtn && suggestModal) {
@@ -284,7 +234,7 @@ export function initTeacherFinderUI() {
         _currentEditingLockedCode = cleanPrefill;
         const info = getTeacherInfo(cleanPrefill);
         if (suggestCodeLockedBox) suggestCodeLockedBox.style.display = 'flex';
-        if (suggestCodeSelect) suggestCodeSelect.style.display = 'none';
+        if (suggestCodeSelect) (suggestCodeSelect.closest('.fd-select-wrap') || suggestCodeSelect).style.display = 'none';
         if (suggestCodeLockedBadge) suggestCodeLockedBadge.textContent = cleanPrefill;
         if (suggestNameLockedLabel) {
           const displayLabel = (info.name && info.name !== cleanPrefill) ? info.name : cleanPrefill;
@@ -295,9 +245,9 @@ export function initTeacherFinderUI() {
         _currentEditingLockedCode = '';
         if (suggestCodeLockedBox) suggestCodeLockedBox.style.display = 'none';
         if (suggestCodeSelect) {
-          suggestCodeSelect.style.display = 'block';
+          (suggestCodeSelect.closest('.fd-select-wrap') || suggestCodeSelect).style.display = '';
           const allCodes = Array.from(new Set(getAllFacultyKeys().map(k => k.toUpperCase()))).sort();
-          suggestCodeSelect.innerHTML = '<option value="">Select teacher code...</option>' +
+          suggestCodeSelect.innerHTML = '<option value="">Choose a teacher code</option>' +
             allCodes.map(code => {
               const info = getTeacherInfo(code);
               const label = (info.name && info.name !== code) ? `${code} — ${info.name}` : code;
@@ -528,22 +478,6 @@ export function initTeacherFinderUI() {
     }
   }
 
-  // 4. Teacher card click -> Open Daily Schedule detail modal
-  const listContainer = document.getElementById('teacherFinderGrid');
-  if (listContainer) {
-    listContainer.addEventListener('click', (e) => {
-      const card = e.target.closest('.faculty-app-card, .ft-list-item');
-      if (!card) return;
-      const teacherCode = card.dataset.teacher;
-      if (teacherCode && _lastTeacherResults.length > 0) {
-        const teacherData = _lastTeacherResults.find(t => t.teacher === teacherCode);
-        if (teacherData) {
-          openTeacherDetailModal(teacherData);
-        }
-      }
-    });
-  }
-
   // 5. Global click delegation for ANY clickable teacher badge across the app
   document.body.addEventListener('click', (e) => {
     const badge = e.target.closest('[data-teacher-code], .teacher-clickable-badge');
@@ -717,326 +651,14 @@ async function loadAdminPendingList(password) {
   adminListBox.innerHTML = html;
 }
 
+/** Re-renders the directory and an open profile (called after data refreshes). */
 export function renderTeacherFinderModal() {
-  const container = document.getElementById('teacherFinderGrid');
-  const summaryEl = document.getElementById('teacherFinderSummary');
-  if (!container) return;
-
-  const currentDay = new Date().getDay();
-  const currentMins = getCurrentMinutes();
-  const res = searchTeachers(currentDay, currentMins);
-  const allTeachers = res.teachers || [];
-  _lastTeacherResults = allTeachers;
-
-  const inClassCount = allTeachers.filter(t => t.status === 'IN_CLASS').length;
-
-  // Apply intelligent search query (matching full names, codes, and acronyms)
-  let filtered = allTeachers.filter(t => matchesTeacherQuery(t, _searchQuery));
-
-  if (summaryEl) {
-    summaryEl.innerHTML = `Showing <strong>${filtered.length}</strong> of ${allTeachers.length} faculty ${inClassCount > 0 ? `· <span style="color:#34d399; font-weight:800;">${inClassCount} in class now</span>` : ''}`;
-  }
-
-  if (filtered.length === 0) {
-    container.innerHTML = `
-      <div style="text-align: center; padding: 40px 20px; color: var(--dim);">
-        <div style="font-size: 32px; margin-bottom: 8px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-        <div style="font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 4px;">No faculty match "${escapeHtml(_searchQuery)}"</div>
-        <div style="font-size: 12px;">Try searching another faculty name or code.</div>
-      </div>
-    `;
-    return;
-  }
-
-  const namedGroup = [];
-  const unlistedGroup = [];
-
-  filtered.forEach(item => {
-    const info = getTeacherInfo(item.teacher);
-    const hasFullName = !!(info.name && info.name.trim().toUpperCase() !== item.teacher.trim().toUpperCase());
-    if (hasFullName) {
-      namedGroup.push({ item, info, displayName: info.name, sortKey: info.name.toLowerCase() });
-    } else {
-      unlistedGroup.push({ item, info, displayName: item.teacher, sortKey: item.teacher.toLowerCase() });
-    }
-  });
-
-  // Sort each group alphabetically within itself
-  namedGroup.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
-  unlistedGroup.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
-
-  function renderCard(entry, isNamed) {
-    const { item, info, displayName } = entry;
-    const isInClass = item.status === 'IN_CLASS';
-    const initials = (displayName || item.teacher).split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
-
-    const photoHtml = info.photo
-      ? `<img class="faculty-app-avatar-squircle" src="${escapeHtml(info.photo)}" alt="${escapeHtml(item.teacher)}" onerror="this.outerHTML='<div class=\\'faculty-app-avatar-squircle\\'>${initials}</div>'" />`
-      : `<div class="faculty-app-avatar-squircle">${initials}</div>`;
-
-    const desigText = info.designation && info.designation !== 'Faculty Member' && info.designation !== 'Guest Faculty'
-      ? escapeHtml(info.designation.split('·')[0].trim())
-      : 'Faculty Member';
-
-    const codePillHtml = isNamed && item.teacher && item.teacher.toLowerCase() !== displayName.toLowerCase()
-      ? `<span class="faculty-app-card-code">${escapeHtml(item.teacher)}</span>`
-      : '';
-
-    if (isInClass) {
-      const cur = item.currentClass;
-      const roomStr = cur.room ? `Room ${escapeHtml(cur.room)}` : escapeHtml(cur.subject);
-
-      return `
-        <div class="faculty-app-card in-class" data-teacher="${escapeHtml(item.teacher)}" title="Click to view full profile and routine">
-          <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
-            ${photoHtml}
-            <div class="faculty-app-card-body">
-              <div class="faculty-app-card-top-row">
-                <span class="faculty-app-card-name">${escapeHtml(displayName)}</span>
-                ${codePillHtml}
-              </div>
-              <div class="faculty-app-card-desig">${desigText}</div>
-            </div>
-          </div>
-          <div class="faculty-app-live-tag">
-            <span>${roomStr}</span>
-          </div>
-        </div>
-      `;
-    } else {
-      return `
-        <div class="faculty-app-card" data-teacher="${escapeHtml(item.teacher)}" title="Click to view full profile and routine">
-          <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
-            ${photoHtml}
-            <div class="faculty-app-card-body">
-              <div class="faculty-app-card-top-row">
-                <span class="faculty-app-card-name">${escapeHtml(displayName)}</span>
-                ${codePillHtml}
-              </div>
-              <div class="faculty-app-card-desig">${desigText}</div>
-            </div>
-          </div>
-          <div class="faculty-app-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </div>
-        </div>
-      `;
-    }
-  }
-
-  let html = '';
-
-  if (namedGroup.length > 0) {
-    html += `
-      <div class="faculty-section-divider">
-        <span class="faculty-section-title">Faculty Members</span>
-        <span class="faculty-section-badge purple">${namedGroup.length}</span>
-      </div>
-    `;
-    html += namedGroup.map(e => renderCard(e, true)).join('');
-  }
-
-  if (unlistedGroup.length > 0) {
-    html += `
-      <div class="faculty-section-divider">
-        <span class="faculty-section-title">Other Instructors</span>
-        <span class="faculty-section-badge">${unlistedGroup.length}</span>
-      </div>
-    `;
-    html += unlistedGroup.map(e => renderCard(e, false)).join('');
-  }
-
-  container.innerHTML = html;
-}
-
-const DAY_TAB_INDEX_MAP = { 'SAT': 6, 'SUN': 0, 'MON': 1, 'TUE': 2, 'WED': 3 };
-
-function getTeacherWeeklyAllClasses(teacherKey) {
-  const activeDays = [6, 0, 1, 2, 3];
-  const all = [];
-  activeDays.forEach(d => {
-    const dayClasses = getTeacherClassesForDay(teacherKey, d);
-    const dayShort = (DAY_SHORT[d] || DAY_NAMES[d] || 'SAT').substring(0, 3).toUpperCase();
-    const dayName = DAY_NAMES[d];
-    dayClasses.forEach(c => {
-      const durationMins = (typeof c.startM === 'number' && typeof c.endM === 'number' && c.endM > c.startM)
-        ? (c.endM - c.startM)
-        : (toMinutes(c.end) - toMinutes(c.start));
-      const durMins = durationMins > 0 ? durationMins : 75;
-      const durHours = Math.floor(durMins / 60);
-      const durMinsRemainder = durMins % 60;
-      const durationLabel = durHours > 0
-        ? (durMinsRemainder > 0 ? `${durHours}h ${durMinsRemainder}m` : `${durHours}h`)
-        : `${durMinsRemainder}m`;
-      
-      const isLab = String(c.type || '').toLowerCase() === 'lab' || String(c.subject || '').toUpperCase().endsWith('L');
-      const cleanRoom = (c.room || '').replace(/^room\s*/i, '').trim();
-
-      all.push({
-        ...c,
-        dayIdx: d,
-        dayShort,
-        dayName,
-        isLab,
-        room: cleanRoom,
-        duration: durationLabel,
-        fullCourseName: FULL_COURSE_NAMES[c.subject] || c.name || c.subject
-      });
-    });
-  });
-  return all;
-}
-
-function getOrdinal(n) {
-  const s = ['th', 'st', 'nd', 'rd'];
-  const v = n % 100;
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
-}
-
-function computeSemestersTaught(allClasses) {
-  if (!Array.isArray(allClasses) || allClasses.length === 0) {
-    return 'No routine semesters';
-  }
-
-  const semMap = new Map();
-
-  allClasses.forEach(c => {
-    const raw = c.semSec || '';
-    const match = String(raw).match(/Sem\s*(\d+)(?:-([A-Za-z0-9]+))?/i);
-    if (match) {
-      const sem = parseInt(match[1], 10);
-      const sec = (match[2] || '').trim().toUpperCase();
-      if (!semMap.has(sem)) semMap.set(sem, new Set());
-      if (sec) semMap.get(sem).add(sec);
-    }
-  });
-
-  const sortedSemesters = Array.from(semMap.keys()).sort((a, b) => a - b);
-  if (sortedSemesters.length === 0) {
-    return 'No routine semesters';
-  }
-
-  const parts = sortedSemesters.map(sem => {
-    const ord = getOrdinal(sem);
-    const secSet = semMap.get(sem);
-    const sections = Array.from(secSet).sort();
-    if (sections.length > 1) {
-      return `${ord} (${sections.join(', ')})`;
-    }
-    return ord;
-  });
-
-  return parts.join(', ');
-}
-
-function renderTeacherScheduleRowsHtml(teacherKey, activeTab) {
-  const allClasses = getTeacherWeeklyAllClasses(teacherKey);
-  let filtered = allClasses;
-  if (activeTab !== 'ALL') {
-    const targetDayIdx = DAY_TAB_INDEX_MAP[activeTab];
-    filtered = allClasses.filter(c => c.dayIdx === targetDayIdx);
-  }
-
-  if (!filtered || filtered.length === 0) {
-    return {
-      html: `<div class="faculty-empty-state">No Classes Scheduled on ${escapeHtml(activeTab)}</div>`,
-      filtered: []
-    };
-  }
-
-  const html = filtered.map((c, idx) => {
-    const isLab = c.isLab;
-    const roomText = c.room ? `Room ${escapeHtml(c.room)}` : 'Campus Room';
-    const courseTitle = escapeHtml(c.fullCourseName || c.subject);
-    const dayChipHtml = activeTab === 'ALL'
-      ? `<span class="faculty-day-chip">${escapeHtml(c.dayShort)}</span>`
-      : '';
-    
-    return `
-      <div class="faculty-routine-row is-clickable" data-class-idx="${idx}" title="View details for ${escapeHtml(c.subject)}">
-        <div class="faculty-routine-left">
-          <div class="faculty-routine-subj-row">
-            <span class="faculty-routine-subj">${escapeHtml(c.subject)}</span>
-            <span class="resting-tag ${isLab ? 'lab' : 'theory'}">${isLab ? LAB_LABEL_HTML : 'THEORY'}</span>
-            ${dayChipHtml}
-          </div>
-          <div class="faculty-routine-meta">
-            <span>${roomText}</span>
-            <span>&bull;</span>
-            <span>${courseTitle}</span>
-          </div>
-        </div>
-        <div class="faculty-routine-right">
-          <div class="faculty-routine-time-box">
-            <span class="faculty-routine-time">${format12h(c.start)}</span>
-            <span class="faculty-routine-duration">${escapeHtml(c.duration)}</span>
-          </div>
-          <svg class="faculty-routine-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  return { html, filtered };
-}
-
-function attachTeacherScheduleRowListeners(filteredClasses, teacherKey, fullName) {
-  const routineList = document.getElementById('facultyRoutineList');
-  if (!routineList || !Array.isArray(filteredClasses)) return;
-
-  routineList.querySelectorAll('.faculty-routine-row.is-clickable').forEach(row => {
-    row.addEventListener('click', () => {
-      const idx = parseInt(row.dataset.classIdx, 10);
-      const c = filteredClasses[idx];
-      if (!c) return;
-
-      const semMatch = String(c.semSec || '').match(/Sem\s*(\d+)(?:-([A-Za-z0-9]+))?/i);
-      const semester = semMatch ? semMatch[1] : '';
-      const section = semMatch ? semMatch[2] : '';
-
-      const classData = {
-        code: c.subject,
-        title: c.subject,
-        subject: c.subject,
-        name: c.fullCourseName || FULL_COURSE_NAMES[c.subject] || c.subject,
-        type: c.type || (c.isLab ? 'Lab' : 'Theory'),
-        room: c.room,
-        instructor: teacherKey,
-        teacher: teacherKey,
-        instructorName: fullName || teacherKey,
-        start: format12h(c.start),
-        end: format12h(c.end),
-        timing: `${format12h(c.start)} – ${format12h(c.end)}`,
-        duration: c.duration,
-        hasExplicitEndTime: true,
-        dayName: c.dayName,
-        dayIdx: c.dayIdx,
-        dayShort: c.dayShort,
-        semSec: c.semSec || '',
-        semester: semester,
-        section: section
-      };
-
-      // Elevate #classDetailModal above #teacherDetailModal (100035) so it slides up on top
-      const classModal = document.getElementById('classDetailModal');
-      if (classModal) {
-        classModal.style.zIndex = '100040';
-      }
-
-      if (typeof showClassDetails === 'function') {
-        showClassDetails(classData);
-      } else if (typeof window.openClassDetailSheet === 'function') {
-        window.openClassDetailSheet(classData);
-      }
-    });
-  });
+  renderFacultyDirectory();
+  refreshTeacherProfileIfOpen();
 }
 
 export function closeTeacherDetailModal() {
-  const detailModal = document.getElementById('teacherDetailModal');
-  if (detailModal) {
-    closeModal(detailModal);
-  }
+  closeTeacherProfile();
 }
 window.closeTeacherDetailModal = closeTeacherDetailModal;
 
@@ -1044,295 +666,15 @@ export function openTeacherDetailByCode(teacherCode) {
   if (!teacherCode) return;
   const cleanCode = String(teacherCode).trim().replace(/^[\s·\(\)]+|[\s·\(\)]+$/g, '');
   if (!cleanCode || cleanCode === '—' || cleanCode.toLowerCase() === 'tba') return;
-
-  const canonicalCode = resolveTeacherCode(cleanCode);
-  const classDetailModal = document.getElementById('classDetailModal');
-  const isFromClassDetail = classDetailModal && classDetailModal.classList.contains('open');
-
-  // Populate content synchronously and trigger spring slide-up entrance animation
-  openTeacherDetailModal({ teacher: canonicalCode, isFromClassDetail }, 'ALL');
+  openTeacherProfile(resolveTeacherCode(cleanCode) || cleanCode);
 }
-
 window.openTeacherDetailByCode = openTeacherDetailByCode;
 window.__openTeacherProfileByCode = openTeacherDetailByCode;
 
-window.__switchTeacherDetailTab = function(tabName) {
-  _selectedTeacherDetailDay = tabName;
-  if (!_currentOpenTeacherData) return;
-  const rawTeacherKey = _currentOpenTeacherData.teacher || _currentOpenTeacherData.code || _currentOpenTeacherData;
-  const teacherKey = resolveTeacherCode(rawTeacherKey);
-  const info = getTeacherInfo(teacherKey);
-  const fullName = info.name || teacherKey;
-
-  // Update tab buttons
-  const strip = document.getElementById('facultyDaysStrip');
-  if (strip) {
-    strip.querySelectorAll('.faculty-day-tab-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.tab === tabName);
-    });
-  }
-
-  // Update routine list container
-  const routineList = document.getElementById('facultyRoutineList');
-  if (routineList) {
-    const { html, filtered } = renderTeacherScheduleRowsHtml(teacherKey, tabName);
-    routineList.innerHTML = html;
-    routineList.scrollTop = 0;
-    attachTeacherScheduleRowListeners(filtered, teacherKey, fullName);
-  }
-};
-
-/** Opens Full Faculty Profile Modal */
-export function openTeacherDetailModal(teacherData, activeTab = 'ALL') {
-  const detailModal = document.getElementById('teacherDetailModal');
-  const heroContainer = document.getElementById('facultyProfileHero');
-
-  if (!detailModal || !heroContainer) return;
-
-  _currentOpenTeacherData = teacherData;
-  _selectedTeacherDetailDay = activeTab;
-
-  const rawTeacherKey = teacherData.teacher || teacherData.code || teacherData;
-  const teacherKey = resolveTeacherCode(rawTeacherKey);
-  const info = getTeacherInfo(teacherKey);
-  const fullName = info.name || teacherKey;
-  const initials = (fullName || teacherKey).split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
-
-  const photoHtml = info.photo
-    ? `<span class="faculty-avatar-initials">${escapeHtml(initials)}</span><img src="${escapeHtml(info.photo)}" alt="${escapeHtml(teacherKey)}" loading="lazy" decoding="async" onload="this.classList.add('loaded');" onerror="this.remove();" />`
-    : `<span class="faculty-avatar-initials">${escapeHtml(initials)}</span>`;
-
-  const desigText = info.designation || 'Assistant Professor';
-
-  // Code tag (e.g. MHE)
-  const isDistinctCode = teacherKey && fullName && (teacherKey.toUpperCase() !== fullName.toUpperCase());
-  const codePillHtml = isDistinctCode
-    ? `<span class="faculty-code-tag">${escapeHtml(teacherKey)}</span>`
-    : '';
-
-  // Status Pill: only show guest badge with pure SVG icon (zero emoji), nothing for active faculty
-  const isGuest = info.isGuest || info.status === 'Guest';
-  const statusPillHtml = isGuest
-    ? `<span class="faculty-status-pill guest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>GUEST FACULTY</span></span>`
-    : '';
-
-  // Action Buttons
-  const emailsList = Array.isArray(info.emails) ? info.emails.filter(e => e && e.trim()) : [];
-  const singleEmail = (typeof info.email === 'string' && info.email.trim()) ? info.email.trim() : '';
-  const primaryEmail = emailsList.length > 0 ? emailsList[0] : singleEmail;
-
-  const emailBtn = primaryEmail
-    ? `<a href="mailto:${escapeHtml(primaryEmail)}" class="faculty-action-chip" target="_blank" rel="noopener" title="Send Email: ${escapeHtml(primaryEmail)}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-        <span>Email</span>
-      </a>`
-    : `<button type="button" class="faculty-action-chip is-disabled" disabled title="No email available for this instructor">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-        <span>Email</span>
-      </button>`;
-
-  const phone = (info.phone && typeof info.phone === 'string' && info.phone.trim()) ? info.phone.trim() : (info.mobile || info.cell || '');
-  const phoneBtn = (phone && phone.trim())
-    ? `<a href="tel:${escapeHtml(phone.split(' ')[0])}" class="faculty-action-chip" title="Call Faculty: ${escapeHtml(phone)}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        <span>Call</span>
-      </a>`
-    : `<button type="button" class="faculty-action-chip is-disabled" disabled title="No phone number available for this instructor">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        <span>Call</span>
-      </button>`;
-
-  const rawUrl = (info.profileUrl && typeof info.profileUrl === 'string') ? info.profileUrl.trim() : '';
-  const isGenericUrl = !rawUrl || rawUrl === 'https://cse.puc.ac.bd' || rawUrl === 'https://cse.puc.ac.bd/' || rawUrl === 'http://cse.puc.ac.bd' || rawUrl === 'http://cse.puc.ac.bd/';
-  // Only http(s) may become a link: blocks javascript:/data: URLs from stored profile data
-  const hasRealProfile = !isGenericUrl && /^https?:\/\//i.test(rawUrl);
-
-  const pucBtn = hasRealProfile
-    ? `<a href="${escapeHtml(rawUrl)}" target="_blank" rel="noopener" class="faculty-action-chip" title="View Official PUC Website Profile">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        <span>PUC Profile</span>
-      </a>`
-    : `<button type="button" class="faculty-action-chip is-disabled" disabled title="No individual PUC profile page available">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        <span>PUC Profile</span>
-      </button>`;
-
-  // Day Switcher Tabs (SAT, SUN, MON, TUE, WED, ALL)
-  const dayTabs = ['SAT', 'SUN', 'MON', 'TUE', 'WED', 'ALL'];
-  const dayTabsHtml = dayTabs.map(d => `
-    <button class="faculty-day-tab-btn ${d === activeTab ? 'active' : ''}" data-tab="${d}" onclick="window.__switchTeacherDetailTab('${d}')">
-      ${d}
-    </button>
-  `).join('');
-
-  // Schedule rows (Max 3 visible, scrollable if > 3)
-  const { html: routineRowsHtml, filtered } = renderTeacherScheduleRowsHtml(teacherKey, activeTab);
-
-  // Courses Taught (deduplicated short codes)
-  const weekly = getTeacherWeeklySubjects(teacherKey);
-  const distinctCourses = Array.from(new Set((weekly.subjects || []).map(s => String(s).toUpperCase().trim()))).filter(Boolean).sort();
-  const coursesPillsHtml = distinctCourses.length > 0
-    ? distinctCourses.map(code => {
-        const isLab = code.endsWith('L') || code.toLowerCase().includes('lab');
-        return `<span class="resting-tag ${isLab ? 'lab' : 'theory'}" title="${escapeHtml(FULL_COURSE_NAMES[code] || code)}">${escapeHtml(code)}</span>`;
-      }).join('')
-    : '<span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">No active routine courses</span>';
-
-  // Semester Taught
-  const allClasses = getTeacherWeeklyAllClasses(teacherKey);
-  const semesterTaughtText = computeSemestersTaught(allClasses);
-
-  const isFromClassDetail = teacherData.isFromClassDetail || (document.getElementById('classDetailModal') && document.getElementById('classDetailModal').classList.contains('open'));
-  const backTextEl = document.getElementById('teacherDetailBackText');
-  if (backTextEl) {
-    backTextEl.textContent = isFromClassDetail ? 'Back to Class' : 'Back to Class';
-  }
-
-  heroContainer.innerHTML = `
-    <!-- Faculty Hero Card -->
-    <div class="faculty-hero-card">
-      <div class="faculty-avatar-box">${photoHtml}</div>
-      <div class="faculty-hero-info">
-        <div class="faculty-hero-name-row">
-          <span class="faculty-hero-name">${escapeHtml(fullName)}</span>
-          ${codePillHtml}
-          <button type="button" class="faculty-hero-edit-btn" onclick="window.__openFacultyEditModal('${escapeHtml(teacherKey)}')" title="Suggest an edit for ${escapeHtml(fullName)}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-        </div>
-        <div class="faculty-hero-desig">${escapeHtml(desigText)}</div>
-        ${statusPillHtml}
-      </div>
-    </div>
-
-    <!-- Quick Action Row -->
-    <div class="faculty-actions-row">
-      ${emailBtn}
-      ${phoneBtn}
-      ${pucBtn}
-    </div>
-
-    <!-- Day Switcher Segmented Bar -->
-    <div class="faculty-days-strip" id="facultyDaysStrip">
-      ${dayTabsHtml}
-    </div>
-
-    <!-- Fixed-Height Schedule Row List (Max 3 visible rows) -->
-    <div class="faculty-routine-list" id="facultyRoutineList">
-      ${routineRowsHtml}
-    </div>
-
-    <!-- Courses Taught Section (Always visible below schedule list) -->
-    <div class="faculty-courses-section">
-      <div class="faculty-courses-header">
-        <div style="display: flex; align-items: center; gap: 5px;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          <span>Courses Taught</span>
-        </div>
-        <span class="faculty-courses-count">${distinctCourses.length} ${distinctCourses.length === 1 ? 'course' : 'courses'}</span>
-      </div>
-      <div class="faculty-courses-pills">
-        ${coursesPillsHtml}
-      </div>
-    </div>
-
-    <!-- Semester Taught Section (Add under Courses Taught) -->
-    <div class="faculty-courses-section faculty-semesters-section">
-      <div class="faculty-courses-header">
-        <div style="display: flex; align-items: center; gap: 5px;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-          <span>Semester Taught</span>
-        </div>
-      </div>
-      <div class="faculty-semesters-value">
-        ${escapeHtml(semesterTaughtText)}
-      </div>
-    </div>
-  `;
-
-  attachTeacherScheduleRowListeners(filtered, teacherKey, fullName);
-
-  openModal(detailModal);
-}
-
-const STOP_WORDS = new Set(['and', 'to', 'of', 'the', 'in', 'for', 'on', 'with', '&', 'lab', 'laboratory']);
-
-function normalizeSearchTerm(str) {
-  return (str || '').toLowerCase()
-    .replace(/electronics/g, 'electronic')
-    .replace(/laboratories|laboratory/g, 'lab')
-    .replace(/structures/g, 'structure')
-    .replace(/devices/g, 'device')
-    .replace(/networks/g, 'network')
-    .replace(/systems/g, 'system')
-    .replace(/algorithms/g, 'algorithm')
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function matchesTeacherQuery(teacherObj, query) {
-  if (!query) return true;
-  const qRaw = query.toLowerCase().trim();
-  const qNorm = normalizeSearchTerm(query);
-
-  const queryWords = qRaw.split(/[\s.\-_&]+/).filter(w => w.length > 0 && !STOP_WORDS.has(w));
-  const isMultiWordQuery = queryWords.length >= 2;
-  const qAcronym = isMultiWordQuery ? queryWords.map(w => w[0]).join('') : '';
-
-  const code = (teacherObj.teacher || '').toLowerCase();
-  const info = getTeacherInfo(teacherObj.teacher);
-  const fullName = (info.name || '').toLowerCase();
-  const fullNameNorm = normalizeSearchTerm(fullName);
-  const designation = (info.designation || '').toLowerCase();
-
-  // 1. Direct match in teacher code
-  if (code === qRaw || (qRaw.length >= 2 && code.includes(qRaw))) return true;
-
-  // 2. Full Name & Designation match
-  if (fullName.includes(qRaw) || fullNameNorm.includes(qNorm) || designation.includes(qRaw)) return true;
-
-  // 3. Name Acronym match (e.g. query "Md. Ariful Islam" -> "mai" / "aib")
-  if (isMultiWordQuery && qAcronym && (code === qAcronym || code.includes(qAcronym))) return true;
-
-  // 4. Match across ALL subjects and rooms taught across the entire weekly timetable
-  const weekly = getTeacherWeeklySubjects(teacherObj.teacher);
-
-  // Check rooms
-  if (weekly.rooms.some(r => r.toLowerCase() === qRaw || `room ${r}`.toLowerCase() === qRaw || `room ${r}`.toLowerCase().includes(qRaw))) {
-    return true;
-  }
-
-  // Check subjects
-  for (const sub of weekly.subjects) {
-    const subLower = sub.toLowerCase();
-
-    // Direct code match (e.g. 'EDC', 'DS', 'ALGO')
-    if (subLower === qRaw || subLower.startsWith(qRaw)) return true;
-
-    // Multi-word query acronym match (e.g. query 'Electronic Devices and Circuits' -> acronym 'edc' == 'edc')
-    if (isMultiWordQuery && qAcronym.length >= 2 && (subLower === qAcronym || subLower === qAcronym + 'l')) return true;
-
-    // Full course title match
-    const fullTitle = FULL_COURSE_NAMES[sub] || '';
-    if (fullTitle) {
-      const fullTitleNorm = normalizeSearchTerm(fullTitle);
-      const titleWords = fullTitle.toLowerCase().split(/[\s.\-_&]+/).filter(w => w.length > 0 && !STOP_WORDS.has(w));
-      const titleAcronym = titleWords.length >= 2 ? titleWords.map(w => w[0]).join('') : '';
-
-      // Direct full title text containment
-      if (fullTitleNorm.includes(qNorm)) return true;
-      if (qRaw.length >= 2 && titleAcronym && titleAcronym === qRaw) return true;
-      if (isMultiWordQuery && titleAcronym && titleAcronym === qAcronym) return true;
-
-      // Word-overlap check: all significant words in query match in full title
-      if (queryWords.length >= 2 && queryWords.every(w => fullTitleNorm.includes(w))) {
-        return true;
-      }
-    }
-  }
-
-  return false;
+/** Kept for older callers: accepts { teacher } or a code. */
+export function openTeacherDetailModal(teacherData) {
+  const key = (teacherData && (teacherData.teacher || teacherData.code)) || teacherData;
+  if (key) openTeacherProfile(resolveTeacherCode(key) || key);
 }
 
 function escapeHtml(str) {

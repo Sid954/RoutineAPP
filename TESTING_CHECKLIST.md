@@ -149,3 +149,25 @@ Verified in the PC browser at 375×812 in both themes. Still check on a real dev
 - [ ] Same with the Weekly Routine (Matrix) open: Home, Notices, Apps and the centre button all close it, and the right dock tab is highlighted afterwards.
 - [ ] With Settings open on Home, the centre button closes Settings and does not pop up the calendar.
 - [ ] In the Weekly Routine, open a class, then tap its room. Rooms opens with that room's sheet, and the Weekly Routine is no longer underneath.
+
+## 15. Settings rebuild
+- [ ] Typing a name saves after a short pause ("Saved" under the field) and the Home greeting updates. No reload happens.
+- [ ] Changing semester or section shows the "Switch to Semester X · Section Y" bar. Undo puts the selects back; Switch downloads that routine and reloads.
+- [ ] Appearance: the Light and Dark cards switch the theme at once.
+- [ ] Edit classes: day chips show per-day counts. Remove a class and its toast Undo brings it back. Add a class; it lands on the chosen day in time order.
+- [ ] "Clear [day]" and "Restore official routine" both offer Undo. Restore loads YOUR section's routine (not the bundled default).
+- [ ] App: Check for updates works; Offline data shows the cache date and Online/Offline.
+
+## 16. Faculty directory rebuild
+- [ ] Apps → Faculty: the subtitle reads "N people · M in class now" on a class day. Rows are grouped A–Z, and code-only teachers sit under "Other instructors" at the end.
+- [ ] Each row shows a live status line: green "In class · Room X · until …", "Next at … · Room X", "Done for today" or "No classes today". Thu/Fri show no status lines.
+- [ ] Filter chips: All / My teachers (your routine's teachers) / In class / Today. Counts match the list. "In class" and "Today" are hidden on Thu/Fri.
+- [ ] Search finds by name, code, course code or title ("data structure"), and room ("905"). The × clears it.
+- [ ] Tap a teacher to open the profile sheet: photo or initials, name, code, designation, and the "now" card (In class with progress bar / Free now, next … / Done / Off today, next class …).
+- [ ] Email / Call / Profile open mail, the dialer and the browser. Missing ones are faded with "Not added", plus a "Suggest it" link.
+- [ ] Schedule: day chips with counts (today has a dot) plus Week. Rows show time, course, LAB tag, room, section. A class cancelled today by an announcement is struck through with a "Cancelled" tag and the now card does not count it.
+- [ ] Tapping a schedule row opens class details on top. Its teacher tile goes back to the profile.
+- [ ] The pencil (top of sheet) opens "Suggest an edit" ON TOP of the profile, with the teacher locked in. Inputs are readable in light mode.
+- [ ] The shield button → admin password → pending edits list still approves and rejects.
+- [ ] Teacher names tapped anywhere else (Home cards, Weekly Routine, Rooms sheet) still open the new profile.
+- [ ] Check both themes.

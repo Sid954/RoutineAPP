@@ -1323,148 +1323,102 @@
     </div>
   </div>
 
-  <!-- Modal: Suggest / Edit Faculty Info -->
-  <div class="mo" id="suggestTeacherNameModal" style="z-index: 100015;">
-    <div class="md" style="max-width: 440px; padding: 22px; position: relative;">
-      <button class="cls" id="suggestTeacherCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
-      
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-        <span style="font-size: 22px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
-        <h2 style="font-size: 18px; font-weight: 800; color: var(--text); margin: 0;">Add / Edit Faculty Info</h2>
-      </div>
-      <div style="font-size: 12px; color: var(--dim); margin-bottom: 16px;">
-        Help keep faculty info updated. Submissions are verified by an admin.
+  <!-- Modal: Suggest / Edit Faculty Info (logic in teacher-modal.js; ids are a contract) -->
+  <div class="mo fd-modal" id="suggestTeacherNameModal">
+    <div class="md fd-modal-card">
+      <div class="fd-modal-head">
+        <div>
+          <h2 class="fd-modal-title">Suggest an edit</h2>
+          <p class="fd-modal-sub">An admin checks every change before it goes live.</p>
+        </div>
+        <button type="button" class="fd-icon-btn" id="suggestTeacherCloseBtn" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
 
-      <!-- Cooldown Warning Banner -->
       <div id="suggestTeacherCooldownBanner" class="faculty-cooldown-banner" style="display: none;">
-        <span>Please wait <strong id="suggestTeacherCooldownTimer">60s</strong> before submitting another suggestion.</span>
+        <span>You can send another suggestion in <strong id="suggestTeacherCooldownTimer">60s</strong>.</span>
       </div>
 
-      <form id="suggestTeacherForm" style="display: flex; flex-direction: column; gap: 10px;">
-        <div>
-          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Teacher Code *</label>
-          
-          <!-- Locked view when opened from teacher profile -->
-          <div id="suggestTeacherCodeLockedBox" style="display: none; align-items: center; justify-content: space-between; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span class="faculty-code-tag" id="suggestTeacherCodeLockedBadge">MHE</span>
-              <span style="font-size: 13px; font-weight: 700; color: var(--text);" id="suggestTeacherNameLockedLabel">Mahmudul Hasan Emon</span>
-            </div>
+      <form id="suggestTeacherForm" class="fd-form" novalidate>
+        <div class="fd-field">
+          <span class="fd-field-label">Teacher</span>
+          <div id="suggestTeacherCodeLockedBox" class="fd-locked" style="display: none;">
+            <span class="faculty-code-tag" id="suggestTeacherCodeLockedBadge">CODE</span>
+            <span class="fd-locked-name" id="suggestTeacherNameLockedLabel"></span>
           </div>
-
-          <!-- Select dropdown when opened from general context -->
-          <select id="suggestTeacherCodeSelect" class="fr-sort-select" style="width: 100%; height: 38px; font-size: 13px;">
-            <option value="">Select teacher code...</option>
-          </select>
+          <span class="fd-select-wrap"><select id="suggestTeacherCodeSelect" class="fd-input" aria-label="Teacher code">
+            <option value="">Choose a teacher code</option>
+          </select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
         </div>
-
-        <div>
-          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Full Name</label>
-          <input type="text" id="suggestTeacherNameInput" maxlength="100" placeholder="e.g. Azmain Yakin Srizon" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
+        <label class="fd-field"><span class="fd-field-label">Full name</span><input type="text" id="suggestTeacherNameInput" class="fd-input" maxlength="100" placeholder="e.g. Azmain Yakin Srizon" autocomplete="off" /></label>
+        <label class="fd-field"><span class="fd-field-label">Designation</span><input type="text" id="suggestTeacherDesigInput" class="fd-input" maxlength="100" placeholder="e.g. Assistant Professor" autocomplete="off" /></label>
+        <div class="fd-form-pair">
+        <label class="fd-field"><span class="fd-field-label">Email</span><input type="email" id="suggestTeacherEmailInput" class="fd-input" maxlength="120" placeholder="name@puc.ac.bd" autocomplete="off" inputmode="email" /></label>
+        <label class="fd-field"><span class="fd-field-label">Phone</span><input type="tel" id="suggestTeacherPhoneInput" class="fd-input" maxlength="25" placeholder="+8801…" autocomplete="off" inputmode="tel" /></label>
         </div>
-
-        <div>
-          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Email Address</label>
-          <input type="email" id="suggestTeacherEmailInput" maxlength="120" placeholder="e.g. teacher@puc.ac.bd" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
-        </div>
-
-        <div>
-          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Phone / Mobile</label>
-          <input type="tel" id="suggestTeacherPhoneInput" maxlength="25" placeholder="e.g. +8801700000000" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
-        </div>
-
-        <div>
-          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Designation</label>
-          <input type="text" id="suggestTeacherDesigInput" maxlength="100" placeholder="e.g. Assistant Professor" style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
-        </div>
-
-        <div>
-          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Profile Photo</label>
+        <div class="fd-field">
+          <span class="fd-field-label">Photo</span>
           <div class="faculty-photo-upload-box" id="suggestTeacherPhotoBox">
             <div class="faculty-photo-preview-squircle" id="suggestTeacherPhotoPreview">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 20px; height: 20px; color: var(--dim);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
             </div>
-            <div style="flex: 1; min-width: 0;">
-              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <div class="fd-photo-main">
+              <div class="fd-photo-acts">
                 <button type="button" id="suggestTeacherUploadBtn" class="faculty-photo-upload-btn">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                   <span id="suggestTeacherUploadBtnText">Upload Photo</span>
                 </button>
                 <button type="button" id="suggestTeacherRemovePhotoBtn" class="faculty-photo-remove-btn" style="display: none;">Remove</button>
               </div>
-              <div id="suggestTeacherPhotoStatus" style="font-size: 11px; color: var(--dim); margin-top: 4px;">JPG, PNG, or WebP up to 3MB</div>
+              <div id="suggestTeacherPhotoStatus" class="fd-field-hint">JPG, PNG, or WebP up to 3MB</div>
             </div>
             <input type="file" id="suggestTeacherPhotoFileInput" accept="image/jpeg,image/png,image/webp" style="display: none;" />
             <input type="hidden" id="suggestTeacherPhotoInput" />
           </div>
         </div>
+        <label class="fd-field"><span class="fd-field-label">PUC profile link</span><input type="url" id="suggestTeacherProfileInput" class="fd-input" maxlength="200" placeholder="https://cse.puc.ac.bd/Home/Profile?userName=…" autocomplete="off" inputmode="url" /><span class="fd-field-hint">Must be a puc.ac.bd address</span></label>
 
-        <div>
-          <label style="display: block; font-size: 11px; font-weight: 800; color: var(--dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">PUC Profile URL</label>
-          <input type="url" id="suggestTeacherProfileInput" maxlength="200" placeholder="e.g. https://cse.puc.ac.bd/Home/Profile?userName=..." style="width: 100%; height: 38px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 13px; outline: none;" />
-        </div>
-
-        <button type="submit" id="suggestTeacherSubmitBtn" class="btn btn-primary" style="margin-top: 6px; width: 100%; height: 40px; font-size: 13px; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7c3aed); border: none; border-radius: 10px; color: #fff; cursor: pointer;">
-          Submit for Review
-        </button>
+        <button type="submit" id="suggestTeacherSubmitBtn" class="fd-btn fd-btn-primary">Submit for Review</button>
       </form>
     </div>
   </div>
 
-  <!-- Modal: Admin Faculty Name Approvals -->
-  <div class="mo" id="teacherApprovalModal" style="z-index: 100015;">
-    <div class="md md-wide" style="max-width: 540px; padding: 22px; position: relative;">
-      <button class="cls" id="teacherApprovalCloseBtn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 32px; height: 32px; line-height: 30px; cursor: pointer;">&times;</button>
-      
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-        <span style="font-size: 22px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
-        <h2 style="font-size: 18px; font-weight: 800; color: var(--text); margin: 0;">Pending Info Updates</h2>
-      </div>
-      <div id="teacherApprovalSummary" style="font-size: 12px; color: var(--dim); margin-bottom: 16px;">
-        Enter admin password to review and approve faculty info.
+  <!-- Modal: Admin review of faculty suggestions -->
+  <div class="mo fd-modal" id="teacherApprovalModal">
+    <div class="md md-wide fd-modal-card fd-modal-wide">
+      <div class="fd-modal-head">
+        <div>
+          <h2 class="fd-modal-title">Pending edits</h2>
+          <p class="fd-modal-sub" id="teacherApprovalSummary">Admins only. Approved changes go live for everyone.</p>
+        </div>
+        <button type="button" class="fd-icon-btn" id="teacherApprovalCloseBtn" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
 
-      <!-- Password Screen -->
-      <div id="teacherApprovalAuthBox" style="display: flex; flex-direction: column; gap: 10px;">
-        <input type="password" id="teacherApprovalPassInput" placeholder="Enter admin password..." style="width: 100%; height: 40px; padding: 0 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; outline: none;" />
-        <button id="teacherApprovalLoginBtn" class="btn" style="height: 40px; background: #a855f7; border: none; border-radius: 10px; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer;">
-          Unlock Approvals
-        </button>
+      <div id="teacherApprovalAuthBox" class="fd-form" style="display: flex;">
+        <label class="fd-field"><span class="fd-field-label">Admin password</span>
+          <input type="password" id="teacherApprovalPassInput" class="fd-input" autocomplete="current-password" />
+        </label>
+        <button type="button" id="teacherApprovalLoginBtn" class="fd-btn fd-btn-primary">Unlock Approvals</button>
       </div>
 
-      <!-- Pending Submissions List -->
-      <div id="teacherApprovalListBox" style="display: none; flex-direction: column; gap: 10px; max-height: 380px; overflow-y: auto; padding-right: 2px;">
-        <!-- Populated dynamically -->
-      </div>
+      <div id="teacherApprovalListBox" class="fd-review-list" style="display: none;"></div>
     </div>
   </div>
 
-  <!-- Modal: Full Faculty Profile Card (Slide-up Bottom Sheet) -->
-  <div class="class-sheet-modal-overlay faculty-sheet-overlay" id="teacherDetailModal" style="z-index: 100035;">
-    <div class="faculty-profile-sheet" onclick="event.stopPropagation()">
-      <!-- Drag Handle -->
-      <div class="sheet-drag-handle-bar">
-        <div class="sheet-drag-handle"></div>
-      </div>
-
-      <!-- Navigation & Close Header -->
-      <div class="faculty-nav-header">
-        <button class="faculty-back-btn" id="teacherDetailBackBtn" onclick="window.closeTeacherDetailModal?.()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-          <span id="teacherDetailBackText">Back to Class</span>
+  <!-- Faculty profile sheet (src/teachers/faculty-profile.js; ids teacherDetailModal, facultyProfileHero kept) -->
+  <div class="class-sheet-modal-overlay fd-sheet-overlay" id="teacherDetailModal">
+    <div class="fd-sheet" role="dialog" aria-modal="true" aria-labelledby="fdSheetName">
+      <div class="fd-grip" aria-hidden="true"></div>
+      <div class="fd-sheet-top">
+        <button type="button" class="fd-icon-btn" id="teacherDetailEditBtn" aria-label="Suggest an edit" title="Suggest an edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
         </button>
-        <button class="class-sheet-close-btn" id="teacherDetailCloseBtn" onclick="window.closeTeacherDetailModal?.()" title="Close sheet">&times;</button>
+        <button type="button" class="fd-icon-btn" id="teacherDetailCloseBtn" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
-
-      <!-- Interactive Hero Container -->
-      <div id="facultyProfileHero">
-        <!-- Rendered dynamically -->
-      </div>
+      <div class="fd-sheet-body" id="facultyProfileHero"></div>
     </div>
   </div>
-
-
 
   <!-- Toast Notification -->
   <div class="toast" id="toast">
