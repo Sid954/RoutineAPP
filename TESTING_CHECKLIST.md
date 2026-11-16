@@ -213,3 +213,22 @@ Updating from 1.5.5 to 1.5.6 still goes through the browser one last time, becau
 - [ ] Cancel during a download works. Airplane mode mid-download shows "Download failed" with Try again.
 - [ ] Settings → Check for updates shows "New version vX … Update now", which opens the same sheet.
 - [ ] Setting minRequiredVersionCode in version.json above your version shows "Update required" with no Later/Skip/close.
+
+## 20. Widgets rebuilt (v1.5.6)
+Add the widgets again after updating (long-press the home screen → Widgets → My Routine), or use the ones already there.
+- [ ] Live widget, through the day, without opening the app:
+  - [ ] Before the first class: "● FIRST CLASS" with the course, room and "in 1h".
+  - [ ] 15 minutes or less before a class: "● STARTS IN 10M" in amber.
+  - [ ] In class: "● IN CLASS · 2 OF 4", a progress bar, "35m in / 40m left", and NEXT or TOMORROW below.
+  - [ ] In a break: "● FREE NOW · NEXT".
+  - [ ] After classes: "● DONE FOR TODAY", with the next day's first class.
+  - [ ] Thu/Fri: "● OFF DAY" with SATURDAY's first class.
+  - [ ] Holiday: "● HOLIDAY" with its name.
+- [ ] It changes on its own at class start and end, and the countdown stays within ~2 minutes. Leave the phone untouched for an hour during classes, then check.
+- [ ] After restarting the phone, the widgets keep updating without opening the app.
+- [ ] Changing the phone's time or timezone updates the widgets.
+- [ ] A class cancelled by a notice: the live widget skips it. The day list shows it greyed with CANCELLED and the reason. Next week the same class is back to normal.
+- [ ] Day list widget: the tabs show dates ("Sat 21"). It opens on today (Saturday on Thu/Fri) and resets to today the next morning. Rows show "● NOW · 20m left", "in 15m" (amber), and done ticks.
+- [ ] Week widget: rows Sat–Wed with dates, today highlighted, live and done states. It reloads (the old version could stay stale).
+- [ ] The refresh buttons update instantly. Tapping a title opens the app.
+- [ ] Battery: no noticeable drain overnight. The widgets refresh at midnight, and otherwise at most every 3 hours outside class time.

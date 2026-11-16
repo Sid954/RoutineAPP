@@ -221,7 +221,7 @@ export function renderWidgetPreview(type = 'live') {
 }
 
 /**
- * Override-aware schedule for the native widget engine (RoutineScheduleEngine & list/rotated
+ * Legacy weekday-keyed schedule (kept as a fallback for the native widgets; list/rotated
  * factories), in the same { "<dayIdx>": [ {start,end,title,room,instructor,type} ] } shape.
  * The Java side recomputes live/next between app opens and knows nothing about
  * announcements, so cancellations/holidays/moves are resolved here for the next 7 dates:
@@ -254,6 +254,55 @@ export function buildWidgetScheduleJson() {
     return JSON.stringify(State.schedule);
   }
 }
+
+/**
+ * Dated widget schedule (v2) for the native widgets (WidgetData.java): the next 14 dates with
+ * announcements applied (cancelled / moved classes are kept and marked, not dropped), plus the
+ * plain weekly routine for dates beyond that. Times are minutes after midnight.
+ */
+export function buildWidgetScheduleV2(now = new Date()) {
+  if (!State.schedule) return '';
+  const mins = t => { const m = toMinutes(t); return m >= 0 ? m : -1; };
+  const pack = (c, status, extra = {}) => {
+    const s = mins(c.start);
+    let e = mins(c.end);
+    if (!(e > s)) e = s >= 0 ? s + 75 : -1;
+    return {
+      t: c.title || c.subject || 'Class',
+      r: status === 'online' ? 'ONLINE' : (c.room || ''),
+      i: c.instructor || c.teacher || '',
+      ty: c.type || 'Theory',
+      s, e, st: status, ...extra
+    };
+  };
+  const days = {};
+  for (let offset = 0; offset < 14; offset++) {
+    const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const dayIdx = date.getDay();
+    const hol = getOverrideFor(date);
+    const classes = getEffectiveClassesForDay(dayIdx, date).map(c => {
+      let status = 'normal';
+      if (c.isCancelled) status = 'cancelled';
+      else if ('rescheduledTo' in c) status = 'moved_away';
+      else if (c.isRescheduled) status = 'moved_in';
+      else if (c.isExtraClass) status = c.isOnline ? 'online' : 'extra';
+      else if (c.isMovedOnline || c.isOnline) status = 'online';
+      const ov = status === 'cancelled' || status === 'moved_away' ? null : getOverrideFor(date, c.title);
+      const extra = {};
+      if (ov && ov.type === 'class_test') extra.x = true;
+      if (status === 'cancelled' && c.cancelReason) extra.n = String(c.cancelReason).slice(0, 60);
+      return pack(c, status, extra);
+    }).filter(c => c.s >= 0);
+    days[key] = { holiday: hol && hol.type === 'holiday' ? ((hol.announcement && hol.announcement.title) || 'Holiday') : '', classes };
+  }
+  const week = {};
+  for (let d = 0; d < 7; d++) week[d] = (State.schedule[d] || []).map(c => pack(c, 'normal')).filter(c => c.s >= 0);
+  return JSON.stringify({ v: 2, generatedAt: Date.now(), days, week });
+}
+
+let _lastWidgetPayload = '';
+let _lastWidgetPushAt = 0;
 
 export async function updateNativeWidget() {
   if (!window.Capacitor || !window.Capacitor.isNativePlatform()) return;
@@ -391,8 +440,16 @@ export async function updateNativeWidget() {
     }
 
     const fullJsonStr = buildWidgetScheduleJson();
+    const v2 = buildWidgetScheduleV2();
+
+    // The widgets compute "now" natively; only push when the data changed (or every 30 min)
+    const payloadKey = v2.replace(/"generatedAt":\d+,/, '') + '|' + fullJsonStr;
+    if (payloadKey === _lastWidgetPayload && Date.now() - _lastWidgetPushAt < 30 * 60 * 1000) return;
+    _lastWidgetPayload = payloadKey;
+    _lastWidgetPushAt = Date.now();
 
     await WidgetPlugin.updateWidgetData({
+      schedule_v2: v2,
       current_label: currentLabel,
       current_time: currentTime,
       current_title: currentTitle,

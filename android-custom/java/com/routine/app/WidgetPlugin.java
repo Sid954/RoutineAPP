@@ -65,31 +65,16 @@ public class WidgetPlugin extends Plugin {
             editor.putString("theme_color", call.getString("theme_color", "dark"));
             editor.apply();
 
-            // Save full schedule JSON to RoutineWidgetData for Matrix & List widgets
+            // Dated schedule (v2) is what the widgets render from; the legacy weekday map is
+            // kept as a fallback for builds that do not send v2 yet.
+            SharedPreferences dataPrefs = context.getSharedPreferences(DATA_PREFS_NAME, Context.MODE_PRIVATE);
+            String v2 = call.getString("schedule_v2", "");
+            if (!v2.isEmpty()) WidgetData.save(context, v2);
             String fullSchedule = call.getString("full_schedule_json", "");
-            if (!fullSchedule.isEmpty()) {
-                SharedPreferences dataPrefs = context.getSharedPreferences(DATA_PREFS_NAME, Context.MODE_PRIVATE);
-                dataPrefs.edit().putString("full_schedule_json", fullSchedule).apply();
-            }
+            if (!fullSchedule.isEmpty()) dataPrefs.edit().putString("full_schedule_json", fullSchedule).apply();
 
-            AppWidgetManager manager = AppWidgetManager.getInstance(context);
-
-            // 1. Broadcast to Live Class Widget
-            Intent liveIntent = new Intent(context, RoutineWidgetProvider.class);
-            liveIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-            int[] liveIds = manager.getAppWidgetIds(new ComponentName(context, RoutineWidgetProvider.class));
-            liveIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, liveIds);
-            context.sendBroadcast(liveIntent);
-
-            // 2. Broadcast to Landscape Matrix Widget
-            Intent rotatedIntent = new Intent(context, RoutineRotatedWidgetProvider.class);
-            rotatedIntent.setAction(RoutineRotatedWidgetProvider.ACTION_UPDATE_ROTATED_WIDGET);
-            context.sendBroadcast(rotatedIntent);
-
-            // 3. Broadcast to Portrait Routine Widget
-            Intent listIntent = new Intent(context, RoutineListWidgetProvider.class);
-            listIntent.setAction(RoutineListWidgetProvider.ACTION_UPDATE_LIST_WIDGET);
-            context.sendBroadcast(listIntent);
+            // Re-render every widget natively and arm the next refresh
+            WidgetUpdater.updateAll(context);
 
             JSObject ret = new JSObject();
             ret.put("success", true);

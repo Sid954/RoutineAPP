@@ -9,3 +9,11 @@ Installs on top of v1.5.1 and later. No reinstall needed. This is the last updat
 - **Keep using the app** while it downloads. Hide the sheet and it comes back when the update is ready.
 - **What's new:** after an update, the app shows what changed, once.
 - Your routine, name, theme and notices stay as they are.
+
+### Widgets, rebuilt
+- **They update on their own now**, with no need to open the app: at class start and end, during class (time left and progress), and after midnight. They keep working after a phone restart.
+- **Smarter live widget:** first class, "starts in 10m", in class (2 of 4) with time left, free now, done for today, off day and holiday, always with what's next.
+- **Day list widget:** tabs show dates and reset to today each morning. Rows show the live class with time left, the next class countdown, done ticks, and cancelled classes greyed out with the reason.
+- **Week widget:** dates on every row, today highlighted, and it always reloads.
+- **Correct dates:** a class cancelled for one day no longer stays hidden on the same weekday next week.
+- Uses one alarm, around class times, instead of three that fired every minute all night.
