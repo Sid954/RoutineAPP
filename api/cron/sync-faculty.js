@@ -3,22 +3,12 @@
  * Runs weekly (every Friday at 03:00 UTC = 09:00 Bangladesh Time, UTC+6).
  */
 const { createClient } = require('@supabase/supabase-js');
+const { applyCors } = require('../_lib/cors.js');
 const { syncFacultyWithSupabase } = require('../_lib/faculty-scraper.js');
 const { safeEqual } = require('../_lib/security.js');
 
 module.exports = async (req, res) => {
-  // CORS Headers
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization'
-  );
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (applyCors(req, res, 'GET,POST,OPTIONS')) return;
 
   // 1. Verify Vercel Cron Authorization
   // Fail closed: without CRON_SECRET anyone could trigger the scraper + DB writes.
