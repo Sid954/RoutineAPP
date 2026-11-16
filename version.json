@@ -1,8 +1,8 @@
 {
-  "versionCode": 12,
-  "versionName": "1.5.2",
+  "versionCode": 13,
+  "versionName": "1.5.3",
   "apkUrl": "https://github.com/sid954/RoutineAPP/releases/latest/download/app-release.apk",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.2 - Rebuilt Settings (instant name save, safe class switch, day-by-day editor with undo) and Faculty directory (live \"in class\" status, filters, new profile sheet that respects cancellations), new Rooms page, SVG-only icons",
+  "releaseNotes": "v1.5.3 - New Notices page (department view, coming-up countdowns, search, calendar/share, post to any section or the whole department), rebuilt Faculty directory and Settings",
   "minRequiredVersionCode": 1
 }
