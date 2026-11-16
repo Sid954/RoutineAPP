@@ -30,9 +30,7 @@ export function updateGreeting() {
     return `${n}th`;
   }
   const rawSemester = Storage.getSemester();
-  const formattedSemester = `${getOrdinalSuffix(rawSemester)} Semester`;
-  const sectionText = `Section ${Storage.getSection().toUpperCase()}`;
-  const sub = `${formattedSemester} - ${sectionText}`;
+  const sub = `${getOrdinalSuffix(rawSemester)} semester · Section ${String(Storage.getSection()).toUpperCase()}`;
   
   if (salutationEl) salutationEl.textContent = salutation;
 
