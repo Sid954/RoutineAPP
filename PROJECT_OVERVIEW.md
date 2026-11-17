@@ -1,6 +1,6 @@
 ﻿# RoutineAPP — Agent Briefing
 
-> Read this fully before touching any code. Last updated: **Nov 17, 2026** (v1.5.12, versionCode 22, commit `627761c`; `main` and `main-2cmtj2` are identical). Quick status for a new session: `HANDOFF.md`.  
+> Read this fully before touching any code. Last updated: **Nov 18, 2026** (v1.5.13, versionCode 23, commit `40d6952`; `main` and `main-2cmtj2` are identical). Quick status for a new session: `HANDOFF.md`.  
 > If significant time has passed since that date, treat this doc as background context and verify current state with `git log --oneline -20` + `git status`.
 
 ---
@@ -202,7 +202,7 @@ Announcement type color identity:
 
 ---
 
-## Current State (Nov 17, 2026, v1.5.12)
+## Current State (Nov 18, 2026, v1.5.13)
 
 ### Stable and confirmed
 - Core redesign: dashboard, class detail sheet, faculty profile, apps hub nav — all full-page conversions
@@ -252,7 +252,7 @@ Nothing below has been physically tested on the user's phone yet. Do not call th
   - `setHtmlIfChanged` list re-renders, container fades, `content-visibility`, and no forced layout on page switches.
   - The rules are under "Performance rules" in the Design System above.
 - **Settings → Notifications row, and www/ untracked (Nov 17, 2026):** stale `www/` copies were removed from git (Vercel and CI build it).
-- **Desktop / mouse support (Nov 17, 2026, not released, checklist §26):** `src/core/desktop-input.js` (see CLAUDE.md). Verified with real mouse, wheel and keyboard input through CDP at 1280×800 and 390×800. Touch behaviour is identical to before (A/B with touch emulation).
+- **Desktop / mouse support (v1.5.13, released Nov 18, 2026, checklist §26):** `src/core/desktop-input.js` (see CLAUDE.md). Verified with real mouse, wheel and keyboard input through CDP at 1280×800 and 390×800. Touch behaviour is identical to before (A/B with touch emulation).
 - **Notifications rebuild (v1.5.12, released Nov 17, 2026, checklist §25):**
   - **Planning:** `src/notifications/planner.js` (pure, `tests/test_notification_planner.js`) plans 7 days of local alerts from the routine and announcements:
     - class reminders: lead 5–30 min, its own lab lead, every class or the first only, optional "starting now"

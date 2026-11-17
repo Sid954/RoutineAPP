@@ -306,7 +306,7 @@ The SQL (`supabase_notification_prefs.sql`) was run on 2026-11-17 and the API is
 - [ ] Push titles have no emoji (for example "Cancelled: ICMP class").
 - [ ] Class sheet: a "Reminder on / 1:20 PM today" switch shows for upcoming classes; switching it off skips that class's alerts that day.
 
-## 26. Desktop / mouse support (not released yet)
+## 26. Desktop / mouse support (v1.5.13)
 Checked on PC with real mouse input (headless Chrome): all of the below passed. Still to check on the website in your own desktop browser:
 - [ ] Home: drag the schedule left or right with the mouse to change day; dragging over a class card does not open it, and a plain click still does.
 - [ ] Arrow keys ← / → change the day on Home; a trackpad two-finger sideways swipe does too.
