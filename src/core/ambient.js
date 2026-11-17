@@ -51,8 +51,12 @@ function build(mode) {
       `<i class="amb-star" style="left:${(a * 100).toFixed(1)}%;top:${(b * 38).toFixed(1)}%;--d:${(2.5 + (i % 5) * 0.7).toFixed(1)}s;--s:${i % 3 === 0 ? 3 : 2}px"></i>`).join('');
     parts.push(stars, '<i class="amb-moon"></i>');
   }
-  if (mode.includes('morning')) parts.push('<i class="amb-sun"><b></b></i>');
-  if (mode.includes('evening')) parts.push('<i class="amb-dusk"></i>');
+  // Morning / evening: a warm sky with a soft sun, light rays and a few lit clouds
+  if (mode.includes('morning') || mode.includes('evening')) {
+    const tone = mode.includes('evening') ? 'is-evening' : 'is-morning';
+    parts.push(`<i class="amb-sky ${tone}"></i><i class="amb-rays ${tone}"></i><i class="amb-sun ${tone}"></i>` +
+      `<i class="amb-cloud c1 ${tone}"></i><i class="amb-cloud c2 ${tone}"></i><i class="amb-cloud c3 ${tone}"></i>`);
+  }
   if (mode.includes('day')) parts.push('<i class="amb-daylight"></i>');
   if (mode.includes('class')) parts.push('<i class="amb-lines"></i>');
   if (mode.includes('break')) parts.push(seeded(7, 3).map(([a, , i]) => `<i class="amb-bubble" style="left:${(8 + a * 84).toFixed(1)}%;--d:${(9 + i * 1.7).toFixed(1)}s;--delay:-${(i * 2.3).toFixed(1)}s"></i>`).join(''));

@@ -187,13 +187,7 @@ html[data-motion="lite"] #ambientLayer i { animation: none !important; }
 .amb-moon { top: 6%; right: 9%; width: 34px; height: 34px; border-radius: 50%; box-shadow: -8px 3px 0 0 #E2E8F0; opacity: 0.16; transform: rotate(-20deg); }
 :root[data-color="light"] .amb-moon { box-shadow: -8px 3px 0 0 #1E3A8A; opacity: 0.1; }
 
-/* Sun sits BELOW the settings gear (centre ≈ gear x, beside the greeting), not behind it:
-   a small warm disc, a soft glow and a slowly turning ring of short rays. */
-.amb-sun { top: calc(env(safe-area-inset-top, 0px) + 50px); right: -40px; width: 156px; height: 156px; border-radius: 50%; background: radial-gradient(circle, rgba(251, 191, 36, 0.22), rgba(251, 191, 36, 0.07) 38%, rgba(251, 191, 36, 0) 66%); }
-.amb-sun::before { content: ''; position: absolute; left: 50%; top: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FDE68A, #F59E0B); opacity: 0.72; box-shadow: 0 0 18px rgba(251, 191, 36, 0.35); }
-.amb-sun b { position: absolute; inset: 0; border-radius: 50%; background: repeating-conic-gradient(rgba(251, 191, 36, 0.14) 0deg 5deg, transparent 5deg 22.5deg); -webkit-mask: radial-gradient(circle, transparent 17%, #000 19%, #000 27%, transparent 31%); mask: radial-gradient(circle, transparent 17%, #000 19%, #000 27%, transparent 31%); animation: mxSpin 60s linear infinite; }
 .amb-daylight { inset: 0 0 auto 0; height: 260px; background: linear-gradient(180deg, rgba(56, 189, 248, 0.06), transparent); }
-.amb-dusk { inset: 0 0 auto 0; height: 300px; background: linear-gradient(180deg, rgba(249, 115, 22, 0.09), rgba(168, 85, 247, 0.04) 45%, transparent); animation: ambBreathe 12s ease-in-out infinite alternate; }
 @keyframes ambBreathe { from { opacity: 0.7; } to { opacity: 1; } }
 .amb-lines { inset: 0; background: repeating-linear-gradient(180deg, transparent 0 31px, rgba(148, 163, 184, 0.05) 31px 32px); -webkit-mask: linear-gradient(180deg, #000, transparent 55%); mask: linear-gradient(180deg, #000, transparent 55%); }
 .amb-bubble { bottom: -20px; width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid rgba(56, 189, 248, 0.22); animation: ambRise var(--d, 10s) linear infinite; animation-delay: var(--delay, 0s); }
@@ -203,19 +197,50 @@ html[data-motion="lite"] #ambientLayer i { animation: none !important; }
 .amb-dot.is-holiday:nth-child(3n) { background: #F472B6; }
 .amb-dot.is-holiday:nth-child(3n+1) { background: #34D399; }
 .amb-dot.is-test { background: #FB923C; border-radius: 50%; opacity: 0.22; }
+/* Morning / evening sky (ambient.js): warm wash, soft sun, fanned light rays, lit clouds.
+   All gradients (no filters, no images); the sun sits right, below the settings gear.
+   Clouds drift a few px over ~40s; rays sway a degree or two. Nothing pops. */
+.amb-sky { inset: 0 0 auto 0; height: 420px; }
+.amb-sky.is-morning { background: radial-gradient(120% 90% at 82% 22%, rgba(253, 186, 116, 0.16), rgba(251, 146, 60, 0.06) 45%, transparent 75%), linear-gradient(180deg, rgba(56, 120, 180, 0.08), transparent 70%); }
+.amb-sky.is-evening { background: radial-gradient(120% 90% at 82% 30%, rgba(251, 146, 60, 0.2), rgba(219, 39, 119, 0.07) 50%, transparent 78%), linear-gradient(180deg, rgba(88, 60, 140, 0.12), transparent 70%); }
+.amb-sun { top: calc(env(safe-area-inset-top, 0px) + 40px); right: -110px; width: 300px; height: 300px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(254, 243, 199, 0.62) 0 3%, rgba(253, 224, 71, 0.36) 7%, rgba(251, 191, 36, 0.16) 20%, rgba(251, 146, 60, 0.06) 40%, transparent 66%); }
+.amb-sun.is-evening { top: calc(env(safe-area-inset-top, 0px) + 90px); background: radial-gradient(circle, rgba(255, 237, 213, 0.5) 0 4%, rgba(251, 146, 60, 0.3) 10%, rgba(244, 63, 94, 0.1) 28%, transparent 64%); }
+.amb-rays { top: calc(env(safe-area-inset-top, 0px) + 40px - 250px); right: calc(-110px - 250px); width: 800px; height: 800px; border-radius: 50%;
+  background: repeating-conic-gradient(from 200deg, transparent 0deg, rgba(253, 230, 138, 0.06) 5deg, transparent 11deg, transparent 14deg, rgba(253, 230, 138, 0.035) 19deg, transparent 25deg);
+  -webkit-mask: radial-gradient(circle, transparent 6%, #000 12%, rgba(0, 0, 0, 0.4) 30%, transparent 48%); mask: radial-gradient(circle, transparent 6%, #000 12%, rgba(0, 0, 0, 0.4) 30%, transparent 48%);
+  animation: ambSway 24s ease-in-out infinite alternate; }
+.amb-rays.is-evening { top: calc(env(safe-area-inset-top, 0px) + 90px - 250px); background: repeating-conic-gradient(from 200deg, transparent 0deg, rgba(254, 215, 170, 0.055) 5deg, transparent 11deg, transparent 14deg, rgba(254, 215, 170, 0.03) 19deg, transparent 25deg); }
+@keyframes ambSway { from { transform: rotate(-2deg); } to { transform: rotate(2deg); } }
+/* Clouds: overlapping soft puffs; lit (peach/gold) on the sun side */
+.amb-cloud { border-radius: 50%; opacity: 0.8; animation: ambDrift 40s ease-in-out infinite alternate; }
+.amb-cloud.c1 { top: calc(env(safe-area-inset-top, 0px) + 18px); left: -40px; width: 230px; height: 70px;
+  background: radial-gradient(closest-side at 22% 66%, rgba(254, 215, 170, 0.3), transparent), radial-gradient(closest-side at 42% 42%, rgba(255, 237, 213, 0.34), transparent), radial-gradient(closest-side at 62% 55%, rgba(253, 186, 116, 0.3), transparent), radial-gradient(closest-side at 82% 66%, rgba(254, 215, 170, 0.24), transparent); }
+.amb-cloud.c2 { top: calc(env(safe-area-inset-top, 0px) + 150px); right: 70px; width: 170px; height: 56px; animation-duration: 52s; animation-direction: alternate-reverse;
+  background: radial-gradient(closest-side at 26% 60%, rgba(254, 215, 170, 0.3), transparent), radial-gradient(closest-side at 52% 40%, rgba(255, 237, 213, 0.36), transparent), radial-gradient(closest-side at 76% 58%, rgba(253, 186, 116, 0.28), transparent); }
+.amb-cloud.c3 { top: calc(env(safe-area-inset-top, 0px) + 240px); left: 30%; width: 200px; height: 50px; opacity: 0.35; animation-duration: 64s;
+  background: radial-gradient(closest-side at 35% 55%, rgba(253, 186, 116, 0.26), transparent), radial-gradient(closest-side at 70% 50%, rgba(254, 215, 170, 0.22), transparent); }
+@keyframes ambDrift { from { transform: translate3d(-8px, 0, 0); } to { transform: translate3d(12px, 0, 0); } }
+
 /* Light theme: the same scenes, drawn with more contrast so they read on a white page */
 :root[data-color="light"] .amb-star { background: #334155; }
 @keyframes ambTwinkleLight { from { opacity: 0.18; transform: scale(0.8); } to { opacity: 0.55; transform: scale(1.1); } }
 :root[data-color="light"] .amb-moon { box-shadow: -8px 3px 0 0 #64748B; opacity: 0.45; }
-:root[data-color="light"] .amb-sun { background: radial-gradient(circle, rgba(245, 158, 11, 0.34), rgba(245, 158, 11, 0.12) 38%, rgba(245, 158, 11, 0) 66%); }
-:root[data-color="light"] .amb-sun::before { opacity: 0.85; box-shadow: 0 0 18px rgba(245, 158, 11, 0.45); }
-:root[data-color="light"] .amb-sun b { background: repeating-conic-gradient(rgba(245, 158, 11, 0.42) 0deg 5deg, transparent 5deg 22.5deg); }
 :root[data-color="light"] .amb-daylight { background: linear-gradient(180deg, rgba(14, 165, 233, 0.14), transparent); }
-:root[data-color="light"] .amb-dusk { background: linear-gradient(180deg, rgba(249, 115, 22, 0.2), rgba(168, 85, 247, 0.1) 45%, transparent); }
 :root[data-color="light"] .amb-lines { background: repeating-linear-gradient(180deg, transparent 0 31px, rgba(71, 85, 105, 0.1) 31px 32px); }
 :root[data-color="light"] .amb-bubble { border-color: rgba(2, 132, 199, 0.5); }
 :root[data-color="light"] .amb-dot { opacity: 0.6; }
 :root[data-color="light"] .amb-dot.is-test { opacity: 0.45; }
+
+:root[data-color="light"] .amb-sky.is-morning { background: radial-gradient(120% 90% at 82% 22%, rgba(251, 191, 36, 0.3), rgba(251, 146, 60, 0.12) 45%, transparent 75%), linear-gradient(180deg, rgba(56, 140, 220, 0.12), transparent 70%); }
+:root[data-color="light"] .amb-sky.is-evening { background: radial-gradient(120% 90% at 82% 30%, rgba(249, 115, 22, 0.3), rgba(219, 39, 119, 0.12) 50%, transparent 78%), linear-gradient(180deg, rgba(109, 40, 217, 0.12), transparent 70%); }
+:root[data-color="light"] .amb-sun { background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 4%, rgba(253, 224, 71, 0.6) 9%, rgba(251, 191, 36, 0.3) 24%, rgba(251, 146, 60, 0.1) 42%, transparent 66%); }
+:root[data-color="light"] .amb-sun.is-evening { background: radial-gradient(circle, rgba(255, 247, 237, 0.95) 0 4%, rgba(251, 146, 60, 0.55) 10%, rgba(244, 63, 94, 0.18) 28%, transparent 64%); }
+:root[data-color="light"] .amb-rays { background: repeating-conic-gradient(from 200deg, transparent 0deg, rgba(245, 158, 11, 0.11) 5deg, transparent 11deg, transparent 14deg, rgba(245, 158, 11, 0.06) 19deg, transparent 25deg); }
+:root[data-color="light"] .amb-cloud { opacity: 0.85; }
+:root[data-color="light"] .amb-cloud.c1 { background: radial-gradient(closest-side at 30% 60%, rgba(251, 191, 36, 0.28), transparent), radial-gradient(closest-side at 55% 40%, rgba(249, 115, 22, 0.2), transparent), radial-gradient(closest-side at 78% 62%, rgba(251, 191, 36, 0.2), transparent); }
+:root[data-color="light"] .amb-cloud.c2 { background: radial-gradient(closest-side at 30% 55%, rgba(249, 115, 22, 0.2), transparent), radial-gradient(closest-side at 62% 42%, rgba(251, 191, 36, 0.28), transparent); }
+:root[data-color="light"] .amb-cloud.c3 { background: radial-gradient(closest-side at 35% 55%, rgba(249, 115, 22, 0.16), transparent), radial-gradient(closest-side at 70% 50%, rgba(251, 191, 36, 0.2), transparent); }
 
 /* Content sits above the ambient layer */
 .ww { position: relative; z-index: 1; }
