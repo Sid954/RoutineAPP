@@ -13,6 +13,30 @@
       } catch (e) {}
     })();
   </script>
+  <script>
+    /* TEMPORARY test clock (Settings → Test date & time). Shifts the app's clock by a stored
+       offset so any day/time can be tested; it keeps ticking. Must run before the app loads.
+       Remove this block and src/settings/test-time.js when testing is done. */
+    (function() {
+      var off = 0;
+      try { off = Number(localStorage.getItem('dev_time_offset')) || 0; } catch (e) {}
+      window.__devTimeOffset = off;
+      if (!off) return;
+      var RealDate = Date;
+      function TestDate() {
+        var a = Array.prototype.slice.call(arguments);
+        if (!new.target) return new RealDate(RealDate.now() + off).toString();
+        if (!a.length) return new RealDate(RealDate.now() + off);
+        return new (Function.prototype.bind.apply(RealDate, [null].concat(a)))();
+      }
+      TestDate.prototype = RealDate.prototype;
+      TestDate.now = function() { return RealDate.now() + off; };
+      TestDate.parse = RealDate.parse;
+      TestDate.UTC = RealDate.UTC;
+      window.__RealDate = RealDate;
+      window.Date = TestDate;
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="description" content="Smart university timetable dashboard with class notifications, progress tracking, and weekly schedule views.">
   <meta name="theme-color" content="#18191E">
@@ -733,6 +757,28 @@
                 <button type="button" class="st-btn st-btn-ghost" id="rstB">Restore official routine</button>
               </div>
             </div>
+          </div>
+        </section>
+
+        <!-- TEMPORARY: test clock (src/settings/test-time.js) -->
+        <section class="st-group">
+          <h3 class="st-group-title">Test date &amp; time</h3>
+          <div class="st-card st-testtime">
+            <p class="st-hint">Temporary, for testing. The app acts as if it is this date and time (the clock keeps ticking). Notifications are paused while it's on. Widgets keep the real time.</p>
+            <input type="datetime-local" id="stTestTime" class="st-input" step="60" aria-label="Test date and time">
+            <div class="st-tt-quick" role="group" aria-label="Adjust">
+              <button type="button" class="st-btn st-btn-ghost" data-tt="-1440">−1 day</button>
+              <button type="button" class="st-btn st-btn-ghost" data-tt="-60">−1 h</button>
+              <button type="button" class="st-btn st-btn-ghost" data-tt="-10">−10 m</button>
+              <button type="button" class="st-btn st-btn-ghost" data-tt="10">+10 m</button>
+              <button type="button" class="st-btn st-btn-ghost" data-tt="60">+1 h</button>
+              <button type="button" class="st-btn st-btn-ghost" data-tt="1440">+1 day</button>
+            </div>
+            <div class="st-tt-actions">
+              <button type="button" class="st-btn st-btn-primary" id="stTestTimeApply">Apply</button>
+              <button type="button" class="st-btn st-btn-ghost" id="stTestTimeReset">Use real time</button>
+            </div>
+            <span class="st-hint" id="stTestTimeStatus"></span>
           </div>
         </section>
 

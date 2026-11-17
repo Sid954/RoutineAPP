@@ -125,6 +125,8 @@ export const Notifications = {
   _lastScheduleTime: 0,
 
   async scheduleForToday(force = false) {
+    // TEMPORARY test clock: never schedule real reminders from a shifted clock
+    if (window.__devTimeOffset) return;
     try {
       const nowTs = Date.now();
       if (!force && nowTs - this._lastScheduleTime < 5000) {

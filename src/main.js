@@ -380,6 +380,7 @@ import { initBackButton } from './events/back-button.js';
 import { initNotificationHealth, refreshHealthUI } from './notifications/health.js';
 import { initAmbient } from './core/ambient.js';
 import { initTips } from './core/tips.js';
+import { initTestTime } from './settings/test-time.js';
 import { checkFirstTimeOnboarding } from './events/onboarding.js';
 import { initAndroidPrompt } from './banners/android-prompt.js';
 import { initWidgetPinningUI } from './widget/widget.js';
@@ -395,6 +396,7 @@ initBackButton();
 initNotificationHealth();
 initAmbient();
 initTips();
+initTestTime();
 // App-launch entrance: the one orchestrated, non-triggered animation (see motion.css §5).
 document.body.classList.add('boot-enter');
 setTimeout(() => document.body.classList.remove('boot-enter'), 1100);

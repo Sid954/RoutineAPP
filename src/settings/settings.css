@@ -441,3 +441,22 @@
 .st-page .st-offday-chips button { height: 36px; border-radius: 10px; border: 1px solid var(--card-border); background: var(--st-inset, var(--canvas)); color: var(--text-muted); font: 700 12px var(--font-ui); cursor: pointer; }
 .st-page .st-offday-chips button.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
 :root[data-color="light"] .st-page .st-offday-chips button.active { color: var(--accent-hover); }
+
+/* ── TEMPORARY test clock (test-time.js) ── */
+.st-page .st-testtime { display: flex; flex-direction: column; gap: 10px; }
+.st-page .st-tt-quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.st-page .st-tt-quick .st-btn { padding: 8px 4px; font-size: 12.5px; }
+.st-page .st-tt-actions { display: flex; gap: 8px; }
+.st-page .st-tt-actions .st-btn { flex: 1; }
+.dev-time-banner {
+  position: fixed; bottom: calc(var(--dock-clearance, 112px) - 2px); left: 50%; transform: translateX(-50%);
+  z-index: 9000; display: flex; align-items: center; gap: 8px; max-width: calc(100% - 32px);
+  padding: 6px 6px 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  background: #F59E0B; color: #1A1206; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); white-space: nowrap;
+}
+.dev-time-banner svg { width: 14px; height: 14px; flex: 0 0 auto; }
+.dev-time-banner span { overflow: hidden; text-overflow: ellipsis; }
+.dev-time-banner .dev-time-reset {
+  border: 0; border-radius: 999px; padding: 4px 10px; font: inherit; font-weight: 700;
+  background: rgba(0, 0, 0, 0.16); color: inherit; cursor: pointer;
+}

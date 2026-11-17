@@ -35,3 +35,11 @@ Rule reminders: Home keeps the user's ORIGINAL design (no redesigns without aski
 
 ## Tools / skills
 - User asked for a "ponytail" skill (token saving): not found in their skills/plugins catalog. Suggested plugins: audit-suite, Android Emulator QA. Check ListPlugins next session.
+
+## Temporary test clock (added 2026-11-17) — REMOVE before the app goes public
+Settings → "Test date & time". Pieces to delete together:
+- the second inline `<script>` in `index.html` `<head>` (replaces `Date` using localStorage `dev_time_offset`)
+- the "Test date & time" `st-group` section in `index.html`
+- `src/settings/test-time.js` and its import/`initTestTime()` in `src/main.js`
+- the "TEMPORARY test clock" block at the end of `src/settings/settings.css`
+- the `window.__devTimeOffset` guard at the top of `scheduleForToday` in `src/notifications/notifications.js`
