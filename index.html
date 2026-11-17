@@ -14,14 +14,12 @@
     })();
   </script>
   <script>
-    /* TEMPORARY test clock (Settings → Test date & time). Shifts the app's clock by a stored
-       offset so any day/time can be tested; it keeps ticking. Must run before the app loads.
-       Remove this block and src/settings/test-time.js when testing is done. */
+    /* TEMPORARY test clock (top "Test time" tab, src/settings/test-time.js). Shifts the app's
+       clock by an offset so any day/time can be tested; it keeps ticking and can be changed
+       live. Must run before the app loads. Remove with test-time.js when testing is done. */
     (function() {
       var off = 0;
       try { off = Number(localStorage.getItem('dev_time_offset')) || 0; } catch (e) {}
-      window.__devTimeOffset = off;
-      if (!off) return;
       var RealDate = Date;
       function TestDate() {
         var a = Array.prototype.slice.call(arguments);
@@ -34,6 +32,12 @@
       TestDate.parse = RealDate.parse;
       TestDate.UTC = RealDate.UTC;
       window.__RealDate = RealDate;
+      window.__devTimeOffset = off;
+      window.__setDevTimeOffset = function(ms) {
+        off = Math.abs(ms) < 30000 ? 0 : Math.round(ms);
+        window.__devTimeOffset = off;
+        try { if (off) localStorage.setItem('dev_time_offset', String(off)); else localStorage.removeItem('dev_time_offset'); } catch (e) {}
+      };
       window.Date = TestDate;
     })();
   </script>
@@ -757,28 +761,6 @@
                 <button type="button" class="st-btn st-btn-ghost" id="rstB">Restore official routine</button>
               </div>
             </div>
-          </div>
-        </section>
-
-        <!-- TEMPORARY: test clock (src/settings/test-time.js) -->
-        <section class="st-group">
-          <h3 class="st-group-title">Test date &amp; time</h3>
-          <div class="st-card st-testtime">
-            <p class="st-hint">Temporary, for testing. The app acts as if it is this date and time (the clock keeps ticking). Notifications are paused while it's on. Widgets keep the real time.</p>
-            <input type="datetime-local" id="stTestTime" class="st-input" step="60" aria-label="Test date and time">
-            <div class="st-tt-quick" role="group" aria-label="Adjust">
-              <button type="button" class="st-btn st-btn-ghost" data-tt="-1440">−1 day</button>
-              <button type="button" class="st-btn st-btn-ghost" data-tt="-60">−1 h</button>
-              <button type="button" class="st-btn st-btn-ghost" data-tt="-10">−10 m</button>
-              <button type="button" class="st-btn st-btn-ghost" data-tt="10">+10 m</button>
-              <button type="button" class="st-btn st-btn-ghost" data-tt="60">+1 h</button>
-              <button type="button" class="st-btn st-btn-ghost" data-tt="1440">+1 day</button>
-            </div>
-            <div class="st-tt-actions">
-              <button type="button" class="st-btn st-btn-primary" id="stTestTimeApply">Apply</button>
-              <button type="button" class="st-btn st-btn-ghost" id="stTestTimeReset">Use real time</button>
-            </div>
-            <span class="st-hint" id="stTestTimeStatus"></span>
           </div>
         </section>
 
