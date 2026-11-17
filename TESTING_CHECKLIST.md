@@ -317,7 +317,7 @@ Checked on PC with real mouse input (headless Chrome): all of the below passed. 
 - [ ] Dragging never selects text.
 - [ ] Phone (touch is unchanged): swiping **left** on the Home schedule goes to the next day. In the PC touch emulator only right swipes switched the day, and that was already so before this change; check whether that is just the emulator.
 
-## 27. Mouse works like a finger everywhere (not released yet)
+## 27. Mouse works like a finger everywhere (v1.5.14)
 Checked on PC with real mouse input; check in your own desktop browser:
 - [ ] Click and drag up or down anywhere on Notices, Faculty, Rooms, Settings, the Weekly Routine and Home: the page scrolls with the mouse, like a finger.
 - [ ] Flick (drag fast and let go): it keeps gliding and slows down; a click or the wheel stops it.

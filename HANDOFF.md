@@ -1,16 +1,16 @@
-# Handoff: continue RoutineAPP in a new session (updated 2026-11-18, v1.5.13)
+# Handoff: continue RoutineAPP in a new session (updated 2026-11-18, v1.5.14)
 
 Paste this into the new session, or tell it: **"Read CLAUDE.md, PROJECT_OVERVIEW.md and HANDOFF.md first, then continue."**
 CLAUDE.md and PROJECT_OVERVIEW.md hold the standing rules, the architecture and the release steps. This file only says where things stand right now.
 
 ## Get in sync
-- Branch: `main-2cmtj2`. It is identical to `main` at `40d6952` (v1.5.13, versionCode 23), plus any later docs-only commits.
+- Branch: `main-2cmtj2`. It is identical to `main` at `0f9771a` (v1.5.14, versionCode 24), plus any later docs-only commits.
   ```bash
   git fetch origin && git checkout main-2cmtj2 && git pull && npm install
   ```
-- **v1.5.13 is published.**
-  - The signed CI build succeeded, and GitHub release `v1.5.13` has `app-release.apk`.
-  - `/api/app-update` reports 1.5.13.
+- **v1.5.14 is published.**
+  - The signed CI build succeeded, and GitHub release `v1.5.14` has `app-release.apk`.
+  - `/api/app-update` reports 1.5.14.
   - The Vercel production deploy succeeded.
 - To build signed APKs locally, copy the gitignored `secrets/` folder from the old PC yourself. Never paste secrets in chat.
 - The repo is still **public**. Before making it private, add a fine-grained GitHub token (this repo only, Contents read-only) as `GITHUB_TOKEN` on Vercel and redeploy, or in-app updates break.
@@ -28,11 +28,13 @@ CLAUDE.md and PROJECT_OVERVIEW.md hold the standing rules, the architecture and 
   - The Notifications page opens from Settings → Notifications, and the class sheet has a Reminder switch.
   - The server filters notice pushes per device (`device_tokens.prefs`). **The user ran `supabase_notification_prefs.sql` on 2026-11-17.**
   - Push titles have no emoji.
+- **v1.5.14:** the mouse works like a finger site-wide (drag-scroll with fling, edge hand-off to the other gestures), and the Notices "Coming up" row no longer resets mid-swipe (phones too).
 - **v1.5.13, desktop:** the website works with a mouse and trackpad (`src/core/desktop-input.js`): drag to switch days or close sheets, pull to refresh, sideways rows scroll with the wheel, arrow keys. Touch is unchanged.
 - **Settings → Notifications row** opens that page. `www/` is no longer tracked in git (Vercel and CI build it).
 
 ## Waiting on the user
 - **Phone checks** in `TESTING_CHECKLIST.md`. Nothing from v1.5.8 on is confirmed on the phone yet. Most important:
+  - §27: v1.5.14 mouse-as-finger and the Coming up swipe
   - §26: v1.5.13 desktop/mouse, plus the phone check that left swipes on the Home schedule switch days
   - §25: v1.5.12 notifications, including the notice-filter check
   - §23: v1.5.11 smoothness
