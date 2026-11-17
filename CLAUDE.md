@@ -28,7 +28,7 @@ node build.js --scrape-faculty            # optional faculty scrape during build
 
 ## Build pipeline (`build.js`): edit sources, not outputs
 
-- **Edit `src/`, the root `index.html`, `sw.js` and so on. Never edit `www/`.** The build wipes and regenerates `www/` every time. Some stale `www/` files are still tracked in git even though `www/` is gitignored.
+- **Edit `src/`, the root `index.html`, `sw.js` and so on. Never edit `www/`.** The build wipes and regenerates `www/` every time. `www/` is gitignored and untracked (the last stale copies were removed from git on 2026-11-17). Vercel and CI both build it themselves.
 - **Android native code lives in `android-custom/`** (Java widgets, `res/`, `AndroidManifest.xml`). The build copies it over `android/app/src/main/`, so edits made directly under `android/app/src/main/` get overwritten.
 - `version.json` is the single source of truth for the app version. The build writes `versionCode`/`versionName` into `android/app/build.gradle` and into `appVersionCode`/`appVersionName` in `src/core/config.js`. It also stamps a fresh `CACHE_VERSION` into both `sw.js` files.
 - The build regenerates `master_rooms_schedule.json` and `master_teachers_schedule.json` from `src/data/sem-*/<section>/routine.json`. These files are the offline fallbacks.

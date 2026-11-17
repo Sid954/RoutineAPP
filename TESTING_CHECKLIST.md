@@ -270,7 +270,7 @@ Add the widgets again after updating (long-press the home screen → Widgets →
 - [ ] (v1.5.10) Light theme: sun, night stars + moon, evening tint and the live class water fill are clearly visible.
 - [ ] (v1.5.10) Calm motion: switching pages only fades; popups fade in; sheets slide up with no bounce; lists don't rise in; no icon pops (dock, toast, dots), no shake, no confetti, no rolling clock digits, no sheen across the day card. Taps give a small, even press.
 
-## 23. Performance pass (90 Hz smoothness, not released yet)
+## 23. Performance pass (90 Hz smoothness, v1.5.11)
 - [ ] Overall: opening and closing class details, the room sheet, notice details, the faculty profile, Settings and the Weekly Routine feels smooth at 90 Hz (no stutter at the start of the slide or fade).
 - [ ] Popups now only dim the page (no blur at all, on any animation setting).
 - [ ] Scrolling Faculty, Notices and Rooms is smooth, including the first scroll after opening the page. Rows don't flash or shrink when a scroll starts on top of them.

@@ -109,11 +109,10 @@
 }
 
 /* ==========================================================================
-   2. Page transitions: main.js animateViewEnter now fades the page with el.animate()
-      (no forced layout). .view-enter is no longer added; the rule below is unused.
+   2. Page transitions: main.js animateViewEnter fades the page with el.animate()
+      (no forced layout). viewEnter is still used by full-page popups (§3).
    ========================================================================== */
 @keyframes viewEnter { from { opacity: 0; } to { opacity: 1; } }
-.app-page-view.view-enter { animation: viewEnter var(--dur-2) var(--ease-out) both; }
 
 /* ==========================================================================
    3. Modals & sheets: animated exit (modal.js adds .closing before hiding)
