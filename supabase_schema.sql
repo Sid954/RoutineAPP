@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS public.device_tokens (
 -- Migration query if device_tokens table already exists:
 ALTER TABLE public.device_tokens ADD COLUMN IF NOT EXISTS semester text;
 ALTER TABLE public.device_tokens ADD COLUMN IF NOT EXISTS section text;
+-- Per-device notice preferences (see supabase_notification_prefs.sql)
+ALTER TABLE public.device_tokens ADD COLUMN IF NOT EXISTS prefs jsonb;
 
 -- Create teacher_names table to store crowdsourced faculty full names and moderation status
 CREATE TABLE IF NOT EXISTS public.teacher_names (

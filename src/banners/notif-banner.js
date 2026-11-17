@@ -10,13 +10,12 @@ export function initNotifBanner() {
     DOM.notifBanner.classList.remove('show');
     Storage.dismissBanner(Storage.BANNER_DISMISS_KEY);
     if (granted) {
-      // Permission + push registration for announcements only. Class-start reminders
-      // (Notifications.scheduleForToday) stay opt-in and unchanged: they are backlog #9
-      // and need a redesign before being switched on from here.
+      // Permission granted: push registration for notices, and requestPermission() has already
+      // planned the local alerts (class reminders, summaries, tests, deadlines; notifications.js).
       if (NativePush.isSupported()) {
         NativePush.init();
       }
-      showToast('Announcement notifications enabled', 'success');
+      showToast('Notifications on. Change what you get in Settings → Notifications.', 'success');
     } else {
       showToast('Permission denied — you can enable later in settings.', 'warning');
     }

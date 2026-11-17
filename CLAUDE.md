@@ -52,7 +52,7 @@ node build.js --scrape-faculty            # optional faculty scrape during build
 - Ask before committing or pushing, and ask before running build, screenshot or browser-automation scripts.
 - Never say something is "fixed" without real evidence. Acceptable evidence is test or script output against real data, or the user confirming it on their phone. The user tests major changes on a physical device.
 - When restoring a drifted component, copy the exact values from the last known-good source (git history or the live file), never from memory. Trust the live file and `git diff` over commit messages.
-- Do not restore the class-start/pre-class notification code that was deliberately removed. It needs a rebuild from scratch.
+- Notifications were rebuilt on 2026-11-17 (see "Notifications" in PROJECT_OVERVIEW.md). Plan alerts only through `src/notifications/planner.js`, which is pure and tested. Never add another scheduler, and never restore the old pre-November reminder or briefing code from git.
 - UI rules:
   - Use SVG icons only, never emoji.
   - No glassmorphism or glow, and no `backdrop-filter` at all. The popup-backdrop blur was tried and removed again on 2026-11-17 because the app felt laggy on the user's 90 Hz phone. Popups use a plain strong dim.

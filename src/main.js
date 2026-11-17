@@ -298,11 +298,16 @@ if (rotateFab) {
   rotateFab.addEventListener('click', () => DOM.viewModal.classList.toggle('rotated-mode'));
 }
 
-/* ── Notification Settings modal ──────────────────────────────── */
+/* ── Notifications page (Settings → Notifications) ────────────── */
 const notifSettingsBtn = document.getElementById('notifSettingsBtn');
 if (notifSettingsBtn) {
   notifSettingsBtn.addEventListener('click', () => {
-    openModal(DOM.notifModal, () => { Notifications.updatePermissionUI(); refreshHealthUI(); });
+    openModal(DOM.notifModal, () => {
+      refreshHealthUI();
+      import('./notifications/notif-center.js').then(m => { m.initNotifCenter(); m.renderNotifCenter(); });
+      const md = DOM.notifModal && DOM.notifModal.querySelector('.md');
+      if (md) md.scrollTop = 0;
+    });
   });
 }
 const notifModalClose = document.getElementById('notifModalClose');

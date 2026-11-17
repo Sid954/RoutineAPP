@@ -1,0 +1,138 @@
+/* ==========================================================================
+   Notifications page (#notifModal.nf-page) — src/notifications/notif-center.js
+   Built on the Settings page styles (.st-page, settings.css tokens). Calm motion: no loops.
+   ========================================================================== */
+
+.nf-page .st-body.nf-off .st-group:not(:first-child) { opacity: 0.55; }
+
+/* Status card */
+.nf-page .nf-status { display: flex; flex-direction: column; gap: 12px; }
+.nf-page .nf-perm {
+  flex-shrink: 0;
+  font: 700 11.5px var(--font-ui);
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--text-muted);
+  background: var(--st-inset);
+}
+.nf-page .nf-perm.is-ok { color: var(--st-ok-ink); background: rgba(16, 185, 129, 0.12); }
+.nf-page .nf-perm.is-warn { color: var(--st-warn-ink); background: rgba(245, 158, 11, 0.12); }
+.nf-page .nf-perm.is-bad { color: var(--st-err-ink); background: rgba(244, 63, 94, 0.12); }
+.nf-page .nh-box:empty { display: none; }
+
+/* Chips: pause choices, notice types */
+.nf-page .nf-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.nf-page .nf-chips button {
+  height: 38px; padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--card-border);
+  background: var(--st-inset);
+  color: var(--text-main);
+  font: 700 13px var(--font-ui);
+  cursor: pointer;
+  transition: background-color var(--dur-2) ease, border-color var(--dur-2) ease, color var(--dur-2) ease;
+}
+.nf-page .nf-toggle-chips button { color: var(--text-muted); }
+.nf-page .nf-toggle-chips button.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+:root[data-color="light"] .nf-page .nf-toggle-chips button.active { color: var(--accent-hover); }
+
+/* Paused banner */
+.nf-page .nf-paused {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center;
+  padding: 12px; margin-bottom: 12px;
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+.nf-page .nf-paused-icon { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: var(--card-bg); color: var(--st-warn-ink); }
+.nf-page .nf-paused-icon svg { width: 16px; height: 16px; }
+.nf-page .nf-paused strong { display: block; font: 700 14px var(--font-ui); color: var(--text-main); }
+.nf-page .nf-paused span { font: 500 12px var(--font-ui); color: var(--text-muted); }
+.nf-page .nf-paused .st-btn { height: 36px; padding: 0 14px; }
+
+/* Coming up */
+.nf-page .nf-day + .nf-day { border-top: 1px solid var(--card-border); }
+.nf-page .nf-day-head,
+.nf-page .nf-up-row { display: flex; align-items: center; gap: 12px; cursor: pointer; position: relative; padding: 12px 14px; }
+.nf-page .nf-day-head { background: var(--st-inset); }
+.nf-page .nf-day-head > span:first-child { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.nf-page .nf-day-head strong { font: 800 14px var(--font-ui); color: var(--text-main); }
+.nf-page .nf-day-head > span:first-child > span { font: 600 12px var(--font-ui); color: var(--text-muted); }
+.nf-page .nf-up-row + .nf-up-row { border-top: 1px solid var(--card-border); }
+.nf-page .nf-up-time { width: 62px; flex-shrink: 0; font: 700 12px var(--font-mono); color: var(--text-main); }
+.nf-page .nf-up-icon { width: 30px; height: 30px; flex-shrink: 0; border-radius: 9px; display: grid; place-items: center; background: var(--st-inset); color: var(--accent); }
+:root[data-color="light"] .nf-page .nf-up-icon { color: var(--accent-hover); }
+.nf-page .nf-up-icon svg { width: 15px; height: 15px; }
+.nf-page .nf-up-icon.is-test, .nf-page .nf-up-icon.is-test_eve { color: #F97316; }
+.nf-page .nf-up-icon.is-deadline, .nf-page .nf-up-icon.is-deadline_day { color: #A855F7; }
+:root[data-color="light"] .nf-page .nf-up-icon.is-test, :root[data-color="light"] .nf-page .nf-up-icon.is-test_eve { color: #C2410C; }
+:root[data-color="light"] .nf-page .nf-up-icon.is-deadline, :root[data-color="light"] .nf-page .nf-up-icon.is-deadline_day { color: #7E22CE; }
+.nf-page .nf-up-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.nf-page .nf-up-text strong { font: 700 13.5px var(--font-ui); color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nf-page .nf-up-text span { font: 500 12px var(--font-ui); color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nf-page .nf-up-row.is-off .nf-up-text, .nf-page .nf-up-row.is-off .nf-up-time, .nf-page .nf-up-row.is-off .nf-up-icon { opacity: 0.45; }
+.nf-page .nf-up-row.is-off .nf-up-text strong { text-decoration: line-through; }
+.nf-page .nf-empty { padding: 14px; font: 600 13px var(--font-ui); color: var(--text-muted); text-align: center; }
+.nf-page .nf-note { margin: 0; padding: 10px 14px; font: 500 12px/1.45 var(--font-ui); color: var(--text-muted); }
+.nf-page #nfUpcoming .nf-note { border-bottom: 1px solid var(--card-border); color: var(--st-warn-ink); }
+
+/* Types */
+.nf-page .nf-types { display: flex; flex-direction: column; gap: 10px; }
+.nf-page .nf-type { display: flex; flex-direction: column; gap: 12px; }
+.nf-page .nf-opts { display: flex; flex-direction: column; gap: 12px; padding-top: 12px; border-top: 1px solid var(--card-border); }
+.nf-page .nf-opt { display: flex; flex-direction: column; gap: 6px; }
+.nf-page .nf-opt-label { font: 700 12px var(--font-ui); color: var(--text-muted); }
+.nf-page .nf-seg {
+  display: flex; gap: 2px; padding: 3px;
+  border-radius: 12px; border: 1px solid var(--card-border); background: var(--st-inset);
+}
+.nf-page .nf-seg button {
+  flex: 1; min-width: 0; height: 34px; padding: 0 6px;
+  border: none; border-radius: 9px; background: transparent;
+  color: var(--text-muted); font: 700 12.5px var(--font-ui); cursor: pointer; white-space: nowrap;
+  transition: background-color var(--dur-2) ease, color var(--dur-2) ease;
+}
+.nf-page .nf-seg button.active { background: var(--accent); color: var(--btn-text, #fff); }
+.nf-page .nf-time { flex-direction: row; align-items: center; justify-content: space-between; }
+.nf-page .nf-time-input { width: 140px; height: 40px; }
+.nf-page .nf-quiet { flex-direction: row; gap: 10px; }
+.nf-page .nf-quiet .nf-time { flex: 1; flex-direction: column; align-items: stretch; }
+.nf-page .nf-quiet .nf-time-input { width: 100%; }
+
+/* Weekdays */
+.nf-page #nfWhen { display: flex; flex-direction: column; gap: 14px; }
+.nf-page .nf-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.nf-page .nf-weekdays button {
+  height: 38px; border-radius: 10px;
+  border: 1px solid var(--card-border); background: var(--st-inset);
+  color: var(--text-muted); font: 700 12px var(--font-ui); cursor: pointer;
+}
+.nf-page .nf-weekdays button.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+:root[data-color="light"] .nf-page .nf-weekdays button.active { color: var(--accent-hover); }
+
+.nf-page .nf-foot { margin: 2px 4px 0; font: 500 12px/1.5 var(--font-ui); color: var(--text-muted); }
+
+/* Class sheet: "Reminder" switch for this class (class-detail.js updateRemindRow) */
+.cs-remind {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 12px; padding: 10px 12px;
+  border-radius: 14px; border: 1px solid var(--card-border);
+  background: var(--surface-inset, var(--canvas));
+  cursor: pointer; position: relative;
+}
+.cs-remind[hidden] { display: none; }
+.cs-remind-icon { width: 32px; height: 32px; flex-shrink: 0; border-radius: 10px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+:root[data-color="light"] .cs-remind-icon { color: var(--accent-hover); }
+.cs-remind-icon svg { width: 16px; height: 16px; }
+.cs-remind-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.cs-remind-text strong { font: 700 14px var(--font-ui); color: var(--text-main); }
+.cs-remind-text span { font: 500 12px var(--font-ui); color: var(--text-muted); }
+.cs-remind-input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.cs-remind-ui { width: 42px; height: 24px; flex-shrink: 0; border-radius: 999px; background: var(--card-border); position: relative; transition: background-color var(--dur-2) ease; }
+.cs-remind-ui::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform var(--dur-2) var(--mx-ease, ease); }
+.cs-remind-input:checked + .cs-remind-ui { background: var(--accent); }
+.cs-remind-input:checked + .cs-remind-ui::after { transform: translateX(18px); }
+.cs-remind-input:focus-visible + .cs-remind-ui { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Notices card: same spacing between the switch and its options as the type cards */
+.nf-page #nfNotices { display: flex; flex-direction: column; gap: 12px; }

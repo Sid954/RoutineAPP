@@ -768,6 +768,12 @@
         <section class="st-group">
           <h3 class="st-group-title">App</h3>
           <div class="st-card st-card-flush">
+            <!-- Opens the Notifications popup (#notifModal): permission + health check -->
+            <button type="button" class="st-row" id="notifSettingsBtn">
+              <span class="st-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+              <span class="st-row-text"><strong>Notifications</strong><span id="stNotifSummary">Permission and delivery check</span></span>
+              <span class="st-row-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></span>
+            </button>
             <button type="button" class="st-row" id="checkUpdateBtn">
               <span class="st-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
               <span class="st-row-text"><strong>Check for updates</strong><span id="stAppVersion">Version</span></span>
@@ -787,65 +793,59 @@
 
   <!-- Modal: Notification Settings -->
   <!-- Modal: Notifications -->
-  <div class="mo" id="notifModal">
-    <div class="md" style="max-width: 440px; padding-bottom: 22px;">
-      <div class="md-h">
-        <h2>Notifications</h2>
-        <button class="cls" id="notifModalClose" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-      </div>
-      <div class="md-sb" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-        <span style="font-size: 12px; color: var(--dim);">Configure class reminders & alerts</span>
-        <span id="notifPermStatus" style="font-size: 10.5px; font-weight: 800; padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,0.06); color: var(--accent2); font-family: var(--m);">Checking...</span>
-      </div>
-
-      <div class="nh-box" id="notifHealth" aria-live="polite"></div>
-      <div class="mf" style="border-top:none; padding: 0;">
-        <div class="notif-settings">
-          
-          <!-- Group 1: Class Start Reminders -->
-          <div class="notif-group-card">
-            <div class="notif-group-header">
-              <span>Class Start Reminders</span>
-            </div>
-
-            <!-- Row: Enable Master Reminders -->
-            <div class="notif-setting-row">
-              <div class="notif-row-left">
-                <div class="notif-icon-box blue"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-                <div class="notif-setting-info">
-                  <span class="notif-setting-title">Enable Reminders</span>
-                  <span class="notif-setting-desc">Get notified before classes start</span>
-                </div>
-              </div>
-              <label class="toggle-switch">
-                <input type="checkbox" id="notifToggle">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-
-            <!-- Row: Alert Lead Time -->
-            <div class="notif-setting-row">
-              <div class="notif-row-left">
-                <div class="notif-icon-box purple"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-                <div class="notif-setting-info">
-                  <span class="notif-setting-title">Alert Lead Time</span>
-                  <span class="notif-setting-desc">Advance reminder notice</span>
-                </div>
-              </div>
-              <select id="notifLeadTime" class="clean-select notif-select">
-                <option value="5">5 min early</option>
-                <option value="10">10 min early</option>
-                <option value="15" selected>15 min early</option>
-                <option value="30">30 min early</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="text-align: center; font-size: 10px; color: var(--dim); margin-top: 12px;">
-            Settings auto-save instantly on change
-          </div>
-
+  <!-- Notifications page (rebuilt Nov 2026): src/notifications/notif-center.js renders the sections -->
+  <div class="mo mo-page st-page nf-page" id="notifModal">
+    <div class="md md-wide view-md st-md">
+      <div class="md-h page-style-header st-header">
+        <button class="page-back-btn" id="notifModalClose" title="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <span>Back</span>
+        </button>
+        <div class="page-title-group">
+          <h2 class="page-title">Notifications</h2>
+          <span class="page-subtitle" id="nfSubtitle">What your phone tells you, and when</span>
         </div>
+      </div>
+
+      <div class="st-body">
+        <section class="st-group">
+          <div class="st-card nf-status">
+            <label class="st-switch-row">
+              <span><strong>Notifications</strong><span id="nfStatusLine">Reminders, summaries and notices</span></span>
+              <span class="nf-perm" id="notifPermStatus">Checking</span>
+              <input type="checkbox" id="nfMaster" class="st-switch-input">
+              <span class="st-switch-ui" aria-hidden="true"></span>
+            </label>
+            <div class="nh-box" id="notifHealth" aria-live="polite"></div>
+          </div>
+        </section>
+
+        <section class="st-group" id="nfPauseGroup">
+          <h3 class="st-group-title">Quick pause</h3>
+          <div class="st-card" id="nfPause"></div>
+        </section>
+
+        <section class="st-group">
+          <h3 class="st-group-title">Coming up</h3>
+          <div class="st-card st-card-flush" id="nfUpcoming"></div>
+        </section>
+
+        <section class="st-group">
+          <h3 class="st-group-title">What you get</h3>
+          <div class="nf-types" id="nfTypes"></div>
+        </section>
+
+        <section class="st-group">
+          <h3 class="st-group-title">Notices from your section</h3>
+          <div class="st-card" id="nfNotices"></div>
+        </section>
+
+        <section class="st-group">
+          <h3 class="st-group-title">Days and quiet hours</h3>
+          <div class="st-card" id="nfWhen"></div>
+        </section>
+
+        <p class="nf-foot">Alerts are planned a week ahead and still arrive when the app is closed. They update when your routine, notices or these settings change.</p>
       </div>
     </div>
   </div>
@@ -924,6 +924,14 @@
           </div>
         </div>
       </div>
+
+      <!-- Reminder for this class on its next date (notifications.js; hidden when none is planned) -->
+      <label class="cs-remind" id="classRemindRow" hidden>
+        <span class="cs-remind-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+        <span class="cs-remind-text"><strong id="classRemindTitle">Reminder</strong><span id="classRemindSub"></span></span>
+        <input type="checkbox" id="classRemindToggle" class="cs-remind-input" aria-label="Remind me about this class">
+        <span class="cs-remind-ui" aria-hidden="true"></span>
+      </label>
 
       <!-- Quick updates for this class (prefills the post form) -->
       <div class="cs-quick" id="classQuickActions">

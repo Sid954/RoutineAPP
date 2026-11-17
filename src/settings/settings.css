@@ -442,6 +442,9 @@
 .st-page .st-offday-chips button.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
 :root[data-color="light"] .st-page .st-offday-chips button.active { color: var(--accent-hover); }
 
+/* Settings → App → Notifications: the summary line turns amber when the health check finds a problem */
+.st-page .st-row-text span.is-warn { color: var(--st-warn-ink); }
+
 /* ── TEMPORARY test clock: top tab + drop-down panel (test-time.js) ── */
 .tt-tab {
   position: fixed; top: env(safe-area-inset-top, 0px); left: 50%; transform: translateX(-50%);

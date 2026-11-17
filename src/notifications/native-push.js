@@ -1,5 +1,5 @@
 import { CONFIG } from '../core/config.js';
-import { setNativePush } from '../notifications/notifications.js';
+import { setNativePush, Notifications } from '../notifications/notifications.js';
 import { Storage } from '../storage/storage.js';
 
 const ANNOUNCEMENTS_CHANNEL_ID = 'announcements_channel'; // must match android.notification.channelId in api/announcements.js
@@ -14,17 +14,23 @@ export const NativePush = {
 
   async registerToken(token) {
     if (!token) return;
+    Notifications.rememberToken(token);
     try {
-      await fetch(`${CONFIG.apiBase || ''}/api/register-token`, {
+      // prefs: notice type switches, pause and quiet hours, so the server can filter and quiet
+      // pushes (ignored by servers without the device_tokens.prefs column)
+      const res = await fetch(`${CONFIG.apiBase || ''}/api/register-token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           token,
           platform: 'android',
           semester: Storage.getSemester(),
-          section: Storage.getSection()
+          section: Storage.getSection(),
+          prefs: Notifications.serverPrefs()
         })
       });
+      const j = await res.json().catch(() => ({}));
+      try { localStorage.setItem('notif_server_prefs', j.prefsSaved ? 'ok' : 'unsupported'); } catch (e) {}
     } catch (e) {
       console.warn('Register token error:', e);
     }

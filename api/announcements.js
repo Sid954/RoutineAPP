@@ -3,6 +3,7 @@ const { SUPABASE_OPTIONS } = require('./_lib/supabase-options.js');
 const { applyCors } = require('./_lib/cors.js');
 const admin = require('firebase-admin');
 const { checkPassword } = require('./_lib/security.js');
+const { pushDecision, pushTitle } = require('./_lib/notif-prefs.js');
 
 // Initialize Supabase Client
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -371,16 +372,32 @@ module.exports = async (req, res) => {
         } = sanitizedPayload;
 
         // Tokens are written by api/register-token.js into device_tokens (see supabase_schema.sql)
-        let tokenQuery = supabase.from('device_tokens').select('token');
-        if (targetSemester) tokenQuery = tokenQuery.ilike('semester', targetSemester);
-        if (targetSection) tokenQuery = tokenQuery.ilike('section', targetSection);
-
-        const { data: tokenRows, error: tokenError } = await tokenQuery;
+        // With per-device notice preferences (device_tokens.prefs, supabase_notification_prefs.sql);
+        // falls back to tokens only when that column doesn't exist yet.
+        const tokenQueryFor = cols => {
+          let q = supabase.from('device_tokens').select(cols);
+          if (targetSemester) q = q.ilike('semester', targetSemester);
+          if (targetSection) q = q.ilike('section', targetSection);
+          return q;
+        };
+        let { data: tokenRows, error: tokenError } = await tokenQueryFor('token, prefs');
+        if (tokenError && /prefs/i.test(tokenError.message || '')) {
+          ({ data: tokenRows, error: tokenError } = await tokenQueryFor('token'));
+        }
 
         if (tokenError) {
           console.error('Error fetching section FCM tokens:', tokenError);
         } else if (tokenRows && tokenRows.length > 0) {
-          const tokens = tokenRows.map(row => row.token).filter(Boolean);
+          // Skip devices that turned this notice type off or are paused; quiet hours -> silent channel
+          const nowMs = Date.now();
+          const loudTokens = [];
+          const quietTokens = [];
+          tokenRows.forEach(row => {
+            if (!row.token) return;
+            const d = pushDecision(row.prefs, targetType || 'general', nowMs);
+            if (!d.send) return;
+            (d.quiet ? quietTokens : loudTokens).push(row.token);
+          });
 
           let notificationBody = targetAnnouncement;
           if (targetType === 'online_class') {
@@ -410,13 +427,17 @@ module.exports = async (req, res) => {
 
           const BATCH_SIZE = 500;
           const messagePayloads = [];
+          const tokens = loudTokens.concat(quietTokens);
+          const batches = [];
+          for (let i = 0; i < loudTokens.length; i += BATCH_SIZE) batches.push({ list: loudTokens.slice(i, i + BATCH_SIZE), quiet: false });
+          for (let i = 0; i < quietTokens.length; i += BATCH_SIZE) batches.push({ list: quietTokens.slice(i, i + BATCH_SIZE), quiet: true });
 
-          for (let i = 0; i < tokens.length; i += BATCH_SIZE) {
-            const batchTokens = tokens.slice(i, i + BATCH_SIZE);
+          for (const batch of batches) {
+            const batchTokens = batch.list;
             const message = {
               tokens: batchTokens,
               notification: {
-                title: `${targetType === 'cancellation' ? '🚫 ' : targetType === 'holiday' ? '🎉 ' : targetType === 'online_class' ? '📡 ' : targetType === 'class_test' ? '📝 ' : targetType === 'rescheduled' ? '🔄 ' : targetType === 'assignment' ? '📌 ' : '📢 '}${targetTitle}`,
+                title: pushTitle(targetType || 'general', targetTitle),
                 body: notificationBody,
               },
               data: {
@@ -428,13 +449,9 @@ module.exports = async (req, res) => {
                 section: targetSection || '',
                 announcementId: String(newAnnouncement.id)
               },
-              android: {
-                priority: 'high',
-                notification: {
-                  channelId: 'announcements_channel',
-                  sound: 'default'
-                }
-              }
+              android: batch.quiet
+                ? { priority: 'normal', notification: { channelId: 'notices_quiet' } }
+                : { priority: 'high', notification: { channelId: 'announcements_channel', sound: 'default' } }
             };
             messagePayloads.push({ batchTokens, send: admin.messaging().sendEachForMulticast(message) });
           }

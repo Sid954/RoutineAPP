@@ -131,6 +131,7 @@ export function onSettingsOpen() {
   refreshOffDays();
   const ver = $('stAppVersion');
   if (ver) ver.textContent = `Version ${CONFIG.appVersionName || ''}`.trim();
+  refreshNotifSummary();
   const upd = $('updateCheckDetails');
   if (upd) { upd.style.display = 'none'; upd.innerHTML = ''; }
   const page = $('editModal');
@@ -138,7 +139,30 @@ export function onSettingsOpen() {
   if (md) md.scrollTop = 0;
 }
 
+/** Settings → App → Notifications: one line from the health check ("All good" or the first problem). */
+export async function refreshNotifSummary() {
+  const el = $('stNotifSummary');
+  if (!el) return;
+  try {
+    // A delivery problem wins; otherwise what is set (off / paused / the next alert)
+    const [{ checkNotificationHealth }, { notifSummary }] = await Promise.all([
+      import('../notifications/health.js'), import('../notifications/notif-center.js')
+    ]);
+    const { ok, issues } = await checkNotificationHealth();
+    const problem = issues.find(i => i.level === 'error');
+    const s = notifSummary();
+    el.textContent = !ok && problem ? problem.title : s.text;
+    el.classList.toggle('is-warn', (!ok && !!problem) || s.warn);
+  } catch (e) {
+    el.textContent = 'Permission and delivery check';
+    el.classList.remove('is-warn');
+  }
+}
+
 export function initSettingsPage() {
+  // The summary may change after a fix inside the popup
+  const nClose = $('notifModalClose');
+  if (nClose) nClose.addEventListener('click', () => setTimeout(refreshNotifSummary, 250));
   const input = $('displayNameInput');
   if (input) {
     input.addEventListener('input', () => {

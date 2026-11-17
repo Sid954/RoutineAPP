@@ -90,7 +90,7 @@ export async function refreshHealthUI() {
 async function sendTest() {
   try {
     const { Notifications } = await import('./notifications.js');
-    await Notifications.showInstant('Test notification', 'If you can read this, notifications work.', 'general');
+    await Notifications.showInstant('Test notification', 'If you can read this, notifications work.', 'general', { force: true });
     showToast('Test sent. Check your notification shade.', 'info');
   } catch (e) {
     showToast('Could not send a test notification.', 'error');

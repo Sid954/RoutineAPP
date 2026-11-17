@@ -282,3 +282,26 @@ Add the widgets again after updating (long-press the home screen → Widgets →
 - [ ] Greeting name keeps its time-of-day colour, but no longer drifts (that drift repainted the screen every frame).
 - [ ] Faculty list: in-class dots are still, not breathing (the profile's single "now" dot still breathes).
 - [ ] Battery: leaving the app on Home for a few minutes should drain less than before (nothing repaints at idle any more).
+
+## 24. Settings → Notifications row (superseded by §25)
+- [ ] Settings → App → **Notifications**: the line under it says "All good" or names the problem in amber (for example "Notifications are blocked").
+- [ ] Tapping it opens the Notifications popup above Settings: permission badge and health check with working Fix buttons. Closing it (×, back button or tapping outside) returns to Settings.
+- [ ] After fixing something in the popup and closing it, the Settings line updates.
+- [x] (Replaced: the row now opens the full Notifications page, §25.)
+
+## 25. Notifications rebuild (not released yet)
+Before testing: run `supabase_notification_prefs.sql` once in Supabase (adds `device_tokens.prefs`). Push filtering also needs the API deployed (it ships with the next push to `main`).
+- [ ] Settings → Notifications opens the full page. The status line says how many alerts are planned this week.
+- [ ] **Class reminders** arrive N minutes before each class (try 10, then 5), with room, teacher and time. Labs use their own lead time when it is set. "First class only" sends just one a day. "Also when a class starts" adds a second alert.
+- [ ] They still arrive with the app **closed**, and after a **phone restart**.
+- [ ] Cancelled classes, holidays and classes moved away get no reminder. A class moved online says "online".
+- [ ] **Test** day: the test class reminds you earlier (the test lead), and the evening before says "Tomorrow: Test in …" (or "Test tomorrow" when the preview is off).
+- [ ] **Morning summary** at the chosen time on days with classes; **Tomorrow preview** at the chosen time the evening before (holiday: "Tomorrow: no classes").
+- [ ] **Assignment** with a due time: "Due in 3 hours: …"; the Done button stops further alerts for it.
+- [ ] Notification buttons: **Skip this class** (no more alerts for that class that day), **Mute today** (nothing until tomorrow), and tapping opens the right day or Notices.
+- [ ] **Quick pause** (1 hour / 3 hours / rest of today / until I resume): no reminders and no notice pushes until it ends; Resume brings them back.
+- [ ] **Coming up**: switching off one alert or a whole day works, and is remembered.
+- [ ] **Weekday chips** and **quiet hours**: no reminders on switched-off days or inside quiet hours. Notices during quiet hours arrive without sound.
+- [ ] **Notice type chips**: switch one off (say General). With the SQL run, a General notice no longer pushes to this phone; other types still do.
+- [ ] Push titles have no emoji (for example "Cancelled: ICMP class").
+- [ ] Class sheet: a "Reminder on / 1:20 PM today" switch shows for upcoming classes; switching it off skips that class's alerts that day.

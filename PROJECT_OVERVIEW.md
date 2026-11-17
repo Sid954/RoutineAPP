@@ -243,6 +243,27 @@ Nothing below has been physically tested on the user's phone yet. Do not call th
   - `src/settings/test-time.js` and its init in `src/main.js`
   - the CSS block at the end of `src/settings/settings.css`
   - the guard in `scheduleForToday` in `src/notifications/notifications.js`
+- **Notifications rebuild (Nov 17, 2026, checklist §25):**
+  - **Planning:** `src/notifications/planner.js` (pure, `tests/test_notification_planner.js`) plans 7 days of local alerts from the routine and announcements:
+    - class reminders: lead 5–30 min, its own lab lead, every class or the first only, optional "starting now"
+    - test reminders: a test lead time, plus a heads-up the evening before
+    - morning summary and tomorrow preview, at times the user picks
+    - assignment deadlines: N hours before, and the evening before
+  - **Controls:**
+    - weekday switches
+    - quiet hours
+    - skips: per class/date, per day, per alert, deadline "Done"
+    - pause: 1 h / 3 h / rest of today / until resumed
+  - **Scheduling:** `notifications.js` keeps the old public API. It collects planner input (`collectDays`), cancels and reschedules everything with Capacitor LocalNotifications, and uses Android channels `class_reminders`, `daily_digest`, `deadlines`, `announcements_channel` and `notices_quiet`. Action buttons are Skip this class / Mute today / Done, and a tap opens the right date or Notices. It re-plans on boot, resume, routine or notice changes, settings changes, and after midnight. The test-clock guard stays at the top of `scheduleForToday`.
+  - **Storage:** `notif-store.js` keeps prefs, skips and pause in localStorage.
+  - **UI:**
+    - the Notifications page `#notifModal` (`notif-center.js` + `notif-center.css`), opened from Settings → Notifications: status + health check, quick pause, a "Coming up" list (today and tomorrow, each alert and day switchable), the types with their options, notice type chips, weekdays and quiet hours
+    - a "Reminder" switch in the class sheet (`class-detail.js` updateRemindRow)
+  - **Notices:**
+    - in-app alerts follow the type switches, pause and quiet hours (`noticeAllowed`)
+    - the app sends its prefs with the FCM token (`api/register-token.js`), and `api/announcements.js` skips devices that turned that type off or are paused, and uses the silent `notices_quiet` channel during their quiet hours (`api/_lib/notif-prefs.js`, `tests/test_notif_prefs_api.js`)
+    - push titles no longer contain emoji
+  - **Needs `supabase_notification_prefs.sql` (adds `device_tokens.prefs`)** to be run once in Supabase. Until then, both endpoints fall back to the old behaviour (every device gets every push).
 - The schedule migration (`9ba2156`) device test is also still outstanding: dashboard, Teacher Finder, Free Rooms, airplane mode.
 
 ### Backlog
@@ -251,7 +272,7 @@ Done (Nov 16, 2026): #1 holiday end date, #2 multi-override icons, #3 calendar c
 
 Still open:
 6. Announcement icon overflow (cap ~5, "+N" chip). No such icon row was found besides the week-strip badges, which now cap at 3 with "+N". Confirm with the user which screen was meant.
-9. Class-start/pre-class briefing notifications: rebuild from scratch (old scaffolding intentionally removed — do NOT restore from git). Needs product decisions first: lead times, which types, quiet hours.
+9. ~~Class-start/pre-class notifications~~: **done Nov 17, 2026**; see "Notifications rebuild" under Current State.
 11. Schedule admin/edit flow: build an admin-facing UI to edit schedule data without a re-seed. Needs an auth design (reuse `checkPassword()` / `ADMIN_PASSWORD`, or Supabase Auth).
 
 Feature ideas (not committed to): `.ics` / Google Calendar export, exam and assignment countdown, attendance tracker, "where's my teacher now", section free-slot compare.

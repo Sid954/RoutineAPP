@@ -128,6 +128,64 @@ function initQuickActions() {
   });
 }
 
+/** Next date this class happens: the viewed weekday's date, rolled a week ahead if it has passed. */
+async function classDate(dayIdx) {
+  const { getDateForDayIndex } = await import('../announcements/overrides.js');
+  let date = getDateForDayIndex(dayIdx);
+  const t = new Date();
+  const today = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+  if (date < today) {
+    const dt = new Date(date + 'T00:00:00');
+    dt.setDate(dt.getDate() + 7);
+    date = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+  }
+  return date;
+}
+
+/**
+ * "Reminder" switch in the class sheet: skips (or restores) this class's alerts on its next date.
+ * Shown only when an alert is actually planned for it (notifications on, not passed, not cancelled).
+ */
+let _remind = null;
+async function updateRemindRow(data, dayIdx) {
+  const row = document.getElementById('classRemindRow');
+  const toggle = document.getElementById('classRemindToggle');
+  if (!row || !toggle) return;
+  row.hidden = true;
+  _remind = null;
+  try {
+    const [{ Notifications }, { classKey, fmtTime }, store] = await Promise.all([
+      import('../notifications/notifications.js'), import('../notifications/planner.js'), import('../notifications/notif-store.js')
+    ]);
+    const date = await classDate(dayIdx);
+    const key = classKey({ title: data.code || data.title, start: data.start });
+    const alerts = Notifications.getPlan({ ignoreSkips: true }).filter(n => n.date === date && n.classKey === key && (n.kind === 'class' || n.kind === 'test' || n.kind === 'start'));
+    if (!alerts.length) return;
+    _remind = { date, key };
+    const on = !store.isClassSkipped(date, key);
+    toggle.checked = on;
+    const first = alerts[0];
+    const d = new Date(`${date}T12:00:00`);
+    const t = new Date();
+    const todayStr = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+    const when = date === todayStr ? 'today' : d.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
+    const at = new Date(first.at);
+    document.getElementById('classRemindTitle').textContent = on ? 'Reminder on' : 'Reminder skipped';
+    document.getElementById('classRemindSub').textContent = on
+      ? `${fmtTime(at.getHours() * 60 + at.getMinutes())} ${when}${first.kind === 'test' ? ' (test)' : ''}`
+      : `No alerts for this class ${when}`;
+    row.hidden = false;
+    if (!toggle._bound) {
+      toggle._bound = true;
+      toggle.addEventListener('change', () => {
+        if (!_remind) return;
+        Notifications.skipClass(_remind.date, _remind.key, !toggle.checked);
+        updateRemindRow(_quickData, _activeModalDayIdx);
+      });
+    }
+  } catch (e) { row.hidden = true; }
+}
+
 export function showClassDetails(data) {
   _quickData = data;
   initQuickActions();
@@ -154,6 +212,7 @@ export function showClassDetails(data) {
       : new Date().getDay();
   }
   _activeModalDayIdx = classDayIdx;
+  updateRemindRow(data, classDayIdx);
 
   const teacherCode = (data.instructor || data.teacher || '').trim();
   const info = getTeacherInfo(teacherCode);
