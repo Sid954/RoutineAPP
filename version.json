@@ -1,8 +1,8 @@
 {
-  "versionCode": 23,
-  "versionName": "1.5.13",
+  "versionCode": 24,
+  "versionName": "1.5.14",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.13 - The website works with a mouse and trackpad: drag to switch days, drag sheets to close, pull to refresh, scroll rows sideways, arrow keys",
+  "releaseNotes": "v1.5.14 - On a computer the mouse works like a finger everywhere; the Notices Coming up row scrolls sideways properly again",
   "minRequiredVersionCode": 1
 }
