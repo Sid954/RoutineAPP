@@ -1,15 +1,16 @@
-# My Routine v1.5.10 Release Notes
+# My Routine v1.5.11 Release Notes
 
-Smoother, calmer, and easier to test.
+Smooth on fast phones.
 
 ### Smoother
-- **Week strip:** when you switch days, the old day slowly narrows and the new one widens. The number glides and grows, the short name fades out and the full name slides in. Nothing pops.
-- **Calm animations everywhere:** no more bouncing, popping, rising or shaking. Pages and popups fade, sheets slide up and settle, and taps press in gently.
+- **No more lag on 90 Hz and 120 Hz screens:** the app used to keep redrawing parts of the screen all the time, even when nothing was happening. Now it only draws when something changes, so opening, closing and scrolling stay smooth (and it uses less battery).
+- **Popups:** the background blur is gone. Popups just dim the page, which opens and closes much more smoothly.
+- **Faculty, Rooms, Notices and Weekly Routine:** open faster, and open instantly on the next visit if nothing changed.
+- **Taps:** starting a scroll on a card no longer makes it press in or ripple. Quick taps still do.
 
-### Home
-- **Sun:** back to the original design, moved down so it sits under the settings button.
-- **Light mode:** the sun, night stars and moon, and the live class fill now show clearly on white.
-- **Running class card:** the "Up next" line is gone, since the schedule already shows what's next.
+### Small changes
+- **Greeting name:** keeps its time-of-day colour but no longer drifts.
+- **Faculty list:** the dots of teachers who are in class stay still (the profile's dot still breathes).
 
 ### Testing (temporary)
 - **Test time:** tap the small "Test time" tab at the top of any page, then pick a day and drag the time slider. The app follows live. Tap "Real time" to go back. Notifications are paused while it's on.
