@@ -268,3 +268,4 @@ Add the widgets again after updating (long-press the home screen → Widgets →
 - [ ] (v1.5.10) Live class card: no "Up next …" / "Last class today" line.
 - [ ] (v1.5.10) Morning: a small sun with a glow and slowly turning rays sits below the settings gear (not behind it).
 - [ ] (v1.5.10) Light theme: sun, night stars + moon, evening tint and the live class water fill are clearly visible.
+- [ ] (v1.5.10) Calm motion: switching pages only fades; popups fade in; sheets slide up with no bounce; lists don't rise in; no icon pops (dock, toast, dots), no shake, no confetti, no rolling clock digits, no sheen across the day card. Taps give a small, even press.

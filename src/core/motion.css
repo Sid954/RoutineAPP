@@ -10,6 +10,9 @@
       in this file hard-codes timing.
    3. Enter = decelerate (ease-out), exit = accelerate (ease-in) and shorter.
    4. prefers-reduced-motion collapses everything to short opacity fades.
+   5. No overshoot, bounce, pop, rise or slide-in for content (user 2026-11-17: "no
+      jumping"). Things appear by fading; only objects that physically move (sheets,
+      the week strip, the water fill) travel, and they decelerate without overshoot.
    ========================================================================== */
 
 :root {
@@ -23,7 +26,7 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);       /* entrances */
   --ease-in: cubic-bezier(0.5, 0, 0.75, 0);          /* exits */
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);     /* moves between two states */
-  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);     /* small overshoot for icons/badges */
+  --ease-pop: cubic-bezier(0.2, 0, 0, 1);           /* no overshoot anywhere (user 2026-11-17) */
 
   /* Layout */
   --gutter: 16px;
@@ -108,20 +111,15 @@
 /* ==========================================================================
    2. Page transitions (switchAppView adds .view-enter + data-dir)
    ========================================================================== */
-@keyframes viewEnter {
-  from { opacity: 0; transform: translate3d(var(--enter-x, 0), var(--enter-y, 10px), 0); }
-  to   { opacity: 1; transform: none; }
-}
-.app-page-view.view-enter { animation: viewEnter var(--dur-3) var(--ease-out) both; }
-.app-page-view.view-enter[data-dir="forward"] { --enter-x: 24px; --enter-y: 0; }
-.app-page-view.view-enter[data-dir="back"]    { --enter-x: -24px; --enter-y: 0; }
+@keyframes viewEnter { from { opacity: 0; } to { opacity: 1; } }
+.app-page-view.view-enter { animation: viewEnter var(--dur-2) var(--ease-out) both; }
 
 /* ==========================================================================
    3. Modals & sheets: animated exit (modal.js adds .closing before hiding)
    ========================================================================== */
 @keyframes backdropOut { from { opacity: 1; } to { opacity: 0; } }
-@keyframes sheetOut   { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(24px) scale(0.98); } }
-@keyframes pageOut    { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(24px); } }
+@keyframes sheetOut   { from { opacity: 1; } to { opacity: 0; } }
+@keyframes pageOut    { from { opacity: 1; } to { opacity: 0; } }
 
 /* .closing keeps the element laid out (display) while it fades; it no longer takes input */
 .mo.closing { display: flex; pointer-events: none; animation: backdropOut var(--dur-2) var(--ease-in) both; }
@@ -132,15 +130,11 @@
 
 /* Entrances share the same tokens */
 .mo.open { animation-duration: var(--dur-2); }
-.mo.mo-page.open > .md { animation: viewEnter var(--dur-3) var(--ease-out) both; --enter-x: 24px; --enter-y: 0; }
+.mo.mo-page.open > .md { animation: viewEnter var(--dur-2) var(--ease-out) both; }
 
 /* ==========================================================================
    4. Day switching: no timeline animation (removed 2026-11-17); week strip morph only
    ========================================================================== */
-/* The week strip carries the motion (expand/collapse below), so the timeline only
-   cross-fades quietly: no slide, no direction. */
-@keyframes daySwap { from { opacity: 0; } to { opacity: 1; } }
-#chG.day-swap { animation: daySwap var(--dur-2) var(--ease-out) both; }
 
 /* Week strip: expand / collapse.
    timeline.js (morphStripWidths) animates each day's width from its old size to its new
@@ -165,31 +159,13 @@
 }
 /* Strip badges and the unread dot are static: both re-render on timers (every minute /
    every 30s poll), so an entrance animation would replay constantly. */
-@keyframes badgePop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: none; } }
 .override-badge-stack { transition: opacity var(--dur-2) var(--ease-out); }
 
 /* ==========================================================================
-   5. App-launch entrance (the one orchestrated, non-triggered moment)
-      main.js adds body.boot-enter for the first ~900ms only.
+   5. App-launch entrance: Home fades in once (main.js adds body.boot-enter ~900ms)
    ========================================================================== */
-@keyframes rise { from { opacity: 0; transform: translate3d(0, 12px, 0); } to { opacity: 1; transform: none; } }
-body.boot-enter #dashboardView .top-bar,
-body.boot-enter #dashboardView .greeting-headline-row,
-body.boot-enter #dashboardView .strip-direction-container,
-body.boot-enter #dashboardView .timeline-header-row,
-body.boot-enter #chG > * {
-  animation: rise var(--dur-4) var(--ease-out) both;
-}
-body.boot-enter #dashboardView .greeting-headline-row { animation-delay: 60ms; }
-body.boot-enter #dashboardView .strip-direction-container { animation-delay: 120ms; }
-body.boot-enter #dashboardView .timeline-header-row { animation-delay: 170ms; }
-body.boot-enter #chG > *:nth-child(1) { animation-delay: 210ms; }
-body.boot-enter #chG > *:nth-child(2) { animation-delay: 250ms; }
-body.boot-enter #chG > *:nth-child(3) { animation-delay: 290ms; }
-body.boot-enter #chG > *:nth-child(4) { animation-delay: 330ms; }
-body.boot-enter #chG > *:nth-child(n+5) { animation-delay: 370ms; }
-@keyframes dockRise { from { transform: translate3d(0, 100%, 0); } to { transform: none; } }
-body.boot-enter .solid-fixed-dock-container { animation: dockRise var(--dur-4) var(--ease-out) both; }
+@keyframes bootFade { from { opacity: 0; } to { opacity: 1; } }
+body.boot-enter #dashboardView { animation: bootFade var(--dur-3) var(--ease-out) both; }
 
 /* ==========================================================================
    6. Press feedback: anything tappable gives way slightly under the finger
@@ -204,14 +180,14 @@ body.boot-enter .solid-fixed-dock-container { animation: dockRise var(--dur-4) v
 }
 :where(button, .apps-hub-card, .t-card, .m-matrix-card, .rm-room, .rm-tl-row.is-class,
        .faculty-app-card, .ft-list-item, .page-back-btn, .page-action-btn):active {
-  transform: scale(0.975);
+  transform: scale(0.98);
 }
 :where(.satellite-pill, .announce-filter-pill, .calendar-day-cell, .widget-size-pill):active {
-  transform: scale(0.94);
+  transform: scale(0.97);
 }
 
 /* ==========================================================================
-   7. Dock: active tab gets a soft pill that grows in, icon pops
+   7. Dock: active tab's soft pill fades in
    ========================================================================== */
 .dock-icon-wrapper::before {
   content: '';
@@ -219,15 +195,12 @@ body.boot-enter .solid-fixed-dock-container { animation: dockRise var(--dur-4) v
   inset: -5px -14px;
   border-radius: var(--r-full);
   background: var(--accent-soft);
-  transform: scale(0.4);
   opacity: 0;
-  transition: transform var(--dur-3) var(--ease-pop), opacity var(--dur-2) var(--ease-out);
+  transition: opacity var(--dur-2) var(--ease-out);
   z-index: -1;
 }
 .dock-icon-wrapper { isolation: isolate; }
-.dock-tab.active .dock-icon-wrapper::before { transform: scale(1); opacity: 1; }
-@keyframes iconPop { 0% { transform: scale(1); } 40% { transform: scale(0.82); } 100% { transform: scale(1); } }
-.dock-tab.active svg { animation: iconPop var(--dur-3) var(--ease-pop); }
+.dock-tab.active .dock-icon-wrapper::before { opacity: 1; }
 .dock-tab, .dock-tab svg, .dock-label { transition: color var(--dur-2) var(--ease-out), stroke var(--dur-2) var(--ease-out); }
 
 /* ==========================================================================
@@ -246,17 +219,13 @@ body.boot-enter .solid-fixed-dock-container { animation: dockRise var(--dur-4) v
    9. Lists that re-render on a filter/tab change fade their new content in
       (announcements feed, faculty grid, rooms list: JS adds .list-swap)
    ========================================================================== */
-@keyframes listSwap { from { opacity: 0; transform: translate3d(0, 8px, 0); } to { opacity: 1; transform: none; } }
-.list-swap > * { animation: listSwap var(--dur-3) var(--ease-out) both; }
-.list-swap > *:nth-child(2) { animation-delay: 30ms; }
-.list-swap > *:nth-child(3) { animation-delay: 60ms; }
-.list-swap > *:nth-child(4) { animation-delay: 90ms; }
-.list-swap > *:nth-child(n+5) { animation-delay: 120ms; }
+@keyframes listSwap { from { opacity: 0; } to { opacity: 1; } }
+.list-swap > * { animation: listSwap var(--dur-2) var(--ease-out) both; }
 
 /* ==========================================================================
    10. Accordion (settings "Edit & Add Classes"): height animates open/closed
    ========================================================================== */
-@keyframes accordionIn { from { opacity: 0; transform: translate3d(0, -6px, 0); } to { opacity: 1; transform: none; } }
+@keyframes accordionIn { from { opacity: 0; } to { opacity: 1; } }
 #collapsibleRoutineSection.is-open { animation: accordionIn var(--dur-3) var(--ease-out) both; }
 
 /* ==========================================================================
@@ -325,8 +294,6 @@ html.theme-transition *::after {
   background: var(--accent);
   border-radius: 0 3px 3px 0;
 }
-@keyframes fillIn { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-body.boot-enter .live-progress > span { transform-origin: left center; animation: fillIn var(--dur-4) var(--ease-out) 350ms both; }
 
 /* Class detail: the time range must not wrap mid-time ("09:45 / AM") */
 #modalTiming { white-space: nowrap; font-size: clamp(13px, 3.6vw, 15px); }

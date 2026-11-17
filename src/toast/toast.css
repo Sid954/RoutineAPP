@@ -8,7 +8,7 @@
   padding: 14px 24px; border-radius: var(--rs);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
   font-size: 15px; font-weight: 600;
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+  transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1), opacity 0.3s;
   opacity: 0; z-index: 1100; border: 1px solid var(--border);
   display: flex; align-items: center; gap: 12px;
   /* Wrap long messages instead of running off-screen on phones */

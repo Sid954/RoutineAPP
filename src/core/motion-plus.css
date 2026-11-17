@@ -1,20 +1,22 @@
 /* ==========================================================================
-   Motion v2 (Nov 2026) — src/core/motion-engine.js sets html[data-motion]:
-     full  rich: springs, staggered entrances, decorative loops, celebrations
-     lite  quick fades + ripples, no loops or bursts (slower phones, data saver)
+   Motion v3 (2026-11-17) — calm. src/core/motion-engine.js sets html[data-motion]:
+     full  fades, sheets that slide, ambient Home background, touch ripples
+     lite  the same, shorter; no looping decoration
      off   reduced motion: instant states, feedback by colour only
+   Rules (user: "remove every jump"): nothing overshoots, bounces, pops, rises, tilts or
+   shakes. Content appears by fading. Only things that physically move (bottom sheets,
+   the week strip morph, the live water fill) travel, decelerating without overshoot.
    Transform / opacity only (GPU-composited). Imported after motion.css.
    ========================================================================== */
 
 :root {
-  --mx-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --mx-soft: cubic-bezier(0.22, 1, 0.36, 1);
-  --mx-stagger: 34ms;
-  --mx-rise: 12px;
+  --mx-ease: cubic-bezier(0.2, 0, 0, 1);   /* standard decelerate, no overshoot */
+  /* Older names kept as aliases so every rule shares the same calm curve */
+  --mx-spring: var(--mx-ease);
+  --mx-soft: var(--mx-ease);
 }
-html[data-motion="lite"] { --mx-stagger: 18ms; --mx-rise: 6px; }
 
-/* ── 1. Ripple ─────────────────────────────────────────────────────────── */
+/* ── 1. Ripple: a soft press highlight, not a splash ───────────────────── */
 .mx-ripple-layer {
   position: absolute; inset: 0;
   border-radius: inherit;
@@ -28,152 +30,69 @@ html[data-motion="lite"] { --mx-stagger: 18ms; --mx-rise: 6px; }
   background: currentColor;
   opacity: 0;
   transform: scale(0);
-  animation: mxRipple 620ms var(--mx-soft) forwards;
+  animation: mxRipple 480ms var(--mx-ease) forwards;
 }
 @keyframes mxRipple {
-  0% { transform: scale(0); opacity: 0.16; }
-  60% { opacity: 0.1; }
+  0% { transform: scale(0.2); opacity: 0.08; }
   100% { transform: scale(1); opacity: 0; }
 }
 html[data-motion="off"] .mx-ripple-layer { display: none; }
 
-/* ── 2. Press: sink under the finger, spring back on release ──────────── */
+/* ── 2. Press: gives way slightly, returns at the same pace (no spring) ── */
 html:not([data-motion="off"]) :is(button, a[href], [role="button"], [role="tab"], .apps-hub-card, .resting-class-row, .rm-room, .fd-row, .fd-tl-row, .nt-card, .nt-up, .hm-cls, .calendar-day-cell, .theme-palette-card, .st-row, .st-class, .widget-size-pill, .t-card, .m-matrix-card) {
   transition-property: transform, background-color, border-color, color, opacity, box-shadow;
-  transition-duration: 420ms, var(--dur-2), var(--dur-2), var(--dur-2), var(--dur-2), var(--dur-2);
-  transition-timing-function: var(--mx-spring), ease, ease, ease, ease, ease;
+  transition-duration: 160ms, var(--dur-2), var(--dur-2), var(--dur-2), var(--dur-2), var(--dur-2);
+  transition-timing-function: var(--mx-ease), ease, ease, ease, ease, ease;
 }
 html:not([data-motion="off"]) .mx-pressed:not(.satellite-pill):not(.focal-day-card):not(.dock-center-raised-fab) {
-  transform: scale(0.965);
-  transition-duration: 90ms;
-  transition-timing-function: ease-out;
+  transform: scale(0.98);
+  transition-duration: 100ms;
 }
-html:not([data-motion="off"]) .apps-hub-card.mx-pressed { transform: scale(0.975); }
-.apps-hub-card .apps-hub-card-icon-squircle,
-.apps-hub-card .apps-hub-card-arrow { transition: transform 420ms var(--mx-spring); }
-html:not([data-motion="off"]) .apps-hub-card.mx-pressed .apps-hub-card-icon-squircle { transform: rotate(-8deg) scale(1.1); }
-html:not([data-motion="off"]) .apps-hub-card.mx-pressed .apps-hub-card-arrow { transform: translateX(4px); }
 
-/* ── 3. Staggered entrances (engine adds .mx-enter when a list changes) ── */
-@keyframes mxRise {
-  from { opacity: 0; transform: translate3d(0, var(--mx-rise), 0) scale(0.985); }
-  to { opacity: 1; transform: none; }
-}
+/* ── 3. Lists that change: a short cross-fade, no rise, no stagger ────── */
 @keyframes mxFade { from { opacity: 0; } to { opacity: 1; } }
-html[data-motion="full"] .mx-enter > *:not(.mx-ripple-layer) {
-  animation: mxRise 440ms var(--mx-soft) both;
-  animation-delay: calc(var(--mx-i, 0) * var(--mx-stagger));
-}
-html[data-motion="lite"] .mx-enter > *:not(.mx-ripple-layer) {
-  animation: mxFade 220ms ease-out both;
-  animation-delay: calc(var(--mx-i, 0) * var(--mx-stagger));
-}
-/* Progress bars fill in when their list enters */
-@keyframes mxFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-html[data-motion="full"] .mx-enter :is(.live-progress > span, .fd-now-bar > span, .hm-bar > span, .up-progress > span) {
-  transform-origin: left center;
-  animation: mxFill 700ms var(--mx-soft) 180ms both;
-}
+html:not([data-motion="off"]) .mx-enter > *:not(.mx-ripple-layer) { animation: mxFade 200ms var(--mx-ease) both; }
+/* The week strip morphs instead; filter chip rows are static */
+#focalStripContainer.mx-enter > *, #fdFilters.mx-enter > *, #announceFilterBar.mx-enter > *, #calendarDaysGrid.mx-enter > * { animation: none !important; }
 
-/* ── 4. Pages: shared-axis slide with depth ───────────────────────────── */
-@keyframes mxViewEnter {
-  from { opacity: 0; transform: translate3d(var(--enter-x, 0), var(--enter-y, 8px), 0) scale(0.985); }
-  to { opacity: 1; transform: none; }
-}
-html[data-motion="full"] .app-page-view.view-enter { animation: mxViewEnter 380ms var(--mx-soft) both; }
-html[data-motion="full"] .app-page-view.view-enter[data-dir="forward"] { --enter-x: 28px; --enter-y: 0; }
-html[data-motion="full"] .app-page-view.view-enter[data-dir="back"] { --enter-x: -28px; --enter-y: 0; }
+/* ── 4. Pages: cross-fade (motion.css §2) ─────────────────────────────── */
 
-/* ── 5. Sheets & modals ───────────────────────────────────────────────── */
-html[data-motion="full"] :is(.rm-sheet, .fd-sheet, .nt-sheet, .up-sheet, .class-detail-bottom-sheet) {
-  transition-duration: 460ms !important;
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+/* ── 5. Sheets & popups ───────────────────────────────────────────────── */
+/* Bottom sheets slide up and decelerate; no overshoot */
+html:not([data-motion="off"]) :is(.rm-sheet, .fd-sheet, .nt-sheet, .up-sheet, .class-detail-bottom-sheet) {
+  transition-duration: 340ms !important;
+  transition-timing-function: var(--mx-ease) !important;
 }
 .mx-dragging { transition: none !important; }
-.mx-snap { transition: transform 360ms var(--mx-soft) !important; }
-@keyframes mxModalIn {
-  from { opacity: 0; transform: translate3d(0, 18px, 0) scale(0.94); }
-  to { opacity: 1; transform: none; }
-}
-html[data-motion="full"] .mo.open > .md:not(.view-md) { animation: mxModalIn 380ms var(--mx-spring) both; }
-/* Sheet content cascades in after the sheet arrives */
-html[data-motion="full"] .class-sheet-modal-overlay.open :is(.nt-sheet-body, .fd-sheet-body, .up-body) > * {
-  animation: mxRise 420ms var(--mx-soft) both;
-}
-html[data-motion="full"] .class-sheet-modal-overlay.open :is(.nt-sheet-body, .fd-sheet-body, .up-body) > *:nth-child(2) { animation-delay: 40ms; }
-html[data-motion="full"] .class-sheet-modal-overlay.open :is(.nt-sheet-body, .fd-sheet-body, .up-body) > *:nth-child(3) { animation-delay: 80ms; }
-html[data-motion="full"] .class-sheet-modal-overlay.open :is(.nt-sheet-body, .fd-sheet-body, .up-body) > *:nth-child(n+4) { animation-delay: 120ms; }
-/* Grips hint that sheets can be dragged */
-:is(.rm-sheet-grip, .fd-grip, .nt-grip, .up-grip, .sheet-drag-handle) { transition: transform 300ms var(--mx-spring), background-color 200ms ease; }
-.mx-dragging :is(.rm-sheet-grip, .fd-grip, .nt-grip, .up-grip, .sheet-drag-handle) { transform: scaleX(1.4); background-color: var(--accent); }
+.mx-snap { transition: transform 280ms var(--mx-ease) !important; }
+/* Centred popups fade in */
+html:not([data-motion="off"]) .mo.open > .md:not(.view-md) { animation: mxFade 200ms var(--mx-ease) both; }
+/* Grips: colour only while dragging */
+:is(.rm-sheet-grip, .fd-grip, .nt-grip, .up-grip, .sheet-drag-handle) { transition: background-color 200ms ease; }
+.mx-dragging :is(.rm-sheet-grip, .fd-grip, .nt-grip, .up-grip, .sheet-drag-handle) { background-color: var(--accent); }
 
-/* ── 6. Toasts ────────────────────────────────────────────────────────── */
-@keyframes mxPop { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); } }
-html:not([data-motion="off"]) .toast.show .toast-icon { animation: mxPop 420ms var(--mx-spring) 80ms both; }
-
-/* ── 7. Dock ──────────────────────────────────────────────────────────── */
-.dock-raised-fab-core svg { transition: transform 460ms var(--mx-spring); }
-html:not([data-motion="off"]) .dock-center-raised-fab.mx-pressed .dock-raised-fab-core { transform: scale(0.9); }
-html:not([data-motion="off"]) .dock-center-raised-fab.mx-pressed .dock-raised-fab-core svg { transform: rotate(90deg); }
-html[data-motion="full"] .dock-tab.active .dock-icon-wrapper svg { animation: mxPop 460ms var(--mx-spring) both; }
-
-/* ── 8. Live & status details ─────────────────────────────────────────── */
-@keyframes mxRing { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(2.6); opacity: 0; } }
+/* ── 6. Live indicators: a slow ring on live dots, nothing else loops ─── */
+@keyframes mxRing { 0% { transform: scale(1); opacity: 0.45; } 100% { transform: scale(2.4); opacity: 0; } }
 html[data-motion="full"] :is(.rm-live-dot, .hm-live-dot) { position: relative; }
 html[data-motion="full"] :is(.rm-live-dot, .hm-live-dot)::after {
   content: ''; position: absolute; inset: 0; border-radius: 50%;
-  background: currentColor; color: inherit;
   background: var(--rm-free-ink, #34D399);
-  animation: mxRing 1.8s ease-out infinite;
+  animation: mxRing 2.4s var(--mx-ease) infinite;
 }
-/* Unread dots pop when a list enters */
-html[data-motion="full"] .mx-enter :is(.nt-dot, .announce-unread-dot) { animation: mxPop 460ms var(--mx-spring) 260ms both; }
-/* "in 40m" next-class badge breathes gently */
-@keyframes mxNudge { 0%, 100% { transform: none; } 50% { transform: translateY(-1px) scale(1.04); } }
-html[data-motion="full"] .finished-check-badge.is-next { animation: mxNudge 2.4s ease-in-out infinite; }
-/* Done ticks draw themselves when the timeline enters */
-html[data-motion="full"] .mx-enter .finished-check-badge:not(.is-next):not(.cancelled) svg polyline {
-  stroke-dasharray: 24; stroke-dashoffset: 24;
-  animation: mxDraw 500ms var(--mx-soft) 300ms forwards;
-}
-@keyframes mxDraw { to { stroke-dashoffset: 0; } }
-/* Current break strip: steam rises from the cup */
-@keyframes mxSteam { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-2px); opacity: 0.4; } }
-html[data-motion="full"] .break-transition-strip.is-now svg line { animation: mxSteam 1.2s ease-in-out infinite alternate; }
-html[data-motion="full"] .break-transition-strip.is-now svg line:nth-of-type(2) { animation-delay: 0.3s; }
-html[data-motion="full"] .break-transition-strip.is-now svg line:nth-of-type(3) { animation-delay: 0.6s; }
 
-/* ── 9. Art: greeting icon and empty states come alive ────────────────── */
+/* ── 7. Spinner + loading shimmer ─────────────────────────────────────── */
 @keyframes mxSpin { to { transform: rotate(360deg); } }
-@keyframes mxFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-@keyframes mxBob { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-2px) rotate(-6deg); } }
-html[data-motion="full"] .salutation-icon[data-icon="sun"] { animation: mxSpin 28s linear infinite; }
-html[data-motion="full"] .salutation-icon[data-icon="moon"] { animation: mxBob 5s ease-in-out infinite; transform-origin: 50% 60%; }
-html[data-motion="full"] .salutation-icon[data-icon="sunset"] { animation: mxFloat 4s ease-in-out infinite; }
-html[data-motion="full"] :is(.off-day-icon, .fd-empty-icon, .nt-empty-icon, .rm-empty-icon, .hm-empty-icon, .up-icon) { animation: mxFloat 3.6s ease-in-out infinite; }
-/* Greeting name slides in on launch */
-@keyframes mxNameIn { from { opacity: 0; transform: translate3d(-10px, 0, 0); letter-spacing: 0.04em; } to { opacity: 1; transform: none; } }
-html[data-motion="full"] body.boot-enter #greetText { animation: mxNameIn 620ms var(--mx-soft) 120ms both; }
-
-/* ── 10. Chips, tabs, segmented controls: selected state springs in ───── */
-html:not([data-motion="off"]) :is(.nt-chip, .fd-chip, .hm-day, .st-day, .fd-day, .rm-day, .pa-type, .pa-seg button, .nt-scope button, .pa-secs button).active,
-html:not([data-motion="off"]) .pa-type[aria-checked="true"] {
-  animation: mxSelect 360ms var(--mx-spring);
-}
-@keyframes mxSelect { 0% { transform: scale(0.94); } 100% { transform: scale(1); } }
-
-/* ── 11. Loading skeletons shimmer ────────────────────────────────────── */
 .skeleton-card { position: relative; overflow: hidden; }
 html:not([data-motion="off"]) .skeleton-card::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
   transform: translateX(-100%);
-  animation: mxShimmer 1.3s ease-in-out infinite;
+  animation: mxShimmer 1.6s ease-in-out infinite;
 }
-:root[data-color="light"] .skeleton-card::after { background: linear-gradient(90deg, transparent, rgba(14, 23, 38, 0.05), transparent); }
+:root[data-color="light"] .skeleton-card::after { background: linear-gradient(90deg, transparent, rgba(14, 23, 38, 0.04), transparent); }
 @keyframes mxShimmer { to { transform: translateX(100%); } }
 
-/* ── 12. Pull to refresh ──────────────────────────────────────────────── */
+/* ── 8. Pull to refresh ──────────────────────────────────────────────── */
 .mx-pull {
   position: fixed; top: calc(env(safe-area-inset-top, 0px) + 6px); left: 50%;
   width: 40px; height: 40px; border-radius: 50%;
@@ -183,70 +102,21 @@ html:not([data-motion="off"]) .skeleton-card::after {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
   transform: translate(-50%, -60px);
   opacity: 0; z-index: 99990; pointer-events: none;
-  transition: transform 300ms var(--mx-soft), opacity 200ms ease, color 200ms ease;
+  transition: transform 300ms var(--mx-ease), opacity 200ms ease, color 200ms ease;
 }
 .mx-pull svg { width: 18px; height: 18px; }
 .mx-pull.is-visible { transition: color 200ms ease; }
 .mx-pull.is-armed { color: var(--accent); }
-.mx-pull.is-spinning { opacity: 1 !important; color: var(--accent); transition: transform 300ms var(--mx-soft); }
-.mx-pull.is-spinning svg { animation: mxSpin 700ms linear infinite; }
+.mx-pull.is-spinning { opacity: 1 !important; color: var(--accent); transition: transform 300ms var(--mx-ease); }
+.mx-pull.is-spinning svg { animation: mxSpin 800ms linear infinite; }
 
-/* ── 13. Celebration burst ────────────────────────────────────────────── */
-.mx-burst { position: fixed; width: 0; height: 0; z-index: 99995; pointer-events: none; }
-.mx-burst i {
-  position: absolute; left: -3px; top: -3px;
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--accent);
-  animation: mxBurst 760ms var(--mx-soft) forwards;
-}
-.mx-burst i:nth-child(3n) { background: #34D399; }
-.mx-burst i:nth-child(3n+1) { background: #FBBF24; }
-@keyframes mxBurst {
-  0% { transform: rotate(var(--a)) translateX(0) scale(0.4); opacity: 1; }
-  100% { transform: rotate(var(--a)) translateX(var(--d)) scale(1); opacity: 0; }
-}
-
-/* ── 14. Off tier: keep it calm ───────────────────────────────────────── */
+/* ── 9. Off tier: keep it calm ───────────────────────────────────────── */
 html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="off"] *::after {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
   scroll-behavior: auto !important;
 }
-
-/* ── 15. Page touches (pass 2) ─────────────────────────────────────────── */
-/* Home clock: the colon ticks */
-@keyframes mxTick { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.25; } }
-html[data-motion="full"] .clock-colon { animation: mxTick 2s steps(1, end) infinite; }
-/* Focal week strip: the strip itself already morphs; don't stagger its pills */
-#focalStripContainer.mx-enter > * { animation: none !important; }
-html[data-motion="full"] #focalStripContainer.mx-first.mx-enter > * { animation: mxRise 440ms var(--mx-soft) both !important; animation-delay: calc(var(--mx-i, 0) * 30ms) !important; }
-/* Filter chip rows: only the first render cascades in */
-#fdFilters.mx-enter:not(.mx-first) > *, #announceFilterBar.mx-enter:not(.mx-first) > * { animation: none !important; }
-/* Live class progress: a light sheen sweeps across the fill */
-@keyframes mxSheen { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
-html[data-motion="full"] :is(.live-progress > span, .fd-now-bar > span, .hm-bar > span) { position: relative; overflow: hidden; display: block; }
-html[data-motion="full"] :is(.live-progress > span, .fd-now-bar > span, .hm-bar > span)::after {
-  content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 40%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  animation: mxSheen 2.6s ease-in-out infinite;
-}
-/* Faculty photos pop in with their rows */
-html[data-motion="full"] .mx-enter .fd-avatar { animation: mxPop 460ms var(--mx-spring) both; animation-delay: calc(var(--mx-i, 0) * var(--mx-stagger) + 120ms); }
-/* Error toasts shake once */
-@keyframes mxShake { 0%, 100% { margin-left: 0; } 20% { margin-left: -6px; } 40% { margin-left: 6px; } 60% { margin-left: -4px; } 80% { margin-left: 3px; } }
-html:not([data-motion="off"]) .toast.toast-error.show { animation: mxShake 420ms ease-in-out 120ms; }
-/* Rooms time slider: thumb grows while dragging */
-html:not([data-motion="off"]) .rm-range:active::-webkit-slider-thumb { transform: scale(1.25); }
-/* Calendar picker: days pop in */
-html[data-motion="full"] #calendarDaysGrid.mx-enter > * { animation: mxPop 360ms var(--mx-spring) both; animation-delay: calc(var(--mx-i, 0) * 12ms); }
-/* Theme cards: the chosen one bounces */
-html:not([data-motion="off"]) .theme-palette-card.active { animation: mxSelect 420ms var(--mx-spring); }
-/* Settings switch bar slides up from below */
-html[data-motion="full"] .st-switch.is-entering { animation: mxRise 420ms var(--mx-spring) both; }
-/* Back buttons: chevron nudges left on press */
-.page-back-btn svg { transition: transform 360ms var(--mx-spring); }
-html:not([data-motion="off"]) .page-back-btn.mx-pressed svg { transform: translateX(-4px); }
 
 /* ── 16. Search fields: the frame shows focus, the bare input inside must not ─
    motion.css gives every focused input an accent border + ring (!important), which drew a
@@ -275,7 +145,7 @@ html:not([data-motion="off"]) .dock-center-raised-fab.mx-pressed .dock-raised-fa
   animation: mxHoldRing 450ms linear forwards;
 }
 .dock-raised-fab-core { position: relative; }
-html:not([data-motion="off"]) .dock-center-raised-fab.is-refreshing .dock-raised-fab-core svg { animation: mxSpin 700ms var(--mx-soft) 1; }
+html:not([data-motion="off"]) .dock-center-raised-fab.is-refreshing .dock-raised-fab-core svg { animation: mxSpin 800ms linear 1; }
 
 /* ── 19. Live class card fills up sideways like water ─────────────────────
    One full-size layer slid in by transform (GPU only) instead of a bottom bar.
@@ -298,9 +168,6 @@ html:not([data-motion="off"]) .dock-center-raised-fab.is-refreshing .dock-raised
 @keyframes mxWave { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 40px, 0); } }
 html[data-motion="full"] .live-fill-edge { animation: mxWave 2.4s linear infinite; }
 html[data-motion="lite"] .live-fill-edge { animation: mxWave 5s linear infinite; }
-/* First appearance: the water pours in from the left */
-@keyframes mxPour { from { transform: translate3d(-100%, 0, 0); } }
-html:not([data-motion="off"]) .mx-enter .live-fill, html:not([data-motion="off"]) body.boot-enter .live-fill { animation: mxPour 1s var(--mx-soft) both; }
 
 /* ── 20. Ambient background (src/core/ambient.js), Home only ──────────────── */
 #ambientLayer {
@@ -317,7 +184,7 @@ html[data-motion="lite"] #ambientLayer i { animation: none !important; }
 @keyframes ambTwinkle { from { opacity: 0.12; transform: scale(0.7); } to { opacity: 0.6; transform: scale(1); } }
 :root[data-color="light"] .amb-star { animation-name: ambTwinkleLight; }
 @keyframes ambTwinkleLight { from { opacity: 0.05; } to { opacity: 0.2; } }
-.amb-moon { top: 6%; right: 9%; width: 34px; height: 34px; border-radius: 50%; box-shadow: -8px 3px 0 0 #E2E8F0; opacity: 0.16; transform: rotate(-20deg); animation: mxBob 9s ease-in-out infinite; }
+.amb-moon { top: 6%; right: 9%; width: 34px; height: 34px; border-radius: 50%; box-shadow: -8px 3px 0 0 #E2E8F0; opacity: 0.16; transform: rotate(-20deg); }
 :root[data-color="light"] .amb-moon { box-shadow: -8px 3px 0 0 #1E3A8A; opacity: 0.1; }
 
 /* Sun sits BELOW the settings gear (centre ≈ gear x, beside the greeting), not behind it:
@@ -331,7 +198,7 @@ html[data-motion="lite"] #ambientLayer i { animation: none !important; }
 .amb-lines { inset: 0; background: repeating-linear-gradient(180deg, transparent 0 31px, rgba(148, 163, 184, 0.05) 31px 32px); -webkit-mask: linear-gradient(180deg, #000, transparent 55%); mask: linear-gradient(180deg, #000, transparent 55%); }
 .amb-bubble { bottom: -20px; width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid rgba(56, 189, 248, 0.22); animation: ambRise var(--d, 10s) linear infinite; animation-delay: var(--delay, 0s); }
 @keyframes ambRise { from { transform: translate3d(0, 0, 0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.6; } to { transform: translate3d(14px, -100vh, 0); opacity: 0; } }
-.amb-dot { width: 5px; height: 5px; border-radius: 2px; opacity: 0.35; animation: mxFloat var(--d, 4s) ease-in-out infinite; }
+.amb-dot { width: 5px; height: 5px; border-radius: 2px; opacity: 0.35; }
 .amb-dot.is-holiday { background: #FBBF24; }
 .amb-dot.is-holiday:nth-child(3n) { background: #F472B6; }
 .amb-dot.is-holiday:nth-child(3n+1) { background: #34D399; }
@@ -375,8 +242,6 @@ html[data-motion="full"] :is(.mo:not(.mo-page).open, .class-sheet-modal-overlay.
 }
 :root[data-color="light"] #dashboardView .clock-period { color: var(--accent-hover); }
 #hD, #mD { display: inline-block; }
-@keyframes mxRoll { from { transform: translate3d(0, 55%, 0); opacity: 0; } to { transform: none; opacity: 1; } }
-html:not([data-motion="off"]) #hD.is-rolling, html:not([data-motion="off"]) #mD.is-rolling { animation: mxRoll 520ms var(--mx-spring) both; }
 /* Thin line that fills across each minute (restarted by clock.js every minute) */
 #dashboardView .digital-clock::after {
   content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 2px;
@@ -410,14 +275,6 @@ html[data-daypart="morning"] { --gt-icon: #F59E0B; }
 html[data-daypart="evening"] { --gt-icon: #F97316; }
 html[data-daypart="night"] { --gt-icon: #A5B4FC; }
 
-/* Selected day card: a soft sheen drifts across it (no overflow clip: corner badges stick out) */
-html[data-motion="full"] .focal-day-card::after {
-  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  background: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, 0.16) 50%, transparent 65%) no-repeat;
-  background-size: 300% 100%;
-  animation: mxCardSheen 6s ease-in-out infinite;
-}
-@keyframes mxCardSheen { 0% { background-position: 120% 0; } 60%, 100% { background-position: -20% 0; } }
 
 .focal-day-card { position: relative; }
 
@@ -431,13 +288,12 @@ html[data-motion="full"] .focal-day-card::after {
   background: var(--card-bg); color: var(--text-main);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   z-index: 1050;
-  transform: translate3d(-50%, 24px, 0); opacity: 0; pointer-events: none;
-  transition: transform 460ms var(--mx-spring), opacity 260ms ease;
+  transform: translate3d(-50%, 0, 0); opacity: 0; pointer-events: none;
+  transition: opacity 220ms var(--mx-ease);
 }
 .mx-tip.is-shown { transform: translate3d(-50%, 0, 0); opacity: 1; pointer-events: auto; }
 .mx-tip-icon { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; background: var(--accent-soft); color: var(--accent); }
 .mx-tip-icon svg { width: 17px; height: 17px; }
-html[data-motion="full"] .mx-tip.is-shown .mx-tip-icon svg { animation: mxBob 2.4s ease-in-out infinite; }
 .mx-tip-text { flex: 1; font-size: 12.5px; line-height: 1.4; color: var(--text-sub, var(--text-main)); }
 .mx-tip-text strong { color: var(--accent); margin-right: 4px; }
 .mx-tip-btn { flex-shrink: 0; border: none; border-radius: 10px; padding: 7px 10px; background: var(--accent); color: var(--btn-text, #fff); font: 800 12px var(--font-ui); cursor: pointer; }

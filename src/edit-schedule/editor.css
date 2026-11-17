@@ -16,7 +16,7 @@
 .dc:hover { border-color: var(--border2); transform: translateY(-2px); }
 .dc:active { transform: scale(0.98); }
 .dc.tod { border-color: var(--accent); box-shadow: 0 0 20px var(--ag); }
-@keyframes dayColIn { from { opacity: 0; transform: translateY(12px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes dayColIn { from { opacity: 0; } to { opacity: 1; } }
 
 .dc-h { padding: 10px 14px 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 .dc.tod .dc-h { background: rgba(56, 189, 248, 0.08); border-bottom-color: rgba(56, 189, 248, 0.2); }

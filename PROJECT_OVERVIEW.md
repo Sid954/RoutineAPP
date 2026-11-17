@@ -160,6 +160,7 @@ Do not deviate without explicit user approval.
 - **Fonts:** Plus Jakarta Sans (UI), JetBrains Mono (times/metrics)
 - **Icon badges:** squircle — 42×42px, `border-radius: 13px` (NOT `clip-path`)
 - **No glassmorphism / glow.** `backdrop-filter` is allowed ONLY as a light blur on popup backdrops in the "full" motion tier (user-approved 2026-11-17; it was banned for performance, so keep it gated by `html[data-motion="full"]`).
+- **Calm motion only** (user, 2026-11-17: "remove every jump ... not junk AI slop"). No overshoot/spring curves, bounce, pop, rise-in, tilt, shake, confetti, bobbing icons, rolling digits or sheen sweeps. Content fades in; pages cross-fade; only bottom sheets, the week-strip morph and the live water fill move, decelerating with `--mx-ease` (`cubic-bezier(0.2, 0, 0, 1)`). The ambient Home background, pull-to-refresh, the dock hold ring and a soft touch ripple remain.
 - **Layout:** one 16px gutter (`--gutter`) set on `.app-page-view`. Never patch a missing gutter per component with `padding-right`. Anything that scrolls under the floating dock needs `--dock-clearance` at the bottom.
 - **Primary buttons:** solid accent (`--btn-grad` = `--accent`, text `--btn-text`), no gradient washes, no coloured shadows.
 - **Motion** lives in `src/core/motion.css` (imported last). Use its tokens: `--dur-1/2/3/4` (120/200/320/520ms) and `--ease-out` (enter), `--ease-in` (exit), `--ease-in-out` (state change), `--ease-pop` (small icon/badge overshoot). Rules:

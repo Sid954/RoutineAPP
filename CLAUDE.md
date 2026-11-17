@@ -56,6 +56,7 @@ node build.js --scrape-faculty            # optional faculty scrape during build
 - UI rules:
   - Use SVG icons only, never emoji.
   - No glassmorphism or glow. `backdrop-filter` only as a light blur on popup backdrops, and only in the "full" motion tier (user-approved 2026-11-17; it was banned for performance).
+  - Calm motion only (user, 2026-11-17: "remove every jump"). No overshoot or spring easings, and no bounce, pop, rise, tilt or shake. Content appears by fading. Only objects that physically move (bottom sheets, the week-strip morph, the live water fill) travel, and they decelerate without overshoot. Use `--mx-ease` (`cubic-bezier(0.2, 0, 0, 1)`).
   - Exactly two themes, light and dark. Palettes are listed in PROJECT_OVERVIEW.md.
   - Keep the `env(safe-area-inset-*)` padding.
 - If you spot a secret in plaintext, flag it.

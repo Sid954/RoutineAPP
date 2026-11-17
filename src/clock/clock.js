@@ -8,8 +8,8 @@ export function updateClock() {
   const mins = pad(now.getMinutes());
   const period = now.getHours() >= 12 ? 'PM' : 'AM';
 
-  setRolling(DOM.clockHour, pad(hours));
-  setRolling(DOM.clockMin, mins);
+  setText(DOM.clockHour, pad(hours));
+  setText(DOM.clockMin, mins);
   // Minute progress line under the clock + time-of-day tint for the greeting (motion-plus.css)
   const clock = DOM.clockHour && DOM.clockHour.closest('.digital-clock');
   if (clock) {
@@ -27,14 +27,7 @@ export function updateClock() {
   if (DOM.dateDisplay) DOM.dateDisplay.textContent = `${DAY_NAMES[now.getDay()] || ''}, ${now.getDate()} ${FULL_MONTHS[now.getMonth()] || MONTHS[now.getMonth()]}`;
 }
 
-/** Set text and replay the roll-in animation only when the value actually changed. */
-function setRolling(el, text) {
-  if (!el || el.textContent === text) return;
-  const first = el.textContent === '' || el.dataset.ready !== '1';
-  el.textContent = text;
-  el.dataset.ready = '1';
-  if (first) return;
-  el.classList.remove('is-rolling');
-  void el.offsetWidth;
-  el.classList.add('is-rolling');
+/** Write only when the value changed (avoids needless text reflow every second). */
+function setText(el, text) {
+  if (el && el.textContent !== text) el.textContent = text;
 }

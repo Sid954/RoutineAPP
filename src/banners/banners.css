@@ -13,7 +13,7 @@
   animation: slideDown 0.4s var(--t);
 }
 .notif-banner.show { display: block; }
-@keyframes slideDown { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes slideDown { from { opacity: 0; transform: translateX(-50%); } to { opacity: 1; transform: translateX(-50%); } }
 
 .notif-banner-content {
   display: flex;
@@ -64,7 +64,7 @@
   animation: slideUp 0.4s var(--t);
 }
 .install-banner.show { display: flex; }
-@keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes slideUp { from { opacity: 0; transform: translateX(-50%); } to { opacity: 1; transform: translateX(-50%); } }
 .install-banner-text { flex: 1; font-size: 13px; font-weight: 600; }
 .install-btn {
   background: linear-gradient(135deg, var(--accent), var(--pink));

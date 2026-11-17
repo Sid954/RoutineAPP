@@ -230,7 +230,7 @@ function bindSmoothHeight() {
       if (Motion.tier === 'off' || !from || !to || Math.abs(to - from) < 4 || !el.animate || !el.offsetParent) return;
       const prevOverflow = el.style.overflow;
       el.style.overflow = 'hidden';
-      const anim = el.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: Motion.tier === 'full' ? 280 : 160, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+      const anim = el.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: Motion.tier === 'full' ? 280 : 160, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
       anim.onfinish = anim.oncancel = () => { el.style.overflow = prevOverflow; };
     }).observe(el, { childList: true, subtree: false });
   }));
@@ -361,24 +361,6 @@ function bindPull() {
   document.addEventListener('touchcancel', end, { passive: true });
 }
 
-/* ── Celebration burst (e.g. "All done for today", update installed) ─ */
-export function celebrate(el) {
-  if (!el || Motion.tier !== 'full') return;
-  const rect = el.getBoundingClientRect();
-  const burst = document.createElement('div');
-  burst.className = 'mx-burst';
-  burst.style.left = `${rect.left + Math.min(28, rect.width / 2)}px`;
-  burst.style.top = `${rect.top + rect.height / 2}px`;
-  for (let i = 0; i < 10; i++) {
-    const d = document.createElement('i');
-    d.style.setProperty('--a', `${i * 36}deg`);
-    d.style.setProperty('--d', `${26 + (i % 3) * 10}px`);
-    burst.appendChild(d);
-  }
-  document.body.appendChild(burst);
-  setTimeout(() => burst.remove(), 900);
-}
-
 /* ── Toast + view hooks ────────────────────────────────────────────── */
 function bindToastHaptics() {
   const toast = document.getElementById('toast');
@@ -389,20 +371,6 @@ function bindToastHaptics() {
     else if (toast.classList.contains('toast-error')) Motion.haptic('error');
     else if (toast.classList.contains('toast-warning')) Motion.haptic('warning');
   }).observe(toast, { attributes: true, attributeFilter: ['class'] });
-}
-
-function bindCelebrations() {
-  // Celebrate once per day when the "All done for today" strip first appears
-  const grid = document.getElementById('chG');
-  if (!grid) return;
-  new MutationObserver(() => {
-    const strip = grid.querySelector('.day-done-strip');
-    if (!strip) return;
-    const key = `mx_done_${new Date().toDateString()}`;
-    if (ls.get(key)) return;
-    ls.set(key, '1');
-    setTimeout(() => celebrate(strip), 350);
-  }).observe(grid, { childList: true });
 }
 
 let _inited = false;
@@ -419,7 +387,6 @@ export function initMotion() {
   bindSmoothHeight();
   bindPull();
   bindToastHaptics();
-  bindCelebrations();
   setTimeout(() => Motion.probe(), 1400); // after the launch entrance settles
   // Respect Android's own touch-vibration setting (the haptics plugin would vibrate anyway)
   const syncSys = () => {
@@ -431,5 +398,4 @@ export function initMotion() {
   Motion.watchLongTasks();
   window.__motion = Motion;
   window.__refreshHome = PULL_VIEWS.dashboardView;
-  window.__celebrate = celebrate;
 }
