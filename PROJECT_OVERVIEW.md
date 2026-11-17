@@ -1,6 +1,6 @@
 ﻿# RoutineAPP — Agent Briefing
 
-> Read this fully before touching any code. Last updated: **Nov 16, 2026** (v1.5.1 work, after commit `cb1b146`).  
+> Read this fully before touching any code. Last updated: **Nov 17, 2026** (v1.5.10, versionCode 20, commit `e3ebc30` on `main-2cmtj2`, merged into `main`).  
 > If significant time has passed since that date, treat this doc as background context and verify current state with `git log --oneline -20` + `git status`.
 
 ---
@@ -133,8 +133,8 @@ build.js                    Compiles /src → /www/ for deployment
 
 - Test suites live in `tests/` (tracked in git — moved out of the old gitignored `scratch/` on Sep 23, 2026)
 - Run all: `npm test` (executes `tests/run.js`, which runs every `tests/test_*.js` with a 60s per-test timeout)
-- 15/15 suites pass as of Nov 16, 2026 (needs `npm install`; verified passing without `.env`, since every suite mocks the network). CI runs `npm test` before building the APK.
-- On-device checks still pending for the v1.5.1 work are tracked in `TESTING_CHECKLIST.md`.
+- 21/21 suites pass as of Nov 17, 2026 (v1.5.10; needs `npm install`; passes without `.env`, since every suite mocks the network or tolerates it being down). CI runs `npm test` before building the APK.
+- On-device checks still pending are tracked in `TESTING_CHECKLIST.md` (latest: §22, v1.5.8–v1.5.10).
 
 ### Critical DOM IDs & UI Constraints
 
@@ -163,8 +163,9 @@ Do not deviate without explicit user approval.
 - **Calm motion only** (user, 2026-11-17: "remove every jump ... not junk AI slop"). No overshoot/spring curves, bounce, pop, rise-in, tilt, shake, confetti, bobbing icons, rolling digits or sheen sweeps. Content fades in; pages cross-fade; only bottom sheets, the week-strip morph and the live water fill move, decelerating with `--mx-ease` (`cubic-bezier(0.2, 0, 0, 1)`). The ambient Home background, pull-to-refresh, the dock hold ring and a soft touch ripple remain.
 - **Layout:** one 16px gutter (`--gutter`) set on `.app-page-view`. Never patch a missing gutter per component with `padding-right`. Anything that scrolls under the floating dock needs `--dock-clearance` at the bottom.
 - **Primary buttons:** solid accent (`--btn-grad` = `--accent`, text `--btn-text`), no gradient washes, no coloured shadows.
-- **Motion** lives in `src/core/motion.css` (imported last). Use its tokens: `--dur-1/2/3/4` (120/200/320/520ms) and `--ease-out` (enter), `--ease-in` (exit), `--ease-in-out` (state change), `--ease-pop` (small icon/badge overshoot). Rules:
-  - Animate in response to an action: page change (`switchAppView` → `.view-enter` + `data-dir`), day change (`#chG.day-swap`), sheet open/close (`closeModal` adds `.closing`), press feedback, expand, theme switch (`html.theme-transition`).
+- **Motion** lives in `src/core/motion.css` and `src/core/motion-plus.css` (motion-plus is imported LAST in `src/main.css`). Tokens: `--dur-1/2/3/4` (120/200/320/520ms), `--ease-out` (enter), `--ease-in` (exit), `--ease-in-out` (state change), and `--mx-ease` (`cubic-bezier(0.2, 0, 0, 1)`) for anything that moves. `--ease-pop`, `--mx-spring` and `--mx-soft` are kept only as aliases of that no-overshoot curve, so don't treat them as overshoot curves. Rules:
+  - Animate in response to an action: page change (`switchAppView` → `.view-enter` + `data-dir`, a cross-fade), sheet open/close (`closeModal` adds `.closing`), press feedback, expand, theme switch (`html.theme-transition`).
+  - Day switch on Home: only the week-strip morph (`morphStripWidths` in `src/timeline/timeline.js`, 460ms). The timeline (`#chG`) and strip do not re-animate on a day switch, only on first load or after pull-to-refresh (`staggerReplay` in `src/core/motion-engine.js`). The old `#chG.day-swap` animation is gone.
   - The only animation that isn't triggered by an action is the dashboard entrance on app launch (`body.boot-enter`).
   - Don't animate things that re-render every minute (e.g. the live progress bar).
   - `prefers-reduced-motion` collapses everything to near-instant changes. Keep it working.
@@ -186,7 +187,7 @@ Announcement type color identity:
 
 ---
 
-## Current State (Nov 16, 2026, v1.5.1)
+## Current State (Nov 17, 2026, v1.5.10)
 
 ### Stable and confirmed
 - Core redesign: dashboard, class detail sheet, faculty profile, apps hub nav — all full-page conversions
@@ -209,7 +210,28 @@ Nothing below has been physically tested on the user's phone yet. Do not call th
 - **Home polish (Nov 2026):** the v1.5.4 Home redesign was reverted at the user's request (they prefer their own design; do not redesign Home without asking). Added inside the original design (`src/timeline/timeline.js`, CSS at the end of `timeline.css`): "in Xm" badge on the next class, current break highlighted ("Free now"), "Up next" line on the live card, end-of-day strip with the next class, next-class link on empty/holiday days, cancel reason on cancelled cards, tappable deadline banners (open the notice), "Today" pill. Fix: live/past states only on the real date (same weekday next week no longer looked live). Checklist §18.
 - **In-app updates (Nov 2026):** `api/app-update.js` (Vercel) reads the latest GitHub release (metadata + `version.json` at that tag + the APK's SHA-256 digest) and, with `?download=1`, 302-redirects to GitHub's short-lived signed asset URL (APK bytes never pass through Vercel). Native `AppUpdaterPlugin.java` downloads into `cache/updates/` with progress events, verifies SHA-256, and opens the installer through FileProvider (`REQUEST_INSTALL_PACKAGES`). JS flow and sheet: `src/updater/app-update.js` + `updater.css`, wired into `apk-updater.js` (Settings card) and `init.js` (launch check, "What's new" after an update, resume re-check every 6h). App files (`sw.js`, `version.json`) are now read from Vercel, not GitHub Pages. **Before making the repo private:** create a fine-grained GitHub token (this repo only, Contents: Read-only), add it on Vercel as `GITHUB_TOKEN` (Production), redeploy. The app is not public yet (only the developer's phone), so the only requirement is that this phone has 1.5.6+ installed once; older versions only know GitHub Pages / browser downloads. Tests: `tests/test_app_update.js`. Checklist §19.
 - **Widgets rebuilt (Nov 2026):** the native side now computes everything itself. `WidgetNow.java` (pure: live/break/before/done/off/holiday + next refresh time, JVM-tested by `tests/test_widget_native.js`), `WidgetData.java` (reads the dated `schedule_v2` the app sends: 14 dates with announcements applied and flagged, plus the weekly routine as fallback; still reads the old weekday JSON), `WidgetUpdater.java` (renders all three widgets, arms ONE alarm: every 2 min in class / the hour before a class, otherwise the next class boundary, 1h before the first class or midnight, max 3h; exact when allowed), `WidgetUpdateReceiver.java` (alarm, refresh buttons, boot, app update, time/timezone/locale). Fixed: the live widget only ever showed text the app wrote while open (the old engine wrote to a different prefs file); stale weekday-keyed overrides repeated every week; no boot/time-change receivers (and no RECEIVE_BOOT_COMPLETED), so widgets froze after a restart; three 60s alarms; the week list never reloaded; the day-list selection never reset. `RoutineScheduleEngine.java` removed. JS: `buildWidgetScheduleV2()` in `src/widget/widget.js`, pushed only when it changes. Checklist §20.
-- **Motion v2 (Nov 2026):** `src/core/motion-engine.js` + `src/core/motion-plus.css` (imported LAST, after motion.css). Tiers on `html[data-motion]` = full | lite | off: Auto picks from hardware (cores, memory, data saver), a 1.2s frame probe after launch, and a long-task watcher that steps full → lite; prefers-reduced-motion → off; Settings → Animations overrides (`motion_pref`). Engine: ripple + press spring on all tappables, haptics (`@capacitor/haptics`, web vibrate fallback, `haptics_pref`), staggered entrances on list re-render (signature ignores digits, throttled, so minute ticks and slider drags don't replay), drag-to-dismiss for bottom sheets (dispatches a backdrop click), pull-to-refresh on Home/Notices/Faculty/Rooms (soft refresh), `window.__celebrate`. Transform/opacity only. Replaced `events/pull-to-refresh.js`, which reloaded the app on any downward swipe because it checked window.scrollY (always 0 here). Checked headless at 1× and 6× CPU throttle: p95 16.8 ms frames. Checklist §21.
+- **Motion v2 (Nov 2026):** `src/core/motion-engine.js` + `src/core/motion-plus.css` (imported LAST, after motion.css). Tiers on `html[data-motion]` = full | lite | off: Auto picks from hardware (cores, memory, data saver), a 1.2s frame probe after launch, and a long-task watcher that steps full → lite; prefers-reduced-motion → off; Settings → Animations overrides (`motion_pref`). Engine: soft ripple and press feedback on all tappables, haptics (`@capacitor/haptics`, web vibrate fallback, `haptics_pref`), a cross-fade when a list re-renders (signature ignores digits, throttled, so minute ticks and slider drags don't replay; since the calm-motion pass it fades without rise or stagger), drag-to-dismiss for bottom sheets (dispatches a backdrop click), pull-to-refresh on Home/Notices/Faculty/Rooms (soft refresh). The confetti `window.__celebrate` was removed in the calm-motion pass (`5aad21c`). Transform/opacity only. Replaced `events/pull-to-refresh.js`, which reloaded the app on any downward swipe because it checked window.scrollY (always 0 here). Checked headless at 1× and 6× CPU throttle: p95 16.8 ms frames. Checklist §21.
+- **Feedback batches 1–3 (v1.5.8–v1.5.10, Nov 17, 2026; items in `NEXT_TASKS.md`):**
+  - Fixes: scrolling, plus the Android back button (`src/events/back-button.js`).
+  - Notifications: a health check (`src/notifications/health.js`), and the vibration toggle greys out when the phone's vibration is off.
+  - Off days (`src/core/off-days.js`).
+  - Centre dock button: tap goes to today or refreshes, hold opens the calendar.
+  - Home: ambient background (`src/core/ambient.js`; light theme has stronger variants), live class "water fill", idle tips (`src/core/tips.js`).
+  - Class-sheet quick actions open a prefilled post form.
+  - Pages clear the dock (`motion-plus.css` §24).
+  - Week-strip FLIP morph (`morphStripWidths`).
+  - Calm motion pass (`5aad21c`).
+  - User rejections:
+    - Simple post mode was added and then removed; the full form is the only mode.
+    - The sky/cloud sun was rejected; the original v1.5.8 sun stays, moved under the settings gear.
+    - The live card's "Up next / Last class today" line was removed.
+
+  Checklist §22. Still open: `NEXT_TASKS.md` item 17 (community suggestions, duplicates, pending, voting), which needs the user's API and Supabase decisions.
+- **Temporary test clock (remove before the app goes public, only when the user says testing is done):** a "Test time" tab at the top of every page. The removal list is in `NEXT_TASKS.md`:
+  - the head script in `index.html`
+  - `src/settings/test-time.js` and its init in `src/main.js`
+  - the CSS block at the end of `src/settings/settings.css`
+  - the guard in `scheduleForToday` in `src/notifications/notifications.js`
 - The schedule migration (`9ba2156`) device test is also still outstanding: dashboard, Teacher Finder, Free Rooms, airplane mode.
 
 ### Backlog
