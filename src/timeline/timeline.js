@@ -53,6 +53,7 @@ function morphStripWidths(container, previousWidths) {
     c.style.minWidth = '0';
     c.style.width = `${starts[i]}px`;
     if (starts[i] < finals[i] - 1) c.classList.add('is-expanding');
+    else if (starts[i] > finals[i] + 1) c.classList.add('is-shrinking');
   });
   void container.offsetWidth; // commit the start widths
   cells.forEach((c, i) => {
@@ -62,7 +63,7 @@ function morphStripWidths(container, previousWidths) {
   _stripMorphTimer = setTimeout(() => {
     cells.forEach(c => {
       c.style.transition = c.style.flex = c.style.minWidth = c.style.width = '';
-      c.classList.remove('is-expanding');
+      c.classList.remove('is-expanding', 'is-shrinking');
     });
     container.classList.remove('is-morphing');
   }, STRIP_MORPH_MS + 20);
