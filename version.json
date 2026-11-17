@@ -1,8 +1,8 @@
 {
-  "versionCode": 21,
-  "versionName": "1.5.11",
+  "versionCode": 22,
+  "versionName": "1.5.12",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.11 - Much smoother on high refresh rate phones: no background redrawing, no popup blur, faster Faculty, Rooms, Notices and Weekly Routine",
+  "releaseNotes": "v1.5.12 - New notifications: class reminders, morning summary, tomorrow preview, tests and deadlines, quick pause, skip a class, quiet hours and per-type notice alerts",
   "minRequiredVersionCode": 1
 }
