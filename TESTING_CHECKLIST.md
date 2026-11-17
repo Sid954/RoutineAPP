@@ -266,6 +266,6 @@ Add the widgets again after updating (long-press the home screen → Widgets →
 - [ ] (v1.5.9) Simple post mode removed (user: broken); the full form is the only mode.
 - [ ] (v1.5.9) Apps, Notices, post form, Faculty and Rooms: scrolled to the bottom, the last card / Publish button sits above the dock.
 - [ ] (v1.5.10) Live class card: no "Up next …" / "Last class today" line.
-- [ ] (v1.5.10) Morning / evening sky: warm wash, soft glowing sun to the right below the gear, soft light rays, a few lit clouds drifting slowly (evening is pinker and lower). Text stays readable in both themes.
+- [ ] (v1.5.10) Morning sun: the original design (soft glow + slowly turning rays), now centred just below the settings gear; visible in light mode too. Evening: the original warm tint.
 - [ ] (v1.5.10) Light theme: sun, night stars + moon, evening tint and the live class water fill are clearly visible.
 - [ ] (v1.5.10) Calm motion: switching pages only fades; popups fade in; sheets slide up with no bounce; lists don't rise in; no icon pops (dock, toast, dots), no shake, no confetti, no rolling clock digits, no sheen across the day card. Taps give a small, even press.
