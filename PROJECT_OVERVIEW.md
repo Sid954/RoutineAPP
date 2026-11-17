@@ -1,6 +1,6 @@
 ﻿# RoutineAPP — Agent Briefing
 
-> Read this fully before touching any code. Last updated: **Nov 17, 2026** (v1.5.10, versionCode 20, commit `e3ebc30` on `main-2cmtj2`, merged into `main`).  
+> Read this fully before touching any code. Last updated: **Nov 17, 2026** (v1.5.12, versionCode 22, commit `627761c`; `main` and `main-2cmtj2` are identical). Quick status for a new session: `HANDOFF.md`.  
 > If significant time has passed since that date, treat this doc as background context and verify current state with `git log --oneline -20` + `git status`.
 
 ---
@@ -115,7 +115,11 @@ src/rooms/                  room-engine.js, room-overrides.js, rooms-view.js, ro
 src/teachers/               teacher-finder.js, teacher-names.js
 src/dashboard/              current-class.js, next-class.js (override-aware)
 src/timeline/timeline.js    Week strip + daily timeline (override-aware)
-src/notifications/          notifications.js (skips cancelled classes)
+src/notifications/          planner.js (pure: what to send, when), notifications.js (schedules via LocalNotifications,
+                            public API), notif-store.js (prefs/skips/pause), notif-center.js (+.css) Notifications
+                            page, health.js (delivery check), native-push.js (FCM)
+api/register-token.js       FCM token + notice prefs (device_tokens.prefs)
+api/_lib/notif-prefs.js     sanitizePrefs / pushDecision / pushTitle for notice pushes
 api/schedule.js             Unified Vercel serverless for all routine data
 api/teachers.js             Faculty directory and edit suggestion workflow
 api/announcements.js        Supabase-backed announcement fetch/post + FCM push (device_tokens)
@@ -133,8 +137,8 @@ build.js                    Compiles /src → /www/ for deployment
 
 - Test suites live in `tests/` (tracked in git — moved out of the old gitignored `scratch/` on Sep 23, 2026)
 - Run all: `npm test` (executes `tests/run.js`, which runs every `tests/test_*.js` with a 60s per-test timeout)
-- 21/21 suites pass as of Nov 17, 2026 (v1.5.10; needs `npm install`; passes without `.env`, since every suite mocks the network or tolerates it being down). CI runs `npm test` before building the APK.
-- On-device checks still pending are tracked in `TESTING_CHECKLIST.md` (latest: §22, v1.5.8–v1.5.10).
+- 23/23 suites pass as of Nov 17, 2026 (v1.5.12; needs `npm install`; passes without `.env`, since every suite mocks the network or tolerates it being down). CI runs `npm test` before building the APK.
+- On-device checks still pending are tracked in `TESTING_CHECKLIST.md` (latest: §22 v1.5.8–v1.5.10, §23 v1.5.11 performance, §25 v1.5.12 notifications).
 
 ### Critical DOM IDs & UI Constraints
 
@@ -198,7 +202,7 @@ Announcement type color identity:
 
 ---
 
-## Current State (Nov 17, 2026, v1.5.10)
+## Current State (Nov 17, 2026, v1.5.12)
 
 ### Stable and confirmed
 - Core redesign: dashboard, class detail sheet, faculty profile, apps hub nav — all full-page conversions
@@ -243,7 +247,13 @@ Nothing below has been physically tested on the user's phone yet. Do not call th
   - `src/settings/test-time.js` and its init in `src/main.js`
   - the CSS block at the end of `src/settings/settings.css`
   - the guard in `scheduleForToday` in `src/notifications/notifications.js`
-- **Notifications rebuild (Nov 17, 2026, checklist §25):**
+- **Performance pass (v1.5.11, Nov 17, 2026, checklist §23):**
+  - The popup blur was removed, and the idle repaint loops stopped: the greeting tint, the clock line, the hidden spinner, and ambient/live loops while Home is hidden or covered.
+  - `setHtmlIfChanged` list re-renders, container fades, `content-visibility`, and no forced layout on page switches.
+  - The rules are under "Performance rules" in the Design System above.
+- **Settings → Notifications row, and www/ untracked (Nov 17, 2026):** stale `www/` copies were removed from git (Vercel and CI build it).
+- **Desktop / mouse support (Nov 17, 2026, not released, checklist §26):** `src/core/desktop-input.js` (see CLAUDE.md). Verified with real mouse, wheel and keyboard input through CDP at 1280×800 and 390×800. Touch behaviour is identical to before (A/B with touch emulation).
+- **Notifications rebuild (v1.5.12, released Nov 17, 2026, checklist §25):**
   - **Planning:** `src/notifications/planner.js` (pure, `tests/test_notification_planner.js`) plans 7 days of local alerts from the routine and announcements:
     - class reminders: lead 5–30 min, its own lab lead, every class or the first only, optional "starting now"
     - test reminders: a test lead time, plus a heads-up the evening before
@@ -263,7 +273,8 @@ Nothing below has been physically tested on the user's phone yet. Do not call th
     - in-app alerts follow the type switches, pause and quiet hours (`noticeAllowed`)
     - the app sends its prefs with the FCM token (`api/register-token.js`), and `api/announcements.js` skips devices that turned that type off or are paused, and uses the silent `notices_quiet` channel during their quiet hours (`api/_lib/notif-prefs.js`, `tests/test_notif_prefs_api.js`)
     - push titles no longer contain emoji
-  - **Needs `supabase_notification_prefs.sql` (adds `device_tokens.prefs`)** to be run once in Supabase. Until then, both endpoints fall back to the old behaviour (every device gets every push).
+  - `supabase_notification_prefs.sql` (adds `device_tokens.prefs`) **was run by the user on Nov 17, 2026**, and the API is live on Vercel. Notice filtering takes effect once a phone on v1.5.12 re-registers its token.
+  - Not confirmed on a phone yet.
 - The schedule migration (`9ba2156`) device test is also still outstanding: dashboard, Teacher Finder, Free Rooms, airplane mode.
 
 ### Backlog
@@ -283,5 +294,5 @@ Feature ideas (not committed to): `.ics` / Google Calendar export, exam and assi
 
 1. Run `git log --oneline -15` and `git status` — confirm actual repo state.
 2. Ask the user how far they've got through `TESTING_CHECKLIST.md`. Fix anything that failed on device before starting new work.
-3. Then ask which open backlog item to tackle (#6 needs clarification; #9 and #11 need design decisions).
+3. Then ask which open item to tackle: #6 needs clarification, #11 needs an auth design, and `NEXT_TASKS.md` item 17 needs API/Supabase decisions. (#9 notifications is done.)
 4. Before touching the overrides system, re-read the Architecture section above — it has a history of subtle regressions.

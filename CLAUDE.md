@@ -42,10 +42,30 @@ node build.js --scrape-faculty            # optional faculty scrape during build
 - **Overrides:** announcements are fetched department-wide and change the live routine. All student-facing views must read through `getEffectiveClassesForDay()` in `src/schedule/queries.js`. Room occupancy reads through `getEffectiveRoomClasses()` in `src/rooms/room-overrides.js`. Two rules here must not be reverted:
   - Overrides **flag** classes (`isCancelled` and similar) instead of removing them.
   - Subject matching (`isSubjMatch`) is **exact `===`**, never substring.
-- **Widgets:** the Java `AppWidgetProvider`s in `android-custom/java/com/routine/app/` include `RoutineScheduleEngine`. `WidgetPlugin.java` bridges them to the web layer. Web CSS changes do not affect them.
+- **Widgets:** the Java `AppWidgetProvider`s are in `android-custom/java/com/routine/app/`.
+  - The native side computes everything itself: `WidgetNow` (live/break/next state, JVM-tested), `WidgetData` (reads the dated `schedule_v2` the app sends), `WidgetUpdater` (renders and arms one alarm) and `WidgetUpdateReceiver` (alarms, boot, time changes).
+  - `WidgetPlugin.java` bridges them to the web layer (`buildWidgetScheduleV2()` in `src/widget/widget.js`). Web CSS changes do not affect them.
+- **Notifications** (rebuilt in v1.5.12):
+  - `src/notifications/planner.js` (pure, tested) decides every local alert for the next 7 days: class, test, deadline, morning summary and tomorrow preview.
+  - `notifications.js` schedules them through Capacitor LocalNotifications. It re-plans on boot, resume, routine or notice changes and settings changes, using the Android channels `class_reminders`, `daily_digest`, `deadlines`, `announcements_channel` and `notices_quiet`.
+  - The user controls everything on the Notifications page (`notif-center.js`).
+  - Notice pushes come from `api/announcements.js`, filtered per device by `device_tokens.prefs` (`api/_lib/notif-prefs.js`). Push titles carry no emoji.
+- **Desktop input:** `src/core/desktop-input.js` makes every touch gesture work with a mouse: sheet drag-to-close, pull to refresh, and day swipes on Home and in the Weekly Routine. Those gestures have one start/move/end core called from touch events and from `bindMouseDrag()`. Keep new gestures on that pattern: touch handlers unchanged, plus a mouse path. The module also scrolls sideways rows with the wheel or a drag, turns trackpad swipes into day switches (`bindWheelSwipe`), and handles arrow keys on Home.
 - **API auth and secrets:** every password check goes through `checkPassword()` in `api/_lib/security.js`, which compares in constant time, throttles by IP and fails closed. Never add hardcoded fallback passwords. Photo uploads go through `api/_lib/photo-upload.js`.
 - **Push and signing:** FCM tokens live in the `device_tokens` table. `NativePush.init()` checks `WidgetPlugin.isFirebaseConfigured()` before calling `register()`, because builds without `google-services.json` would otherwise crash. Release APKs must always be signed with the same keystore (CI gets it from GitHub secrets, and the local copy sits in the gitignored `secrets/` folder), or Android refuses to install updates.
 - **DOM IDs are a contract.** JS and native code look up elements by ID, including `cc`, `cT`, `cR`, `cBar`, `nc`, `nT`, `chG`, `prevDayBtn`, `nextDayBtn`, `vcC` and `ecC` (`clockTrigger`, `findTeacherFab` and `freeRoomsFab` no longer exist). Restyle freely, but never rename these IDs.
+
+## Releasing (only when the user says "release")
+
+1. Commit the feature work. Run `npm test` first; all suites must pass (23 as of v1.5.12).
+2. Bump `version.json`: `versionCode` +1, `versionName`, `releaseNotes`.
+3. Run `npm run build`. It stamps `android/app/build.gradle` and `src/core/config.js`.
+4. Write `RELEASE_NOTES.md` in plain user language.
+5. Revert everything else the build touched (tracked files only): `sw.js`, `master_*.json`, and the Android files except `build.gradle`.
+6. Delete the untracked Java files the build copied from `android-custom/` into `android/app/src/main/java/`, after confirming they're identical to their sources.
+7. Commit `chore(release): vX.Y.Z (versionCode N)`. It contains only `RELEASE_NOTES.md`, `build.gradle`, `config.js` and `version.json`.
+8. Push `main-2cmtj2`, then fast-forward `main` (`git push origin HEAD:main`). That starts the signed CI build and the Vercel deploy.
+9. Confirm the GitHub release `vX.Y.Z` has `app-release.apk`, and that `/api/app-update` reports the new version.
 
 ## Standing rules (from PROJECT_OVERVIEW.md, enforced by the user)
 

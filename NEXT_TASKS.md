@@ -1,9 +1,10 @@
 # Next tasks (user request, 2026-11-16, for the next session)
 
-Status (2026-11-17): items 1–16 and 18 done on branch `main-2cmtj2` (not released yet; checklist §22 in TESTING_CHECKLIST.md).
-Item 7 uses a real blur: user approved `backdrop-filter` on popup backdrops, full motion tier only.
-Item 18's Simple/Advanced post mode was removed again in v1.5.9 (user: "broken"); the class quick actions stay.
-**Still open: item 17 (community suggestions / duplicates / pending / voting)** — needs API + Supabase schema decisions from the user.
+Status (2026-11-17, v1.5.12 released): items 1–16 and 18 are done and released in v1.5.8–v1.5.10 (phone checks: §22 in TESTING_CHECKLIST.md).
+- Item 7: the real popup blur it added was **removed again in v1.5.11** for performance; popups use a plain dim.
+- Item 13: notifications were then fully rebuilt in v1.5.12 (planner, quick pause, skips, quiet hours, per-type notices; §25).
+- Item 18: the Simple/Advanced post mode was removed again in v1.5.9 (user: "broken"); the class quick actions stay.
+- **Still open: item 17 (community suggestions / duplicates / pending / voting)**, which needs API and Supabase schema decisions from the user.
 User feedback on v1.5.7: "Animations are pretty good so far."
 Rule reminders: Home keeps the user's ORIGINAL design (no redesigns without asking). Edit `src/`, never `www/`. Ask before release.
 

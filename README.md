@@ -1,144 +1,57 @@
-# 📚 My Routine — Smart Timetable Dashboard & Native Hybrid Android App
+# My Routine — class schedule app for CSE students
 
-**My Routine** (RoutineAPP) is a university timetable dashboard PWA and hybrid Android app featuring live class progress tracking, native Android Home Screen Widgets, dynamic schedule updates, and a real-time announcement system powered by FCM push notifications.
+**My Routine** (RoutineAPP) is a university timetable app: a PWA, an Android app (Capacitor) with native home-screen widgets, and a Vercel API backed by Supabase. Current version: **1.5.12** (see `version.json`).
 
----
+Working on the code? Read `CLAUDE.md` and `PROJECT_OVERVIEW.md` first. Phone checks live in `TESTING_CHECKLIST.md`, and `HANDOFF.md` says where things stand right now.
 
-## ✨ Key Features
+## Features
 
-* **📱 Native Android Home Screen Widget:**
-  * Displays real-time class progress, countdown ETA progress bar, room pill, next class preview, and a manual reload button directly on your phone's home screen.
-  * Native layout preview support in the Android Widget Picker.
+- **Home:**
+  - the live class card fills sideways as the class runs
+  - a week strip, the day's timeline with breaks, and a "next class" countdown
+  - cancellations, tests, online and moved classes flagged in place
+- **Weekly Routine:** the full week as a grid (wide screens) or day tabs (phones).
+- **Rooms:** which classrooms and labs are free now or at any time this week, plus each room's day and timeline.
+- **Faculty:** the department directory with live "in class / free" status, profiles, schedules and contact details.
+- **Notices:** posts for one section, a semester or everyone (cancellations, holidays, tests, online classes, moved classes, assignments). They change the routine automatically, and come with calendar export and sharing.
+- **Notifications:**
+  - class reminders, test and deadline alerts
+  - morning summary and tomorrow preview
+  - quick pause, skip a class, weekdays, quiet hours, and per-type notice alerts
+  - all planned a week ahead, so they arrive with the app closed
+- **Widgets:** live class, week and day widgets. They update on their own, without opening the app.
+- **Settings:** your class, name, light/dark theme, animations, off days, your own class edits, and in-app updates (the APK is downloaded, checksum-verified and installed in the app).
 
-* **🔄 Smart In-App Automatic Updater:**
-  * **Zero-Friction OTA Updates:** Schedule changes, timing edits, theme updates, and announcements automatically sync in the background on app startup without interrupting the user.
-  * **Priority Native APK Releases:** New Android APK builds (`version.json`) automatically take priority, prompting with a clean glassmorphic permission dialog (**New Version Available!**) and 1-tap `.apk` downloads.
-  * **Single-Source-of-Truth Versioning:** Updating `version.json` automatically syncs `versionCode` and `versionName` across `android/app/build.gradle` and `src/core/config.js` via `npm run sync`.
-  * **Session Memory & Self-Healing:** Remembers dismissal choice per session and self-heals version state across web cache & local storage.
+## Tech stack
 
-* **⏳ Live Class Dashboard:**
-  * Real-time countdown timers, progress bars, room indicators, and upcoming class previews.
+- **App:** vanilla ES modules, HTML and CSS (no framework, no bundler). `build.js` compiles `src/` into `www/`.
+- **Android:** Capacitor 8; Java widgets and plugins in `android-custom/` (copied into `android/` at build time).
+- **API:** Vercel serverless functions in `api/`.
+- **Data:** Supabase Postgres (schedule, announcements, faculty, device tokens).
+- **Push:** Firebase Cloud Messaging.
 
-* **📅 Interactive Timetable & Weekly Matrix:**
-  * Dynamic day switcher, schedule normalizer, and responsive full-week timetable grid.
+## Commands
 
-* **📢 Real-Time Announcement Board & Overrides:**
-  * Post announcements with shared authentication to create live schedule overrides (online classes, room changes, holiday cancellations).
-
-* **🔔 FCM Push Notifications:**
-  * Triggers native Android push notifications and local alarms for upcoming classes and new announcements.
-
-* **⚡ Ultra-Smooth Performance & GPU Compositing:**
-  * Optimized background particle canvas with touch auto-pause and O(N²) line frame-skipping.
-  * 60fps CSS GPU acceleration (`contain: content`, `will-change`, `backface-visibility: hidden`).
-
----
-
-## 🛠️ Tech Stack
-
-* **Frontend Core:** Vanilla HTML5, CSS3 (variables, animations, glassmorphism), ES Modules (JavaScript)
-* **Mobile Runtime:** [Capacitor JS](https://capacitorjs.com/) (Native Android bridge)
-* **Native Android:** Java `AppWidgetProvider`, RemoteViews, Capacitor Android Plugins
-* **Database:** [Supabase](https://supabase.com/) (Hosted PostgreSQL)
-* **Backend API:** [Vercel Serverless Functions](https://vercel.com/) (Node.js API)
-* **Push Notifications:** [Firebase Cloud Messaging (FCM)](https://firebase.google.com/)
-
----
-
-## 📂 Configuration & Version Files
-
-1. **`version.json`** *(Single Source of Truth for App Releases)*:
-   ```json
-   {
-     "versionCode": 5,
-     "versionName": "1.1.3",
-     "apkUrl": "https://github.com/sid954/RoutineAPP/releases/latest/download/app-release.apk",
-     "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-     "releaseNotes": "Official v1.1.3 Release",
-     "minRequiredVersionCode": 1
-   }
-   ```
-
-2. **`config.json`**:
-   * `apiBase`: Vercel backend API URL (`https://your-app.vercel.app`).
-   * `remoteAppUrl`: Hosted GitHub Pages URL (`https://sid954.github.io/RoutineAPP`).
-   * `activeDays`: Day index array (`[6, 0, 1, 2, 3]` for Sat–Wed).
-   * `matrixIntervals`: Daily class time slots.
-   * `fullCourseNames`: Key-value map expanding abbreviation codes to full names.
-   * `subjectPalettes`: Linear gradient custom color themes.
-
-3. **`schedule.json`**:
-   * Weekly scheduled classes categorized by day of the week.
-
----
-
-## 🚀 Developer Setup & Workflow Commands
-
-### 1. Installation
-Clone the repository and install dependencies:
 ```bash
 npm install
+npm run build          # src/ + root assets -> www/ (what ships)
+npm run sync           # build + npx cap sync (before Android Studio / Gradle)
+npm test               # every tests/test_*.js (23 suites)
+npx cap open android   # open in Android Studio
 ```
 
-### 2. Build Web Assets & Sync Native Android
-Run the master sync command:
-```bash
-npm run sync
-```
-*This command executes `node build.js` (which copies web assets to `www/`, injects dynamic cache timestamps, and syncs `versionCode` & `versionName` to `android/app/build.gradle` and `src/core/config.js`), then runs `npx cap sync`.*
+## Releases
 
-### 3. Open Android Studio & Compile APK
-```bash
-npx cap open android
-```
-In Android Studio:
-1. Wait for Gradle sync to finish.
-2. Select **Build ➔ Build Bundle(s) / APK(s) ➔ Build APK(s)** to compile your test `.apk` file!
+Releases are built and signed by GitHub Actions on every push to `main` (`.github/workflows/build-apk.yml`). The version comes from `version.json`, and the APK is published to the GitHub release `v<versionName>`. The app finds updates through `/api/app-update`.
 
----
+The full release steps are in `CLAUDE.md` ("Releasing"). Always sign with the same keystore (CI uses GitHub secrets), or Android refuses to install the update.
 
-## 📱 Release & Update Workflow
+## Database
 
-### How to Release a New APK Version (e.g. v1.1.4):
+The SQL lives in the repo root:
+- `supabase_schema.sql`: announcements, device tokens and teacher names
+- `supabase_schedule_schema.sql`: the schedule tables
+- `supabase_faculty_members.sql`: the faculty table
+- `supabase_notification_prefs.sql`: per-device notice preferences
 
-1. **Update `version.json`**:
-   Increase `versionCode` (e.g., `6`) and `versionName` (e.g., `"1.1.4"`).
-2. **Build and Sync**:
-   ```bash
-   npm run sync
-   ```
-   *This automatically updates `build.gradle` and `config.js` to version `1.1.4` (Code `6`).*
-3. **Commit & Push to GitHub**:
-   ```bash
-   git add .
-   git commit -m "Release v1.1.4"
-   git push
-   ```
-4. **Compile APK**:
-   Build the `.apk` in Android Studio and upload/attach it to your GitHub Releases link.
-
----
-
-## 🔧 Database Schema (Supabase)
-
-Create the required tables in Supabase SQL Editor using `supabase_schema.sql`:
-```sql
-CREATE TABLE announcements (
-  id BIGSERIAL PRIMARY KEY,
-  type TEXT NOT NULL,
-  title TEXT NOT NULL,
-  message TEXT,
-  target_day_idx INT,
-  subject_code TEXT,
-  room TEXT,
-  holiday_range_type TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE device_tokens (
-  id BIGSERIAL PRIMARY KEY,
-  token TEXT UNIQUE NOT NULL,
-  platform TEXT DEFAULT 'android',
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
+Environment variables are listed in `.env.example`. Never commit secrets.
