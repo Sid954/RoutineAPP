@@ -1,8 +1,8 @@
 {
-  "versionCode": 18,
-  "versionName": "1.5.8",
+  "versionCode": 19,
+  "versionName": "1.5.9",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.8 - Your feedback: scrolling and back button fixed, tap-for-today dock button, hidden off days, day-based background, water-fill live class, tap a class to post, simple post mode",
+  "releaseNotes": "v1.5.9 - No jumping when switching days, pages no longer hidden under the menu bar, simpler post form",
   "minRequiredVersionCode": 1
 }
