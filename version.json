@@ -1,8 +1,8 @@
 {
-  "versionCode": 17,
-  "versionName": "1.5.7",
+  "versionCode": 18,
+  "versionName": "1.5.8",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.7 - Animations everywhere: tap ripples, haptics, swipe-down sheets, pull to refresh, smoother pages, auto-tuned to your phone",
+  "releaseNotes": "v1.5.8 - Your feedback: scrolling and back button fixed, tap-for-today dock button, hidden off days, day-based background, water-fill live class, tap a class to post, simple post mode",
   "minRequiredVersionCode": 1
 }
