@@ -11,6 +11,8 @@
  *  entrances on re-render (skipped for minute-tick refreshes), drag-to-dismiss for bottom
  *  sheets, pull-to-refresh on Home / Notices / Faculty / Rooms, and small celebrations.
  */
+import { bindMouseDrag } from './desktop-input.js';
+
 const PREF_KEY = 'motion_pref';
 const HAPTIC_KEY = 'haptics_pref';
 
@@ -277,21 +279,23 @@ function bindSmoothHeight() {
 /* ── Drag-to-dismiss for bottom sheets ─────────────────────────────── */
 const SHEETS = '.rm-sheet, .fd-sheet, .nt-sheet, .up-sheet, .class-detail-bottom-sheet';
 
+// Each gesture has one start/move/end core, driven by touch events and (desktop-input.js) a mouse drag.
 function bindSheetDrag() {
   let s = null;
-  document.addEventListener('touchstart', ev => {
-    if (Motion.tier === 'off' || ev.touches.length !== 1) return;
-    const sheet = ev.target.closest(SHEETS);
-    if (!sheet) return;
-    const scroller = ev.target.closest('.rm-sheet-body, .fd-sheet-body, .nt-sheet-body, .up-body, .up-notes') || sheet;
-    if (scroller.scrollTop > 0 && !ev.target.closest('[class*="grip"], .sheet-drag-handle-bar')) return;
-    if (ev.target.closest('input, textarea, select, .rm-range, .up-progress')) return;
-    s = { sheet, overlay: sheet.parentElement, y0: ev.touches[0].clientY, x0: ev.touches[0].clientX, t0: performance.now(), dy: 0, active: false };
-  }, { passive: true });
-  document.addEventListener('touchmove', ev => {
+  const start = (target, x, y) => {
+    if (Motion.tier === 'off') return false;
+    const sheet = target.closest(SHEETS);
+    if (!sheet) return false;
+    const scroller = target.closest('.rm-sheet-body, .fd-sheet-body, .nt-sheet-body, .up-body, .up-notes') || sheet;
+    if (scroller.scrollTop > 0 && !target.closest('[class*="grip"], .sheet-drag-handle-bar')) return false;
+    if (target.closest('input, textarea, select, .rm-range, .up-progress')) return false;
+    s = { sheet, overlay: sheet.parentElement, y0: y, x0: x, t0: performance.now(), dy: 0, active: false };
+    return true;
+  };
+  const move = (x, y) => {
     if (!s) return;
-    const dy = ev.touches[0].clientY - s.y0;
-    const dx = ev.touches[0].clientX - s.x0;
+    const dy = y - s.y0;
+    const dx = x - s.x0;
     if (!s.active) {
       if (dy > 8 && dy > Math.abs(dx) * 1.3) {
         s.active = true;
@@ -302,7 +306,9 @@ function bindSheetDrag() {
       s.dy = Math.max(0, dy);
       s.sheet.style.transform = `translateY(${s.dy}px)`;
     }
-  }, { passive: true });
+  };
+  document.addEventListener('touchstart', ev => { if (ev.touches.length === 1) start(ev.target, ev.touches[0].clientX, ev.touches[0].clientY); }, { passive: true });
+  document.addEventListener('touchmove', ev => move(ev.touches[0].clientX, ev.touches[0].clientY), { passive: true });
   const end = () => {
     if (!s) return;
     const { sheet, overlay, dy, t0, active } = s;
@@ -322,6 +328,7 @@ function bindSheetDrag() {
   };
   document.addEventListener('touchend', end, { passive: true });
   document.addEventListener('touchcancel', end, { passive: true });
+  bindMouseDrag(document, { start: (x, y, el) => start(el, x, y), move, end });
 }
 
 /* ── Pull to refresh ──────────────────────────────────────────────── */
@@ -345,18 +352,19 @@ function bindPull() {
   document.body.appendChild(ind);
   let p = null;
   const TRIGGER = 72;
-  document.addEventListener('touchstart', ev => {
-    if (Motion.tier === 'off' || ev.touches.length !== 1 || document.body.classList.contains('modal-open')) return;
-    const view = ev.target.closest('.app-page-view');
-    if (!view || !PULL_VIEWS[view.id] || view.style.display === 'none') return;
+  const start = (target, x, y) => {
+    if (Motion.tier === 'off' || document.body.classList.contains('modal-open')) return false;
+    const view = target.closest('.app-page-view');
+    if (!view || !PULL_VIEWS[view.id] || view.style.display === 'none') return false;
     const scroller = view.id === 'dashboardView' ? (document.getElementById('chG') || view) : view;
-    if (view.scrollTop > 0 || scroller.scrollTop > 0) return;
-    if (ev.target.closest('.rm-range, input, textarea, .hm-days, #focalStripContainer, .nt-up-row, .fd-filters, .nt-filters')) return;
-    p = { view, y0: ev.touches[0].clientY, x0: ev.touches[0].clientX, d: 0, on: false };
-  }, { passive: true });
-  document.addEventListener('touchmove', ev => {
+    if (view.scrollTop > 0 || scroller.scrollTop > 0) return false;
+    if (target.closest('.rm-range, input, textarea, .hm-days, #focalStripContainer, .nt-up-row, .fd-filters, .nt-filters')) return false;
+    p = { view, y0: y, x0: x, d: 0, on: false };
+    return true;
+  };
+  const move = (x, y) => {
     if (!p) return;
-    const dy = ev.touches[0].clientY - p.y0, dx = ev.touches[0].clientX - p.x0;
+    const dy = y - p.y0, dx = x - p.x0;
     if (!p.on) {
       if (dy > 12 && dy > Math.abs(dx) * 1.5) p.on = true;
       else if (Math.abs(dx) > 12 || dy < -4) { p = null; return; }
@@ -370,7 +378,9 @@ function bindPull() {
       if (p.d >= TRIGGER && !p.buzzed) { p.buzzed = true; Motion.haptic('select'); }
       if (p.d < TRIGGER) p.buzzed = false;
     }
-  }, { passive: true });
+  };
+  document.addEventListener('touchstart', ev => { if (ev.touches.length === 1) start(ev.target, ev.touches[0].clientX, ev.touches[0].clientY); }, { passive: true });
+  document.addEventListener('touchmove', ev => move(ev.touches[0].clientX, ev.touches[0].clientY), { passive: true });
   const end = () => {
     if (!p) return;
     const fire = p.on && p.d >= TRIGGER;
@@ -394,6 +404,7 @@ function bindPull() {
   };
   document.addEventListener('touchend', end, { passive: true });
   document.addEventListener('touchcancel', end, { passive: true });
+  bindMouseDrag(document, { start: (x, y, el) => start(el, x, y), move, end });
 }
 
 /* ── Toast + view hooks ────────────────────────────────────────────── */

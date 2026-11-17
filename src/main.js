@@ -385,6 +385,7 @@ initVisibility();
 initServiceWorker();
 
 import { initMotion } from './core/motion-engine.js';
+import { initDesktopInput } from './core/desktop-input.js';
 import { initBackButton } from './events/back-button.js';
 import { initNotificationHealth, refreshHealthUI } from './notifications/health.js';
 import { initAmbient } from './core/ambient.js';
@@ -401,6 +402,7 @@ import { initCalendarPicker } from './timeline/calendar-picker.js';
 // Motion v2: ripples, haptics, staggers, sheet drag, pull-to-refresh (soft refresh, no reload).
 // Replaces events/pull-to-refresh.js, which reloaded the whole app on any downward swipe.
 initMotion();
+initDesktopInput(); // mouse/trackpad: drags, sideways rows, arrow keys
 initBackButton();
 initNotificationHealth();
 initAmbient();

@@ -289,8 +289,8 @@ Add the widgets again after updating (long-press the home screen → Widgets →
 - [ ] After fixing something in the popup and closing it, the Settings line updates.
 - [x] (Replaced: the row now opens the full Notifications page, §25.)
 
-## 25. Notifications rebuild (not released yet)
-Before testing: run `supabase_notification_prefs.sql` once in Supabase (adds `device_tokens.prefs`). Push filtering also needs the API deployed (it ships with the next push to `main`).
+## 25. Notifications rebuild (v1.5.12)
+The SQL (`supabase_notification_prefs.sql`) was run on 2026-11-17 and the API is live. Open the app once on v1.5.12 so it re-registers before testing notice filtering.
 - [ ] Settings → Notifications opens the full page. The status line says how many alerts are planned this week.
 - [ ] **Class reminders** arrive N minutes before each class (try 10, then 5), with room, teacher and time. Labs use their own lead time when it is set. "First class only" sends just one a day. "Also when a class starts" adds a second alert.
 - [ ] They still arrive with the app **closed**, and after a **phone restart**.
@@ -305,3 +305,14 @@ Before testing: run `supabase_notification_prefs.sql` once in Supabase (adds `de
 - [ ] **Notice type chips**: switch one off (say General). With the SQL run, a General notice no longer pushes to this phone; other types still do.
 - [ ] Push titles have no emoji (for example "Cancelled: ICMP class").
 - [ ] Class sheet: a "Reminder on / 1:20 PM today" switch shows for upcoming classes; switching it off skips that class's alerts that day.
+
+## 26. Desktop / mouse support (not released yet)
+Checked on PC with real mouse input (headless Chrome): all of the below passed. Still to check on the website in your own desktop browser:
+- [ ] Home: drag the schedule left or right with the mouse to change day; dragging over a class card does not open it, and a plain click still does.
+- [ ] Arrow keys ← / → change the day on Home; a trackpad two-finger sideways swipe does too.
+- [ ] Class details, room, notice and faculty sheets: drag the sheet down (or its handle) to close.
+- [ ] Pull to refresh works by dragging down from the top of Home, Notices, Faculty and Rooms.
+- [ ] Rows that scroll sideways (Notices filters and "Coming up", Faculty filters, Weekly Routine day tabs): the mouse wheel scrolls them sideways, and they can be dragged.
+- [ ] Weekly Routine in a narrow window: drag to change the day.
+- [ ] Dragging never selects text.
+- [ ] Phone (touch is unchanged): swiping **left** on the Home schedule goes to the next day. In the PC touch emulator only right swipes switched the day, and that was already so before this change; check whether that is just the emulator.

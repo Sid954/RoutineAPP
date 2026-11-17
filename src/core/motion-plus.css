@@ -351,3 +351,12 @@ html:has(:is(.mo.open, .class-sheet-modal-overlay.open, .rm-sheet-overlay.open, 
   content-visibility: auto;
   contain-intrinsic-size: auto 480px;
 }
+
+/* ── 26. Desktop input (src/core/desktop-input.js) ─────────────────────────
+   Mouse drags run the same gestures as touch: no text selection or image ghosting while
+   dragging, and a grab cursor on the parts you can drag. */
+html.mx-mouse-drag, html.mx-mouse-drag * { user-select: none !important; -webkit-user-select: none !important; cursor: grabbing !important; }
+#app img { -webkit-user-drag: none; user-drag: none; }
+@media (hover: hover) and (pointer: fine) {
+  :is(.rm-sheet-grip, .fd-grip, .nt-grip, .up-grip, .sheet-drag-handle-bar) { cursor: grab; }
+}

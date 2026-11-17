@@ -6,6 +6,7 @@ import { getOverrideFor } from '../announcements/overrides.js';
 import { getSubjectTheme } from '../schedule/themes.js';
 import { toMinutes, format12h, getCurrentMinutes, escapeHtml, formatRoom, truncateText, LAB_LABEL_HTML, setHtmlIfChanged } from '../core/utils.js';
 import { bindCourseTitleClicks } from '../timeline/course-title.js';
+import { bindMouseDrag, bindWheelSwipe } from '../core/desktop-input.js';
 
 /** Card text colour: white on the dark palettes, the palette's own dark ink on light ones
  *  (white on the light pastel gradients was unreadable). */
@@ -66,21 +67,21 @@ function bindMatrixTouchSwipe() {
   if (!modalEl) return;
   isMatrixSwipeBound = true;
 
-  modalEl.addEventListener('touchstart', e => {
-    if (window.innerWidth > 640) return;
-    if (e.touches.length !== 1) return;
-    matrixTouchStartX = e.touches[0].clientX;
-    matrixTouchStartY = e.touches[0].clientY;
+  // One core for touch, mouse drag and trackpad swipes (desktop-input.js). Phone layout only.
+  const cards = () => (DOM.matrixGrid ? DOM.matrixGrid.querySelector('.m-matrix-cards') : null);
+  const start = (x, y) => {
+    if (window.innerWidth > 640) return false;
+    matrixTouchStartX = x;
+    matrixTouchStartY = y;
     isMatrixDragging = false;
     targetMatrixDayIdx = -1;
-  }, { passive: true });
-
-  modalEl.addEventListener('touchmove', e => {
+    return true;
+  };
+  const move = (x, y) => {
     if (window.innerWidth > 640) return;
-    if (e.touches.length !== 1) return;
-    const cardsEl = DOM.matrixGrid ? DOM.matrixGrid.querySelector('.m-matrix-cards') : null;
-    const deltaX = e.touches[0].clientX - matrixTouchStartX;
-    const deltaY = e.touches[0].clientY - matrixTouchStartY;
+    const cardsEl = cards();
+    const deltaX = x - matrixTouchStartX;
+    const deltaY = y - matrixTouchStartY;
 
     if (!isMatrixDragging) {
       if (Math.abs(deltaX) > 12 && Math.abs(deltaX) > Math.abs(deltaY)) {
@@ -106,15 +107,14 @@ function bindMatrixTouchSwipe() {
         targetMatrixDayIdx = activeDays[(currentIdx - 1 + activeDays.length) % activeDays.length];
       }
     }
-  }, { passive: true });
-
-  modalEl.addEventListener('touchend', e => {
+  };
+  const end = (x) => {
     if (window.innerWidth > 640) return;
-    const cardsEl = DOM.matrixGrid ? DOM.matrixGrid.querySelector('.m-matrix-cards') : null;
+    const cardsEl = cards();
     if (!isMatrixDragging) return;
     isMatrixDragging = false;
 
-    const deltaX = e.changedTouches[0].clientX - matrixTouchStartX;
+    const deltaX = x - matrixTouchStartX;
     if (cardsEl) cardsEl.classList.remove('swiping');
 
     if (Math.abs(deltaX) > 60 && targetMatrixDayIdx !== -1) {
@@ -127,7 +127,13 @@ function bindMatrixTouchSwipe() {
         cardsEl.classList.remove('swipe-transition');
       }, 220);
     }
-  });
+  };
+
+  modalEl.addEventListener('touchstart', e => { if (e.touches.length === 1) start(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+  modalEl.addEventListener('touchmove', e => { if (e.touches.length === 1) move(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+  modalEl.addEventListener('touchend', e => end(e.changedTouches[0].clientX));
+  bindMouseDrag(modalEl, { start: (x, y) => start(x, y), move, end: (x) => end(x) });
+  bindWheelSwipe(modalEl, dir => { if (window.innerWidth <= 640) switchMatrixDay(dir); });
 }
 
 export function renderWeeklyMatrix() {
