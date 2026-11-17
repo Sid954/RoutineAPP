@@ -4,7 +4,7 @@ import { CONFIG, DAY_NAMES, DAY_SHORT } from '../core/config.js';
 import { getClassesForDay } from '../schedule/queries.js';
 import { getOverrideFor } from '../announcements/overrides.js';
 import { getSubjectTheme } from '../schedule/themes.js';
-import { toMinutes, format12h, getCurrentMinutes, escapeHtml, formatRoom, truncateText, LAB_LABEL_HTML } from '../core/utils.js';
+import { toMinutes, format12h, getCurrentMinutes, escapeHtml, formatRoom, truncateText, LAB_LABEL_HTML, setHtmlIfChanged } from '../core/utils.js';
 import { bindCourseTitleClicks } from '../timeline/course-title.js';
 
 /** Card text colour: white on the dark palettes, the palette's own dark ink on light ones
@@ -274,7 +274,8 @@ export function renderWeeklyMatrix() {
     }
     html += `</div>`;
 
-    DOM.matrixGrid.innerHTML = html;
+    // Same week, same day, same minute state: keep the existing DOM (and its handlers)
+    if (!setHtmlIfChanged(DOM.matrixGrid, html)) { bindMatrixTouchSwipe(); return; }
     bindCourseTitleClicks(DOM.matrixGrid);
 
     // Handle tab clicks
@@ -426,7 +427,6 @@ export function renderWeeklyMatrix() {
       });
     });
 
-    DOM.matrixGrid.innerHTML = html;
-    bindCourseTitleClicks(DOM.matrixGrid);
+    if (setHtmlIfChanged(DOM.matrixGrid, html)) bindCourseTitleClicks(DOM.matrixGrid);
   }
 }

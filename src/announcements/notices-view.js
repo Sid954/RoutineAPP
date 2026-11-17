@@ -8,7 +8,7 @@
  */
 import { State } from '../core/state.js';
 import { Storage } from '../storage/storage.js';
-import { escapeHtml } from '../core/utils.js';
+import { escapeHtml, setHtmlIfChanged } from '../core/utils.js';
 import { showToast } from '../toast/toast.js';
 import { openModal, closeModal, showConfirm } from '../modals/modal.js';
 import { Announcements } from './announcements.js';
@@ -165,9 +165,9 @@ export function renderNotices() {
   const filtered = Announcements.activeFilter === 'all' ? searched : searched.filter(n => n.type === Announcements.activeFilter);
 
   if (!all.length) {
-    feed.innerHTML = Announcements._loadError
+    setHtmlIfChanged(feed, Announcements._loadError
       ? emptyHtml('Could not load notices', 'Check your connection. Saved notices appear here when available.')
-      : emptyHtml('No notices yet', Announcements.scope === 'dept' ? 'Nothing has been posted in the department.' : 'Notices for your section will appear here.');
+      : emptyHtml('No notices yet', Announcements.scope === 'dept' ? 'Nothing has been posted in the department.' : 'Notices for your section will appear here.'));
     bindObserver(feed);
     return;
   }
@@ -199,7 +199,7 @@ export function renderNotices() {
         <div class="nt-group-list">${g.past.map(n => cardHtml(n, true, i++)).join('')}</div></section>`;
     }
   }
-  feed.innerHTML = html;
+  setHtmlIfChanged(feed, html);
   bindObserver(feed);
   if (_openId && $('ntSheet') && $('ntSheet').classList.contains('open')) renderSheet(_openId);
 }

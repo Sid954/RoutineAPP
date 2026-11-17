@@ -50,10 +50,9 @@ html:not([data-motion="off"]) .mx-pressed:not(.satellite-pill):not(.focal-day-ca
 }
 
 /* ── 3. Lists that change: a short cross-fade, no rise, no stagger ────── */
+/* motion-engine.js fades the list container itself (one compositor layer, via the Web
+   Animations API). It used to fade every child, e.g. 92 Faculty rows = 92 layers at once. */
 @keyframes mxFade { from { opacity: 0; } to { opacity: 1; } }
-html:not([data-motion="off"]) .mx-enter > *:not(.mx-ripple-layer) { animation: mxFade 200ms var(--mx-ease) both; }
-/* The week strip morphs instead; filter chip rows are static */
-#focalStripContainer.mx-enter > *, #fdFilters.mx-enter > *, #announceFilterBar.mx-enter > *, #calendarDaysGrid.mx-enter > * { animation: none !important; }
 
 /* ── 4. Pages: cross-fade (motion.css §2) ─────────────────────────────── */
 
@@ -175,7 +174,7 @@ html[data-motion="lite"] .live-fill-edge { animation: mxWave 5s linear infinite;
   pointer-events: none; overflow: hidden;
   transition: opacity 600ms ease;
 }
-#ambientLayer.is-hidden, html[data-motion="off"] #ambientLayer { opacity: 0; }
+#ambientLayer.is-hidden, html[data-motion="off"] #ambientLayer { opacity: 0; visibility: hidden; transition: opacity 300ms ease, visibility 0s linear 300ms; }
 #ambientLayer i { position: absolute; display: block; }
 html[data-motion="lite"] #ambientLayer i { animation: none !important; }
 
@@ -221,18 +220,15 @@ html[data-motion="lite"] #ambientLayer i { animation: none !important; }
 /* Content sits above the ambient layer */
 .ww { position: relative; z-index: 1; }
 
-/* ── 21. Popup backdrops: stronger dim everywhere, real blur on capable phones ─
-   Blur is limited to popup backdrops and the "full" motion tier; the engine steps down to
-   "lite" (dim only) if the phone starts dropping frames. Full-page popups (.mo-page) excluded. */
+/* ── 21. Popup backdrops: a strong dim, no blur ─────────────────────────────
+   The backdrop blur was removed for performance (user 2026-11-17: laggy on a 90 Hz phone).
+   A full-screen backdrop-filter has to re-blur everything behind it on every frame while the
+   popup fades and whenever anything behind it moves. A plain dim costs nothing. */
 .mo:not(.mo-page).open, .class-sheet-modal-overlay.open, .rm-sheet-overlay.open, #calendarPickerModal.open {
-  background-color: rgba(4, 6, 10, 0.66);
+  background-color: rgba(4, 6, 10, 0.7);
 }
 :root[data-color="light"] :is(.mo:not(.mo-page).open, .class-sheet-modal-overlay.open, .rm-sheet-overlay.open, #calendarPickerModal.open) {
-  background-color: rgba(14, 23, 38, 0.42);
-}
-html[data-motion="full"] :is(.mo:not(.mo-page).open, .class-sheet-modal-overlay.open, .rm-sheet-overlay.open, #calendarPickerModal.open) {
-  -webkit-backdrop-filter: blur(6px) saturate(0.85);
-  backdrop-filter: blur(6px) saturate(0.85);
+  background-color: rgba(14, 23, 38, 0.46);
 }
 
 /* ── 22. Clock + slight colour life ───────────────────────────────────────── */
@@ -249,9 +245,8 @@ html[data-motion="full"] :is(.mo:not(.mo-page).open, .class-sheet-modal-overlay.
   background: var(--accent); opacity: 0.55;
   transform-origin: left center; transform: scaleX(calc(var(--sec, 0) / 60));
 }
-@keyframes mxMinute { from { transform: scaleX(calc(var(--sec, 0) / 60)); } to { transform: scaleX(1); } }
-html[data-motion="full"] #dashboardView .digital-clock.is-minute::after,
-html[data-motion="lite"] #dashboardView .digital-clock.is-minute::after { animation: mxMinute calc((60 - var(--sec, 0)) * 1s) linear forwards; }
+/* Filled across each minute by src/clock/clock.js with the Web Animations API (literal values,
+   so it runs on the GPU; the old keyframes used var(--sec), which Chrome can't composite). */
 
 /* Greeting name: a time-of-day colour that drifts slowly */
 #greetText {
@@ -268,8 +263,9 @@ html[data-daypart="night"] #greetText { --gt: #818CF8; }
 :root[data-color="light"][data-daypart="day"] #greetText { --gt: #2563EB; }
 :root[data-color="light"][data-daypart="evening"] #greetText { --gt: #C2410C; }
 :root[data-color="light"][data-daypart="night"] #greetText { --gt: #4338CA; }
-@keyframes mxTint { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-html[data-motion="full"] #greetText { animation: mxTint 14s ease-in-out infinite; }
+/* Static tint. It used to drift with an endless background-position animation, which can't
+   run on the GPU: the phone repainted the name on every frame for as long as Home was open. */
+#greetText { background-position: 55% 50%; }
 /* Salutation icon follows the same colour */
 html[data-daypart] .salutation-icon { color: var(--gt-icon, var(--accent)); }
 html[data-daypart="morning"] { --gt-icon: #F59E0B; }
@@ -306,3 +302,52 @@ html[data-daypart="night"] { --gt-icon: #A5B4FC; }
    removed it from Apps, Notices, the post form, Faculty and Rooms: their last cards and
    the Publish button ended up under the dock. Home keeps its own clearance in #chG. */
 .app-page-view:not(#dashboardView) { padding-bottom: var(--dock-clearance, 120px); }
+
+/* ── 25. Performance (2026-11-17: "laggy on my 90 Hz phone") ──────────────────
+   Nothing decorative may keep the phone busy while nobody can see it. */
+
+/* Home's looping decorations (ambient scene, live-card water edge, live dots) pause while
+   Home is hidden behind another page, or a page, sheet or popup covers it. */
+#ambientLayer.is-hidden *,
+html:has(:is(.mo.open, .class-sheet-modal-overlay.open, .rm-sheet-overlay.open, #calendarPickerModal.open)) :is(#ambientLayer *, .live-fill-edge, .rm-live-dot::after, .hm-live-dot::after) {
+  animation-play-state: paused !important;
+}
+
+/* Closed sheets: out of painting and hit-testing, not just transparent. The visibility flip
+   waits until the slide-out has finished (sheets take 340ms). */
+.class-sheet-modal-overlay, .rm-sheet-overlay {
+  visibility: hidden;
+  transition: opacity 240ms ease, visibility 0s linear 360ms;
+}
+.class-sheet-modal-overlay.open, .rm-sheet-overlay.open {
+  visibility: visible;
+  transition: opacity 240ms ease, visibility 0s linear 0s;
+}
+
+/* Permanent layer hints held GPU memory for every popup and full page (Settings and the
+   Weekly Routine are tall: at a 2.75x screen that is a huge texture). Animations promote
+   their element on their own while they run. */
+.mo, .md { will-change: auto; }
+
+/* Loading placeholders: the background-position shimmer in core.css repainted every frame;
+   §7 already draws a transform-based shimmer. */
+.skeleton-card { animation: none; }
+
+/* Faculty list: up to ~25 teachers are in class at once, each row had its own endless
+   breathing dot. The list shows a still dot; the profile's single "now" dot keeps breathing. */
+.fd-status.is-in .fd-dot { animation: none; }
+
+/* The full-screen loading overlay is always in the DOM at opacity 0; its spinner kept turning
+   behind everything for the whole session. Only draw and spin it while it is showing. */
+.global-loading-overlay:not(.active) { visibility: hidden; transition: opacity 0.25s ease, visibility 0s linear 0.25s; }
+.global-loading-overlay.active { visibility: visible; transition: opacity 0.25s ease; }
+.global-loading-overlay:not(.active) .global-loading-spinner-ring { animation: none; }
+
+/* Long lists (Faculty letter groups, Notices day groups, Rooms floors): the browser skips
+   layout and paint for sections that are off screen until you scroll near them. "auto" in
+   contain-intrinsic-size remembers each section's real height after its first render, so the
+   scrollbar doesn't jump. */
+.fd-group, .nt-group, .rm-floor {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 480px;
+}

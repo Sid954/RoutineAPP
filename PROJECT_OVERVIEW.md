@@ -159,7 +159,18 @@ Do not deviate without explicit user approval.
 - **Dark theme:** `#18191E` / `#23252C` + Luminescent Sky `#38BDF8`
 - **Fonts:** Plus Jakarta Sans (UI), JetBrains Mono (times/metrics)
 - **Icon badges:** squircle — 42×42px, `border-radius: 13px` (NOT `clip-path`)
-- **No glassmorphism / glow.** `backdrop-filter` is allowed ONLY as a light blur on popup backdrops in the "full" motion tier (user-approved 2026-11-17; it was banned for performance, so keep it gated by `html[data-motion="full"]`).
+- **No glassmorphism / glow / `backdrop-filter`.** A light popup-backdrop blur was allowed for one day (2026-11-17) and then removed in the performance pass, because it made the app laggy on the user's 90 Hz phone. Popups use a plain strong dim (`motion-plus.css` §21).
+- **Performance rules (Nov 17, 2026 pass, `motion-plus.css` §25):**
+  - Loop only `transform`/`opacity`. Endless `background-position`, `box-shadow` or `var()`-in-keyframes animations repaint every frame, as the greeting tint, the old clock line and the hidden loading spinner did.
+  - Decorative loops pause when Home is hidden or covered, and closed sheets get `visibility: hidden`.
+  - List re-renders go through `setHtmlIfChanged()`.
+  - List fades animate the container once with `el.animate()`, not every child.
+  - Long lists use `content-visibility: auto`.
+  - No forced layout on page switches.
+  - Measured A/B with headless Chrome over CDP (4× CPU slowdown, 390×844 @ 2.75×):
+    - Home idle: 724 → 0 repaints in 3 s.
+    - With a sheet open: 475 → 0.
+    - Opening Faculty: style work 481 → 104 ms.
 - **Calm motion only** (user, 2026-11-17: "remove every jump ... not junk AI slop"). No overshoot/spring curves, bounce, pop, rise-in, tilt, shake, confetti, bobbing icons, rolling digits or sheen sweeps. Content fades in; pages cross-fade; only bottom sheets, the week-strip morph and the live water fill move, decelerating with `--mx-ease` (`cubic-bezier(0.2, 0, 0, 1)`). The ambient Home background, pull-to-refresh, the dock hold ring and a soft touch ripple remain.
 - **Layout:** one 16px gutter (`--gutter`) set on `.app-page-view`. Never patch a missing gutter per component with `padding-right`. Anything that scrolls under the floating dock needs `--dock-clearance` at the bottom.
 - **Primary buttons:** solid accent (`--btn-grad` = `--accent`, text `--btn-text`), no gradient washes, no coloured shadows.

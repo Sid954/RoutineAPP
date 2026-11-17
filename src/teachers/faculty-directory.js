@@ -4,7 +4,7 @@
  * row carries the teacher's live status. Tapping a row opens the profile sheet.
  */
 import { FULL_COURSE_NAMES } from '../core/config.js';
-import { getCurrentMinutes, escapeHtml } from '../core/utils.js';
+import { getCurrentMinutes, escapeHtml, setHtmlIfChanged } from '../core/utils.js';
 import { searchTeachers, getTeacherWeeklySubjects } from './teacher-finder.js';
 import { getTeacherInfo } from './teacher-names.js';
 import { activeDays, getTeacherDay, getTeacherStatus, getMyTeacherCodes, getTeacherDisplay, fmtMins } from './faculty-data.js';
@@ -170,9 +170,9 @@ function renderFilters(rows) {
     return true;
   });
   if (!visible.some(f => f.id === _filter)) _filter = 'all';
-  wrap.innerHTML = visible.map(f => `<button type="button" role="tab" class="fd-chip${f.id === _filter ? ' active' : ''}" data-filter="${f.id}" aria-selected="${f.id === _filter}">
+  setHtmlIfChanged(wrap, visible.map(f => `<button type="button" role="tab" class="fd-chip${f.id === _filter ? ' active' : ''}" data-filter="${f.id}" aria-selected="${f.id === _filter}">
       ${f.id === 'now' ? '<span class="fd-dot" aria-hidden="true"></span>' : ''}<span>${f.label}</span><span class="fd-chip-count">${counts[f.id]}</span>
-    </button>`).join('');
+    </button>`).join(''));
 }
 
 export function renderFacultyDirectory() {
@@ -191,16 +191,16 @@ export function renderFacultyDirectory() {
   }
 
   if (!_rows.length) {
-    list.innerHTML = emptyHtml('Loading faculty…', 'This needs a connection the first time.');
+    setHtmlIfChanged(list, emptyHtml('Loading faculty…', 'This needs a connection the first time.'));
     return;
   }
 
   const filtered = applyFilter(_rows, _filter).filter(r => matchesTeacherQuery(r.key, _query));
 
   if (!filtered.length) {
-    list.innerHTML = _query
+    setHtmlIfChanged(list, _query
       ? emptyHtml(`No one matches “${_query}”`, 'Try a name, a teacher code, a course or a room.', ICON.search)
-      : emptyHtml(_filter === 'now' ? 'No one is in class right now' : 'Nobody here yet', _filter === 'now' ? 'Check “Today” to see who teaches later.' : 'Try another filter.');
+      : emptyHtml(_filter === 'now' ? 'No one is in class right now' : 'Nobody here yet', _filter === 'now' ? 'Check “Today” to see who teaches later.' : 'Try another filter.'));
     return;
   }
 
@@ -229,7 +229,7 @@ export function renderFacultyDirectory() {
         <div class="fd-group-list">${others.map(r => rowHtml(r, i++)).join('')}</div></div>`;
     }
   }
-  list.innerHTML = html;
+  setHtmlIfChanged(list, html);
 }
 
 /* ── Events ───────────────────────────────────────────────────────────────── */

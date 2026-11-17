@@ -80,7 +80,14 @@ export function switchAppView(viewId, payload) {
 
   const previousViewId = window.__currentAppViewId;
   window.__currentAppViewId = viewId;
-  if (window.__updateAmbient) window.__updateAmbient();
+  if (window.__updateAmbient) window.__updateAmbient(true);
+
+  // Pages open at the top. Reset the outgoing page now, while its layout is still clean;
+  // scrolling the incoming page right after showing it forced a full synchronous layout.
+  // (Chrome keeps a hidden element's scroll position, so the reset carries over.)
+  const outgoing = previousViewId && previousViewId !== viewId && previousViewId !== 'home'
+    ? document.getElementById(VIEW_ELEMENT_IDS[previousViewId]) : null;
+  if (outgoing && outgoing.scrollTop) outgoing.scrollTop = 0;
 
   // Hide all view panels
   if (dashboardView) dashboardView.style.display = 'none';
@@ -101,13 +108,11 @@ export function switchAppView(viewId, payload) {
   } else if (viewId === 'apps') {
     if (appsHubView) {
       appsHubView.style.display = 'flex';
-      appsHubView.scrollTo({ top: 0, behavior: 'instant' });
     }
     if (dockAppsBtn) dockAppsBtn.classList.add('active');
   } else if (viewId === 'faculty') {
     if (facultyAppView) {
       facultyAppView.style.display = 'flex';
-      facultyAppView.scrollTo({ top: 0, behavior: 'instant' });
     }
     if (dockAppsBtn) dockAppsBtn.classList.add('active');
     if (window.__renderFacultyDirectory) {
@@ -116,7 +121,6 @@ export function switchAppView(viewId, payload) {
   } else if (viewId === 'announcements') {
     if (announcementsAppView) {
       announcementsAppView.style.display = 'flex';
-      announcementsAppView.scrollTo({ top: 0, behavior: 'instant' });
     }
     if (dockNoticesBtn) dockNoticesBtn.classList.add('active');
     if (window.__fetchAndRenderAnnouncements) {
@@ -125,7 +129,6 @@ export function switchAppView(viewId, payload) {
   } else if (viewId === 'post_announcement') {
     if (postAnnounceAppView) {
       postAnnounceAppView.style.display = 'flex';
-      postAnnounceAppView.scrollTo({ top: 0, behavior: 'instant' });
     }
     if (dockNoticesBtn) dockNoticesBtn.classList.add('active');
     if (window.__openPostAnnounceForm) {
@@ -134,7 +137,6 @@ export function switchAppView(viewId, payload) {
   } else if (viewId === 'free_rooms') {
     if (freeRoomsAppView) {
       freeRoomsAppView.style.display = 'flex';
-      freeRoomsAppView.scrollTo({ top: 0, behavior: 'instant' });
     }
     if (dockAppsBtn) dockAppsBtn.classList.add('active');
     if (window.__renderFreeRooms) {
@@ -145,8 +147,9 @@ export function switchAppView(viewId, payload) {
   animateViewEnter(viewId, previousViewId);
 }
 
-/* Page transition: deeper pages slide in from the right, going back slides from the left,
-   same-level switches (dock tabs) rise in. Timing lives in src/core/motion.css. */
+/* Page transition: the new page cross-fades in (calm motion: no slide or rise).
+   Web Animations API: no forced layout to restart a CSS animation (the old `void offsetWidth`
+   laid out the whole freshly shown page synchronously, e.g. 92 Faculty rows, on every switch). */
 const VIEW_ELEMENT_IDS = {
   home: 'dashboardView', apps: 'appsHubView', faculty: 'facultyAppView',
   announcements: 'announcementsAppView', post_announcement: 'postAnnounceAppView', free_rooms: 'freeRoomsAppView'
@@ -159,10 +162,11 @@ function animateViewEnter(viewId, previousViewId) {
   const from = VIEW_DEPTH[previousViewId] ?? 0;
   const to = VIEW_DEPTH[viewId] ?? 0;
   el.dataset.dir = to > from ? 'forward' : (to < from ? 'back' : 'same');
-  el.classList.remove('view-enter');
-  void el.offsetWidth; // restart the animation
-  el.classList.add('view-enter');
-  el.addEventListener('animationend', () => el.classList.remove('view-enter'), { once: true });
+  const tier = document.documentElement.dataset.motion;
+  if (tier === 'off' || !el.animate) return;
+  if (el._viewAnim) el._viewAnim.cancel();
+  el._viewAnim = el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: tier === 'lite' ? 140 : 200, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+  el._viewAnim.onfinish = () => { el._viewAnim = null; };
 }
 window.__currentAppViewId = 'home';
 window.switchAppView = switchAppView;

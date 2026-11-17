@@ -259,7 +259,7 @@ Add the widgets again after updating (long-press the home screen → Widgets →
 - [ ] Thu/Fri are hidden in the Home strip and Rooms days unless something is on (or it's today/selected). Settings → Your class → off days and "Hide off days" change it immediately.
 - [ ] Live class card fills sideways like water with a wavy edge; no bottom bar.
 - [ ] Home background: stars + moon at night, sun in the morning, warm tint in the evening, faint lines in class, bubbles in breaks, dots on test/holiday days. Gone on other pages.
-- [ ] Popups (class details, room, calendar, notice) dim the page more; on Full animations it is softly blurred. No lag when opening.
+- [ ] Popups (class details, room, calendar, notice) dim the page more (the blur was removed again in §23). No lag when opening.
 - [ ] Clock: digits roll when they change, a thin line fills across each minute, AM/PM pill, greeting name tint shifts with the time of day.
 - [ ] Idle on Home/Apps ~8s: a small tip slides up above the dock (at most once per launch / 6 hours). "Got it" retires it.
 - [ ] Tap a class → "Add an update for this class" → Test / Cancel / Move / Online / Task opens the post form prefilled (type, date of that class, course, time/teacher for Online; another section's class targets that section).
@@ -269,3 +269,16 @@ Add the widgets again after updating (long-press the home screen → Widgets →
 - [ ] (v1.5.10) Morning sun: the original design (soft glow + slowly turning rays), now centred just below the settings gear; visible in light mode too. Evening: the original warm tint.
 - [ ] (v1.5.10) Light theme: sun, night stars + moon, evening tint and the live class water fill are clearly visible.
 - [ ] (v1.5.10) Calm motion: switching pages only fades; popups fade in; sheets slide up with no bounce; lists don't rise in; no icon pops (dock, toast, dots), no shake, no confetti, no rolling clock digits, no sheen across the day card. Taps give a small, even press.
+
+## 23. Performance pass (90 Hz smoothness, not released yet)
+- [ ] Overall: opening and closing class details, the room sheet, notice details, the faculty profile, Settings and the Weekly Routine feels smooth at 90 Hz (no stutter at the start of the slide or fade).
+- [ ] Popups now only dim the page (no blur at all, on any animation setting).
+- [ ] Scrolling Faculty, Notices and Rooms is smooth, including the first scroll after opening the page. Rows don't flash or shrink when a scroll starts on top of them.
+- [ ] Tap feedback: a quick tap still shows the small press and ripple; starting a scroll on a card no longer does.
+- [ ] Faculty: the second visit opens instantly (the list is kept, not rebuilt). Filters and search still work; tapping a row opens the profile.
+- [ ] Rooms and the Weekly Routine: after leaving and coming back, rooms, day tabs and course titles still respond to taps.
+- [ ] Pages still open scrolled to the top (scroll Notices down, go Home, come back).
+- [ ] Home clock: the thin line still fills across each minute.
+- [ ] Greeting name keeps its time-of-day colour, but no longer drifts (that drift repainted the screen every frame).
+- [ ] Faculty list: in-class dots are still, not breathing (the profile's single "now" dot still breathes).
+- [ ] Battery: leaving the app on Home for a few minutes should drain less than before (nothing repaints at idle any more).

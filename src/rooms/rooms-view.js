@@ -16,7 +16,7 @@
  */
 import { offDays, shouldHideDay } from '../core/off-days.js';
 import { DAY_NAMES } from '../core/config.js';
-import { getCurrentMinutes, escapeHtml } from '../core/utils.js';
+import { getCurrentMinutes, escapeHtml, setHtmlIfChanged } from '../core/utils.js';
 import { getTeacherInfo } from '../teachers/teacher-names.js';
 import { showClassDetails } from '../timeline/class-detail.js';
 import { openTeacherDetailByCode } from '../teachers/teacher-modal.js';
@@ -199,8 +199,7 @@ export function renderFreeRoomsView() {
   }
 
   if (visible.length === 0) {
-    list.innerHTML = emptyStateHtml(pool, counts, minute);
-    bindEmptyState(list);
+    if (setHtmlIfChanged(list, emptyStateHtml(pool, counts, minute))) bindEmptyState(list);
     return;
   }
 
@@ -224,7 +223,7 @@ export function renderFreeRoomsView() {
       </section>`;
   }).join('');
 
-  list.innerHTML = html;
+  if (!setHtmlIfChanged(list, html)) return; // same rooms, same states: keep the DOM (and its handlers)
   list.querySelectorAll('.rm-room').forEach(btn => {
     btn.addEventListener('click', () => {
       const item = evaluated.find(i => i.room.id === btn.dataset.roomId);

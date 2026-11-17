@@ -109,7 +109,8 @@
 }
 
 /* ==========================================================================
-   2. Page transitions (switchAppView adds .view-enter + data-dir)
+   2. Page transitions: main.js animateViewEnter now fades the page with el.animate()
+      (no forced layout). .view-enter is no longer added; the rule below is unused.
    ========================================================================== */
 @keyframes viewEnter { from { opacity: 0; } to { opacity: 1; } }
 .app-page-view.view-enter { animation: viewEnter var(--dur-2) var(--ease-out) both; }

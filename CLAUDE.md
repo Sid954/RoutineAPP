@@ -55,7 +55,12 @@ node build.js --scrape-faculty            # optional faculty scrape during build
 - Do not restore the class-start/pre-class notification code that was deliberately removed. It needs a rebuild from scratch.
 - UI rules:
   - Use SVG icons only, never emoji.
-  - No glassmorphism or glow. `backdrop-filter` only as a light blur on popup backdrops, and only in the "full" motion tier (user-approved 2026-11-17; it was banned for performance).
+  - No glassmorphism or glow, and no `backdrop-filter` at all. The popup-backdrop blur was tried and removed again on 2026-11-17 because the app felt laggy on the user's 90 Hz phone. Popups use a plain strong dim.
+  - Performance (user, 2026-11-17: "make everything buttery smooth"):
+    - Never loop an animation on a property the GPU can't run (`background-position`, `box-shadow`, `width`/`height`, or keyframes containing `var()`), because it repaints on every frame. Animate `transform` and `opacity` only.
+    - Decorative loops pause when hidden or covered (motion-plus.css §25).
+    - Re-render lists with `setHtmlIfChanged()` (src/core/utils.js), and bind handlers only when it returns true.
+    - Don't force layout (`void el.offsetWidth`, scroll right after showing a page). Restart animations with `el.animate()`.
   - Calm motion only (user, 2026-11-17: "remove every jump"). No overshoot or spring easings, and no bounce, pop, rise, tilt or shake. Content appears by fading. Only objects that physically move (bottom sheets, the week-strip morph, the live water fill) travel, and they decelerate without overshoot. Use `--mx-ease` (`cubic-bezier(0.2, 0, 0, 1)`).
   - Exactly two themes, light and dark. Palettes are listed in PROJECT_OVERVIEW.md.
   - Keep the `env(safe-area-inset-*)` padding.

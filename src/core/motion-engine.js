@@ -118,12 +118,14 @@ const TAPPABLE = [
 // Elements that must not get a ripple layer (tiny, or positioned children that would clip)
 const NO_RIPPLE = '.satellite-pill, .focal-day-card, [data-no-ripple], input, select, textarea, .teacher-clickable-badge, .dock-center-raised-fab';
 
-function ripple(el, ev) {
+function ripple(el, x, y) {
   if (Motion.tier === 'off' || el.matches(NO_RIPPLE)) return;
   const rect = el.getBoundingClientRect();
   if (rect.width < 24 || rect.height < 20) return;
-  const cs = getComputedStyle(el);
-  if (cs.position === 'static') el.style.position = 'relative';
+  if (!el._mxPos) {
+    el._mxPos = true;
+    if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+  }
   let layer = el.querySelector(':scope > .mx-ripple-layer');
   if (!layer) {
     layer = document.createElement('span');
@@ -131,30 +133,62 @@ function ripple(el, ev) {
     layer.setAttribute('aria-hidden', 'true');
     el.appendChild(layer);
   }
-  const size = Math.hypot(rect.width, rect.height) * 2;
+  // Just big enough to reach the farthest corner from the touch point (was 2x the diagonal)
+  const px = (x || rect.left + rect.width / 2) - rect.left;
+  const py = (y || rect.top + rect.height / 2) - rect.top;
+  const size = 2 * Math.hypot(Math.max(px, rect.width - px), Math.max(py, rect.height - py));
   const r = document.createElement('span');
   r.className = 'mx-ripple';
   r.style.width = r.style.height = `${size}px`;
-  r.style.left = `${(ev.clientX || rect.left + rect.width / 2) - rect.left - size / 2}px`;
-  r.style.top = `${(ev.clientY || rect.top + rect.height / 2) - rect.top - size / 2}px`;
+  r.style.left = `${px - size / 2}px`;
+  r.style.top = `${py - size / 2}px`;
   layer.appendChild(r);
   const done = () => r.remove();
   r.addEventListener('animationend', done, { once: true });
   setTimeout(done, 900);
 }
 
+// A touch only becomes a "press" once it's clearly a tap: after PRESS_DELAY ms without
+// moving, or when the finger lifts first. Scroll flicks no longer scale a card, add a ripple
+// and repaint it at the very moment the page starts to scroll.
+const PRESS_DELAY = 70;
+const MOVE_SLOP = 8;
+
 function bindPress() {
   let pressed = null;
-  const release = () => { if (pressed) { pressed.classList.remove('mx-pressed'); pressed = null; } };
+  let pending = null; // { el, x, y, timer }
+  const begin = (el, x, y) => {
+    pressed = el;
+    el.classList.add('mx-pressed');
+    ripple(el, x, y);
+  };
+  const cancelPending = () => { if (pending) { clearTimeout(pending.timer); pending = null; } };
+  const release = () => {
+    cancelPending();
+    if (pressed) { const el = pressed; pressed = null; el.classList.remove('mx-pressed'); }
+  };
   document.addEventListener('pointerdown', ev => {
     if (ev.button !== 0 && ev.pointerType === 'mouse') return;
     const el = ev.target.closest(TAPPABLE);
     if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true') return;
-    pressed = el;
-    el.classList.add('mx-pressed');
-    ripple(el, ev);
+    release();
+    if (ev.pointerType === 'mouse') { begin(el, ev.clientX, ev.clientY); return; }
+    pending = { el, x: ev.clientX, y: ev.clientY, timer: setTimeout(() => { const p = pending; pending = null; if (p) begin(p.el, p.x, p.y); }, PRESS_DELAY) };
   }, { passive: true });
-  ['pointerup', 'pointercancel', 'pointerleave', 'scroll'].forEach(t => document.addEventListener(t, release, { passive: true, capture: t === 'scroll' }));
+  document.addEventListener('pointermove', ev => {
+    if (pending && Math.hypot(ev.clientX - pending.x, ev.clientY - pending.y) > MOVE_SLOP) cancelPending();
+  }, { passive: true });
+  document.addEventListener('pointerup', () => {
+    // Quick tap: lifted before the delay. Show the press feedback now, briefly.
+    if (pending) {
+      const p = pending; cancelPending();
+      begin(p.el, p.x, p.y);
+      setTimeout(release, 120);
+      return;
+    }
+    release();
+  }, { passive: true });
+  ['pointercancel', 'scroll'].forEach(t => document.addEventListener(t, release, { passive: true, capture: t === 'scroll' }));
   document.addEventListener('click', ev => {
     const el = ev.target.closest(TAPPABLE);
     if (!el || el.disabled) return;
@@ -186,15 +220,16 @@ function staggerReplay(el) {
   const rapid = el._mxLast && now - el._mxLast < 700;
   el._mxLast = now;
   if (rapid) return;
-  const kids = Array.from(el.children).filter(k => !k.classList.contains('mx-ripple-layer'));
-  kids.forEach((k, i) => k.style.setProperty('--mx-i', String(Math.min(i, 14))));
-  el.classList.remove('mx-enter');
-  void el.offsetWidth;
-  el.classList.add('mx-enter');
-  clearTimeout(el._mxT);
-  el._mxT = setTimeout(() => el.classList.remove('mx-enter'), 900 + Math.min(kids.length, 14) * 40);
-  if (first) el.classList.add('mx-first');
+  // Static rows: the week strip morphs on its own, filter chip rows never fade
+  if (NO_FADE.has(el.id)) return;
+  // One opacity animation on the container (a single compositor layer, no forced layout).
+  // It used to restart a CSS animation on every child: 92 Faculty rows = 92 layers at once.
+  if (!el.animate) return;
+  if (el._mxAnim) el._mxAnim.cancel();
+  el._mxAnim = el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: Motion.tier === 'full' ? 200 : 140, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+  el._mxAnim.onfinish = () => { el._mxAnim = null; };
 }
+const NO_FADE = new Set(['focalStripContainer', 'fdFilters', 'announceFilterBar', 'calendarDaysGrid']);
 
 function bindStagger() {
   const seen = new WeakSet();

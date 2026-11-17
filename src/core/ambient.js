@@ -63,10 +63,12 @@ function build(mode) {
   return parts.join('');
 }
 
-export function updateAmbient() {
+/** viewOnly: a page switch, so only show/hide; the scene itself is re-evaluated each minute. */
+export function updateAmbient(viewOnly = false) {
   if (!layer) return;
   const onHome = (window.__currentAppViewId || 'home') === 'home';
   layer.classList.toggle('is-hidden', !onHome);
+  if (viewOnly === true && lastMode) return;
   const mode = ambientMode();
   if (mode === lastMode) return;
   lastMode = mode;
@@ -83,8 +85,8 @@ export function initAmbient() {
   const host = document.getElementById('app') || document.body;
   host.insertBefore(layer, host.firstChild);
   updateAmbient();
-  setInterval(updateAmbient, 60 * 1000);
-  // Hide while on other pages (switchAppView updates __currentAppViewId)
-  document.addEventListener('click', () => setTimeout(updateAmbient, 50), true);
+  setInterval(() => { if (!document.hidden) updateAmbient(); }, 60 * 1000);
+  // Hidden while on other pages: switchAppView (main.js) calls this on every page change.
+  // (It used to run on every tap anywhere in the app, rebuilding the day's classes each time.)
   window.__updateAmbient = updateAmbient;
 }

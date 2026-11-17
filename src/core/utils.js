@@ -106,3 +106,16 @@ export function localDateStr(date = new Date()) {
 
 /** "LAB" badge label with an inline SVG star (UI rule: SVG icons only, no emoji/glyph icons). */
 export const LAB_LABEL_HTML = '<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-1px;margin-right:3px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>LAB';
+
+/**
+ * Replace an element's HTML only when it actually changed. Re-assigning identical markup still
+ * throws away every node and redoes style, layout, paint and image decode (a 92-row list on each
+ * visit). Returns true when the DOM was updated.
+ */
+export function setHtmlIfChanged(el, html) {
+  if (!el) return false;
+  if (el.__html === html && el.childNodes.length) return false;
+  el.__html = html;
+  el.innerHTML = html;
+  return true;
+}
