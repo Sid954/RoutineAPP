@@ -1,8 +1,8 @@
 {
-  "versionCode": 19,
-  "versionName": "1.5.9",
+  "versionCode": 20,
+  "versionName": "1.5.10",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.9 - No jumping when switching days, pages no longer hidden under the menu bar, simpler post form",
+  "releaseNotes": "v1.5.10 - Smooth week strip, calm animations everywhere, original sun moved under settings, light mode visuals, test time slider",
   "minRequiredVersionCode": 1
 }
