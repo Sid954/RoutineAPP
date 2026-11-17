@@ -12,20 +12,10 @@ let _lastRenderHash = '';
 let _lastSwapDayIdx = null;
 
 // Academic week order (Thu → Wed), used to tell whether a day change moved forward or back
-const ACADEMIC_ORDER = [4, 5, 6, 0, 1, 2, 3];
 
-/** Cross-fades the timeline when the viewed day changes (motion.css §4). Swipes animate themselves. */
+/** Day switches no longer animate (user request 2026-11-17: "no jumping"); content swaps in place. */
 function playDaySwap(dayIdx) {
-  const grid = DOM.timelineGrid || document.getElementById('chG');
-  const prev = _lastSwapDayIdx;
   _lastSwapDayIdx = dayIdx;
-  if (!grid || prev === null || prev === dayIdx) return;
-  if (grid.classList.contains('swipe-transition') || grid.classList.contains('swiping')) return;
-  grid.dataset.dir = ACADEMIC_ORDER.indexOf(dayIdx) > ACADEMIC_ORDER.indexOf(prev) ? 'next' : 'prev';
-  grid.classList.remove('day-swap');
-  void grid.offsetWidth;
-  grid.classList.add('day-swap');
-  grid.addEventListener('animationend', () => grid.classList.remove('day-swap'), { once: true });
 }
 
 const OVERRIDE_ICONS = {

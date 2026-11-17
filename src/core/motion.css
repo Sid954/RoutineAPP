@@ -135,7 +135,7 @@
 .mo.mo-page.open > .md { animation: viewEnter var(--dur-3) var(--ease-out) both; --enter-x: 24px; --enter-y: 0; }
 
 /* ==========================================================================
-   4. Day switching: timeline content cross-fades (timeline.js adds .day-swap)
+   4. Day switching: no timeline animation (removed 2026-11-17); week strip morph only
    ========================================================================== */
 /* The week strip carries the motion (expand/collapse below), so the timeline only
    cross-fades quietly: no slide, no direction. */

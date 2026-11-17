@@ -249,6 +249,7 @@ Add the widgets again after updating (long-press the home screen → Widgets →
 - [ ] Phone back button: closes the top popup/sheet first, then steps back a page, and exits from Home.
 - [ ] Search bars (Faculty, Notices, Rooms) show one clean box when focused, no inner box.
 - [ ] Switching days on Home does not re-cascade the list; pull to refresh still does.
+- [ ] (v1.5.9) Switching days: no fade or rise at all on the schedule or the week strip pills; only the selected day widens.
 - [ ] No top-left Home/Apps back buttons on Notices, Apps, Faculty and Free Rooms (dock covers them).
 - [ ] Faculty profile weekly schedule keeps its height when switching days.
 - [ ] Notifications off / battery optimised / exact alarms off: Notices shows a warning with a working Fix button; "Send a test" arrives.

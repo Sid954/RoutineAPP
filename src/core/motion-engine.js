@@ -177,9 +177,10 @@ function staggerReplay(el) {
   const first = el._mxSig === undefined;
   el._mxSig = s;
   if (Motion.tier === 'off') return;
-  // Home timeline: switching days should just cross-fade (motion.css .day-swap), not
-  // re-cascade every card. Cascade only on first load or after a pull-to-refresh.
-  if (el.id === 'chG' && !first && !(el._mxForceUntil && Date.now() < el._mxForceUntil)) return;
+  // Home timeline and week strip: switching days must not animate at all (user: "no jumping").
+  // They cascade only on first load or after a pull-to-refresh.
+  if ((el.id === 'chG' || el.id === 'focalStripContainer') && !first &&
+      !(el._mxForceUntil && Date.now() < el._mxForceUntil)) return;
   // Rapid re-renders (dragging the Rooms time slider, typing in search): no replay
   const now = Date.now();
   const rapid = el._mxLast && now - el._mxLast < 700;
