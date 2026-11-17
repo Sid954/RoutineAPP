@@ -13,7 +13,6 @@ import { State } from '../core/state.js';
 import { Storage } from '../storage/storage.js';
 import { showToast } from '../toast/toast.js';
 import { escapeHtml, format12h, parseTo24h, toMinutes, localDateStr } from '../core/utils.js';
-import { initPostEasy, refreshPostEasy, syncPostEasy } from './post-easy.js';
 import { DAY_NAMES } from '../core/config.js';
 import { Notifications } from '../notifications/notifications.js';
 import { Announcements } from './announcements.js';
@@ -502,9 +501,8 @@ export function openPostForm(existing = null) {
     if (k) sel.value = k;
     delete sel.dataset.keep;
   });
-  loadTargetRoutine().then(() => { restore(); refreshCounters(); renderPreview(); syncPostEasy(); });
+  loadTargetRoutine().then(() => { restore(); refreshCounters(); renderPreview(); });
   refreshCounters();
-  refreshPostEasy();
   const scroller = document.querySelector('#postAnnounceAppView .pa-scroll');
   if (scroller) scroller.scrollTop = 0;
 }
@@ -678,5 +676,4 @@ export function initPostForm() {
   const limits = { paName: L.AUTHOR_NAME, paTitle: L.TITLE, paHolidayName: L.HOLIDAY_NAME, paClassLink: L.PLATFORM_LINK, paClassRoom: L.ROOM,
     paTestName: L.EXAM_NAME, paTestTopics: L.TOPICS, paMoveRoom: L.ROOM, paMoveReason: L.REASON, paTaskTitle: L.TASK_TITLE, paTaskNotes: L.ASSIGNMENT_DESC, paCancelNote: L.REASON };
   Object.entries(limits).forEach(([id, max]) => { const el = $(id); if (el) { el.dataset.max = max; el.maxLength = max; } });
-  initPostEasy();
 }

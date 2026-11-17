@@ -261,4 +261,5 @@ Add the widgets again after updating (long-press the home screen → Widgets →
 - [ ] Clock: digits roll when they change, a thin line fills across each minute, AM/PM pill, greeting name tint shifts with the time of day.
 - [ ] Idle on Home/Apps ~8s: a small tip slides up above the dock (at most once per launch / 6 hours). "Got it" retires it.
 - [ ] Tap a class → "Add an update for this class" → Test / Cancel / Move / Online / Task opens the post form prefilled (type, date of that class, course, time/teacher for Online; another section's class targets that section).
-- [ ] Post form "Simple" mode: Today/Tomorrow/day chips under dates, course chips instead of dropdowns, empty optional fields hidden. "Advanced" shows the full form. The choice is remembered.
+- [ ] (v1.5.9) Simple post mode removed (user: broken); the full form is the only mode.
+- [ ] (v1.5.9) Apps, Notices, post form, Faculty and Rooms: scrolled to the bottom, the last card / Publish button sits above the dock.

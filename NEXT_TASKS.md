@@ -2,6 +2,7 @@
 
 Status (2026-11-17): items 1–16 and 18 done on branch `main-2cmtj2` (not released yet; checklist §22 in TESTING_CHECKLIST.md).
 Item 7 uses a real blur: user approved `backdrop-filter` on popup backdrops, full motion tier only.
+Item 18's Simple/Advanced post mode was removed again in v1.5.9 (user: "broken"); the class quick actions stay.
 **Still open: item 17 (community suggestions / duplicates / pending / voting)** — needs API + Supabase schema decisions from the user.
 User feedback on v1.5.7: "Animations are pretty good so far."
 Rule reminders: Home keeps the user's ORIGINAL design (no redesigns without asking). Edit `src/`, never `www/`. Ask before release.

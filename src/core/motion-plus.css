@@ -425,3 +425,9 @@ html[data-motion="full"] .mx-tip.is-shown .mx-tip-icon svg { animation: mxBob 2.
 .mx-tip-btn { flex-shrink: 0; border: none; border-radius: 10px; padding: 7px 10px; background: var(--accent); color: var(--btn-text, #fff); font: 800 12px var(--font-ui); cursor: pointer; }
 .mx-tip-x { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; border: none; background: transparent; color: var(--text-muted); display: grid; place-items: center; cursor: pointer; }
 .mx-tip-x svg { width: 14px; height: 14px; }
+
+/* ── 24. Dock clearance on scrolling pages ──
+   motion.css §1 zeroes .app-page-view bottom padding (for the dashboard), which also
+   removed it from Apps, Notices, the post form, Faculty and Rooms: their last cards and
+   the Publish button ended up under the dock. Home keeps its own clearance in #chG. */
+.app-page-view:not(#dashboardView) { padding-bottom: var(--dock-clearance, 120px); }

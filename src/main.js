@@ -80,6 +80,7 @@ export function switchAppView(viewId, payload) {
 
   const previousViewId = window.__currentAppViewId;
   window.__currentAppViewId = viewId;
+  if (window.__updateAmbient) window.__updateAmbient();
 
   // Hide all view panels
   if (dashboardView) dashboardView.style.display = 'none';
