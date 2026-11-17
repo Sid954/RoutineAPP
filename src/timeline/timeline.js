@@ -27,46 +27,166 @@ const OVERRIDE_ICONS = {
   assignment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>'
 };
 
-// Matches --dur-3 in src/core/motion.css
-const STRIP_MORPH_MS = 320;
+// Slow enough to follow with the eye (user 2026-11-17: "slowly unexpand ... smooth transition")
+const STRIP_MORPH_MS = 460;
+const STRIP_EASE = 'cubic-bezier(0.4, 0, 0.2, 1)';
 let _stripMorphTimer = null;
 
+/** Where each day's pieces sit before the strip is rebuilt (positions relative to the cell). */
+function snapshotStrip(container) {
+  const snap = new Map();
+  container.querySelectorAll(':scope > [data-date]').forEach(cell => {
+    const cr = cell.getBoundingClientRect();
+    const rel = el => {
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return { x: r.left - cr.left, y: r.top - cr.top, w: r.width, h: r.height, fs: parseFloat(getComputedStyle(el).fontSize) || 0 };
+    };
+    const cs = getComputedStyle(cell);
+    const numEl = cell.querySelector('.focal-num-large, .satellite-num');
+    snap.set(cell.dataset.date, {
+      width: cr.width,
+      bg: cs.backgroundColor,
+      border: cs.borderColor,
+      numColor: numEl ? getComputedStyle(numEl).color : '',
+      focal: cell.classList.contains('focal-day-card'),
+      num: rel(cell.querySelector('.focal-num-large, .satellite-num')),
+      meta: cell.querySelector('.focal-meta') ? { ...rel(cell.querySelector('.focal-meta')), node: cell.querySelector('.focal-meta') } : null,
+      name: cell.querySelector('.satellite-name') ? { ...rel(cell.querySelector('.satellite-name')), text: cell.querySelector('.satellite-name').textContent, color: getComputedStyle(cell.querySelector('.satellite-name')).color } : null
+    });
+  });
+  return snap;
+}
+
 /**
- * Expand / collapse morph for the week strip. The strip is rebuilt as HTML, so each cell
- * starts at the width that date had before the change and animates to its new width:
- * the tapped day grows into the focal card while the previous focal day shrinks back
- * into a pill. When nothing moved (e.g. the per-minute refresh) this does nothing.
+ * Expand / collapse morph for the week strip. The strip is rebuilt as HTML, so every piece is
+ * animated from where it was to where it ends up (FLIP):
+ *  - each cell's width goes from its old width to its new one;
+ *  - the day number glides from its old spot to its new one while scaling between the pill
+ *    size and the focal size (it never disappears);
+ *  - the tapped day's small "SAT" label floats up and fades out, and "SATURDAY / 4 CLASSES"
+ *    slides in from the left as the card widens;
+ *  - the previous focal day does the reverse: its long label is gone, "SUN" fades in above.
+ * Children of a shrinking pill are pinned to their final positions so the centred layout
+ * doesn't drift while the width changes. Nothing runs when nothing moved (minute refresh).
  */
-function morphStripWidths(container, previousWidths) {
+function morphStripWidths(container, before) {
+  if (!before || !before.size) return;
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (document.documentElement.dataset.motion === 'off') return;
   const cells = [...container.querySelectorAll(':scope > [data-date]')];
-  if (!cells.length || !previousWidths.size) return;
+  if (!cells.length) return;
   const finals = cells.map(c => c.getBoundingClientRect().width);
-  const starts = cells.map((c, i) => previousWidths.get(c.dataset.date) ?? finals[i]);
+  const starts = cells.map((c, i) => (before.get(c.dataset.date) || {}).width ?? finals[i]);
   if (starts.every((w, i) => Math.abs(w - finals[i]) < 1)) return;
+
+  // Final positions (measured at the final layout, before any width is overridden)
+  const finalPos = cells.map(cell => {
+    const cr = cell.getBoundingClientRect();
+    const rel = el => { if (!el) return null; const r = el.getBoundingClientRect(); return { x: r.left - cr.left, y: r.top - cr.top, w: r.width, fs: parseFloat(getComputedStyle(el).fontSize) || 0 }; };
+    return {
+      num: rel(cell.querySelector('.focal-num-large, .satellite-num')),
+      kids: [...cell.children].map(k => ({ k, x: rel(k).x }))
+    };
+  });
 
   clearTimeout(_stripMorphTimer);
   container.classList.add('is-morphing');
+  const anims = [];
+  const ghosts = [];
+  const opts = (extra = {}) => ({ duration: STRIP_MORPH_MS, easing: STRIP_EASE, fill: 'both', ...extra });
+
   cells.forEach((c, i) => {
     c.style.transition = 'none';
     c.style.flex = '0 0 auto';
     c.style.minWidth = '0';
     c.style.width = `${starts[i]}px`;
-    if (starts[i] < finals[i] - 1) c.classList.add('is-expanding');
-    else if (starts[i] > finals[i] + 1) c.classList.add('is-shrinking');
   });
+
+  cells.forEach((c, i) => {
+    const old = before.get(c.dataset.date);
+    if (!old) return;
+    const isFocal = c.classList.contains('focal-day-card');
+    const roleChanged = old.focal !== isFocal;
+    const fp = finalPos[i];
+
+    if (!isFocal && roleChanged) {
+      // Pill shrinking out of the focal card: pin its centred children to their final x
+      c.style.alignItems = 'flex-start';
+      c.style.paddingLeft = '0';
+      c.style.paddingRight = '0';
+      fp.kids.forEach(({ k, x }) => {
+        if (getComputedStyle(k).position === 'absolute') return;
+        k.style.marginLeft = `${x}px`;
+      });
+    }
+
+    if (!roleChanged) return;
+
+    // Card colour blends (accent <-> dark) instead of switching
+    const cs = getComputedStyle(c);
+    if (old.bg && old.bg !== cs.backgroundColor) {
+      anims.push(c.animate([{ backgroundColor: old.bg, borderColor: old.border }, { backgroundColor: cs.backgroundColor, borderColor: cs.borderColor }], opts()));
+    }
+
+    // Number: glide + scale from the old spot/size to the new one
+    const n = c.querySelector('.focal-num-large, .satellite-num');
+    if (n && old.num && fp.num && fp.num.fs) {
+      const k = old.num.fs / fp.num.fs;
+      const dx = old.num.x - fp.num.x;
+      const dy = old.num.y - fp.num.y;
+      n.style.transformOrigin = '0 0';
+      if (getComputedStyle(n).display === 'inline') n.style.display = 'inline-block';
+      const nc = getComputedStyle(n).color;
+      anims.push(n.animate([{ transform: `translate(${dx}px, ${dy}px) scale(${k})`, color: old.numColor || nc }, { transform: 'none', color: nc }], opts()));
+    }
+
+    if (isFocal) {
+      // The old "SAT" label floats up and fades while the card widens
+      if (old.name) {
+        const g = document.createElement('span');
+        g.className = 'strip-ghost-label';
+        g.textContent = old.name.text;
+        g.style.cssText = `position:absolute;left:${old.name.x}px;top:${old.name.y}px;width:${old.name.w}px;font-size:${old.name.fs}px;color:${old.name.color};pointer-events:none;text-align:center;font-weight:700;line-height:${old.name.h}px;letter-spacing:.3px`;
+        c.appendChild(g);
+        ghosts.push(g);
+        anims.push(g.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-6px)' }], opts({ duration: STRIP_MORPH_MS * 0.55 })));
+      }
+      // "SATURDAY / 4 CLASSES" slides in on the right as room appears
+      const meta = c.querySelector('.focal-meta');
+      if (meta) anims.push(meta.animate([{ opacity: 0, transform: 'translateX(-10px)' }, { opacity: 1, transform: 'none' }], opts({ delay: STRIP_MORPH_MS * 0.3, duration: STRIP_MORPH_MS * 0.7 })));
+    } else {
+      // The old "SUNDAY / 4 CLASSES" fades out to the left instead of vanishing
+      if (old.meta && old.meta.node) {
+        const g = old.meta.node;
+        g.classList.add('strip-ghost-label');
+        g.style.cssText = `position:absolute;left:${old.meta.x}px;top:${old.meta.y}px;width:${old.meta.w}px;height:${old.meta.h}px;margin:0;pointer-events:none`;
+        c.appendChild(g);
+        ghosts.push(g);
+        anims.push(g.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(-8px)' }], opts({ duration: STRIP_MORPH_MS * 0.5 })));
+      }
+      // Pill: its "SUN" label fades in from above as the card narrows
+      const name = c.querySelector('.satellite-name');
+      if (name) anims.push(name.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], opts({ delay: STRIP_MORPH_MS * 0.35, duration: STRIP_MORPH_MS * 0.65 })));
+    }
+  });
+
   void container.offsetWidth; // commit the start widths
   cells.forEach((c, i) => {
-    c.style.transition = `width ${STRIP_MORPH_MS}ms var(--ease-in-out)`;
+    c.style.transition = `width ${STRIP_MORPH_MS}ms ${STRIP_EASE}`;
     c.style.width = `${finals[i]}px`;
   });
+
   _stripMorphTimer = setTimeout(() => {
+    anims.forEach(a => { try { a.cancel(); } catch (e) {} });
+    ghosts.forEach(g => g.remove());
     cells.forEach(c => {
       c.style.transition = c.style.flex = c.style.minWidth = c.style.width = '';
-      c.classList.remove('is-expanding', 'is-shrinking');
+      c.style.alignItems = c.style.paddingLeft = c.style.paddingRight = '';
+      [...c.children].forEach(k => { k.style.marginLeft = ''; k.style.transformOrigin = ''; if (k.style.display === 'inline-block') k.style.display = ''; });
     });
     container.classList.remove('is-morphing');
-  }, STRIP_MORPH_MS + 20);
+  }, STRIP_MORPH_MS + 40);
 }
 
 /** Classes that actually take place on a date: excludes cancelled and rescheduled-away ones. */
@@ -173,10 +293,9 @@ export function renderWeekStrip() {
 
   // Remember every day cell width before replacing the strip, so the selected day can
   // expand from its pill width and the previous one collapse back (morphStripWidths)
-  const previousWidths = new Map();
-  container.querySelectorAll('[data-date]').forEach(el => previousWidths.set(el.dataset.date, el.getBoundingClientRect().width));
+  const before = snapshotStrip(container);
   container.innerHTML = html;
-  morphStripWidths(container, previousWidths);
+  morphStripWidths(container, before);
 }
 
 const sameDate = (a, b) => a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();

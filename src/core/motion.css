@@ -148,16 +148,10 @@
    Only happens when the selection changes — the per-minute refresh does not animate. */
 .strip-dir-b-row.is-morphing > [data-date] { overflow: hidden; }
 .strip-dir-b-row.is-morphing .override-badge-stack { opacity: 0; }
-/* Nothing fades: the number stays visible and grows (pill 14px → focal 18px) as the card
-   widens, the label is uncovered by the width, and the old day's number shrinks back.
-   (User 2026-11-17: "it shouldn't disappear and get big, just increase horizontally".) */
-@keyframes stripNumGrow { from { transform: scale(0.78); } to { transform: none; } }
-@keyframes stripNumShrink { from { transform: scale(1.28); } to { transform: none; } }
-.focal-day-card.is-expanding .focal-num-large { transform-origin: left center; animation: stripNumGrow 320ms var(--ease-in-out) both; }
-.satellite-pill.is-shrinking .satellite-num { display: inline-block; animation: stripNumShrink 320ms var(--ease-in-out) both; }
+/* The piece-by-piece morph (number glide, labels in/out) is done in timeline.js (WAAPI). */
 /* No "MO…" ellipsis flash while the card is still narrow */
-.focal-day-card.is-expanding .focal-day-label,
-.focal-day-card.is-expanding .focal-day-sub { text-overflow: clip; }
+.strip-dir-b-row.is-morphing .focal-day-label,
+.strip-dir-b-row.is-morphing .focal-day-sub { text-overflow: clip; }
 .focal-meta { white-space: nowrap; }
 
 /* Colours still shift smoothly; press feedback stays quick */
