@@ -14,6 +14,7 @@
  * External contract (unchanged): initFreeRoomsUI(), window.__renderFreeRooms,
  * window.openRoomInFreeRooms(roomId, dayIdx, returnView), window.refreshFreeRoomsIfVisible.
  */
+import { offDays, shouldHideDay } from '../core/off-days.js';
 import { DAY_NAMES } from '../core/config.js';
 import { getCurrentMinutes, escapeHtml } from '../core/utils.js';
 import { getTeacherInfo } from '../teachers/teacher-names.js';
@@ -36,7 +37,7 @@ import { resolveFreeRoomsSelection } from './room-date-lifecycle.js';
 const DAY_START = 480;   // 8:00 AM — strip & scrubber range (classes run 8:30–4:00)
 const DAY_END = 990;     // 4:30 PM
 const SOON_MINS = 30;    // "freeing soon" = busy but free within this many minutes
-const OFF_DAYS = [4, 5]; // Thu, Fri
+// Off days come from core/off-days.js (Settings → Your class)
 const SHORT_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 // ── State ────────────────────────────────────────────────────────────────────
@@ -295,9 +296,12 @@ function bindEmptyState(list) {
 function renderDays(container, activeOffset, onPick) {
   if (!container) return;
   const html = [];
+  let shown = 0;
   for (let o = 0; o < 7; o++) {
     const d = dateForOffset(o);
-    const off = OFF_DAYS.includes(d.getDay());
+    const off = offDays().includes(d.getDay());
+    if (shouldHideDay(d, { isToday: o === 0, isSelected: o === activeOffset })) continue;
+    shown++;
     const label = o === 0 ? 'Today' : SHORT_DAYS[d.getDay()];
     html.push(`
       <button type="button" role="tab" class="rm-day${o === activeOffset ? ' active' : ''}${off ? ' is-off' : ''}"
@@ -307,6 +311,7 @@ function renderDays(container, activeOffset, onPick) {
       </button>`);
   }
   container.innerHTML = html.join('');
+  container.style.setProperty('--rm-days', String(shown));
   container.querySelectorAll('.rm-day').forEach(btn => {
     btn.addEventListener('click', () => onPick(Number(btn.dataset.offset)));
   });

@@ -87,7 +87,50 @@ export function getWeeklyRecurrences(courseCode) {
   return recurrences;
 }
 
+let _quickData = null;
+
+/** "Add an update" row: open the post form prefilled for this class and its date. */
+function initQuickActions() {
+  const row = document.getElementById('classQuickActions');
+  if (!row || row._bound) return;
+  row._bound = true;
+  row.addEventListener('click', async e => {
+    const btn = e.target.closest('[data-quick]');
+    if (!btn || !_quickData) return;
+    if (isWithinGhostTapWindow()) return;
+    const d = _quickData;
+    const { getDateForDayIndex } = await import('../announcements/overrides.js');
+    let date = '';
+    if (d.dayIdx !== undefined && d.dayIdx !== null) {
+      date = getDateForDayIndex(d.dayIdx);
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      if (date < todayStr) {
+        const dt = new Date(date + 'T00:00:00');
+        dt.setDate(dt.getDate() + 7);
+        date = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+      }
+    }
+    const semMatch = String(d.semSec || '').match(/Sem\s*(\d+)(?:-([A-Za-z0-9]+))?/i);
+    closeClassDetails();
+    if (window.switchAppView) window.switchAppView('post_announcement', {
+      __prefill: {
+        type: btn.dataset.quick,
+        date,
+        subject: d.code || d.title || '',
+        start: d.start || '',
+        room: d.room && d.room !== 'TBA' ? d.room : '',
+        teacher: d.instructor && d.instructor !== 'TBA' ? d.instructor : '',
+        semester: semMatch ? semMatch[1] : '',
+        section: semMatch && semMatch[2] ? semMatch[2].toLowerCase() : ''
+      }
+    });
+  });
+}
+
 export function showClassDetails(data) {
+  _quickData = data;
+  initQuickActions();
   const modal = document.getElementById('classDetailModal');
   if (!modal || !data) return;
 

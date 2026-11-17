@@ -13,6 +13,7 @@ import { State } from '../core/state.js';
 import { Storage } from '../storage/storage.js';
 import { showToast } from '../toast/toast.js';
 import { escapeHtml, format12h, parseTo24h, toMinutes, localDateStr } from '../core/utils.js';
+import { initPostEasy, refreshPostEasy, syncPostEasy } from './post-easy.js';
 import { DAY_NAMES } from '../core/config.js';
 import { Notifications } from '../notifications/notifications.js';
 import { Announcements } from './announcements.js';
@@ -405,6 +406,9 @@ function resetFields(today) {
 }
 
 export function openPostForm(existing = null) {
+  // Quick action from a class card: create mode, prefilled (class-detail.js)
+  const prefill = existing && existing.__prefill ? existing.__prefill : null;
+  if (prefill) existing = null;
   const today = localDateStr();
   resetFields(today);
   st.routine = null; st.routineKey = '';
@@ -487,7 +491,8 @@ export function openPostForm(existing = null) {
         break;
     }
   } else {
-    st.type = 'general';
+    st.type = prefill && TYPES.some(t => t.id === prefill.type) ? prefill.type : 'general';
+    if (prefill) applyPrefill(prefill);
   }
   setType(st.type);
   // Restore course selections once the lists exist
@@ -497,10 +502,34 @@ export function openPostForm(existing = null) {
     if (k) sel.value = k;
     delete sel.dataset.keep;
   });
-  loadTargetRoutine().then(() => { restore(); refreshCounters(); renderPreview(); });
+  loadTargetRoutine().then(() => { restore(); refreshCounters(); renderPreview(); syncPostEasy(); });
   refreshCounters();
+  refreshPostEasy();
   const scroller = document.querySelector('#postAnnounceAppView .pa-scroll');
   if (scroller) scroller.scrollTop = 0;
+}
+
+/** Fill a new post from a class card: date, class, time, teacher, and its section. */
+function applyPrefill(p) {
+  const date = p.date || '';
+  const keep = (id, v) => { if ($(id) && v) $(id).dataset.keep = v; };
+  const setDate = id => { if ($(id) && date) $(id).value = date; };
+  switch (p.type) {
+    case 'cancellation': setDate('paCancelDate'); keep('paCancelSubject', p.subject); break;
+    case 'class_test': setDate('paTestDate'); keep('paTestSubject', p.subject); break;
+    case 'rescheduled': setDate('paMoveFromDate'); setDate('paMoveToDate'); keep('paMoveClass', p.subject); break;
+    case 'assignment': setDate('paTaskDate'); keep('paTaskSubject', p.subject); break;
+    case 'online_class':
+      setDate('paClassDate'); keep('paClassSubject', p.subject);
+      if (p.start && $('paClassStart')) $('paClassStart').value = parseTo24h(p.start) || $('paClassStart').value;
+      if (p.teacher && $('paClassTeacher')) $('paClassTeacher').value = p.teacher;
+      break;
+  }
+  if (p.semester && p.section && !(String(p.semester) === mySem() && String(p.section).toLowerCase() === mySec())) {
+    st.aud = 'sections';
+    st.sem = String(p.semester);
+    st.secs = new Set([String(p.section).toLowerCase()]);
+  }
 }
 
 /* ── Counters ──────────────────────────────────────────────────────────── */
@@ -649,4 +678,5 @@ export function initPostForm() {
   const limits = { paName: L.AUTHOR_NAME, paTitle: L.TITLE, paHolidayName: L.HOLIDAY_NAME, paClassLink: L.PLATFORM_LINK, paClassRoom: L.ROOM,
     paTestName: L.EXAM_NAME, paTestTopics: L.TOPICS, paMoveRoom: L.ROOM, paMoveReason: L.REASON, paTaskTitle: L.TASK_TITLE, paTaskNotes: L.ASSIGNMENT_DESC, paCancelNote: L.REASON };
   Object.entries(limits).forEach(([id, max]) => { const el = $(id); if (el) { el.dataset.max = max; el.maxLength = max; } });
+  initPostEasy();
 }

@@ -201,25 +201,48 @@ if (dockRoutineBtn) {
 
 const dockCenterFab = document.getElementById('dockCenterFab');
 if (dockCenterFab) {
+  // Tap: go Home; on Home jump to today, or refresh if already on today. Hold: open the calendar.
+  let holdTimer = null;
+  let held = false;
+  const HOLD_MS = 450;
+  dockCenterFab.addEventListener('pointerdown', () => {
+    held = false;
+    clearTimeout(holdTimer);
+    holdTimer = setTimeout(() => {
+      held = true;
+      if (window.__motion) window.__motion.haptic('heavy');
+      closeDockReachablePages();
+      if ((window.__currentAppViewId || 'home') !== 'home') switchAppView('home');
+      openCalendarPicker();
+    }, HOLD_MS);
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => dockCenterFab.addEventListener(t, () => clearTimeout(holdTimer)));
+  dockCenterFab.addEventListener('contextmenu', e => e.preventDefault());
+
   dockCenterFab.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (held) { held = false; return; }
 
     const currentView = window.__currentAppViewId || 'home';
-
-    // A page was open over the current view: close it and land on Home, don't open the calendar
-    if (closeDockReachablePages()) {
+    if (closeDockReachablePages() || currentView !== 'home') {
       switchAppView('home');
       return;
     }
 
-    if (currentView !== 'home') {
-      switchAppView('home');
+    const now = new Date();
+    const viewing = State.viewDate || now;
+    const onToday = viewing.toDateString() === now.toDateString();
+    if (!onToday && window.__pickCalendarDate) {
+      window.__pickCalendarDate(now.getFullYear(), now.getMonth(), now.getDate());
       return;
     }
-
-    // Already at Home -> Open Monthly Calendar Picker
-    openCalendarPicker();
+    // Already on today: refresh in place (same as pull-to-refresh) with a spin of the icon
+    dockCenterFab.classList.remove('is-refreshing');
+    void dockCenterFab.offsetWidth;
+    dockCenterFab.classList.add('is-refreshing');
+    setTimeout(() => dockCenterFab.classList.remove('is-refreshing'), 800);
+    if (window.__refreshHome) window.__refreshHome();
   });
 }
 
@@ -354,6 +377,8 @@ initServiceWorker();
 import { initMotion } from './core/motion-engine.js';
 import { initBackButton } from './events/back-button.js';
 import { initNotificationHealth, refreshHealthUI } from './notifications/health.js';
+import { initAmbient } from './core/ambient.js';
+import { initTips } from './core/tips.js';
 import { checkFirstTimeOnboarding } from './events/onboarding.js';
 import { initAndroidPrompt } from './banners/android-prompt.js';
 import { initWidgetPinningUI } from './widget/widget.js';
@@ -367,6 +392,8 @@ import { initCalendarPicker } from './timeline/calendar-picker.js';
 initMotion();
 initBackButton();
 initNotificationHealth();
+initAmbient();
+initTips();
 // App-launch entrance: the one orchestrated, non-triggered animation (see motion.css §5).
 document.body.classList.add('boot-enter');
 setTimeout(() => document.body.classList.remove('boot-enter'), 1100);

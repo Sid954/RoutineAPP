@@ -6,6 +6,7 @@ import { getOverrideFor, getOverridesByDateMap, normalizeDate, getDateForDayInde
 import { toMinutes, format12h, toTimeString, getCurrentMinutes, escapeHtml, formatRoom, LAB_LABEL_HTML } from '../core/utils.js';
 import { getFullName } from '../teachers/teacher-names.js';
 import { Storage } from '../storage/storage.js';
+import { shouldHideDay, offDays } from '../core/off-days.js';
 
 let _lastRenderHash = '';
 let _lastSwapDayIdx = null;
@@ -125,10 +126,12 @@ export function renderWeekStrip() {
 
     const isSelected = (dow === State.currentViewDayIdx);
     const isToday = (dow === realTodayIdx && d.getFullYear() === realToday.getFullYear() && d.getMonth() === realToday.getMonth() && d.getDate() === realToday.getDate());
-    const isOffDay = (dow === 4 || dow === 5);
+    const isOffDay = offDays().includes(dow);
 
     const dateStr = normalizeDate(d);
     const override = overridesMap.get(dateStr);
+    // University off days with nothing on are hidden (Settings → Your class); the others widen
+    if (shouldHideDay(d, { isToday, isSelected, overridesMap })) return;
     const isHoliday = override && override.type === 'holiday';
     const isOnlineClass = override && override.type === 'online_class';
 
@@ -740,9 +743,7 @@ function findInstructorForSubject(subj) {
             ` : ''}
           </div>
           ${hasExplicitEndTime && durationMins > 0 ? `
-            <div class="live-progress" role="progressbar" aria-label="Class progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(Math.min(100, Math.max(0, (elapsed / durationMins) * 100)))}">
-              <span style="width: ${Math.min(100, Math.max(0, (elapsed / durationMins) * 100)).toFixed(1)}%"></span>
-            </div>` : ''}
+            <span class="live-fill" role="progressbar" aria-label="Class progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(Math.min(100, Math.max(0, (elapsed / durationMins) * 100)))}" style="--fill: ${(Math.min(100, Math.max(0, (elapsed / durationMins) * 100)) / 100).toFixed(4)}"><span class="live-fill-edge"></span></span>` : ''}
         </div>
       `;
     } else {

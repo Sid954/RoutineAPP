@@ -434,3 +434,10 @@
 .st-page .st-switch-row.is-disabled { opacity: 0.5; cursor: not-allowed; }
 .st-page .st-switch-row.is-disabled .st-switch-ui { background: var(--card-border) !important; }
 .st-page .st-switch-row.is-disabled .st-switch-ui::after { transform: none !important; }
+
+/* ── University off days ─────────────────────────────────────────────────── */
+.st-page .st-offdays { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--card-border); }
+.st-page .st-offday-chips { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.st-page .st-offday-chips button { height: 36px; border-radius: 10px; border: 1px solid var(--card-border); background: var(--st-inset, var(--canvas)); color: var(--text-muted); font: 700 12px var(--font-ui); cursor: pointer; }
+.st-page .st-offday-chips button.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+:root[data-color="light"] .st-page .st-offday-chips button.active { color: var(--accent-hover); }

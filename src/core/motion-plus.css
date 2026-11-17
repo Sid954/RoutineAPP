@@ -266,3 +266,162 @@ html:not([data-motion="off"]) .page-back-btn.mx-pressed svg { transform: transla
 #announcementsAppView .page-header-top, #appsHubView .page-header-top,
 #facultyAppView .page-header-top, #freeRoomsAppView .page-header-top { justify-content: flex-end; min-height: 0; }
 #appsHubView .page-header-top:not(:has(.page-actions)) { display: none; }
+
+/* ── 18. Centre dock button: hold ring + refresh spin ───────────────────── */
+@keyframes mxHoldRing { from { transform: scale(0.85); opacity: 0.5; } to { transform: scale(1.35); opacity: 0; } }
+html:not([data-motion="off"]) .dock-center-raised-fab.mx-pressed .dock-raised-fab-core::after {
+  content: ''; position: absolute; inset: -4px; border-radius: 50%;
+  border: 2px solid var(--accent);
+  animation: mxHoldRing 450ms linear forwards;
+}
+.dock-raised-fab-core { position: relative; }
+html:not([data-motion="off"]) .dock-center-raised-fab.is-refreshing .dock-raised-fab-core svg { animation: mxSpin 700ms var(--mx-soft) 1; }
+
+/* ── 19. Live class card fills up sideways like water ─────────────────────
+   One full-size layer slid in by transform (GPU only) instead of a bottom bar.
+   --fill (0..1) is set by timeline.js; the edge carries a slow vertical wave. */
+.resting-class-row.is-live-card > :not(.live-fill) { position: relative; z-index: 1; }
+.live-fill {
+  position: absolute; inset: 0; z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.07), rgba(56, 189, 248, 0.17));
+  transform: translate3d(calc((var(--fill, 0) - 1) * 100%), 0, 0);
+  transition: transform 1.2s var(--mx-soft);
+}
+:root[data-color="light"] .live-fill { background: linear-gradient(90deg, rgba(37, 99, 235, 0.05), rgba(37, 99, 235, 0.13)); }
+.live-fill-edge {
+  position: absolute; top: -50%; right: -5px; width: 10px; height: 200%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='40' viewBox='0 0 10 40'%3E%3Cpath d='M5 0 C 10 10, 0 10, 5 20 S 10 30, 5 40 L 0 40 L 0 0 Z' fill='%2338BDF8' fill-opacity='0.28'/%3E%3C/svg%3E") repeat-y;
+  background-size: 10px 40px;
+}
+@keyframes mxWave { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 40px, 0); } }
+html[data-motion="full"] .live-fill-edge { animation: mxWave 2.4s linear infinite; }
+html[data-motion="lite"] .live-fill-edge { animation: mxWave 5s linear infinite; }
+/* First appearance: the water pours in from the left */
+@keyframes mxPour { from { transform: translate3d(-100%, 0, 0); } }
+html:not([data-motion="off"]) .mx-enter .live-fill, html:not([data-motion="off"]) body.boot-enter .live-fill { animation: mxPour 1s var(--mx-soft) both; }
+
+/* ── 20. Ambient background (src/core/ambient.js), Home only ──────────────── */
+#ambientLayer {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; overflow: hidden;
+  transition: opacity 600ms ease;
+}
+#ambientLayer.is-hidden, html[data-motion="off"] #ambientLayer { opacity: 0; }
+#ambientLayer i { position: absolute; display: block; }
+html[data-motion="lite"] #ambientLayer i { animation: none !important; }
+
+.amb-star { width: var(--s, 2px); height: var(--s, 2px); border-radius: 50%; background: #E0F2FE; opacity: 0.5; animation: ambTwinkle var(--d, 3s) ease-in-out infinite alternate; }
+:root[data-color="light"] .amb-star { background: #1E3A8A; opacity: 0.18; }
+@keyframes ambTwinkle { from { opacity: 0.12; transform: scale(0.7); } to { opacity: 0.6; transform: scale(1); } }
+:root[data-color="light"] .amb-star { animation-name: ambTwinkleLight; }
+@keyframes ambTwinkleLight { from { opacity: 0.05; } to { opacity: 0.2; } }
+.amb-moon { top: 6%; right: 9%; width: 34px; height: 34px; border-radius: 50%; box-shadow: -8px 3px 0 0 #E2E8F0; opacity: 0.16; transform: rotate(-20deg); animation: mxBob 9s ease-in-out infinite; }
+:root[data-color="light"] .amb-moon { box-shadow: -8px 3px 0 0 #1E3A8A; opacity: 0.1; }
+
+.amb-sun { top: -70px; right: -70px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(251, 191, 36, 0.18), rgba(251, 191, 36, 0) 62%); }
+.amb-sun b { position: absolute; inset: 0; border-radius: 50%; background: repeating-conic-gradient(rgba(251, 191, 36, 0.08) 0deg 6deg, transparent 6deg 24deg); -webkit-mask: radial-gradient(circle, transparent 28%, #000 30%, transparent 70%); mask: radial-gradient(circle, transparent 28%, #000 30%, transparent 70%); animation: mxSpin 80s linear infinite; }
+.amb-daylight { inset: 0 0 auto 0; height: 260px; background: linear-gradient(180deg, rgba(56, 189, 248, 0.06), transparent); }
+.amb-dusk { inset: 0 0 auto 0; height: 300px; background: linear-gradient(180deg, rgba(249, 115, 22, 0.09), rgba(168, 85, 247, 0.04) 45%, transparent); animation: ambBreathe 12s ease-in-out infinite alternate; }
+@keyframes ambBreathe { from { opacity: 0.7; } to { opacity: 1; } }
+.amb-lines { inset: 0; background: repeating-linear-gradient(180deg, transparent 0 31px, rgba(148, 163, 184, 0.05) 31px 32px); -webkit-mask: linear-gradient(180deg, #000, transparent 55%); mask: linear-gradient(180deg, #000, transparent 55%); }
+.amb-bubble { bottom: -20px; width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid rgba(56, 189, 248, 0.22); animation: ambRise var(--d, 10s) linear infinite; animation-delay: var(--delay, 0s); }
+@keyframes ambRise { from { transform: translate3d(0, 0, 0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.6; } to { transform: translate3d(14px, -100vh, 0); opacity: 0; } }
+.amb-dot { width: 5px; height: 5px; border-radius: 2px; opacity: 0.35; animation: mxFloat var(--d, 4s) ease-in-out infinite; }
+.amb-dot.is-holiday { background: #FBBF24; }
+.amb-dot.is-holiday:nth-child(3n) { background: #F472B6; }
+.amb-dot.is-holiday:nth-child(3n+1) { background: #34D399; }
+.amb-dot.is-test { background: #FB923C; border-radius: 50%; opacity: 0.22; }
+/* Content sits above the ambient layer */
+.ww { position: relative; z-index: 1; }
+
+/* ── 21. Popup backdrops: stronger dim everywhere, real blur on capable phones ─
+   Blur is limited to popup backdrops and the "full" motion tier; the engine steps down to
+   "lite" (dim only) if the phone starts dropping frames. Full-page popups (.mo-page) excluded. */
+.mo:not(.mo-page).open, .class-sheet-modal-overlay.open, .rm-sheet-overlay.open, #calendarPickerModal.open {
+  background-color: rgba(4, 6, 10, 0.66);
+}
+:root[data-color="light"] :is(.mo:not(.mo-page).open, .class-sheet-modal-overlay.open, .rm-sheet-overlay.open, #calendarPickerModal.open) {
+  background-color: rgba(14, 23, 38, 0.42);
+}
+html[data-motion="full"] :is(.mo:not(.mo-page).open, .class-sheet-modal-overlay.open, .rm-sheet-overlay.open, #calendarPickerModal.open) {
+  -webkit-backdrop-filter: blur(6px) saturate(0.85);
+  backdrop-filter: blur(6px) saturate(0.85);
+}
+
+/* ── 22. Clock + slight colour life ───────────────────────────────────────── */
+#dashboardView .digital-clock { position: relative; font-size: 32px; padding-bottom: 6px; }
+#dashboardView .clock-period {
+  align-self: center; margin-left: 4px; padding: 2px 7px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent); font-size: 10.5px; font-weight: 800;
+}
+:root[data-color="light"] #dashboardView .clock-period { color: var(--accent-hover); }
+#hD, #mD { display: inline-block; }
+@keyframes mxRoll { from { transform: translate3d(0, 55%, 0); opacity: 0; } to { transform: none; opacity: 1; } }
+html:not([data-motion="off"]) #hD.is-rolling, html:not([data-motion="off"]) #mD.is-rolling { animation: mxRoll 520ms var(--mx-spring) both; }
+/* Thin line that fills across each minute (restarted by clock.js every minute) */
+#dashboardView .digital-clock::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 2px;
+  background: var(--accent); opacity: 0.55;
+  transform-origin: left center; transform: scaleX(calc(var(--sec, 0) / 60));
+}
+@keyframes mxMinute { from { transform: scaleX(calc(var(--sec, 0) / 60)); } to { transform: scaleX(1); } }
+html[data-motion="full"] #dashboardView .digital-clock.is-minute::after,
+html[data-motion="lite"] #dashboardView .digital-clock.is-minute::after { animation: mxMinute calc((60 - var(--sec, 0)) * 1s) linear forwards; }
+
+/* Greeting name: a time-of-day colour that drifts slowly */
+#greetText {
+  background: linear-gradient(100deg, var(--text-main) 0%, var(--text-main) 40%, var(--gt, var(--accent)) 70%, var(--text-main) 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+html[data-daypart="morning"] #greetText { --gt: #F59E0B; }
+html[data-daypart="day"] #greetText { --gt: #38BDF8; }
+html[data-daypart="evening"] #greetText { --gt: #F97316; }
+html[data-daypart="night"] #greetText { --gt: #818CF8; }
+:root[data-color="light"][data-daypart="morning"] #greetText { --gt: #B45309; }
+:root[data-color="light"][data-daypart="day"] #greetText { --gt: #2563EB; }
+:root[data-color="light"][data-daypart="evening"] #greetText { --gt: #C2410C; }
+:root[data-color="light"][data-daypart="night"] #greetText { --gt: #4338CA; }
+@keyframes mxTint { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+html[data-motion="full"] #greetText { animation: mxTint 14s ease-in-out infinite; }
+/* Salutation icon follows the same colour */
+html[data-daypart] .salutation-icon { color: var(--gt-icon, var(--accent)); }
+html[data-daypart="morning"] { --gt-icon: #F59E0B; }
+html[data-daypart="evening"] { --gt-icon: #F97316; }
+html[data-daypart="night"] { --gt-icon: #A5B4FC; }
+
+/* Selected day card: a soft sheen drifts across it (no overflow clip: corner badges stick out) */
+html[data-motion="full"] .focal-day-card::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, 0.16) 50%, transparent 65%) no-repeat;
+  background-size: 300% 100%;
+  animation: mxCardSheen 6s ease-in-out infinite;
+}
+@keyframes mxCardSheen { 0% { background-position: 120% 0; } 60%, 100% { background-position: -20% 0; } }
+
+.focal-day-card { position: relative; }
+
+/* ── 23. Idle tips (src/core/tips.js) ─────────────────────────────────────── */
+.mx-tip {
+  position: fixed; left: 50%; bottom: calc(var(--dock-clearance, 112px) + 8px);
+  width: min(calc(100vw - 32px), 440px);
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 8px 10px 12px;
+  border-radius: 16px; border: 1px solid var(--accent-border);
+  background: var(--card-bg); color: var(--text-main);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  z-index: 1050;
+  transform: translate3d(-50%, 24px, 0); opacity: 0; pointer-events: none;
+  transition: transform 460ms var(--mx-spring), opacity 260ms ease;
+}
+.mx-tip.is-shown { transform: translate3d(-50%, 0, 0); opacity: 1; pointer-events: auto; }
+.mx-tip-icon { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; background: var(--accent-soft); color: var(--accent); }
+.mx-tip-icon svg { width: 17px; height: 17px; }
+html[data-motion="full"] .mx-tip.is-shown .mx-tip-icon svg { animation: mxBob 2.4s ease-in-out infinite; }
+.mx-tip-text { flex: 1; font-size: 12.5px; line-height: 1.4; color: var(--text-sub, var(--text-main)); }
+.mx-tip-text strong { color: var(--accent); margin-right: 4px; }
+.mx-tip-btn { flex-shrink: 0; border: none; border-radius: 10px; padding: 7px 10px; background: var(--accent); color: var(--btn-text, #fff); font: 800 12px var(--font-ui); cursor: pointer; }
+.mx-tip-x { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; border: none; background: transparent; color: var(--text-muted); display: grid; place-items: center; cursor: pointer; }
+.mx-tip-x svg { width: 14px; height: 14px; }

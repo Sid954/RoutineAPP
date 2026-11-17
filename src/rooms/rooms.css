@@ -36,7 +36,7 @@
 /* ── Day chips (this week) ─────────────────────────────────────────────────── */
 .rm-days {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--rm-days, 7), minmax(0, 1fr));
   gap: 6px;
   margin-bottom: 10px;
 }

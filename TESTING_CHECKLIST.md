@@ -243,3 +243,22 @@ Add the widgets again after updating (long-press the home screen → Widgets →
 - [ ] "All done for today" gives a small burst once per day.
 - [ ] Settings → Animations: Auto shows what it picked ("Auto · using Full"). Lite = quick fades only. Off = no movement. The phone's "Remove animations" accessibility setting forces Off in Auto.
 - [ ] Nothing feels laggy on your phone. If it does, note where, and whether Lite fixes it.
+
+## 22. Feedback batches 1–3 (v1.5.8, on device)
+- [ ] Scrolling works on Notices, Faculty and the post form (finger swipe, not just the wheel).
+- [ ] Phone back button: closes the top popup/sheet first, then steps back a page, and exits from Home.
+- [ ] Search bars (Faculty, Notices, Rooms) show one clean box when focused, no inner box.
+- [ ] Switching days on Home does not re-cascade the list; pull to refresh still does.
+- [ ] No top-left Home/Apps back buttons on Notices, Apps, Faculty and Free Rooms (dock covers them).
+- [ ] Faculty profile weekly schedule keeps its height when switching days.
+- [ ] Notifications off / battery optimised / exact alarms off: Notices shows a warning with a working Fix button; "Send a test" arrives.
+- [ ] With the phone's vibration or touch feedback off, Settings → "Vibrate on tap" is greyed out with the reason.
+- [ ] Centre dock button on Home: tap jumps to today; tap again on today spins and refreshes; hold opens the calendar (with a buzz). From other pages, tap goes Home.
+- [ ] Thu/Fri are hidden in the Home strip and Rooms days unless something is on (or it's today/selected). Settings → Your class → off days and "Hide off days" change it immediately.
+- [ ] Live class card fills sideways like water with a wavy edge; no bottom bar.
+- [ ] Home background: stars + moon at night, sun in the morning, warm tint in the evening, faint lines in class, bubbles in breaks, dots on test/holiday days. Gone on other pages.
+- [ ] Popups (class details, room, calendar, notice) dim the page more; on Full animations it is softly blurred. No lag when opening.
+- [ ] Clock: digits roll when they change, a thin line fills across each minute, AM/PM pill, greeting name tint shifts with the time of day.
+- [ ] Idle on Home/Apps ~8s: a small tip slides up above the dock (at most once per launch / 6 hours). "Got it" retires it.
+- [ ] Tap a class → "Add an update for this class" → Test / Cancel / Move / Online / Task opens the post form prefilled (type, date of that class, course, time/teacher for Online; another section's class targets that section).
+- [ ] Post form "Simple" mode: Today/Tomorrow/day chips under dates, course chips instead of dropdowns, empty optional fields hidden. "Advanced" shows the full form. The choice is remembered.

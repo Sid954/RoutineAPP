@@ -429,5 +429,6 @@ export function initMotion() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden) syncSys(); });
   Motion.watchLongTasks();
   window.__motion = Motion;
+  window.__refreshHome = PULL_VIEWS.dashboardView;
   window.__celebrate = celebrate;
 }

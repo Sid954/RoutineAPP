@@ -7,6 +7,7 @@
  */
 import { CONFIG } from '../core/config.js';
 import { Storage } from '../storage/storage.js';
+import { offDays, setOffDays, hideOffDays, setHideOffDays } from '../core/off-days.js';
 
 const $ = (id) => document.getElementById(id);
 let _nameTimer = null;
@@ -103,6 +104,22 @@ async function refreshHapticsAvailability() {
   } catch (e) {}
 }
 
+/* ── University off days ── */
+function refreshOffDays() {
+  const days = offDays();
+  document.querySelectorAll('#stOffDays [data-dow]').forEach(b => {
+    const on = days.includes(Number(b.dataset.dow));
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
+  const t = $('stHideOff');
+  if (t) t.checked = hideOffDays();
+}
+function rerenderDayPickers() {
+  if (typeof window.renderTimeline === 'function') window.renderTimeline(true);
+  if (typeof window.__renderFreeRooms === 'function' && window.__currentAppViewId === 'free_rooms') window.__renderFreeRooms();
+}
+
 /** Called every time the page opens. */
 export function onSettingsOpen() {
   const input = $('displayNameInput');
@@ -111,6 +128,7 @@ export function onSettingsOpen() {
   refreshSubtitle();
   refreshSwitchBar();
   refreshMotion();
+  refreshOffDays();
   const ver = $('stAppVersion');
   if (ver) ver.textContent = `Version ${CONFIG.appVersionName || ''}`.trim();
   const upd = $('updateCheckDetails');
@@ -159,6 +177,19 @@ export function initSettingsPage() {
   });
   const hap = $('stHaptics');
   if (hap) hap.addEventListener('change', () => { if (window.__motion) window.__motion.setHaptics(hap.checked); });
+
+  const od = $('stOffDays');
+  if (od) od.addEventListener('click', e => {
+    const b = e.target.closest('[data-dow]');
+    if (!b) return;
+    const d = Number(b.dataset.dow);
+    const cur = offDays();
+    setOffDays(cur.includes(d) ? cur.filter(x => x !== d) : cur.concat(d));
+    refreshOffDays();
+    rerenderDayPickers();
+  });
+  const ho = $('stHideOff');
+  if (ho) ho.addEventListener('change', () => { setHideOffDays(ho.checked); rerenderDayPickers(); });
 
   onSettingsOpen();
 }

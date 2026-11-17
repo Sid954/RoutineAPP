@@ -594,3 +594,28 @@ html[data-theme="light"] .faculty-avatar-mini,
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+
+/* ── Quick actions: tap a class → post a test / cancellation / move / online / task ── */
+.cs-quick { margin-bottom: 14px; }
+.cs-quick-label {
+  display: block; font-size: 11px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .6px; color: var(--text-muted); margin-bottom: 8px;
+}
+.cs-quick-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.cs-quick-btn {
+  --tone: #6b8afd;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+  min-height: 58px; padding: 8px 2px; border-radius: 14px;
+  background: color-mix(in srgb, var(--tone) 12%, var(--card2));
+  border: 1px solid color-mix(in srgb, var(--tone) 26%, transparent);
+  color: var(--tone); font: inherit; font-size: 11px; font-weight: 700; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transition: transform .14s ease, background-color .2s ease;
+}
+.cs-quick-btn svg { width: 19px; height: 19px; }
+.cs-quick-btn span { color: var(--text); opacity: .85; }
+.cs-quick-btn:active { transform: scale(.94); }
+.cs-quick-btn.tone-exam { --tone: #f59e0b; }
+.cs-quick-btn.tone-cancel { --tone: #ef4444; }
+.cs-quick-btn.tone-moved { --tone: #8b5cf6; }
+.cs-quick-btn.tone-online { --tone: #0ea5e9; }
+.cs-quick-btn.tone-task { --tone: #10b981; }

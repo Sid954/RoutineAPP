@@ -55,7 +55,7 @@ node build.js --scrape-faculty            # optional faculty scrape during build
 - Do not restore the class-start/pre-class notification code that was deliberately removed. It needs a rebuild from scratch.
 - UI rules:
   - Use SVG icons only, never emoji.
-  - No glassmorphism, glow or `backdrop-filter`.
+  - No glassmorphism or glow. `backdrop-filter` only as a light blur on popup backdrops, and only in the "full" motion tier (user-approved 2026-11-17; it was banned for performance).
   - Exactly two themes, light and dark. Palettes are listed in PROJECT_OVERVIEW.md.
   - Keep the `env(safe-area-inset-*)` padding.
 - If you spot a secret in plaintext, flag it.
