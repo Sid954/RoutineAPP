@@ -316,3 +316,13 @@ Checked on PC with real mouse input (headless Chrome): all of the below passed. 
 - [ ] Weekly Routine in a narrow window: drag to change the day.
 - [ ] Dragging never selects text.
 - [ ] Phone (touch is unchanged): swiping **left** on the Home schedule goes to the next day. In the PC touch emulator only right swipes switched the day, and that was already so before this change; check whether that is just the emulator.
+
+## 27. Mouse works like a finger everywhere (not released yet)
+Checked on PC with real mouse input; check in your own desktop browser:
+- [ ] Click and drag up or down anywhere on Notices, Faculty, Rooms, Settings, the Weekly Routine and Home: the page scrolls with the mouse, like a finger.
+- [ ] Flick (drag fast and let go): it keeps gliding and slows down; a click or the wheel stops it.
+- [ ] Inside a long sheet, dragging scrolls its content. At the top, dragging down closes the sheet.
+- [ ] At the top of a page, dragging down refreshes it. Dragging sideways on the Home schedule changes the day.
+- [ ] Sliders (Rooms time) still drag as sliders, and text fields still select text.
+- [ ] Dragging never opens what you started on; a plain click does. A card only looks pressed on a real click.
+- [ ] **Notices → Coming up** row: swipe it sideways with a finger on the phone, or drag it with the mouse. It follows the whole way and settles on a card. Before this fix, a feed refresh rebuilt the row mid-swipe (resetting it to the first card), and the mouse drag was held back by snapping.

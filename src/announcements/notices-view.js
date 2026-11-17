@@ -156,7 +156,14 @@ export function renderNotices() {
   const searching = !!Announcements.query || Announcements.activeFilter !== 'all';
   if (up) {
     const list = searching ? [] : comingUp(live);
-    up.innerHTML = upcomingHtml(list);
+    // Feed refreshes (30s poll, marking notices read) re-run this: keep the row, and where it was
+    // scrolled, so a sideways swipe in progress isn't reset to the first card.
+    const oldRow = up.querySelector('.nt-up-row');
+    const keepLeft = oldRow ? oldRow.scrollLeft : 0;
+    if (setHtmlIfChanged(up, upcomingHtml(list)) && keepLeft) {
+      const row = up.querySelector('.nt-up-row');
+      if (row) row.scrollLeft = keepLeft;
+    }
     up.hidden = !list.length;
   }
 

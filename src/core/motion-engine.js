@@ -174,7 +174,7 @@ function bindPress() {
     const el = ev.target.closest(TAPPABLE);
     if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true') return;
     release();
-    if (ev.pointerType === 'mouse') { begin(el, ev.clientX, ev.clientY); return; }
+    // Mouse uses the same timing as touch: a drag (which scrolls, desktop-input.js) never presses
     pending = { el, x: ev.clientX, y: ev.clientY, timer: setTimeout(() => { const p = pending; pending = null; if (p) begin(p.el, p.x, p.y); }, PRESS_DELAY) };
   }, { passive: true });
   document.addEventListener('pointermove', ev => {

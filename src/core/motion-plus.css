@@ -360,3 +360,10 @@ html.mx-mouse-drag, html.mx-mouse-drag * { user-select: none !important; -webkit
 @media (hover: hover) and (pointer: fine) {
   :is(.rm-sheet-grip, .fd-grip, .nt-grip, .up-grip, .sheet-drag-handle-bar) { cursor: grab; }
 }
+/* Mouse drag-scroll and fling follow the mouse exactly (no smooth-scroll lag), links don't
+   start a browser drag. */
+html.mx-mouse-drag *, html.mx-mouse-fling * { scroll-behavior: auto !important; }
+#app a, #app button { -webkit-user-drag: none; user-drag: none; }
+/* Scroll snapping would pull a row back to the nearest card after every mouse move; it is
+   paused while dragging / flinging and snaps once the mouse lets go. */
+html.mx-mouse-drag *, html.mx-mouse-fling * { scroll-snap-type: none !important; }

@@ -252,6 +252,7 @@ Nothing below has been physically tested on the user's phone yet. Do not call th
   - `setHtmlIfChanged` list re-renders, container fades, `content-visibility`, and no forced layout on page switches.
   - The rules are under "Performance rules" in the Design System above.
 - **Settings → Notifications row, and www/ untracked (Nov 17, 2026):** stale `www/` copies were removed from git (Vercel and CI build it).
+- **Mouse acts like a finger (Nov 18, 2026, not released, checklist §27):** drag-scroll with fling on every page, list, sheet and row, with the same edge hand-off as touch (`bindDragScroll` in `src/core/desktop-input.js`). Verified with real mouse input through CDP: Notices, Faculty, Rooms, Settings, Home, sheets, the Rooms slider, pull to refresh, and no stray clicks or text selection.
 - **Desktop / mouse support (v1.5.13, released Nov 18, 2026, checklist §26):** `src/core/desktop-input.js` (see CLAUDE.md). Verified with real mouse, wheel and keyboard input through CDP at 1280×800 and 390×800. Touch behaviour is identical to before (A/B with touch emulation).
 - **Notifications rebuild (v1.5.12, released Nov 17, 2026, checklist §25):**
   - **Planning:** `src/notifications/planner.js` (pure, `tests/test_notification_planner.js`) plans 7 days of local alerts from the routine and announcements:
