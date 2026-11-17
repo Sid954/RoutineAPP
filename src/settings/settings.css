@@ -431,3 +431,6 @@
 .st-page .st-switch-input:checked + .st-switch-ui { background: var(--accent); }
 .st-page .st-switch-input:checked + .st-switch-ui::after { transform: translateX(18px); }
 .st-page .st-switch-input:focus-visible + .st-switch-ui { outline: 2px solid var(--accent); outline-offset: 2px; }
+.st-page .st-switch-row.is-disabled { opacity: 0.5; cursor: not-allowed; }
+.st-page .st-switch-row.is-disabled .st-switch-ui { background: var(--card-border) !important; }
+.st-page .st-switch-row.is-disabled .st-switch-ui::after { transform: none !important; }

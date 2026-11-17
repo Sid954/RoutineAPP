@@ -82,7 +82,8 @@ export const Motion = {
   },
 
   /* ── Haptics ─────────────────────────────────────────────────────── */
-  hapticsOn() { return ls.get(HAPTIC_KEY) !== 'off'; },
+  _sysOff: false,   // phone has no vibrator or Android touch vibration is off
+  hapticsOn() { return !this._sysOff && ls.get(HAPTIC_KEY) !== 'off'; },
   setHaptics(on) { ls.set(HAPTIC_KEY, on ? 'on' : 'off'); if (on) this.haptic('success'); },
   _lastHaptic: 0,
   /** kind: tap | select | success | warning | error | heavy */
@@ -176,6 +177,9 @@ function staggerReplay(el) {
   const first = el._mxSig === undefined;
   el._mxSig = s;
   if (Motion.tier === 'off') return;
+  // Home timeline: switching days should just cross-fade (motion.css .day-swap), not
+  // re-cascade every card. Cascade only on first load or after a pull-to-refresh.
+  if (el.id === 'chG' && !first && !(el._mxForceUntil && Date.now() < el._mxForceUntil)) return;
   // Rapid re-renders (dragging the Rooms time slider, typing in search): no replay
   const now = Date.now();
   const rapid = el._mxLast && now - el._mxLast < 700;
@@ -203,6 +207,33 @@ function bindStagger() {
   };
   attach();
   // Some containers are created later (sheets, dynamic sections)
+  setTimeout(attach, 1500);
+  setTimeout(attach, 5000);
+}
+
+/* ── Smooth height for lists whose length changes per day ─────────── */
+// Room sheet timeline, weekly matrix, settings day editor: grow/shrink smoothly instead of
+// jumping when one day has 5 classes and the next has none.
+const SMOOTH_HEIGHT = ['#rmSheetTimeline', '#tGrid', '#rCols', '#fdProfileTimeline'];
+
+function bindSmoothHeight() {
+  const seen = new WeakSet();
+  const attach = () => SMOOTH_HEIGHT.forEach(sel => document.querySelectorAll(sel).forEach(el => {
+    if (seen.has(el)) return;
+    seen.add(el);
+    el._mxH = el.offsetHeight;
+    new MutationObserver(() => {
+      const from = el._mxH;
+      const to = el.offsetHeight;
+      el._mxH = to;
+      if (Motion.tier === 'off' || !from || !to || Math.abs(to - from) < 4 || !el.animate || !el.offsetParent) return;
+      const prevOverflow = el.style.overflow;
+      el.style.overflow = 'hidden';
+      const anim = el.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: Motion.tier === 'full' ? 280 : 160, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+      anim.onfinish = anim.oncancel = () => { el.style.overflow = prevOverflow; };
+    }).observe(el, { childList: true, subtree: false });
+  }));
+  attach();
   setTimeout(attach, 1500);
   setTimeout(attach, 5000);
 }
@@ -259,7 +290,12 @@ function bindSheetDrag() {
 
 /* ── Pull to refresh ──────────────────────────────────────────────── */
 const PULL_VIEWS = {
-  dashboardView: () => { if (window.__fetchAndRenderAnnouncements) window.__fetchAndRenderAnnouncements(); if (window.renderTimeline) window.renderTimeline(true); },
+  dashboardView: () => {
+    const g = document.getElementById('chG');
+    if (g) { g._mxForceUntil = Date.now() + 3000; g._mxSig = ''; }
+    if (window.__fetchAndRenderAnnouncements) window.__fetchAndRenderAnnouncements();
+    if (window.renderTimeline) window.renderTimeline(true);
+  },
   announcementsAppView: () => window.__fetchAndRenderAnnouncements && window.__fetchAndRenderAnnouncements(),
   facultyAppView: () => window.__renderFacultyDirectory && window.__renderFacultyDirectory(),
   freeRoomsAppView: () => window.__renderFreeRooms && window.__renderFreeRooms()
@@ -379,10 +415,18 @@ export function initMotion() {
   bindPress();
   bindStagger();
   bindSheetDrag();
+  bindSmoothHeight();
   bindPull();
   bindToastHaptics();
   bindCelebrations();
   setTimeout(() => Motion.probe(), 1400); // after the launch entrance settles
+  // Respect Android's own touch-vibration setting (the haptics plugin would vibrate anyway)
+  const syncSys = () => {
+    const WP = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.WidgetPlugin;
+    if (WP && WP.getSystemState) WP.getSystemState().then(st => { Motion._sysOff = st.hasVibrator === false || st.hapticFeedbackEnabled === false; }).catch(() => {});
+  };
+  syncSys();
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) syncSys(); });
   Motion.watchLongTasks();
   window.__motion = Motion;
   window.__celebrate = celebrate;

@@ -516,3 +516,6 @@
   .fd-now.is-in .fd-dot { animation: none; }
   .fd-sheet { transition: none; }
 }
+
+/* Empty day fills the height reserved for the busiest day (faculty-profile.js lockScheduleHeight) */
+.fd-tl > .fd-tl-empty { flex: 1; }

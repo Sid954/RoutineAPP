@@ -168,11 +168,27 @@ function teachesHtml(week) {
   </section>`;
 }
 
+/**
+ * Keep the schedule the same height on every day tab: reserve room for the busiest day of
+ * the week, so switching from a 5-class day to an empty one doesn't shrink and grow the sheet.
+ */
+function lockScheduleHeight(list) {
+  if (_day === 'week') { list.style.minHeight = ''; return; }
+  const max = Math.max(1, ...activeDays().map(d => (_week[d] || []).length));
+  const row = list.querySelector('.fd-tl-row');
+  const rowH = row ? row.offsetHeight : (list._rowH || 66);
+  if (row) list._rowH = rowH;
+  list.style.minHeight = `${max * rowH + (max - 1) * 8}px`;
+}
+
 function renderSchedule() {
   const days = $('fdProfileDays');
   const list = $('fdProfileTimeline');
   if (days) days.innerHTML = daysHtml(_week);
-  if (list) list.innerHTML = scheduleHtml(_week);
+  if (list) {
+    list.innerHTML = scheduleHtml(_week);
+    lockScheduleHeight(list);
+  }
 }
 
 function defaultDay(week) {

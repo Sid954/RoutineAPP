@@ -280,3 +280,20 @@ select.notif-select option {
 }
 .notif-history-card.day_done:hover { border-color: #6ee7b7; box-shadow: 0 4px 20px rgba(52, 211, 153, 0.15); }
 .notif-history-card.day_done .notif-history-emoji { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+
+/* ── Notification health check (src/notifications/health.js) ─────────────── */
+.nh-box { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.nh-box[hidden], .nh-box:empty { display: none; }
+.nh-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--card-border); background: var(--card-bg); }
+.nh-item.is-error { border-color: rgba(244, 63, 94, 0.45); background: rgba(244, 63, 94, 0.08); }
+.nh-item.is-warn { border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.07); }
+.nh-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.nh-text strong { font-size: 13.5px; font-weight: 800; color: var(--text-main); }
+.nh-text span { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+.nh-fix { flex-shrink: 0; border: none; border-radius: 10px; padding: 8px 12px; background: var(--accent); color: var(--btn-text, #fff); font: 800 12.5px var(--font-ui); cursor: pointer; }
+.nh-ok { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 14px; background: rgba(16, 185, 129, 0.1); color: #34D399; font-size: 13px; font-weight: 700; }
+:root[data-color="light"] .nh-ok { color: #047857; background: #D1FAE5; }
+.nh-ok svg { width: 16px; height: 16px; flex-shrink: 0; }
+.nh-ok span { flex: 1; }
+.nh-test { border: 1px solid currentColor; background: transparent; color: inherit; border-radius: 10px; padding: 6px 10px; font: 700 12px var(--font-ui); cursor: pointer; }
+.nh-test.is-inline { align-self: flex-start; color: var(--accent); }

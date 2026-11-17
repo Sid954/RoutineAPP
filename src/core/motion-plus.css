@@ -247,3 +247,22 @@ html[data-motion="full"] .st-switch.is-entering { animation: mxRise 420ms var(--
 /* Back buttons: chevron nudges left on press */
 .page-back-btn svg { transition: transform 360ms var(--mx-spring); }
 html:not([data-motion="off"]) .page-back-btn.mx-pressed svg { transform: translateX(-4px); }
+
+/* ── 16. Search fields: the frame shows focus, the bare input inside must not ─
+   motion.css gives every focused input an accent border + ring (!important), which drew a
+   second box inside the Faculty / Notices / Rooms search frames. */
+:is(.fd-search, .nt-search, .rm-search) input,
+:is(.fd-search, .nt-search, .rm-search) input:focus,
+:is(.fd-search, .nt-search, .rm-search) input:focus-visible {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+}
+
+/* ── 17. No top-left Home/Apps buttons on pages the dock already reaches ───
+   (still in the DOM: the Android back handler, events/back-button.js, uses them) */
+#announcePageBackBtn, #appsHubPageBackBtn, #facultyPageBackBtn, #freeRoomsPageBackBtn { display: none !important; }
+#announcementsAppView .page-header-top, #appsHubView .page-header-top,
+#facultyAppView .page-header-top, #freeRoomsAppView .page-header-top { justify-content: flex-end; min-height: 0; }
+#appsHubView .page-header-top:not(:has(.page-actions)) { display: none; }

@@ -126,6 +126,60 @@ public class WidgetPlugin extends Plugin {
         }
     }
 
+    /**
+     * Phone settings the web layer cannot see: notifications allowed for this app, battery
+     * optimisation, vibration hardware + the system "touch feedback" setting, exact alarms.
+     * Used by the notification health check and to grey out "Vibrate on tap".
+     */
+    @PluginMethod
+    public void getSystemState(PluginCall call) {
+        JSObject ret = new JSObject();
+        Context ctx = getContext();
+        try {
+            ret.put("notificationsEnabled", androidx.core.app.NotificationManagerCompat.from(ctx).areNotificationsEnabled());
+        } catch (Exception e) { ret.put("notificationsEnabled", true); }
+        try {
+            PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
+            ret.put("batteryOptimized", Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && pm != null && !pm.isIgnoringBatteryOptimizations(ctx.getPackageName()));
+        } catch (Exception e) { ret.put("batteryOptimized", false); }
+        try {
+            android.os.Vibrator v = (android.os.Vibrator) ctx.getSystemService(Context.VIBRATOR_SERVICE);
+            ret.put("hasVibrator", v != null && v.hasVibrator());
+        } catch (Exception e) { ret.put("hasVibrator", true); }
+        try {
+            ret.put("hapticFeedbackEnabled", Settings.System.getInt(ctx.getContentResolver(), Settings.System.HAPTIC_FEEDBACK_ENABLED, 1) != 0);
+        } catch (Exception e) { ret.put("hapticFeedbackEnabled", true); }
+        try {
+            android.media.AudioManager am = (android.media.AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
+            ret.put("silentMode", am != null && am.getRingerMode() == android.media.AudioManager.RINGER_MODE_SILENT);
+        } catch (Exception e) { ret.put("silentMode", false); }
+        try {
+            android.app.AlarmManager alarms = (android.app.AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+            ret.put("exactAlarms", Build.VERSION.SDK_INT < Build.VERSION_CODES.S || (alarms != null && alarms.canScheduleExactAlarms()));
+        } catch (Exception e) { ret.put("exactAlarms", true); }
+        call.resolve(ret);
+    }
+
+    /** Opens this app's notification settings (or app details on old Android). */
+    @PluginMethod
+    public void openNotificationSettings(PluginCall call) {
+        try {
+            Context ctx = getContext();
+            Intent intent;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, ctx.getPackageName());
+            } else {
+                intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + ctx.getPackageName()));
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            ctx.startActivity(intent);
+            call.resolve();
+        } catch (Exception e) {
+            call.reject("Could not open settings: " + e.getMessage());
+        }
+    }
+
     @PluginMethod
     public void requestIgnoreBatteryOptimizations(PluginCall call) {
         try {

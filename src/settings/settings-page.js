@@ -82,6 +82,25 @@ function refreshMotion() {
   if (hint) hint.textContent = pref === 'auto' ? `Auto · using ${TIER_LABEL[M.tier] || M.tier}` : 'Fixed';
   const hap = $('stHaptics');
   if (hap) hap.checked = M.hapticsOn();
+  refreshHapticsAvailability();
+}
+
+/** Grey out "Vibrate on tap" when the phone can't vibrate or has touch vibration off. */
+async function refreshHapticsAvailability() {
+  const hap = $('stHaptics');
+  const row = hap && hap.closest('.st-switch-row');
+  const desc = row && row.querySelector('span > span');
+  const WP = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.WidgetPlugin;
+  if (!hap || !WP || !WP.getSystemState) return;
+  try {
+    const st = await WP.getSystemState();
+    const off = st.hasVibrator === false ? 'This phone has no vibration motor'
+      : st.hapticFeedbackEnabled === false ? 'Touch vibration is off in Android settings (Sound & vibration)'
+      : '';
+    hap.disabled = !!off;
+    row.classList.toggle('is-disabled', !!off);
+    if (desc) desc.textContent = off || 'Light haptic feedback on buttons and actions';
+  } catch (e) {}
 }
 
 /** Called every time the page opens. */
