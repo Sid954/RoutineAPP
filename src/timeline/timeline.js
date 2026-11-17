@@ -806,12 +806,6 @@ function findInstructorForSubject(subj) {
     if (isActive) {
       const elapsed = currentMins - startMins;
       const remaining = Math.max(0, durationMins - elapsed);
-      const after = heldList.find(h => h.startM >= endMins);
-      const upNextHtml = `
-        <div class="meta-line-item up-next">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"/></svg>
-          <span>${after ? `Up next: ${escapeHtml(after.title)} · ${format12h(toTimeString(after.startM))}${after.startM > endMins ? ` (${fmtMins(after.startM - endMins)} break)` : ''}` : 'Last class today'}</span>
-        </div>`;
       html += `
         <div class="resting-class-row is-live-card ${cardModifierClass}" onclick='window.openClassDetailSheet(${detailsJson})' style="border-color: var(--accent); background: var(--card-bg);">
           <div class="resting-left">
@@ -841,7 +835,6 @@ function findInstructorForSubject(subj) {
                   <span>${escapeHtml(teacherFullName)}</span>
                 </div>
                 ${subMetaHtml}
-                ${upNextHtml}
               </div>
             </div>
           </div>

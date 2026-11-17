@@ -288,7 +288,8 @@ html:not([data-motion="off"]) .dock-center-raised-fab.is-refreshing .dock-raised
   transform: translate3d(calc((var(--fill, 0) - 1) * 100%), 0, 0);
   transition: transform 1.2s var(--mx-soft);
 }
-:root[data-color="light"] .live-fill { background: linear-gradient(90deg, rgba(37, 99, 235, 0.05), rgba(37, 99, 235, 0.13)); }
+:root[data-color="light"] .live-fill { background: linear-gradient(90deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0.2)); }
+:root[data-color="light"] .live-fill-edge { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='40' viewBox='0 0 10 40'%3E%3Cpath d='M5 0 C 10 10, 0 10, 5 20 S 10 30, 5 40 L 0 40 L 0 0 Z' fill='%232563EB' fill-opacity='0.35'/%3E%3C/svg%3E"); }
 .live-fill-edge {
   position: absolute; top: -50%; right: -5px; width: 10px; height: 200%;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='40' viewBox='0 0 10 40'%3E%3Cpath d='M5 0 C 10 10, 0 10, 5 20 S 10 30, 5 40 L 0 40 L 0 0 Z' fill='%2338BDF8' fill-opacity='0.28'/%3E%3C/svg%3E") repeat-y;
@@ -319,8 +320,11 @@ html[data-motion="lite"] #ambientLayer i { animation: none !important; }
 .amb-moon { top: 6%; right: 9%; width: 34px; height: 34px; border-radius: 50%; box-shadow: -8px 3px 0 0 #E2E8F0; opacity: 0.16; transform: rotate(-20deg); animation: mxBob 9s ease-in-out infinite; }
 :root[data-color="light"] .amb-moon { box-shadow: -8px 3px 0 0 #1E3A8A; opacity: 0.1; }
 
-.amb-sun { top: -70px; right: -70px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(251, 191, 36, 0.18), rgba(251, 191, 36, 0) 62%); }
-.amb-sun b { position: absolute; inset: 0; border-radius: 50%; background: repeating-conic-gradient(rgba(251, 191, 36, 0.08) 0deg 6deg, transparent 6deg 24deg); -webkit-mask: radial-gradient(circle, transparent 28%, #000 30%, transparent 70%); mask: radial-gradient(circle, transparent 28%, #000 30%, transparent 70%); animation: mxSpin 80s linear infinite; }
+/* Sun sits BELOW the settings gear (centre ≈ gear x, beside the greeting), not behind it:
+   a small warm disc, a soft glow and a slowly turning ring of short rays. */
+.amb-sun { top: calc(env(safe-area-inset-top, 0px) + 50px); right: -40px; width: 156px; height: 156px; border-radius: 50%; background: radial-gradient(circle, rgba(251, 191, 36, 0.22), rgba(251, 191, 36, 0.07) 38%, rgba(251, 191, 36, 0) 66%); }
+.amb-sun::before { content: ''; position: absolute; left: 50%; top: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FDE68A, #F59E0B); opacity: 0.72; box-shadow: 0 0 18px rgba(251, 191, 36, 0.35); }
+.amb-sun b { position: absolute; inset: 0; border-radius: 50%; background: repeating-conic-gradient(rgba(251, 191, 36, 0.14) 0deg 5deg, transparent 5deg 22.5deg); -webkit-mask: radial-gradient(circle, transparent 17%, #000 19%, #000 27%, transparent 31%); mask: radial-gradient(circle, transparent 17%, #000 19%, #000 27%, transparent 31%); animation: mxSpin 60s linear infinite; }
 .amb-daylight { inset: 0 0 auto 0; height: 260px; background: linear-gradient(180deg, rgba(56, 189, 248, 0.06), transparent); }
 .amb-dusk { inset: 0 0 auto 0; height: 300px; background: linear-gradient(180deg, rgba(249, 115, 22, 0.09), rgba(168, 85, 247, 0.04) 45%, transparent); animation: ambBreathe 12s ease-in-out infinite alternate; }
 @keyframes ambBreathe { from { opacity: 0.7; } to { opacity: 1; } }
@@ -332,6 +336,20 @@ html[data-motion="lite"] #ambientLayer i { animation: none !important; }
 .amb-dot.is-holiday:nth-child(3n) { background: #F472B6; }
 .amb-dot.is-holiday:nth-child(3n+1) { background: #34D399; }
 .amb-dot.is-test { background: #FB923C; border-radius: 50%; opacity: 0.22; }
+/* Light theme: the same scenes, drawn with more contrast so they read on a white page */
+:root[data-color="light"] .amb-star { background: #334155; }
+@keyframes ambTwinkleLight { from { opacity: 0.18; transform: scale(0.8); } to { opacity: 0.55; transform: scale(1.1); } }
+:root[data-color="light"] .amb-moon { box-shadow: -8px 3px 0 0 #64748B; opacity: 0.45; }
+:root[data-color="light"] .amb-sun { background: radial-gradient(circle, rgba(245, 158, 11, 0.34), rgba(245, 158, 11, 0.12) 38%, rgba(245, 158, 11, 0) 66%); }
+:root[data-color="light"] .amb-sun::before { opacity: 0.85; box-shadow: 0 0 18px rgba(245, 158, 11, 0.45); }
+:root[data-color="light"] .amb-sun b { background: repeating-conic-gradient(rgba(245, 158, 11, 0.42) 0deg 5deg, transparent 5deg 22.5deg); }
+:root[data-color="light"] .amb-daylight { background: linear-gradient(180deg, rgba(14, 165, 233, 0.14), transparent); }
+:root[data-color="light"] .amb-dusk { background: linear-gradient(180deg, rgba(249, 115, 22, 0.2), rgba(168, 85, 247, 0.1) 45%, transparent); }
+:root[data-color="light"] .amb-lines { background: repeating-linear-gradient(180deg, transparent 0 31px, rgba(71, 85, 105, 0.1) 31px 32px); }
+:root[data-color="light"] .amb-bubble { border-color: rgba(2, 132, 199, 0.5); }
+:root[data-color="light"] .amb-dot { opacity: 0.6; }
+:root[data-color="light"] .amb-dot.is-test { opacity: 0.45; }
+
 /* Content sits above the ambient layer */
 .ww { position: relative; z-index: 1; }
 

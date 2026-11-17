@@ -265,3 +265,6 @@ Add the widgets again after updating (long-press the home screen → Widgets →
 - [ ] Tap a class → "Add an update for this class" → Test / Cancel / Move / Online / Task opens the post form prefilled (type, date of that class, course, time/teacher for Online; another section's class targets that section).
 - [ ] (v1.5.9) Simple post mode removed (user: broken); the full form is the only mode.
 - [ ] (v1.5.9) Apps, Notices, post form, Faculty and Rooms: scrolled to the bottom, the last card / Publish button sits above the dock.
+- [ ] (v1.5.10) Live class card: no "Up next …" / "Last class today" line.
+- [ ] (v1.5.10) Morning: a small sun with a glow and slowly turning rays sits below the settings gear (not behind it).
+- [ ] (v1.5.10) Light theme: sun, night stars + moon, evening tint and the live class water fill are clearly visible.

@@ -1174,7 +1174,7 @@ html[data-theme="light"] .resting-tag.rescheduled {
 
 
 /* ==========================================================================
-   Polish (Nov 2026): next-class countdown, current break, up-next line,
+   Polish (Nov 2026): next-class countdown, current break,
    end-of-day strip, next-class link on empty days, "Today" pill
    ========================================================================== */
 .timeline-header-right { display: flex; align-items: center; gap: 6px; }
@@ -1211,8 +1211,6 @@ html[data-theme="light"] .resting-tag.rescheduled {
 }
 :root[data-color="light"] .break-transition-strip.is-now { color: var(--accent-hover); }
 
-.meta-line-item.up-next { color: var(--accent); font-weight: 700; }
-:root[data-color="light"] .meta-line-item.up-next { color: var(--accent-hover); }
 .meta-line-item.cancel-reason { color: var(--danger, #F43F5E); }
 :root[data-color="light"] .meta-line-item.cancel-reason { color: #BE123C; }
 
