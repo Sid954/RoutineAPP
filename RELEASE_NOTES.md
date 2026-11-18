@@ -1,11 +1,9 @@
-# v1.5.15
+# v1.5.16
 
-## New: Suggest a notice
-- Know about a cancelled class, a test or a change? Open Notices and tap **Suggest**. You do not need a password.
-- Your section votes on it with the up and down buttons. It is marked **Not confirmed** until enough people agree.
-- When 2 more people agree than disagree, it also shows in your routine with a "Not confirmed" label.
-- When enough students agree, it becomes a normal notice marked **Community confirmed**, with its own notification sound.
-- Suggestions that nobody confirms disappear after 7 days. A few can be suggested each day.
+## Fixed
+- The new Suggestions list stayed empty even when someone had suggested something. It now shows suggestions, with their votes.
+- After you send a suggestion it shows up right away.
 
-## Smaller fixes
-- Messages at the bottom of the screen no longer cover the bottom bar.
+## Also in this version (from 1.5.15)
+- Suggest a notice: anyone can suggest a cancellation, test or change, and your section votes on it. Suggestions are marked Not confirmed until enough students agree, then become a Community confirmed notice with its own chime.
+- Messages no longer cover the bottom bar.

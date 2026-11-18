@@ -1,8 +1,8 @@
 {
-  "versionCode": 25,
-  "versionName": "1.5.15",
+  "versionCode": 26,
+  "versionName": "1.5.16",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.15 - Suggest a notice: anyone can suggest a cancellation, test or change, and your section votes on it. Notifications for confirmed suggestions get their own chime. Messages no longer cover the bottom bar.",
+  "releaseNotes": "v1.5.16 - Fixes the Suggestions list not showing. Suggest a notice: your section votes on student suggestions; confirmed ones get their own chime.",
   "minRequiredVersionCode": 1
 }
