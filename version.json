@@ -1,8 +1,8 @@
 {
-  "versionCode": 27,
-  "versionName": "1.5.17",
+  "versionCode": 28,
+  "versionName": "1.5.18",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.17 - Your vote on a suggestion no longer jumps back for a moment. Suggestion tags no longer get cut off.",
+  "releaseNotes": "v1.5.18 - New Notices page: your section only, clearer cards, a Suggestions tab with up and down votes, and a simpler step-by-step way to suggest or announce something.",
   "minRequiredVersionCode": 1
 }
