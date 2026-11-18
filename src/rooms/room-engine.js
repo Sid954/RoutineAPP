@@ -223,26 +223,6 @@ export function evaluateRoomStatus(roomMeta, rawClasses = [], targetMinute = get
 }
 
 /**
- * Searches and computes availability for all rooms given a day name and target minute.
- *
- * @param {string} dayName - e.g. 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'
- * @param {number} targetMinute - Minute of day (0..1439)
- * @returns {Array} List of evaluated room status objects
- */
-export function searchAllRoomsAvailability(dayName, targetMinute = getCurrentMinutes()) {
-  if (!_masterData || !Array.isArray(_masterData.rooms)) {
-    return [];
-  }
-
-  const daySchedule = (_masterData.schedule && _masterData.schedule[dayName]) || {};
-
-  return _masterData.rooms.map(roomMeta => {
-    const rawClasses = daySchedule[roomMeta.id] || [];
-    return evaluateRoomStatus(roomMeta, rawClasses, targetMinute);
-  });
-}
-
-/**
  * Searches and computes availability for all rooms with department-wide announcement overrides applied.
  *
  * @param {string} dayName - e.g. 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'
@@ -288,38 +268,6 @@ export function getEffectiveRoomDaySchedule(dayName, roomId, dateStr = '') {
   return dateStr
     ? getEffectiveRoomClasses(roomId, dayName, dateStr, rawClasses)
     : rawClasses;
-}
-
-/**
- * Computes per-floor live vacancy statistics.
- *
- * @param {Array} evaluatedRooms - Array of evaluated room status objects
- * @returns {Map<number, { floor: number, total: number, free: number, occupied: number }>}
- */
-export function computeFloorVacancyStats(evaluatedRooms = []) {
-  const statsMap = new Map();
-
-  // Known floors
-  const knownFloors = [4, 5, 6, 9, 10];
-  knownFloors.forEach(f => {
-    statsMap.set(f, { floor: f, total: 0, free: 0, occupied: 0 });
-  });
-
-  evaluatedRooms.forEach(item => {
-    const floor = item.room.floor;
-    if (!statsMap.has(floor)) {
-      statsMap.set(floor, { floor, total: 0, free: 0, occupied: 0 });
-    }
-    const stat = statsMap.get(floor);
-    stat.total++;
-    if (item.status === 'FREE') {
-      stat.free++;
-    } else {
-      stat.occupied++;
-    }
-  });
-
-  return statsMap;
 }
 
 /**

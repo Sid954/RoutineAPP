@@ -97,12 +97,6 @@ function buildRows() {
     };
   }).sort((a, b) => a.sortKey.localeCompare(b.sortKey, undefined, { sensitivity: 'base' }));
 }
-
-/** The current row list (used by the profile sheet to open from a row). */
-export function getDirectoryRow(key) {
-  return _rows.find(r => r.key === key) || null;
-}
-
 /* ── Rendering ────────────────────────────────────────────────────────────── */
 export function statusLine(status) {
   if (!status) return null;

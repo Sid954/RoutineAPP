@@ -671,12 +671,6 @@ export function openTeacherDetailByCode(teacherCode) {
 window.openTeacherDetailByCode = openTeacherDetailByCode;
 window.__openTeacherProfileByCode = openTeacherDetailByCode;
 
-/** Kept for older callers: accepts { teacher } or a code. */
-export function openTeacherDetailModal(teacherData) {
-  const key = (teacherData && (teacherData.teacher || teacherData.code)) || teacherData;
-  if (key) openTeacherProfile(resolveTeacherCode(key) || key);
-}
-
 function escapeHtml(str) {
   if (!str) return '';
   return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));

@@ -55,11 +55,6 @@ export function showLoadingScreen(title = 'Loading Routine...', sub = 'Updating 
   if (overlay) overlay.classList.add('active');
 }
 
-export function hideLoadingScreen() {
-  const overlay = document.getElementById('globalLoadingOverlay');
-  if (overlay) overlay.classList.remove('active');
-}
-
 export function showConfirm(title, message, onOk, showPasswordInput = false, variant = 'danger') {
   const modal = DOM.confirmModal;
   const titleEl = document.getElementById('confirmTitle');
