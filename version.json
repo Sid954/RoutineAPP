@@ -1,8 +1,8 @@
 {
-  "versionCode": 24,
-  "versionName": "1.5.14",
+  "versionCode": 25,
+  "versionName": "1.5.15",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.14 - On a computer the mouse works like a finger everywhere; the Notices Coming up row scrolls sideways properly again",
+  "releaseNotes": "v1.5.15 - Suggest a notice: anyone can suggest a cancellation, test or change, and your section votes on it. Notifications for confirmed suggestions get their own chime. Messages no longer cover the bottom bar.",
   "minRequiredVersionCode": 1
 }

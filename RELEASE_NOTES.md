@@ -1,14 +1,11 @@
-# My Routine v1.5.14 Release Notes
+# v1.5.15
 
-Smoother swiping, on the phone and on a computer.
+## New: Suggest a notice
+- Know about a cancelled class, a test or a change? Open Notices and tap **Suggest**. You do not need a password.
+- Your section votes on it with the up and down buttons. It is marked **Not confirmed** until enough people agree.
+- When 2 more people agree than disagree, it also shows in your routine with a "Not confirmed" label.
+- When enough students agree, it becomes a normal notice marked **Community confirmed**, with its own notification sound.
+- Suggestions that nobody confirms disappear after 7 days. A few can be suggested each day.
 
-### Fixed
-- **Notices → Coming up:** swiping the row sideways works properly again. Before, it could jump back to the first card in the middle of a swipe.
-
-### On a computer
-- **The mouse works like a finger:** click and drag to scroll any page, list, sheet or row. Flick it and it keeps gliding.
-- **Same gestures as the phone:** drag down at the top of a page to refresh, drag a sheet down to close it, and drag the schedule sideways to change the day.
-- **No accidental taps:** dragging never opens what you started on, and a card only looks pressed when you really click it.
-
-### Testing (temporary)
-- **Test time:** tap the small "Test time" tab at the top of any page, then pick a day and drag the time slider. The app follows live. Tap "Real time" to go back. Notifications are paused while it's on.
+## Smaller fixes
+- Messages at the bottom of the screen no longer cover the bottom bar.
