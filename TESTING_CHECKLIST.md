@@ -326,3 +326,13 @@ Checked on PC with real mouse input; check in your own desktop browser:
 - [ ] Sliders (Rooms time) still drag as sliders, and text fields still select text.
 - [ ] Dragging never opens what you started on; a plain click does. A card only looks pressed on a real click.
 - [ ] **Notices → Coming up** row: swipe it sideways with a finger on the phone, or drag it with the mouse. It follows the whole way and settles on a card. Before this fix, a feed refresh rebuilt the row mid-swipe (resetting it to the first card), and the mouse drag was held back by snapping.
+
+## 28. Community suggestions (built 2026-11-18, not yet released)
+Setup first: run `supabase_suggestions.sql` in Supabase, deploy the API, install the new APK.
+- [ ] Notices page: a "Suggestions" box above the search; "Suggest" opens the form with no password and no pin; only "My section" and "Everyone" audiences.
+- [ ] Send a suggestion: toast, it appears in the box marked "Not confirmed", your own agree vote counted. The same suggestion again says someone already suggested it.
+- [ ] Vote on a friend's suggestion from another phone (same section): count changes on both; tapping your vote again removes it. A phone on another section cannot vote.
+- [ ] At 2 net agrees it also shows in the routine with "(NOT CONFIRMED)" and the "In your routine" tag; below that it never touches the routine.
+- [ ] At 8 votes and 60% agree it becomes a normal notice ("Community confirmed"), with a push using its own chime on the "Community confirmed" channel (Android settings -> channel exists after the update).
+- [ ] Manage mode: Publish / Reject on a suggestion works with the posting password; hidden (5 net disagrees) ones appear with a "Hidden" tag.
+- [ ] More than 5 suggestions in a day from one phone is refused; the Suggestions box never blocks the Notices page when the server is offline.

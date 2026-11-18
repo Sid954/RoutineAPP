@@ -31,6 +31,17 @@ Rule reminders: Home keeps the user's ORIGINAL design (no redesigns without aski
 16. **Tap a class → add event**: exam/test, cancel, reschedule, online, assignment, note — prefilled from the class.
 17. **Anyone can suggest** (no password); admins approve. **Duplicate detection**: tell the user someone already suggested the same thing. **Show pending suggestions to everyone** marked "unconfirmed". **Voting** (up/down) to make them trustworthy. Needs API + Supabase table changes (suggestions, votes; rate limits per device/IP; reuse `api/_lib/security.js` patterns). Admin approves → becomes a normal announcement.
 
+### Item 17 design (agreed with the user, 2026-11-18; BUILT 2026-11-18, uncommitted until the user says; needs supabase_suggestions.sql run, API deploy, new APK; checklist §28)
+- Scope: notices only (no routine edits). No accounts: a random device ID per phone.
+- Separate "Suggestions" section in each section's feed, with votes, duplicate detection (same section + type + subject + date) and a "Not confirmed" label.
+- A suggestion with >= 2 net up-votes shows in the live routine flagged "Not confirmed"; otherwise it stays only in Suggestions and changes nothing. Net down-votes >= 5 hides it (admin still sees it); 7 days without approval expires it.
+- Auto-approve: >= 60% up-votes AND >= 8 total votes (about 20% of an average 40-student section), labelled "Community confirmed". Department-wide suggestions need >= 15 total votes at 60%, and only the announcement password may approve/reject them early.
+- Voting: a section's suggestion is voted on by that section's members; department-wide ones by everyone. One vote per device, changeable.
+- Approval/rejection with `ANNOUNCEMENT_PASSWORD` for now (better auth later). Approved suggestion becomes a normal announcement.
+- Limits: 5 suggestions/day per device, 3/hour per IP (use `guard()` in `api/_lib/security.js`).
+- Push only when approved or community-confirmed, on a new Android channel `suggestions` with its own short chime (generated, in `android-custom/res/raw/`), following the user's notice preferences.
+- Needs: Supabase table(s) (suggestions, votes) run by the user, a new API endpoint, a new APK.
+
 ## Posting announcements
 18. **Easier post flow**: step-by-step sections (one at a time), easier date picker (Today/Tomorrow/day chips), subject picker from the routine, better icons; keep an "Advanced" mode with the full form (`src/announcements/post-form.js`).
 
@@ -44,3 +55,6 @@ follows live. Pieces to delete together:
 - `src/settings/test-time.js` and its import/`initTestTime()` in `src/main.js`
 - the "TEMPORARY test clock" block at the end of `src/settings/settings.css`
 - the `window.__devTimeOffset` guard at the top of `scheduleForToday` in `src/notifications/notifications.js`
+
+## Later: notification sounds
+- User asked (2026-11-18) for a notification sound and sound effect for EVERY notification type (class reminders, tests, deadlines, summaries, notices, suggestions), each type distinct, with settings to turn them on or off. Android sets a channel sound only at creation, so each type needs its own channel (and a new channel id if the sound changes).

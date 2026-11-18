@@ -37,7 +37,9 @@ const CHANNELS = [
   { id: 'daily_digest', name: 'Daily summary', description: 'Morning summary and tomorrow preview', importance: 3 },
   { id: 'deadlines', name: 'Tests and deadlines', description: 'Tests and assignment due times', importance: 4 },
   { id: 'announcements_channel', name: 'Announcements', description: 'Class cancellations, tests, assignments and other notices', importance: 5 },
-  { id: 'notices_quiet', name: 'Notices (quiet hours)', description: 'Notices that arrive during your quiet hours, without sound', importance: 2 }
+  { id: 'notices_quiet', name: 'Notices (quiet hours)', description: 'Notices that arrive during your quiet hours, without sound', importance: 2 },
+  // Notices the community confirmed by voting: their own short chime (android-custom/res/raw/suggestion_chime.wav)
+  { id: 'suggestions_channel', name: 'Community confirmed', description: 'Suggestions your section confirmed by voting', importance: 5, sound: 'suggestion_chime.wav' }
 ];
 const COLORS = { class: '#38BDF8', start: '#38BDF8', briefing: '#38BDF8', preview: '#818CF8', test: '#F97316', test_eve: '#F97316', deadline: '#A855F7', deadline_day: '#A855F7' };
 const NOTICE_COLORS = { class_test: '#F97316', online_class: '#10B981', cancellation: '#F43F5E', rescheduled: '#64748B', assignment: '#A855F7', holiday: '#F59E0B' };
@@ -207,7 +209,7 @@ export const Notifications = {
     for (const ch of CHANNELS) {
       try {
         if (typeof ln.createChannel === 'function') {
-          await ln.createChannel({ id: ch.id, name: ch.name, description: ch.description, importance: ch.importance, visibility: 1, vibration: ch.importance >= 3 });
+          await ln.createChannel(Object.assign({ id: ch.id, name: ch.name, description: ch.description, importance: ch.importance, visibility: 1, vibration: ch.importance >= 3 }, ch.sound ? { sound: ch.sound } : {}));
           this._channels.add(ch.id);
         }
       } catch (e) {}

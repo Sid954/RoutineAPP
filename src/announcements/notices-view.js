@@ -12,6 +12,7 @@ import { escapeHtml, setHtmlIfChanged } from '../core/utils.js';
 import { showToast } from '../toast/toast.js';
 import { openModal, closeModal, showConfirm } from '../modals/modal.js';
 import { Announcements } from './announcements.js';
+import { Suggestions } from './suggestions.js';
 import {
   FILTERS, groupFeed, comingUp, filterCounts, matchesQuery, dayLabel, longDate, countdown,
   postedAgo, shareText, buildIcs, googleCalendarUrl, toNotice
@@ -98,6 +99,66 @@ function emptyHtml(title, sub) {
   return `<div class="nt-empty"><span class="nt-empty-icon">${svg(UI.bell)}</span><strong>${escapeHtml(title)}</strong><span>${escapeHtml(sub)}</span></div>`;
 }
 
+/* ── Community suggestions (not confirmed) ─────────────────────────────── */
+const SG_VOTE_ICON = {
+  up: '<polyline points="6 15 12 9 18 15"/>',
+  down: '<polyline points="6 9 12 15 18 9"/>'
+};
+const SG_COLLAPSED = 3;
+
+function suggestionCard(s, admin) {
+  const ctx = { semester: String(Storage.getSemester() || '').toLowerCase(), section: String(Storage.getSection() || '').toLowerCase() };
+  const n = toNotice(Object.assign({}, s, { id: 's' + s.id }), ctx);
+  const mine = Suggestions.myVote(s.id);
+  const when = whenText(n);
+  const wide = !s.semester && !s.section;
+  return `<div class="sg-card tone-${n.tone}" data-sid="${escapeHtml(s.id)}">
+    <span class="nt-tile">${svg(ICONS[n.tone] || ICONS.general)}</span>
+    <span class="nt-card-main">
+      <span class="nt-card-top">
+        <span class="nt-type">${escapeHtml(n.meta.label)}</span>
+        <span class="sg-tag">Not confirmed</span>
+        ${wide ? '<span class="nt-aud">Department</span>' : ''}
+        ${s.state === 'applied' ? '<span class="sg-tag is-applied">In your routine</span>' : ''}
+        ${s.state === 'hidden' ? '<span class="sg-tag is-hidden">Hidden</span>' : ''}
+      </span>
+      <span class="nt-title">${escapeHtml(n.title)}</span>
+      ${n.summary && n.summary !== n.title ? `<span class="nt-summary">${escapeHtml(n.summary)}</span>` : ''}
+      <span class="nt-card-foot">
+        ${when ? `<span class="nt-when">${escapeHtml(when)}</span>` : ''}
+        <span class="nt-by">${escapeHtml([n.author, postedAgo(n.createdAt)].filter(Boolean).join(' · '))}</span>
+      </span>
+      ${admin ? `<span class="sg-admin">
+        <button type="button" class="sg-act" data-sg-act="approve">Publish</button>
+        <button type="button" class="sg-act is-danger" data-sg-act="reject">Reject</button></span>` : ''}
+    </span>
+    <span class="sg-votes">
+      <button type="button" class="sg-vote${mine === 1 ? ' is-on' : ''}" data-vote="1" aria-pressed="${mine === 1}" aria-label="Agree: ${s.up} agree">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SG_VOTE_ICON.up}</svg><span>${s.up}</span></button>
+      <button type="button" class="sg-vote is-down${mine === -1 ? ' is-on' : ''}" data-vote="-1" aria-pressed="${mine === -1}" aria-label="Disagree: ${s.down} disagree">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SG_VOTE_ICON.down}</svg><span>${s.down}</span></button>
+    </span>
+  </div>`;
+}
+
+export function renderSuggestions() {
+  const box = $('ntSuggest');
+  if (!box) return;
+  const hide = Announcements.scope !== 'mine' || !!Announcements.query || Announcements.activeFilter !== 'all';
+  box.hidden = hide;
+  if (hide) return;
+  const admin = Announcements.isAdminMode && Array.isArray(Suggestions.adminRows);
+  const rows = admin ? Suggestions.adminRows : Suggestions.list;
+  const shown = Suggestions.expanded ? rows : rows.slice(0, SG_COLLAPSED);
+  const html = `<div class="sg-head">
+      <div class="sg-head-text"><h2>Suggestions</h2><span>From students. Not confirmed until your section agrees.</span></div>
+      <button type="button" class="sg-add" data-sg="new">Suggest</button>
+    </div>
+    ${rows.length ? `<div class="sg-list">${shown.map(s => suggestionCard(s, admin)).join('')}</div>` : '<p class="sg-empty">No suggestions right now. Know about a cancellation, test or change? Suggest it so your section can confirm it.</p>'}
+    ${rows.length > SG_COLLAPSED ? `<button type="button" class="sg-more" data-sg="more">${Suggestions.expanded ? 'Show fewer' : `Show ${rows.length - SG_COLLAPSED} more`}</button>` : ''}`;
+  setHtmlIfChanged(box, html);
+}
+
 /* ── Page render ───────────────────────────────────────────────────────── */
 function renderHeader() {
   const sub = $('announceSubtitle');
@@ -136,6 +197,7 @@ export function renderNotices() {
   const feed = $('announceList');
   if (!feed) return;
   renderHeader();
+  renderSuggestions();
 
   const read = Announcements.getReadIds();
   const all = Announcements.notices();
@@ -384,6 +446,7 @@ function onSheetAction(act) {
 /* ── Events ────────────────────────────────────────────────────────────── */
 export function initAnnouncementEvents() {
   Announcements._render = renderNotices;
+  Suggestions._render = renderSuggestions;
   try {
     const s = localStorage.getItem(SCOPE_KEY);
     if (s === 'dept' || s === 'mine') Announcements.scope = s;
@@ -404,7 +467,7 @@ export function initAnnouncementEvents() {
       renderNotices();
       return;
     }
-    const enable = () => { Announcements.isAdminMode = true; renderNotices(); showToast('Manage mode on: open a notice to pin, edit or delete it', 'info'); };
+    const enable = () => { Announcements.isAdminMode = true; Suggestions.loadAdmin(); renderNotices(); showToast('Manage mode on: open a notice to pin, edit or delete it', 'info'); };
     if (State.sessionDeletePassword) { enable(); return; }
     showConfirm('Manage notices', 'Enter the admin password to pin, edit and delete notices.', async pwd => {
       if (!pwd) { showToast('Password is required.', 'warning'); return; }
@@ -414,6 +477,24 @@ export function initAnnouncementEvents() {
   });
   const exitAdmin = $('ntAdminExit');
   if (exitAdmin) exitAdmin.addEventListener('click', () => { Announcements.isAdminMode = false; renderNotices(); });
+
+  const sgBox = $('ntSuggest');
+  if (sgBox) sgBox.addEventListener('click', e => {
+    const card = e.target.closest('.sg-card');
+    const vote = e.target.closest('[data-vote]');
+    if (vote && card) { Suggestions.vote(card.dataset.sid, Number(vote.dataset.vote)); return; }
+    const act = e.target.closest('[data-sg-act]');
+    if (act && card) {
+      const id = card.dataset.sid, action = act.dataset.sgAct;
+      if (action === 'reject') { Suggestions.decide(id, 'reject'); return; }
+      Suggestions.decide(id, 'approve');
+      return;
+    }
+    const b = e.target.closest('[data-sg]');
+    if (!b) return;
+    if (b.dataset.sg === 'new') { if (window.switchAppView) window.switchAppView('post_announcement', { __suggest: true }); return; }
+    if (b.dataset.sg === 'more') { Suggestions.expanded = !Suggestions.expanded; renderSuggestions(); }
+  });
 
   const scope = $('ntScope');
   if (scope) scope.addEventListener('click', e => {

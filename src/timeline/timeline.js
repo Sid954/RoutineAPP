@@ -802,6 +802,11 @@ function findInstructorForSubject(subj) {
       }
     }
 
+    // A community suggestion applied to the routine: say it is not confirmed yet
+    const ovAnn = cancelOverride && cancelOverride.announcement;
+    const isUnconfirmed = !!(c.isUnconfirmed || (ovAnn && ovAnn.is_unconfirmed) || (isHolidayCancelled && holidayOverride && holidayOverride.announcement && holidayOverride.announcement.is_unconfirmed));
+    if (isUnconfirmed) titleHtml += ' <span class="override-indicator unconfirmed">(NOT CONFIRMED)</span>';
+
     // 1. Live Hero Card
     if (isActive) {
       const elapsed = currentMins - startMins;

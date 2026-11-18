@@ -69,3 +69,6 @@ playwright.config.mjs
 # Local-only signing keystore & GitHub secrets (never commit)
 secrets/
 .claude/launch.json
+
+# Local MCP config (carries the Supabase project id; the repo is public)
+.mcp.json

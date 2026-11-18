@@ -14,6 +14,7 @@ import { fetchWithTimeout } from '../core/utils.js';
 import { Notifications } from '../notifications/notifications.js';
 import { isPastAnnouncement } from './overrides.js';
 import { toNotice, notifCopy, isPinned } from './notice-model.js';
+import { Suggestions, attachAnnouncements } from './suggestions.js';
 
 const API = () => `${CONFIG.apiBase || ''}/api/announcements`;
 
@@ -96,6 +97,11 @@ export const Announcements = {
     this.list.forEach(i => { i.is_read = read.has(String(i.id)); });
   },
 
+  /** Rows the routine reads: official notices plus applied community suggestions (flagged "Not confirmed"). */
+  _syncRoutine() {
+    State.announcementsList = this.list.concat(Suggestions.appliedRows());
+  },
+
   _applyPins(rows, pinnedSet) {
     return rows.map(item => {
       const server = item.is_pinned === true || item.is_pinned === 'true' || item.is_pinned === 1;
@@ -123,6 +129,7 @@ export const Announcements = {
 
   /* ── Load / fetch ─────────────────────────────────────────────────────── */
   loadCached() {
+    Suggestions.loadCached();
     try {
       const dept = JSON.parse(localStorage.getItem(this.DEPT_CACHE_KEY) || 'null');
       if (Array.isArray(dept)) State.allAnnouncementsList = dept;
@@ -130,7 +137,7 @@ export const Announcements = {
       if (Array.isArray(mine) && mine.length) {
         const pins = this.getPinnedIds();
         this.list = this._applyPins(mine, pins);
-        State.announcementsList = this.list;
+        this._syncRoutine();
         this.ensureReadStateInitialized();
         this.renderFeed();
         this.checkBadge();
@@ -162,7 +169,7 @@ export const Announcements = {
       const { sem, sec } = mySemSec();
       this.list = State.allAnnouncementsList.filter(i => isForMe(i, sem, sec));
       this.savePinnedIds(pins);
-      State.announcementsList = this.list;
+      this._syncRoutine();
       try { localStorage.setItem(this.CACHE_KEY, JSON.stringify(this.list)); } catch (e) {}
 
       // Local alert for notices that arrived since the last fetch (push covers the closed app)
@@ -177,6 +184,7 @@ export const Announcements = {
       this.renderFeed();
       this.checkBadge();
       if (typeof window.renderTimeline === 'function') window.renderTimeline(true);
+      Suggestions.load(); // community suggestions: never blocks or breaks the notices
       return true;
     } catch (err) {
       console.error('Error fetching announcements:', err);
@@ -285,7 +293,7 @@ export const Announcements = {
       State.sessionDeletePassword = password;
       const drop = a => String(a.id) !== String(id);
       this.list = this.list.filter(drop);
-      State.announcementsList = this.list;
+      this._syncRoutine();
       State.allAnnouncementsList = (State.allAnnouncementsList || []).filter(drop);
       try {
         localStorage.setItem(this.CACHE_KEY, JSON.stringify(this.list));
@@ -335,5 +343,7 @@ export const Announcements = {
     }
   }
 };
+
+attachAnnouncements(Announcements);
 
 export { initAnnouncementEvents } from './notices-view.js';

@@ -16,6 +16,7 @@ import { escapeHtml, format12h, parseTo24h, toMinutes, localDateStr } from '../c
 import { DAY_NAMES } from '../core/config.js';
 import { Notifications } from '../notifications/notifications.js';
 import { Announcements } from './announcements.js';
+import { Suggestions } from './suggestions.js';
 import { ANNOUNCEMENT_LIMITS, collapseNewlines, validateAnnouncementPayload } from './validation.js';
 import { toNotice } from './notice-model.js';
 import { cardHtml, ICONS } from './notices-view.js';
@@ -41,6 +42,7 @@ const st = {
   classMode: 'online',    // online | extra
   editId: '',
   editRow: null,
+  suggest: false,        // community suggestion mode: no password, goes to the Suggestions section
   routine: null,          // routine (dayIdx -> classes) of the class-tied target section
   routineKey: ''
 };
@@ -105,6 +107,7 @@ async function renderAudience() {
   }
   locked.hidden = true;
   seg.hidden = false;
+  if (st.suggest && (st.aud === 'sections' || st.aud === 'semester')) st.aud = 'mine'; // suggestions: my section or everyone
   if (tied && (st.aud === 'semester' || st.aud === 'all')) st.aud = 'mine';
   if (tied && st.secs.size > 1) st.secs = new Set([Array.from(st.secs)[0]]);
   seg.querySelectorAll('button').forEach(b => {
@@ -112,6 +115,7 @@ async function renderAudience() {
     b.classList.toggle('active', a === st.aud);
     b.setAttribute('aria-pressed', String(a === st.aud));
     b.disabled = tied && (a === 'semester' || a === 'all');
+    b.hidden = st.suggest && (a === 'sections' || a === 'semester');
     if (a === 'sections') b.textContent = tied ? 'Another section' : 'Other sections';
   });
 
@@ -385,6 +389,7 @@ function updateSubmitLabel() {
   const label = $('postAnnounceSubmitLabel');
   if (!label) return;
   if (st.editId) { label.textContent = 'Save changes'; return; }
+  if (st.suggest) { label.textContent = 'Send suggestion'; return; }
   const { targets, total } = postCount();
   label.textContent = targets > 1 ? `Publish to ${targets} sections` : (total > 1 ? `Publish (${total} days)` : 'Publish');
 }
@@ -405,6 +410,9 @@ function resetFields(today) {
 }
 
 export function openPostForm(existing = null) {
+  const suggest = !!(existing && existing.__suggest);
+  if (suggest) existing = null;
+  st.suggest = suggest;
   // Quick action from a class card: create mode, prefilled (class-detail.js)
   const prefill = existing && existing.__prefill ? existing.__prefill : null;
   if (prefill) existing = null;
@@ -420,11 +428,15 @@ export function openPostForm(existing = null) {
   try { author = localStorage.getItem(AUTHOR_KEY) || ''; } catch (e) {}
   if ($('paName')) $('paName').value = existing ? (existing.name || '') : author;
   if ($('paPassword')) $('paPassword').value = State.sessionDeletePassword || '';
+  const pwField = $('paPassword') && $('paPassword').closest('.pa-field');
+  if (pwField) pwField.hidden = suggest;
+  const pinRow = $('paPin') && $('paPin').closest('.pa-check');
+  if (pinRow) pinRow.hidden = suggest;
 
-  if ($('postAnnounceFormTitle')) $('postAnnounceFormTitle').textContent = existing ? 'Edit notice' : 'New notice';
+  if ($('postAnnounceFormTitle')) $('postAnnounceFormTitle').textContent = existing ? 'Edit notice' : (suggest ? 'Suggest a notice' : 'New notice');
   if ($('postAnnounceFormSubtitle')) $('postAnnounceFormSubtitle').textContent = existing
     ? 'Changes apply for everyone it was sent to'
-    : 'Everyone it is for gets a notification';
+    : (suggest ? 'Your section votes on it. It stays marked not confirmed until then.' : 'Everyone it is for gets a notification');
 
   setClassMode('online');
   if (existing) {
@@ -543,12 +555,36 @@ function refreshCounters() {
 }
 
 /* ── Submit ────────────────────────────────────────────────────────────── */
+/** Community suggestion: one notice, one audience, no password. */
+async function submitSuggestion(first, targets, name) {
+  const btn = $('postAnnounceSubmit');
+  const dates = st.type === 'holiday' ? holidayDates() : [null];
+  if (dates.length > 1 || targets.length !== 1) { showToast('Suggest one day for one audience at a time.', 'warning'); return; }
+  const v = dates[0] ? buildPayload(name, dates[0]) : first;
+  if (!v.valid) { showToast(v.error, 'warning'); return; }
+  const s = v.sanitized;
+  const label = $('postAnnounceSubmitLabel');
+  btn.disabled = true;
+  if (label) label.textContent = 'Sending…';
+  const r = await Suggestions.suggest({
+    name: s.name, title: s.title, announcement: s.announcement, type: st.type, subject: s.subject || '',
+    date_override: s.date_override || '', subject_override: s.subject_override || '',
+    semester: targets[0].semester, section: targets[0].section
+  });
+  btn.disabled = false;
+  updateSubmitLabel();
+  if (r.ok) showToast('Suggestion sent. Your section can vote on it.', 'success');
+  else if (r.duplicateId) showToast('Someone already suggested this. Open Suggestions and vote on it.', 'info');
+  else { showToast(r.error || 'Could not send the suggestion', 'error'); return; }
+  if (window.switchAppView) window.switchAppView('announcements');
+}
+
 async function submit() {
   const btn = $('postAnnounceSubmit');
   const name = val('paName').trim();
   const password = val('paPassword');
   if (!name) { showToast('Add your name.', 'warning'); $('paName').focus(); return; }
-  if (!password) { showToast('Enter the posting password.', 'warning'); $('paPassword').focus(); return; }
+  if (!password && !st.suggest) { showToast('Enter the posting password.', 'warning'); $('paPassword').focus(); return; }
 
   const today = localDateStr();
   const d = primaryDate();
@@ -562,6 +598,8 @@ async function submit() {
   const first = buildPayload(name);
   if (!first.valid) { showToast(first.error, 'warning'); return; }
   try { localStorage.setItem(AUTHOR_KEY, name); } catch (e) {}
+
+  if (st.suggest) { await submitSuggestion(first, targets, name); return; }
 
   const pin = !!($('paPin') && $('paPin').checked);
   const label = $('postAnnounceSubmitLabel');

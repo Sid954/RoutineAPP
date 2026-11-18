@@ -119,7 +119,8 @@ export function getEffectiveClassesForDay(dayIdx, dateVal) {
       type: 'Theory',
       isExtraClass: true,
       isOnline: isOnline,
-      platform: parsed.platform || ''
+      platform: parsed.platform || '',
+      isUnconfirmed: !!item.is_unconfirmed
     });
   });
 
@@ -148,7 +149,8 @@ export function getEffectiveClassesForDay(dayIdx, dateVal) {
       isRescheduled: true,
       rescheduledReason: parsed.reason || '',
       origDate: parsed.original_date || item.date_override || '',
-      origStart: parsed.original_start_time ? format12h(parsed.original_start_time) : ''
+      origStart: parsed.original_start_time ? format12h(parsed.original_start_time) : '',
+      isUnconfirmed: !!item.is_unconfirmed
     });
   });
 

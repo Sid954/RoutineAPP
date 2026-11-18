@@ -1236,3 +1236,7 @@ html[data-theme="light"] .resting-tag.rescheduled {
 }
 .off-day-next strong { font-weight: 800; }
 :root[data-color="light"] .off-day-next { color: var(--accent-hover); }
+
+/* Community suggestion applied to the routine but not confirmed yet */
+.override-indicator.unconfirmed { color: #FBBF24; }
+:root[data-color="light"] .override-indicator.unconfirmed { color: #B45309; }
