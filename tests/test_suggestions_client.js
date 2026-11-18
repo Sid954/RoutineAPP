@@ -86,11 +86,16 @@ global.fetch = async (url, opts) => { calls.push({ url, opts }); return reply(ur
   const realGet = global.document.getElementById;
   global.document.getElementById = id => (id === 'ntSuggest' ? box : realGet(id));
   const view = await import('../src/announcements/notices-view.js');
+  const { Announcements: RealAnn } = await import('../src/announcements/announcements.js');
+  RealAnn.tab = 'suggestions'; // the list lives in the Suggestions tab
   Suggestions.list = [{ id: 10, name: 'A', title: 'DS cancelled', announcement: 'sick', type: 'cancellation', subject: 'DS', subject_override: 'DS', date_override: '2026-11-20', semester: '4', section: 'c', created_at: new Date().toISOString(), up: 3, down: 1, state: 'applied' }];
   view.renderSuggestions();
   assert.strictEqual(box.hidden, false);
   assert.ok(/class="sg-card/.test(box.innerHTML) && /data-sid="10"/.test(box.innerHTML), 'card rendered');
-  assert.ok(/Not confirmed/.test(box.innerHTML) && /In your routine/.test(box.innerHTML));
+  assert.ok(/Unconfirmed/.test(box.innerHTML), 'short status tag');
+  assert.ok(/class="sg-score is-pos"[^>]*>2</.test(box.innerHTML), 'score = 3 agree - 1 disagree');
+  assert.ok(/4\/8 votes/.test(box.innerHTML), 'votes so far out of the 8 needed');
+  assert.ok(/ICMP cancelled|DS cancelled/.test(box.innerHTML), 'headline says it once');
   global.document.getElementById = realGet;
 
   // Rendering regression: ids are numbers from the API; escapeHtml must not choke on them

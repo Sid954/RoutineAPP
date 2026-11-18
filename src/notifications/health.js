@@ -69,6 +69,8 @@ function healthHtml(res) {
 }
 
 let _last = null;
+const NT_HIDE_KEY = 'routine_nt_health_hidden';
+
 export async function refreshHealthUI() {
   const res = await checkNotificationHealth();
   _last = res;
@@ -77,9 +79,15 @@ export async function refreshHealthUI() {
     if (!el) return;
     // Notices page shows problems only; the popup shows everything
     if (id === 'ntHealth') {
+      // A problem the person hid stays hidden until the problem itself changes
       const serious = res.issues.filter(i => i.level === 'error');
-      el.hidden = !serious.length;
-      el.innerHTML = serious.length ? healthHtml({ ...res, issues: serious }) : '';
+      const sig = serious.map(i => i.id).join(',');
+      let hiddenSig = '';
+      try { hiddenSig = localStorage.getItem(NT_HIDE_KEY) || ''; } catch (e) {}
+      const show = serious.length > 0 && sig !== hiddenSig;
+      el.hidden = !show;
+      el.dataset.sig = sig;
+      el.innerHTML = show ? healthHtml({ ...res, issues: serious }) + '<button type="button" class="nh-hide" data-nh-hide>Hide</button>' : '';
     } else {
       el.innerHTML = healthHtml(res);
     }
@@ -106,6 +114,13 @@ export function initNotificationHealth() {
       return;
     }
     if (e.target.closest('[data-nh-test]')) sendTest();
+    const hide = e.target.closest('[data-nh-hide]');
+    if (hide) {
+      const box = hide.closest('#ntHealth');
+      try { localStorage.setItem(NT_HIDE_KEY, (box && box.dataset.sig) || ''); } catch (err) {}
+      if (box) { box.hidden = true; box.innerHTML = ''; }
+      showToast('Hidden. Notification settings are behind the sliders button next to Notices.', 'info');
+    }
   });
   // Re-check when coming back from Android settings
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshHealthUI(); });

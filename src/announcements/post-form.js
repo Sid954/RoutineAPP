@@ -1,13 +1,13 @@
 /**
- * Post / edit a notice (#postAnnounceAppView, redesigned Nov 2026).
- *  1. Type: seven tiles
- *  2. For: my section, other section(s), a whole semester, or everyone. Class-tied types
- *     (cancel, class, test, reschedule, assignment) go to ONE section, because their course
- *     list comes from that section's routine.
- *  3. Details for the type (course lists come from the target section's routine)
- *  4. Live preview using the feed's own card
- *  5. Name (remembered), admin password, optional pin, Publish
- * Payloads go through validateAnnouncementPayload, exactly as before.
+ * New post: a guided composer (#postAnnounceAppView, rebuilt 2026-11-18).
+ *  1. Suggest it (anyone, no password, the section votes) or Announce it (posting password)
+ *  2. What it is about: one list, each option explained; picking one moves on
+ *  3. Details for that type (course lists come from the target section's routine,
+ *     quick day chips under every date)
+ *  4. Check it: the post as it will look, who gets it, what happens, then send.
+ *     The name fills in from Settings; the password is only asked for Announce.
+ * Edit (Manage mode) starts at the details. Class-sheet quick actions (__prefill) skip step 2.
+ * Payloads go through validateAnnouncementPayload, as before.
  */
 import { State } from '../core/state.js';
 import { Storage } from '../storage/storage.js';
@@ -25,24 +25,35 @@ const AUTHOR_KEY = 'routine_notice_author';
 const CLASS_TIED = new Set(['cancellation', 'online_class', 'class_test', 'rescheduled', 'assignment']);
 
 const TYPES = [
-  { id: 'general', tone: 'general', label: 'Notice', desc: 'Anything else to tell the class' },
-  { id: 'class_test', tone: 'exam', label: 'Class test', desc: 'Exam date, course and syllabus' },
-  { id: 'assignment', tone: 'task', label: 'Assignment', desc: 'Task with a due date and time' },
-  { id: 'cancellation', tone: 'cancel', label: 'Cancel a class', desc: 'Marks the class cancelled in the routine' },
-  { id: 'online_class', tone: 'online', label: 'Online / extra class', desc: 'Adds a session to the routine' },
-  { id: 'rescheduled', tone: 'moved', label: 'Reschedule', desc: 'Moves a class to a new time' },
-  { id: 'holiday', tone: 'holiday', label: 'Holiday', desc: 'Day off: one day or a range' }
+  { id: 'cancellation', tone: 'cancel', label: 'A class is cancelled', desc: 'The class is crossed out in the routine for that day.' },
+  { id: 'class_test', tone: 'exam', label: 'A class test', desc: 'Date, course and syllabus. It shows on that day and everyone gets a reminder.' },
+  { id: 'assignment', tone: 'task', label: 'An assignment', desc: 'What to hand in and when. Reminders go out before the deadline.' },
+  { id: 'rescheduled', tone: 'moved', label: 'A class moved', desc: 'To another day, time or room. The routine shows it in the new slot.' },
+  { id: 'online_class', tone: 'online', label: 'An online or extra class', desc: 'Added to the routine for that day, with the link or the room.' },
+  { id: 'holiday', tone: 'holiday', label: 'A holiday', desc: 'Every class that day is off.' },
+  { id: 'general', tone: 'general', label: 'Something else', desc: 'A message for the class: a reminder, a change, news from a teacher.' }
 ];
+const typeMeta = id => TYPES.find(t => t.id === id) || TYPES[TYPES.length - 1];
+
+const STEP_TEXT = {
+  mode: { title: 'What do you want to do?', sub: () => 'Pick one. You can go back at any step.' },
+  type: { title: 'What is it about?', sub: () => (st.mode === 'suggest' ? 'Pick the one that fits. Your section will vote on it.' : 'Pick the one that fits.') },
+  details: { title: 'Add the details', sub: () => (CLASS_TIED.has(st.type) ? 'The courses come from the routine of the section it goes to.' : 'Fill in the details.') },
+  review: { title: () => (st.editId ? 'Check your changes' : (st.mode === 'suggest' ? 'Check your suggestion' : 'Check it before it goes out')), sub: () => 'This is how it will look.' }
+};
 
 const st = {
+  mode: '',               // 'suggest' | 'announce'
+  steps: [],
+  stepIdx: 0,
+  skipType: false,        // class-sheet prefill: the type is already known
   type: 'general',
-  aud: 'mine',            // mine | sections | semester | all
+  aud: 'mine',            // mine | sections
   sem: '',
   secs: new Set(),
   classMode: 'online',    // online | extra
   editId: '',
   editRow: null,
-  suggest: false,        // community suggestion mode: no password, goes to the Suggestions section
   routine: null,          // routine (dayIdx -> classes) of the class-tied target section
   routineKey: ''
 };
@@ -52,6 +63,10 @@ const $ = id => document.getElementById(id);
 const val = id => ($(id) ? $(id).value : '');
 const mySem = () => String(Storage.getSemester() || '');
 const mySec = () => String(Storage.getSection() || '').toLowerCase();
+const step = () => st.steps[st.stepIdx];
+const reduceMotion = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const svg = (paths, w = '1.9') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+const CHEV = '<polyline points="9 6 15 12 9 18"/>';
 
 function nextDayStr(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
@@ -60,32 +75,28 @@ function nextDayStr(dateStr) {
 }
 const dayIdxOf = ymd => { const [y, m, d] = String(ymd).split('-').map(Number); return new Date(y, m - 1, d).getDay(); };
 
-/* ── Audience ──────────────────────────────────────────────────────────── */
+/* ── Audience (sections only; department-wide posts are off for now) ───── */
 async function structure() {
   const { loadCachedStructure } = await import('../events/init.js');
   return loadCachedStructure() || {};
 }
 
-/** {semester, section} pairs this post goes to. */
+/** {semester, section} pairs this post goes to. Suggestions always go to my section. */
 export function audienceTargets(state = st, me = { sem: mySem(), sec: mySec() }) {
-  switch (state.aud) {
-    case 'sections': return Array.from(state.secs).map(sec => ({ semester: state.sem, section: sec }));
-    case 'semester': return state.sem ? [{ semester: state.sem, section: '' }] : [];
-    case 'all': return [{ semester: '', section: '' }];
-    default: return [{ semester: me.sem, section: me.sec }];
-  }
+  if (state.mode !== 'suggest' && state.aud === 'sections') return Array.from(state.secs).map(sec => ({ semester: state.sem, section: sec }));
+  return [{ semester: me.sem, section: me.sec }];
 }
 
 function targetsLabel(targets) {
-  if (!targets.length) return 'Pick who it is for';
+  if (!targets.length) return 'Pick at least one section';
   if (targets.length === 1) {
     const t = targets[0];
     if (!t.semester) return 'Everyone in the department';
     if (!t.section) return `Semester ${t.semester}, all sections`;
     const isMine = t.semester === mySem() && t.section === mySec();
-    return `Semester ${t.semester} · Section ${t.section.toUpperCase()}${isMine ? ' (yours)' : ''}`;
+    return `Semester ${t.semester}, section ${t.section.toUpperCase()}${isMine ? ' (yours)' : ''}`;
   }
-  return `${targets.length} sections in semester ${targets[0].semester}`;
+  return `${targets.length} sections in semester ${targets[0].semester}: ${targets.map(t => t.section.toUpperCase()).join(', ')}`;
 }
 
 async function renderAudience() {
@@ -97,45 +108,38 @@ async function renderAudience() {
   const note = $('paAudNote');
   const tied = CLASS_TIED.has(st.type);
 
+  box.hidden = st.mode === 'suggest' && !st.editId;
   if (st.editId) {
     seg.hidden = true; pick.hidden = true;
     locked.hidden = false;
     const r = st.editRow || {};
-    locked.textContent = `For: ${targetsLabel([{ semester: String(r.semester || ''), section: String(r.section || '').toLowerCase() }])}`;
-    note.textContent = 'The audience of a published notice cannot be changed. Delete it and post again instead.';
+    locked.textContent = targetsLabel([{ semester: String(r.semester || ''), section: String(r.section || '').toLowerCase() }]);
+    note.textContent = 'Who it goes to cannot be changed after publishing. Delete it and post again instead.';
+    await loadTargetRoutine();
     return;
   }
   locked.hidden = true;
   seg.hidden = false;
-  if (st.suggest && (st.aud === 'sections' || st.aud === 'semester')) st.aud = 'mine'; // suggestions: my section or everyone
-  if (tied && (st.aud === 'semester' || st.aud === 'all')) st.aud = 'mine';
   if (tied && st.secs.size > 1) st.secs = new Set([Array.from(st.secs)[0]]);
   seg.querySelectorAll('button').forEach(b => {
     const a = b.dataset.aud;
     b.classList.toggle('active', a === st.aud);
     b.setAttribute('aria-pressed', String(a === st.aud));
-    b.disabled = tied && (a === 'semester' || a === 'all');
-    b.hidden = st.suggest && (a === 'sections' || a === 'semester');
     if (a === 'sections') b.textContent = tied ? 'Another section' : 'Other sections';
   });
 
-  pick.hidden = !(st.aud === 'sections' || st.aud === 'semester');
+  pick.hidden = st.aud !== 'sections';
   if (!pick.hidden) {
     const s = await structure();
     const sems = Object.keys(s).sort((a, b) => Number(a) - Number(b));
     if (!st.sem || !s[st.sem]) st.sem = sems.includes(mySem()) ? mySem() : (sems[0] || '');
-    const semSel = $('paAudSem');
-    semSel.innerHTML = sems.map(x => `<option value="${x}"${x === st.sem ? ' selected' : ''}>Semester ${x}</option>`).join('');
-    const secWrap = $('paAudSecs');
-    secWrap.hidden = st.aud !== 'sections';
+    $('paAudSem').innerHTML = sems.map(x => `<option value="${x}"${x === st.sem ? ' selected' : ''}>Semester ${x}</option>`).join('');
     const secs = (s[st.sem] || []).map(x => String(x).toLowerCase());
     st.secs = new Set(Array.from(st.secs).filter(x => secs.includes(x)));
-    secWrap.innerHTML = secs.map(x => `<button type="button" class="pa-sec${st.secs.has(x) ? ' active' : ''}" data-sec="${x}" aria-pressed="${st.secs.has(x)}">${x.toUpperCase()}${st.sem === mySem() && x === mySec() ? '<span>yours</span>' : ''}</button>`).join('');
+    $('paAudSecs').innerHTML = secs.map(x => `<button type="button" class="pa-sec${st.secs.has(x) ? ' active' : ''}" data-sec="${x}" aria-pressed="${st.secs.has(x)}">${x.toUpperCase()}${st.sem === mySem() && x === mySec() ? '<span>yours</span>' : ''}</button>`).join('');
   }
-  const targets = audienceTargets();
-  note.textContent = tied
-    ? `${targetsLabel(targets)}. Course lists below come from that section's routine.`
-    : targetsLabel(targets);
+  note.textContent = st.aud === 'sections' ? (tied ? 'Class changes go to one section at a time.' : 'Pick one or more sections.') : '';
+  note.hidden = !note.textContent;
   await loadTargetRoutine();
 }
 
@@ -143,7 +147,12 @@ async function loadTargetRoutine() {
   const tied = CLASS_TIED.has(st.type);
   const t = audienceTargets();
   let key = 'mine';
-  if (tied && st.aud === 'sections') key = t.length === 1 ? `${t[0].semester}/${t[0].section}` : '';
+  if (st.editId && st.editRow && st.editRow.semester && st.editRow.section &&
+      !(String(st.editRow.semester) === mySem() && String(st.editRow.section).toLowerCase() === mySec())) {
+    key = `${st.editRow.semester}/${String(st.editRow.section).toLowerCase()}`;
+  } else if (tied && st.mode !== 'suggest' && st.aud === 'sections') {
+    key = t.length === 1 ? `${t[0].semester}/${t[0].section}` : '';
+  }
   if (key === st.routineKey && st.routine) return;
   st.routineKey = key;
   if (key === 'mine') { st.routine = State.schedule || {}; refreshCourseLists(); return; }
@@ -152,8 +161,9 @@ async function loadTargetRoutine() {
   st.routine = {};
   refreshCourseLists('Loading routine…');
   try {
+    const [sem, sec] = key.split('/');
     const { fetchSectionSchedule } = await import('../events/init.js');
-    const r = await fetchSectionSchedule(t[0].semester, t[0].section);
+    const r = await fetchSectionSchedule(sem, sec);
     if (st.routineKey !== key) return;
     st.routine = r || {};
     routineCache.set(key, st.routine);
@@ -189,7 +199,7 @@ function refreshCourseLists(loadingText) {
     const all = $(allId) && $(allId).checked;
     return all ? allCourses() : Array.from(new Set(dayClasses(val(dateId)).map(c => c.title).filter(Boolean))).sort();
   };
-  const noClass = dateId => wait || (val(dateId) ? `No classes on ${DAY_NAMES[dayIdxOf(val(dateId))]}` : 'Pick a date first');
+  const noClass = dateId => wait || (val(dateId) ? `No classes on ${DAY_NAMES[dayIdxOf(val(dateId))]}` : 'Pick a day first');
 
   fillSelect('paSubject', allCourses(), undefined, '', true);
   fillSelect('paCancelSubject', daySubjects('paCancelDate'), undefined, noClass('paCancelDate'));
@@ -197,7 +207,7 @@ function refreshCourseLists(loadingText) {
   fillSelect('paTestSubject', daySubjects('paTestDate', 'paTestAll'), undefined, noClass('paTestDate'));
   fillSelect('paTaskSubject', daySubjects('paTaskDate', 'paTaskAll'), undefined, noClass('paTaskDate'));
 
-  // Reschedule: the classes on the original day, with their times
+  // Moved class: the classes on the original day, with their times
   const mv = $('paMoveClass');
   if (mv) {
     const keep = mv.value;
@@ -206,14 +216,14 @@ function refreshCourseLists(loadingText) {
       ? list.map(c => {
           const start = c.start ? format12h(c.start) : '';
           const end = c.end ? format12h(c.end) : '';
-          const label = `${c.title}${start ? ` · ${start}${end ? `–${end}` : ''}` : ''}${c.room ? ` · ${c.room}` : ''}`;
+          const label = `${c.title}${start ? `, ${start}${end ? `–${end}` : ''}` : ''}${c.room ? `, room ${c.room}` : ''}`;
           return `<option value="${escapeHtml(c.title)}" data-start="${escapeHtml(start)}" data-room="${escapeHtml(c.room || '')}"${c.title === keep ? ' selected' : ''}>${escapeHtml(label)}</option>`;
         }).join('')
       : `<option value="">${escapeHtml(noClass('paMoveFromDate'))}</option>`;
   }
   autofillClassTime();
   checkMoveOverlap();
-  renderPreview();
+  renderDayChips();
 }
 
 function autofillClassTime() {
@@ -238,27 +248,80 @@ function checkMoveOverlap() {
     return s < ce && e > cs && !(d === val('paMoveFromDate') && c.title === val('paMoveClass'));
   });
   warn.hidden = !clash;
-  if (clash) warn.textContent = `Overlaps ${clash.title} (${format12h(clash.start)}${clash.end ? `–${format12h(clash.end)}` : ''}) on that day.`;
+  if (clash) warn.textContent = `This overlaps ${clash.title} (${format12h(clash.start)}${clash.end ? `–${format12h(clash.end)}` : ''}) on that day.`;
 }
 
-/* ── Type ──────────────────────────────────────────────────────────────── */
-function renderTypeGrid() {
+/* ── Day chips under every date field ──────────────────────────────────── */
+const SHORT_DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+function renderDayChips() {
+  const today = localDateStr();
+  const days = [];
+  for (let i = 0; i < 8; i++) {
+    const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() + i);
+    days.push(localDateStr(d));
+  }
+  document.querySelectorAll('#paFields input[type="date"]').forEach(input => {
+    const field = input.closest('.pa-field');
+    if (!field) return;
+    let row = field.querySelector('.pa-days');
+    if (!row) {
+      row = document.createElement('div');
+      row.className = 'pa-days';
+      row.setAttribute('role', 'group');
+      row.setAttribute('aria-label', 'Quick pick a day');
+      field.appendChild(row);
+      row.addEventListener('click', e => {
+        const b = e.target.closest('button[data-day]');
+        if (!b) return;
+        input.value = b.dataset.day;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    }
+    const wantsClass = input.id !== 'paHolidayStart' && input.id !== 'paHolidayEnd' && input.id !== 'paMoveToDate' && input.id !== 'paTaskDate';
+    const html = days.map((ymd, i) => {
+      const label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : `${SHORT_DAY[dayIdxOf(ymd)]} ${Number(ymd.slice(8))}`;
+      const quiet = wantsClass && st.routine && !dayClasses(ymd).length;
+      const on = input.value === ymd;
+      return `<button type="button" class="pa-day${on ? ' active' : ''}${quiet ? ' is-quiet' : ''}" data-day="${ymd}" aria-pressed="${on}"${ymd < (input.min || today) && !st.editId ? ' disabled' : ''}>${label}</button>`;
+    }).join('');
+    if (row.innerHTML !== html) row.innerHTML = html;
+  });
+}
+
+/* ── Choice lists (mode, type) ─────────────────────────────────────────── */
+function renderTypeList() {
   const grid = $('paTypeGrid');
   if (!grid) return;
-  grid.innerHTML = TYPES.map(t => `<button type="button" role="radio" class="pa-type tone-${t.tone}${t.id === st.type ? ' active' : ''}" data-type="${t.id}" aria-checked="${t.id === st.type}"${st.editId && t.id !== st.type ? ' disabled' : ''}>
-    <span class="nt-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[t.tone]}</svg></span>
-    <span class="pa-type-text"><strong>${t.label}</strong><span>${t.desc}</span></span>
+  grid.innerHTML = TYPES.map(t => `<button type="button" role="radio" class="pa-choice tone-${t.tone}${t.id === st.type && st.typePicked ? ' active' : ''}" data-type="${t.id}" aria-checked="${t.id === st.type && !!st.typePicked}">
+    <span class="nt-tile">${svg(ICONS[t.tone])}</span>
+    <span class="pa-choice-text"><strong>${t.label}</strong><span>${t.desc}</span></span>
+    ${svg(CHEV, '2')}
   </button>`).join('');
+}
+
+function renderChosen() {
+  const el = $('paChosen');
+  if (!el) return;
+  const t = typeMeta(st.type);
+  const mode = st.editId ? 'Editing a notice' : (st.mode === 'suggest' ? 'Suggestion' : 'Announcement');
+  el.className = `pa-chosen tone-${t.tone}`;
+  el.disabled = !!st.editId;
+  el.innerHTML = `<span class="nt-tile">${svg(ICONS[t.tone])}</span>
+    <span class="pa-chosen-text"><span>${escapeHtml(mode)}</span><strong>${escapeHtml(t.label)}</strong></span>
+    ${st.editId ? '' : '<span class="pa-chosen-change">Change</span>'}`;
 }
 
 function setType(type) {
   st.type = type;
   if ($('paType')) $('paType').value = type;
-  renderTypeGrid();
   document.querySelectorAll('#paFields [data-for]').forEach(fs => { fs.hidden = fs.dataset.for !== type; });
+  // A suggestion is about one day
+  const multi = $('paHolidayMulti') && $('paHolidayMulti').closest('.pa-check');
+  if (multi) multi.hidden = st.mode === 'suggest' || !!st.editId;
+  if (st.mode === 'suggest' && $('paHolidayMulti')) { $('paHolidayMulti').checked = false; if ($('paHolidayEndRow')) $('paHolidayEndRow').hidden = true; }
+  renderChosen();
   renderAudience();
   updateSubmitLabel();
-  renderPreview();
 }
 
 function setClassMode(mode) {
@@ -270,14 +333,74 @@ function setClassMode(mode) {
   });
   if ($('paClassLinkRow')) $('paClassLinkRow').hidden = st.classMode !== 'online';
   if ($('paClassRoomRow')) $('paClassRoomRow').hidden = st.classMode !== 'extra';
-  renderPreview();
+}
+
+/* ── Steps ─────────────────────────────────────────────────────────────── */
+function goTo(idx, { focus = true } = {}) {
+  st.stepIdx = Math.max(0, Math.min(idx, st.steps.length - 1));
+  const cur = step();
+  document.querySelectorAll('#postAnnounceAppView .pa-panel').forEach(p => { p.hidden = p.dataset.step !== cur; });
+  const n = st.steps.length;
+  if ($('paStepCount')) $('paStepCount').textContent = `Step ${st.stepIdx + 1} of ${n}`;
+  if ($('paProgressBar')) $('paProgressBar').style.transform = `scaleX(${(st.stepIdx + 1) / n})`;
+  const txt = STEP_TEXT[cur];
+  if ($('postAnnounceFormTitle')) $('postAnnounceFormTitle').textContent = typeof txt.title === 'function' ? txt.title() : txt.title;
+  if ($('postAnnounceFormSubtitle')) $('postAnnounceFormSubtitle').textContent = txt.sub();
+  if ($('paBackLabel')) $('paBackLabel').textContent = st.stepIdx === 0 ? 'Notices' : 'Back';
+  if (cur === 'mode') renderModeList();
+  if (cur === 'type') renderTypeList();
+  if (cur === 'details') { renderChosen(); renderDayChips(); hideError(); }
+  if (cur === 'review') renderReview();
+
+  const scroller = document.querySelector('#postAnnounceAppView .pa-scroll');
+  if (scroller) scroller.scrollTop = 0;
+  const panel = document.querySelector(`#postAnnounceAppView .pa-panel[data-step="${cur}"]`);
+  if (panel && !reduceMotion() && panel.animate) panel.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+  if (focus && $('postAnnounceFormTitle')) { $('postAnnounceFormTitle').setAttribute('tabindex', '-1'); $('postAnnounceFormTitle').focus({ preventScroll: true }); }
+}
+
+function goToStep(name) {
+  const i = st.steps.indexOf(name);
+  if (i >= 0) goTo(i);
+}
+
+function back() {
+  if (st.stepIdx > 0) {
+    // A prefilled type has no type step to return to
+    let i = st.stepIdx - 1;
+    if (st.steps[i] === 'type' && st.skipType) i -= 1;
+    goTo(Math.max(0, i));
+    return;
+  }
+  if (window.switchAppView) window.switchAppView('announcements');
+}
+
+function renderModeList() {
+  document.querySelectorAll('#paModeList .pa-choice').forEach(b => {
+    const on = b.dataset.mode === st.mode;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-checked', String(on));
+  });
+}
+
+function pickMode(mode) {
+  st.mode = mode;
+  renderModeList();
+  setType(st.type);
+  goToStep(st.skipType ? 'details' : 'type');
+}
+
+function pickType(type) {
+  st.typePicked = true;
+  setType(type);
+  goToStep('details');
 }
 
 /* ── Payloads ──────────────────────────────────────────────────────────── */
 function holidayDates() {
   const start = val('paHolidayStart');
   if (!start) return [];
-  if (!($('paHolidayMulti') && $('paHolidayMulti').checked) || st.editId) return [start];
+  if (!($('paHolidayMulti') && $('paHolidayMulti').checked) || st.editId || st.mode === 'suggest') return [start];
   const end = val('paHolidayEnd');
   if (!end || end < start) return [start];
   const out = [];
@@ -341,10 +464,10 @@ function buildPayload(name, dateOverride) {
     case 'assignment':
       return validateAnnouncementPayload({ name, type, date_override: val('paTaskDate'), subject_override: val('paTaskSubject'), task_title: val('paTaskTitle') || 'Assignment', due_time: val('paTaskDue') ? format12h(val('paTaskDue')) : '11:59 PM', description: val('paTaskNotes') });
   }
-  return { valid: false, error: 'Pick a type.' };
+  return { valid: false, error: 'Pick what it is about.' };
 }
 
-/** The dates a notice affects, for the "past date" guard. */
+/** The date a post is about, for the "already passed" guard. */
 function primaryDate() {
   switch (st.type) {
     case 'cancellation': return val('paCancelDate');
@@ -357,11 +480,26 @@ function primaryDate() {
   }
 }
 
-/* ── Preview + submit label ────────────────────────────────────────────── */
+const currentName = () => val('paName').trim();
+
+/** Problems that stop the details step, in plain words. '' when it is fine. */
+function detailsProblem() {
+  const v = buildPayload(currentName() || 'You');
+  if (!v.valid) return v.error;
+  const d = primaryDate();
+  if (!st.editId && d && d < localDateStr()) return 'That day has already passed. Pick today or a later day.';
+  if (st.type === 'holiday' && $('paHolidayMulti') && $('paHolidayMulti').checked && !st.editId && val('paHolidayEnd') < val('paHolidayStart')) return 'The last day must be after the first.';
+  if (!st.editId && !audienceTargets().length) return 'Pick at least one section.';
+  return '';
+}
+function showError(msg) { const e = $('paDetailsError'); if (e) { e.textContent = msg; e.hidden = false; } }
+function hideError() { const e = $('paDetailsError'); if (e) e.hidden = true; }
+
+/* ── Review ────────────────────────────────────────────────────────────── */
 function renderPreview() {
   const box = $('paPreview');
   if (!box) return;
-  const name = (val('paName') || 'You').trim();
+  const name = currentName() || 'You';
   const v = buildPayload(name);
   const t = audienceTargets()[0] || { semester: mySem(), section: mySec() };
   let row;
@@ -369,14 +507,39 @@ function renderPreview() {
     const s = v.sanitized;
     row = { id: 'preview', name: s.name, title: s.title, announcement: s.announcement, type: st.type, subject: s.subject || '', date_override: s.date_override || '', subject_override: s.subject_override || '', semester: t.semester, section: t.section, created_at: new Date().toISOString() };
   } else {
-    const meta = TYPES.find(x => x.id === st.type);
-    row = { id: 'preview', name, title: st.type === 'general' ? (val('paTitle') || 'Your title') : (meta ? meta.label : 'Notice'), announcement: val('paContent') || '', type: st.type, date_override: primaryDate(), semester: t.semester, section: t.section, created_at: new Date().toISOString() };
+    row = { id: 'preview', name, title: typeMeta(st.type).label, announcement: '', type: st.type, date_override: primaryDate(), semester: t.semester, section: t.section, created_at: new Date().toISOString() };
   }
   const n = toNotice(row, { semester: mySem().toLowerCase(), section: mySec() });
-  n.pinned = !!($('paPin') && $('paPin').checked);
-  box.innerHTML = cardHtml(n, false, 0).replace('<button', '<div').replace(/<\/button>\s*$/, '</div>');
+  n.pinned = st.mode === 'announce' && !!($('paPin') && $('paPin').checked);
+  let html = cardHtml(n, true, 0).replace('<button', '<div').replace(/<\/button>\s*$/, '</div>');
+  if (st.mode === 'suggest') html = html.replace('class="nt-card ', 'class="nt-card is-suggestion ');
+  box.innerHTML = html;
   const err = $('paPreviewNote');
   if (err) { err.textContent = v.valid ? '' : v.error; err.hidden = v.valid; }
+}
+
+function renderReview() {
+  renderPreview();
+  const name = currentName();
+  if ($('paNameShown')) $('paNameShown').textContent = name || 'No name yet';
+  if ($('paNameRow')) $('paNameRow').hidden = !!name && !st.nameOpen;
+  const suggest = st.mode === 'suggest' && !st.editId;
+  if ($('paPasswordRow')) $('paPasswordRow').hidden = suggest;
+  if ($('paPinRow')) $('paPinRow').hidden = suggest;
+  if ($('paAudShown')) {
+    $('paAudShown').textContent = st.editId
+      ? targetsLabel([{ semester: String((st.editRow || {}).semester || ''), section: String((st.editRow || {}).section || '').toLowerCase() }])
+      : targetsLabel(audienceTargets());
+  }
+  if ($('paOutcome')) {
+    const routine = CLASS_TIED.has(st.type) || st.type === 'holiday';
+    $('paOutcome').textContent = st.editId
+      ? 'The changes apply for everyone it was sent to.'
+      : suggest
+        ? `Classmates vote on it.${routine ? ' With 2 more agrees than disagrees it shows in the routine as not confirmed.' : ''} At 8 votes, mostly agrees, it becomes official. Otherwise it goes away after 7 days.`
+        : `It is published now and gets sent as a notification.${routine ? ' The routine changes for that day.' : ''}`;
+  }
+  updateSubmitLabel();
 }
 
 function postCount() {
@@ -389,7 +552,7 @@ function updateSubmitLabel() {
   const label = $('postAnnounceSubmitLabel');
   if (!label) return;
   if (st.editId) { label.textContent = 'Save changes'; return; }
-  if (st.suggest) { label.textContent = 'Send suggestion'; return; }
+  if (st.mode === 'suggest') { label.textContent = 'Send suggestion'; return; }
   const { targets, total } = postCount();
   label.textContent = targets > 1 ? `Publish to ${targets} sections` : (total > 1 ? `Publish (${total} days)` : 'Publish');
 }
@@ -409,11 +572,13 @@ function resetFields(today) {
   if ($('paTaskDue')) $('paTaskDue').value = '23:59';
 }
 
+/**
+ * existing: a notice row to edit (Manage mode), or { __prefill } from a class card,
+ * or { __suggest: true } to start as a suggestion, or null for a new post.
+ */
 export function openPostForm(existing = null) {
-  const suggest = !!(existing && existing.__suggest);
-  if (suggest) existing = null;
-  st.suggest = suggest;
-  // Quick action from a class card: create mode, prefilled (class-detail.js)
+  const startSuggest = !!(existing && existing.__suggest);
+  if (startSuggest) existing = null;
   const prefill = existing && existing.__prefill ? existing.__prefill : null;
   if (prefill) existing = null;
   const today = localDateStr();
@@ -422,21 +587,18 @@ export function openPostForm(existing = null) {
   st.editId = existing ? String(existing.id) : '';
   st.editRow = existing || null;
   st.aud = 'mine'; st.secs = new Set(); st.sem = '';
+  st.nameOpen = false;
+  st.typePicked = false;
+  st.skipType = !!prefill;
+  st.mode = existing ? 'announce' : (startSuggest ? 'suggest' : '');
   if ($('paEditId')) $('paEditId').value = st.editId;
 
   let author = '';
   try { author = localStorage.getItem(AUTHOR_KEY) || ''; } catch (e) {}
-  if ($('paName')) $('paName').value = existing ? (existing.name || '') : author;
+  // The name fills in by itself: the last name used here, else the name from Settings
+  const autoName = (author || Storage.getDisplayName() || '').trim().slice(0, ANNOUNCEMENT_LIMITS.AUTHOR_NAME);
+  if ($('paName')) $('paName').value = existing ? (existing.name || '') : autoName;
   if ($('paPassword')) $('paPassword').value = State.sessionDeletePassword || '';
-  const pwField = $('paPassword') && $('paPassword').closest('.pa-field');
-  if (pwField) pwField.hidden = suggest;
-  const pinRow = $('paPin') && $('paPin').closest('.pa-check');
-  if (pinRow) pinRow.hidden = suggest;
-
-  if ($('postAnnounceFormTitle')) $('postAnnounceFormTitle').textContent = existing ? 'Edit notice' : (suggest ? 'Suggest a notice' : 'New notice');
-  if ($('postAnnounceFormSubtitle')) $('postAnnounceFormSubtitle').textContent = existing
-    ? 'Changes apply for everyone it was sent to'
-    : (suggest ? 'Your section votes on it. It stays marked not confirmed until then.' : 'Everyone it is for gets a notification');
 
   setClassMode('online');
   if (existing) {
@@ -445,14 +607,8 @@ export function openPostForm(existing = null) {
     const date = existing.date_override || today;
     ['paCancelDate', 'paHolidayStart', 'paClassDate', 'paTestDate', 'paMoveFromDate', 'paMoveToDate', 'paTaskDate'].forEach(id => { if ($(id)) $(id).min = ''; });
     if ($('paPin')) $('paPin').checked = existing.is_pinned === true;
-    const type = existing.type || 'general';
-    st.type = type;
-    // Class-tied edits use the routine of the section the notice was sent to
-    if (CLASS_TIED.has(type) && existing.semester && existing.section &&
-        !(String(existing.semester) === mySem() && String(existing.section).toLowerCase() === mySec())) {
-      st.aud = 'sections'; st.sem = String(existing.semester); st.secs = new Set([String(existing.section).toLowerCase()]);
-    }
-    switch (type) {
+    st.type = existing.type || 'general';
+    switch (st.type) {
       case 'general':
         $('paTitle').value = existing.title || '';
         $('paContent').value = existing.announcement || '';
@@ -501,9 +657,11 @@ export function openPostForm(existing = null) {
         $('paTaskNotes').value = p.description || '';
         break;
     }
+    st.steps = ['details', 'review'];
   } else {
     st.type = prefill && TYPES.some(t => t.id === prefill.type) ? prefill.type : 'general';
     if (prefill) applyPrefill(prefill);
+    st.steps = ['mode', 'type', 'details', 'review'];
   }
   setType(st.type);
   // Restore course selections once the lists exist
@@ -513,10 +671,10 @@ export function openPostForm(existing = null) {
     if (k) sel.value = k;
     delete sel.dataset.keep;
   });
-  loadTargetRoutine().then(() => { restore(); refreshCounters(); renderPreview(); });
+  loadTargetRoutine().then(() => { restore(); refreshCounters(); renderDayChips(); });
   refreshCounters();
-  const scroller = document.querySelector('#postAnnounceAppView .pa-scroll');
-  if (scroller) scroller.scrollTop = 0;
+  const first = existing ? 0 : (startSuggest ? st.steps.indexOf(st.skipType ? 'details' : 'type') : 0);
+  goTo(first, { focus: false });
 }
 
 /** Fill a new post from a class card: date, class, time, teacher, and its section. */
@@ -554,15 +712,10 @@ function refreshCounters() {
   });
 }
 
-/* ── Submit ────────────────────────────────────────────────────────────── */
-/** Community suggestion: one notice, one audience, no password. */
-async function submitSuggestion(first, targets, name) {
+/* ── Send ──────────────────────────────────────────────────────────────── */
+async function submitSuggestion(first, targets) {
   const btn = $('postAnnounceSubmit');
-  const dates = st.type === 'holiday' ? holidayDates() : [null];
-  if (dates.length > 1 || targets.length !== 1) { showToast('Suggest one day for one audience at a time.', 'warning'); return; }
-  const v = dates[0] ? buildPayload(name, dates[0]) : first;
-  if (!v.valid) { showToast(v.error, 'warning'); return; }
-  const s = v.sanitized;
+  const s = first.sanitized;
   const label = $('postAnnounceSubmitLabel');
   btn.disabled = true;
   if (label) label.textContent = 'Sending…';
@@ -573,33 +726,27 @@ async function submitSuggestion(first, targets, name) {
   });
   btn.disabled = false;
   updateSubmitLabel();
-  if (r.ok) showToast('Suggestion sent. Your section can vote on it.', 'success');
-  else if (r.duplicateId) showToast('Someone already suggested this. Open Suggestions and vote on it.', 'info');
+  if (r.ok) showToast('Suggestion sent. Your section can vote on it now.', 'success');
+  else if (r.duplicateId) showToast('Someone already suggested this. Your vote on it counts instead.', 'info');
   else { showToast(r.error || 'Could not send the suggestion', 'error'); return; }
   if (window.switchAppView) window.switchAppView('announcements');
 }
 
 async function submit() {
   const btn = $('postAnnounceSubmit');
-  const name = val('paName').trim();
+  const name = currentName();
   const password = val('paPassword');
-  if (!name) { showToast('Add your name.', 'warning'); $('paName').focus(); return; }
-  if (!password && !st.suggest) { showToast('Enter the posting password.', 'warning'); $('paPassword').focus(); return; }
+  const suggest = st.mode === 'suggest' && !st.editId;
+  if (!name) { st.nameOpen = true; renderReview(); showToast('Add your name. It is shown on the post.', 'warning'); $('paName').focus(); return; }
+  if (!password && !suggest) { showToast('Enter the posting password.', 'warning'); $('paPassword').focus(); return; }
 
-  const today = localDateStr();
-  const d = primaryDate();
-  if (!st.editId && d && d < today) { showToast('That date has already passed.', 'warning'); return; }
-  if (st.type === 'holiday' && $('paHolidayMulti').checked && !st.editId && val('paHolidayEnd') < val('paHolidayStart')) {
-    showToast('The last day must be after the first.', 'warning'); return;
-  }
+  const problem = detailsProblem();
+  if (problem) { goToStep('details'); showError(problem); return; }
   const targets = st.editId ? [] : audienceTargets();
-  if (!st.editId && !targets.length) { showToast('Pick at least one section.', 'warning'); return; }
-
   const first = buildPayload(name);
-  if (!first.valid) { showToast(first.error, 'warning'); return; }
   try { localStorage.setItem(AUTHOR_KEY, name); } catch (e) {}
 
-  if (st.suggest) { await submitSuggestion(first, targets, name); return; }
+  if (suggest) { await submitSuggestion(first, targets); return; }
 
   const pin = !!($('paPin') && $('paPin').checked);
   const label = $('postAnnounceSubmitLabel');
@@ -639,7 +786,7 @@ async function submit() {
     if (done) Announcements.fetchAll();
     return;
   }
-  showToast(jobs.length > 1 ? `Published ${jobs.length} notices` : 'Notice published', 'success');
+  showToast(jobs.length > 1 ? `Published ${jobs.length} posts` : 'Published', 'success');
   Notifications.scheduleForToday();
   await Announcements.fetchAll();
   restoreBtn();
@@ -655,21 +802,43 @@ export function initPostForm() {
 
   const page = $('postAnnounceAppView');
   if (!page) return;
-  $('postAnnounceBackBtn')?.addEventListener('click', () => window.switchAppView && window.switchAppView('announcements'));
+  // Back walks the steps first; the Android back button clicks this too (events/back-button.js)
+  $('postAnnounceBackBtn')?.addEventListener('click', back);
 
-  $('paTypeGrid')?.addEventListener('click', e => {
-    const b = e.target.closest('.pa-type');
-    if (b && !b.disabled && b.dataset.type !== st.type) setType(b.dataset.type);
+  $('paModeList')?.addEventListener('click', e => {
+    const b = e.target.closest('.pa-choice[data-mode]');
+    if (b) pickMode(b.dataset.mode);
   });
+  $('paTypeGrid')?.addEventListener('click', e => {
+    const b = e.target.closest('.pa-choice[data-type]');
+    if (b) pickType(b.dataset.type);
+  });
+  $('paChosen')?.addEventListener('click', () => {
+    if (st.editId) return;
+    st.skipType = false;
+    goToStep('type');
+  });
+  $('paNextBtn')?.addEventListener('click', () => {
+    const problem = detailsProblem();
+    if (problem) { showError(problem); return; }
+    hideError();
+    goToStep('review');
+  });
+  $('paNameEdit')?.addEventListener('click', () => {
+    st.nameOpen = true;
+    if ($('paNameRow')) $('paNameRow').hidden = false;
+    $('paName')?.focus();
+  });
+
   $('paAudSeg')?.addEventListener('click', e => {
     const b = e.target.closest('button[data-aud]');
     if (!b || b.disabled || b.dataset.aud === st.aud) return;
     st.aud = b.dataset.aud;
-    renderAudience().then(() => { updateSubmitLabel(); renderPreview(); });
+    renderAudience().then(updateSubmitLabel);
   });
   $('paAudSem')?.addEventListener('change', e => {
     st.sem = e.target.value; st.secs = new Set();
-    renderAudience().then(() => { updateSubmitLabel(); renderPreview(); });
+    renderAudience().then(updateSubmitLabel);
   });
   $('paAudSecs')?.addEventListener('click', e => {
     const b = e.target.closest('.pa-sec');
@@ -677,7 +846,7 @@ export function initPostForm() {
     const s = b.dataset.sec;
     if (CLASS_TIED.has(st.type)) st.secs = new Set([s]);
     else if (st.secs.has(s)) st.secs.delete(s); else st.secs.add(s);
-    renderAudience().then(() => { updateSubmitLabel(); renderPreview(); });
+    renderAudience().then(updateSubmitLabel);
   });
   $('paClassMode')?.addEventListener('click', e => {
     const b = e.target.closest('button[data-mode]');
@@ -686,7 +855,7 @@ export function initPostForm() {
   $('paHolidayMulti')?.addEventListener('change', e => {
     $('paHolidayEndRow').hidden = !e.target.checked;
     if (e.target.checked && val('paHolidayEnd') <= val('paHolidayStart')) $('paHolidayEnd').value = nextDayStr(val('paHolidayStart'));
-    updateSubmitLabel(); renderPreview();
+    updateSubmitLabel();
   });
   $('paHolidayStart')?.addEventListener('change', () => {
     const min = nextDayStr(val('paHolidayStart'));
@@ -695,16 +864,17 @@ export function initPostForm() {
   });
 
   ['paCancelDate', 'paTestDate', 'paTaskDate', 'paMoveFromDate', 'paTestAll', 'paTaskAll'].forEach(id => $(id)?.addEventListener('change', () => refreshCourseLists()));
-  ['paClassDate', 'paClassSubject'].forEach(id => $(id)?.addEventListener('change', () => { autofillClassTime(); renderPreview(); }));
+  ['paClassDate', 'paClassSubject'].forEach(id => $(id)?.addEventListener('change', autofillClassTime));
   ['paMoveToDate', 'paMoveToStart', 'paMoveClass'].forEach(id => $(id)?.addEventListener('input', checkMoveOverlap));
 
   let t = null;
   page.addEventListener('input', e => {
     if (e.target.matches('[data-max]')) refreshCounters();
+    if (step() === 'details') hideError();
     clearTimeout(t);
-    t = setTimeout(() => { updateSubmitLabel(); renderPreview(); }, 120);
+    t = setTimeout(() => { if (step() === 'review') renderReview(); }, 120);
   });
-  page.addEventListener('change', () => { updateSubmitLabel(); renderPreview(); });
+  page.addEventListener('change', () => { renderDayChips(); if (step() === 'review') renderReview(); });
   page.querySelectorAll('textarea').forEach(ta => ta.addEventListener('blur', () => { ta.value = collapseNewlines(ta.value); refreshCounters(); }));
 
   $('postAnnounceSubmit')?.addEventListener('click', submit);

@@ -18,6 +18,10 @@ const API = () => `${CONFIG.apiBase || ''}/api/suggestions`;
 const DEVICE_KEY = 'routine_device_id';
 const VOTES_KEY = 'routine_suggestion_votes';
 const CACHE_KEY = 'routine_suggestions_cache';
+const MINE_KEY = 'routine_my_suggestions';
+const SEEN_KEY = 'routine_seen_suggestions';
+/** Same numbers as api/_lib/suggestion-rules.js RULES. */
+export const RULES = { APPLY_NET: 2, AUTO_MIN_SECTION: 8, AUTO_MIN_DEPT: 15, AUTO_RATIO: 0.6, EXPIRE_DAYS: 7 };
 
 function deviceId() {
   try {
@@ -63,6 +67,42 @@ export const Suggestions = {
 
   myVote(id) { return readVotes()[String(id)] || 0; },
 
+  /** Suggestions this phone has not shown yet (for the Notices badge). */
+  unseenCount() {
+    let seen;
+    try { seen = new Set((JSON.parse(localStorage.getItem(SEEN_KEY) || '[]') || []).map(String)); } catch (e) { seen = new Set(); }
+    return this.list.filter(s => !seen.has(String(s.id)) && !this.isMine(s.id)).length;
+  },
+
+  /** Called while the Suggestions tab is on screen. */
+  markSeen() {
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify(this.list.map(s => String(s.id)).slice(-200))); } catch (e) {}
+  },
+
+  /** True for suggestions sent from this phone. */
+  isMine(id) {
+    try { return (JSON.parse(localStorage.getItem(MINE_KEY) || '[]') || []).map(String).includes(String(id)); } catch (e) { return false; }
+  },
+
+  /**
+   * Where a suggestion stands, for the vote meter. Mirrors api/_lib/suggestion-rules.js
+   * (the server decides; this only explains it).
+   */
+  progress(s) {
+    const up = Number(s.up) || 0, down = Number(s.down) || 0, total = up + down;
+    const wide = !s.semester && !s.section;
+    const goal = wide ? RULES.AUTO_MIN_DEPT : RULES.AUTO_MIN_SECTION;
+    const ageDays = s.created_at ? (Date.now() - new Date(s.created_at).getTime()) / 864e5 : 0;
+    return {
+      up, down, total, goal,
+      needVotes: Math.max(0, goal - total),
+      agreeShare: total ? up / total : 0,
+      agreeEnough: total ? up / total >= RULES.AUTO_RATIO : false,
+      applied: s.state === 'applied',
+      daysLeft: Math.max(0, Math.ceil(RULES.EXPIRE_DAYS - ageDays))
+    };
+  },
+
   /** Suggestions that are also applied to the routine, shaped like announcement rows. */
   appliedRows() {
     return this.list.filter(s => s.state === 'applied').map(s => ({
@@ -107,7 +147,10 @@ export const Suggestions = {
 
   _afterChange() {
     const { Announcements } = this._ann || {};
-    if (Announcements) Announcements._syncRoutine();
+    if (Announcements) {
+      Announcements._syncRoutine();
+      if (typeof Announcements.checkBadge === 'function') Announcements.checkBadge();
+    }
     if (typeof this._render === 'function') { try { this._render(); } catch (e) { console.error('Suggestions render failed:', e); } }
     if (typeof window.renderTimeline === 'function') window.renderTimeline(true);
   },
@@ -121,6 +164,11 @@ export const Suggestions = {
         subject_override: fields.subject_override || '', semester: fields.semester || '', section: fields.section || ''
       });
       const votes = readVotes(); votes[String(row.id)] = 1; writeVotes(votes);
+      try {
+        const mine = JSON.parse(localStorage.getItem(MINE_KEY) || '[]') || [];
+        mine.push(String(row.id));
+        localStorage.setItem(MINE_KEY, JSON.stringify(mine.slice(-50)));
+      } catch (e) {}
       this._freshUntil = Date.now() + 45000;
       await this.load(true);
       return { ok: true, id: row.id };

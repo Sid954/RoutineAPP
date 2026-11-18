@@ -127,8 +127,11 @@ console.log('✅ Test 7: .ics, Google Calendar link and share text');
 const me = { sem: '2', sec: 'c' };
 assert.deepStrictEqual(audienceTargets({ aud: 'mine' }, me), [{ semester: '2', section: 'c' }]);
 assert.deepStrictEqual(audienceTargets({ aud: 'sections', sem: '3', secs: new Set(['a', 'b']) }, me), [{ semester: '3', section: 'a' }, { semester: '3', section: 'b' }]);
-assert.deepStrictEqual(audienceTargets({ aud: 'semester', sem: '3', secs: new Set() }, me), [{ semester: '3', section: '' }]);
-assert.deepStrictEqual(audienceTargets({ aud: 'all' }, me), [{ semester: '', section: '' }]);
+// Department-wide posting is off: only sections. Old audience values fall back to my section.
+assert.deepStrictEqual(audienceTargets({ aud: 'semester', sem: '3', secs: new Set() }, me), [{ semester: '2', section: 'c' }]);
+assert.deepStrictEqual(audienceTargets({ aud: 'all' }, me), [{ semester: '2', section: 'c' }]);
+// A suggestion always goes to my section, whatever was picked before
+assert.deepStrictEqual(audienceTargets({ mode: 'suggest', aud: 'sections', sem: '3', secs: new Set(['a']) }, me), [{ semester: '2', section: 'c' }]);
 assert.deepStrictEqual(audienceTargets({ aud: 'sections', sem: '3', secs: new Set() }, me), [], 'no sections picked -> nothing to send');
 console.log('✅ Test 8: post audience targets');
 

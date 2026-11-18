@@ -43,6 +43,7 @@ export const Announcements = {
   query: '',
   showPast: false,
   isAdminMode: false,
+  tab: 'notices',          // 'notices' | 'suggestions'
   CACHE_KEY: 'routine_announcements_cache',
   DEPT_CACHE_KEY: 'routine_announcements_dept_cache',
   PINNED_KEY: 'routine_pinned_announcements',
@@ -200,15 +201,22 @@ export const Announcements = {
     }
   },
 
+  /** Dock badge: unread notices plus suggestions this phone has not shown yet. */
   checkBadge() {
-    const n = this.list && this.list.length ? this.unreadCount() : 0;
+    const n = (this.list && this.list.length ? this.unreadCount() : 0) + Suggestions.unseenCount();
+    const text = n > 9 ? '9+' : String(n);
     const badge = document.getElementById('announceBadge');
     const dot = document.getElementById('dockAnnounceDot');
     if (badge) {
       badge.style.display = n > 0 ? 'flex' : 'none';
-      if (n > 0) badge.textContent = n > 9 ? '9+' : String(n);
+      if (n > 0) badge.textContent = text;
     }
-    if (dot) dot.style.display = n > 0 ? 'block' : 'none';
+    if (dot) {
+      dot.style.display = n > 0 ? 'flex' : 'none';
+      dot.classList.add('is-count');
+      if (dot.textContent !== (n > 0 ? text : '')) dot.textContent = n > 0 ? text : '';
+      dot.setAttribute('aria-label', n > 0 ? `${n} new` : '');
+    }
   },
 
   markAsRead() { /* kept for old callers; read state is per item */ },

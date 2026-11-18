@@ -311,7 +311,7 @@
           </div>
         </div>
 
-        <!-- 4. Full-Page View: Notices (redesigned Nov 2026 — src/announcements/notices-view.js) -->
+        <!-- 4. Full-Page View: Notices (redesigned 2026-11-18: one section feed, suggestions waiting for votes on top; src/announcements/notices-view.js) -->
         <div id="announcementsAppView" class="app-page-view nt-page" style="display: none;">
           <div class="page-container">
             <div class="page-header nt-header">
@@ -321,40 +321,39 @@
                   <span>Home</span>
                 </button>
                 <div class="page-actions">
-                  <button id="adminNoticeModeBtn" class="page-action-btn secondary" aria-pressed="false" title="Pin, edit or delete notices (admin)">
+                  <button id="adminNoticeModeBtn" class="page-action-btn secondary" aria-pressed="false" title="Pin, edit or delete notices, and publish or reject suggestions">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     <span id="adminNoticeModeLabel">Manage</span>
                   </button>
-                  <button id="newAnnounceBtn" class="page-action-btn primary" title="Post a notice">
+                  <button id="newAnnounceBtn" class="page-action-btn primary" title="Suggest or announce something to your section">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    <span>Post</span>
+                    <span>New</span>
                   </button>
                 </div>
               </div>
-              <div class="page-title-group">
-                <h1 class="page-title">Notices</h1>
+              <div class="page-title-group nt-title-group">
+                <div class="nt-title-row">
+                  <h1 class="page-title">Notices</h1>
+                  <button type="button" class="nt-notif-btn" id="ntNotifBtn" aria-label="Notification settings" title="Notification settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></button>
+                </div>
                 <span class="page-subtitle" id="announceSubtitle"></span>
               </div>
             </div>
 
-            <div class="nt-scope" id="ntScope" role="tablist" aria-label="Show notices for">
-              <button type="button" role="tab" data-scope="mine" class="active" aria-selected="true">My section</button>
-              <button type="button" role="tab" data-scope="dept" aria-selected="false">Department</button>
+            <div class="nt-tabs" id="ntTabs" role="tablist" aria-label="Notices or suggestions">
+              <button type="button" role="tab" data-tab="notices" class="active" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Notices</span><span class="nt-tab-count" hidden></span></button>
+              <button type="button" role="tab" data-tab="suggestions" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg><span>Suggestions</span><span class="nt-tab-count" hidden></span></button>
             </div>
 
             <div class="nh-box" id="ntHealth" hidden></div>
 
             <div class="nt-admin-bar" id="ntAdminBar" hidden>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              <span>Manage mode. Open a notice to pin, edit or delete it.</span>
+              <span>Manage mode. Open a notice to pin, edit or delete it. Suggestions get Publish and Reject.</span>
               <button type="button" id="ntAdminExit">Done</button>
             </div>
 
-            <section class="nt-upcoming" id="ntUpcoming" aria-label="Coming up" hidden></section>
-
-            <section class="sg-box" id="ntSuggest" aria-label="Community suggestions" hidden></section>
-
-            <label class="nt-search">
+            <label class="nt-search" id="ntSearchWrap">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input type="search" id="ntSearch" placeholder="Search notices" autocomplete="off" enterkeyhint="search" />
               <button type="button" id="ntSearchClear" class="nt-search-clear" aria-label="Clear search" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
@@ -362,58 +361,55 @@
 
             <div class="nt-filters" id="announceFilterBar" role="tablist" aria-label="Type"></div>
 
-            <div class="nt-unread" id="ntUnreadBar" hidden>
-              <span class="nt-dot" aria-hidden="true"></span>
-              <span id="ntUnreadText">New notices</span>
-              <button type="button" id="ntMarkAll">Mark all read</button>
-            </div>
+            <section class="sg-box" id="ntSuggest" aria-label="Suggestions" hidden></section>
 
             <div class="nt-feed" id="announceList"></div>
           </div>
         </div>
 
-        <!-- 5. Full-Page View: Post / Edit Notice (src/announcements/post-form.js) -->
+        <!-- 5. Full-Page View: New post, a guided composer (src/announcements/post-form.js).
+             Steps: suggest or announce, what it is about, details, check and send. -->
         <div id="postAnnounceAppView" class="app-page-view pa-page" style="display: none;">
           <div class="page-container pa-scroll">
-            <div class="page-header">
+            <div class="page-header pa-header">
               <div class="page-header-top">
-                <button class="page-back-btn" id="postAnnounceBackBtn" title="Back to Notices">
+                <button class="page-back-btn" id="postAnnounceBackBtn" title="Back">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                  <span>Notices</span>
+                  <span id="paBackLabel">Notices</span>
                 </button>
+                <span class="pa-stepcount" id="paStepCount" aria-live="polite"></span>
               </div>
+              <div class="pa-progress" aria-hidden="true"><span id="paProgressBar"></span></div>
               <div class="page-title-group">
-                <h1 class="page-title" id="postAnnounceFormTitle">New notice</h1>
-                <span class="page-subtitle" id="postAnnounceFormSubtitle">Everyone it is for gets a notification</span>
+                <h1 class="page-title" id="postAnnounceFormTitle">What do you want to do?</h1>
+                <span class="page-subtitle" id="postAnnounceFormSubtitle"></span>
               </div>
             </div>
             <input type="hidden" id="paEditId" value="" />
             <input type="hidden" id="paType" value="general" />
 
-            <section class="pa-sec">
-              <h2 class="pa-sec-title"><span class="pa-step">1</span>What are you posting?</h2>
-              <div class="pa-types" id="paTypeGrid" role="radiogroup" aria-label="Type"></div>
+            <section class="pa-panel" data-step="mode">
+              <div class="pa-choices" id="paModeList" role="radiogroup" aria-label="Suggest or announce">
+                <button type="button" role="radio" class="pa-choice tone-suggest" data-mode="suggest" aria-checked="false">
+                  <span class="nt-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                  <span class="pa-choice-text"><strong>Suggest it</strong><span>Anyone can. Your section votes on it, and it shows as not confirmed until enough classmates agree. No password needed.</span></span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>
+                </button>
+                <button type="button" role="radio" class="pa-choice tone-announce" data-mode="announce" aria-checked="false">
+                  <span class="nt-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></span>
+                  <span class="pa-choice-text"><strong>Announce it</strong><span>For class representatives. It is official straight away and your section gets a notification. Needs the posting password.</span></span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>
+                </button>
+              </div>
             </section>
 
-            <section class="pa-sec" id="paAudBox">
-              <h2 class="pa-sec-title"><span class="pa-step">2</span>Who is it for?</h2>
-              <div class="pa-seg" id="paAudSeg">
-                <button type="button" data-aud="mine" class="active" aria-pressed="true">My section</button>
-                <button type="button" data-aud="sections" aria-pressed="false">Other sections</button>
-                <button type="button" data-aud="semester" aria-pressed="false">Whole semester</button>
-                <button type="button" data-aud="all" aria-pressed="false">Everyone</button>
-              </div>
-              <div class="pa-aud-locked" id="paAudLocked" hidden></div>
-              <div class="pa-aud-pick" id="paAudPick" hidden>
-                <span class="pa-select"><select id="paAudSem" class="pa-input" aria-label="Semester"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
-                <div class="pa-secs" id="paAudSecs" aria-label="Sections"></div>
-              </div>
-              <p class="pa-note" id="paAudNote"></p>
+            <section class="pa-panel" data-step="type" hidden>
+              <div class="pa-choices" id="paTypeGrid" role="radiogroup" aria-label="What it is about"></div>
             </section>
 
-            <section class="pa-sec" id="paFields">
-              <h2 class="pa-sec-title"><span class="pa-step">3</span>Details</h2>
-
+            <section class="pa-panel" data-step="details" hidden>
+              <button type="button" class="pa-chosen" id="paChosen" aria-label="Change what it is about"></button>
+              <div class="pa-fields" id="paFields">
               <div class="pa-grid" data-for="general">
                 <label class="pa-field pa-span"><span class="pa-label"><span>Title</span><span class="pa-count"></span></span><input type="text" id="paTitle" class="pa-input" placeholder="e.g. Lab report format" autocomplete="off" /></label>
                 <label class="pa-field pa-span"><span class="pa-label"><span>Message</span></span><textarea id="paContent" class="pa-input pa-textarea" rows="4" placeholder="What should everyone know?"></textarea></label>
@@ -473,20 +469,50 @@
                 <label class="pa-field pa-span"><span class="pa-label"><span>Task</span><span class="pa-count"></span></span><input type="text" id="paTaskTitle" class="pa-input" placeholder="e.g. Report 3" autocomplete="off" /></label>
                 <label class="pa-field pa-span"><span class="pa-label"><span>Notes (optional)</span><span class="pa-count"></span></span><textarea id="paTaskNotes" class="pa-input pa-textarea" rows="2" placeholder="How to submit, format…"></textarea></label>
               </div>
+              </div>
+
+              <div class="pa-aud" id="paAudBox">
+                <span class="pa-label"><span>Send to</span></span>
+                <div class="pa-seg" id="paAudSeg">
+                  <button type="button" data-aud="mine" class="active" aria-pressed="true">My section</button>
+                  <button type="button" data-aud="sections" aria-pressed="false">Other sections</button>
+                </div>
+                <div class="pa-aud-locked" id="paAudLocked" hidden></div>
+                <div class="pa-aud-pick" id="paAudPick" hidden>
+                  <span class="pa-select"><select id="paAudSem" class="pa-input" aria-label="Semester"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+                  <div class="pa-secs" id="paAudSecs" aria-label="Sections"></div>
+                </div>
+                <p class="pa-note" id="paAudNote"></p>
+              </div>
+
+              <p class="pa-error" id="paDetailsError" role="alert" hidden></p>
+              <button type="button" class="pa-submit" id="paNextBtn">
+                <span>Check it</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>
+              </button>
             </section>
 
-            <section class="pa-sec">
-              <h2 class="pa-sec-title"><span class="pa-step">4</span>Preview</h2>
+            <section class="pa-panel" data-step="review" hidden>
               <div class="pa-preview" id="paPreview" aria-live="polite"></div>
               <p class="pa-note pa-preview-note" id="paPreviewNote" hidden></p>
-            </section>
 
-            <section class="pa-sec pa-publish">
-              <div class="pa-grid">
-                <label class="pa-field"><span class="pa-label"><span>Your name</span><span class="pa-count"></span></span><input type="text" id="paName" class="pa-input" placeholder="Shown on the notice" autocomplete="off" /></label>
-                <label class="pa-field"><span class="pa-label"><span>Posting password</span></span><input type="password" id="paPassword" class="pa-input" autocomplete="current-password" /></label>
-              </div>
-                <label class="pa-check"><input type="checkbox" id="paPin" /><span>Pin to the top for everyone</span></label>
+              <dl class="pa-review">
+                <div>
+                  <dt>Posting as</dt>
+                  <dd><span id="paNameShown"></span><button type="button" class="pa-link" id="paNameEdit">Change</button></dd>
+                </div>
+                <div>
+                  <dt>Goes to</dt>
+                  <dd id="paAudShown"></dd>
+                </div>
+                <div>
+                  <dt>What happens</dt>
+                  <dd id="paOutcome"></dd>
+                </div>
+              </dl>
+              <label class="pa-field" id="paNameRow" hidden><span class="pa-label"><span>Your name</span><span class="pa-count"></span></span><input type="text" id="paName" class="pa-input" placeholder="Shown on the post" autocomplete="off" /></label>
+              <label class="pa-field" id="paPasswordRow"><span class="pa-label"><span>Posting password</span></span><input type="password" id="paPassword" class="pa-input" autocomplete="current-password" /></label>
+              <label class="pa-check" id="paPinRow"><input type="checkbox" id="paPin" /><span>Pin to the top for everyone</span></label>
               <button type="button" class="pa-submit" id="postAnnounceSubmit">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 <span id="postAnnounceSubmitLabel">Publish</span>
