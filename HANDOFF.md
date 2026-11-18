@@ -1,10 +1,32 @@
-# Handoff: continue RoutineAPP in a new session (updated 2026-11-18, v1.5.14)
+# Handoff: continue RoutineAPP in a new session (updated 2026-11-18, v1.5.17)
 
 Paste this into the new session, or tell it: **"Read CLAUDE.md, PROJECT_OVERVIEW.md and HANDOFF.md first, then continue."**
 CLAUDE.md and PROJECT_OVERVIEW.md hold the standing rules, the architecture and the release steps. This file only says where things stand right now.
 
+## Update 2026-11-18 (late)
+- **The project now lives at `E:\Projects\RoutineAPP`** (fresh clone). The old copy on D: (`D:\sid\STUDY\Coding\RoutineAPP`) sits on a failing Samsung HD502HJ hard disk: Windows logs disk error 51 and several files, including `.git/packed-refs` and `secrets/`, can no longer be read. Do not work on D:.
+- `secrets/` (release keystore + `github-secrets.txt`) could not be copied off D:. CI still signs with the keystore stored in GitHub secrets. Keep another offline copy of the keystore somewhere safe.
+- **Released: v1.5.15-v1.5.17**: Community Suggestions (NEXT_TASKS item 17; rules in `api/_lib/suggestion-rules.js`, client `src/announcements/suggestions.js`). Supabase tables were created 2026-11-18 (`supabase_suggestions.sql`). Verified on the phone: list, voting, flagged "NOT CONFIRMED" class in the routine. Not verified: the auto-confirm push and chime, admin approve/reject.
+- **Not released yet (uncommitted until the user says)**: the Notices redesign:
+  - Notices | Suggestions tabs, your section only.
+  - Icon filter chips.
+  - Cards say each thing once (`cardLines()` in `notice-model.js`), tinted by type.
+  - Folding groups: Today, Tomorrow and unread open.
+  - Number badge on the dock.
+  - Hideable notification warning plus a settings button.
+  - Compact up/down suggestion cards.
+  - A 4-step composer (suggest or announce, type, details, check).
+- API rate limits are live: `guard()` in `api/_lib/security.js`, plus a Vercel Firewall rule the user set. Announcement/suggestion GETs are CDN-cached 10s (+30s stale); the app bypasses that right after the user's own vote or suggestion.
+- Two test suggestions (device ids `devtest-*`) remain in Supabase, marked rejected.
+- Phone testing over adb works (Redmi 23030RAC7Y). The first launch after an install is unresponsive for about 10 s.
+- Lesson: v1.5.15 shipped a render crash in `notices-view.js`; `tests/test_suggestions_client.js` now renders the Suggestions list. Test new render paths before releasing.
+- Still open:
+  - Phone checks in TESTING_CHECKLIST (§25-28).
+  - A sound for every notification type (NEXT_TASKS "Later").
+  - The "Test time" tab.
+
 ## Get in sync
-- Branch: `main-2cmtj2`. It is identical to `main` at `0f9771a` (v1.5.14, versionCode 24), plus any later docs-only commits.
+- Branch: `main-2cmtj2`. It is identical to `main` at `425e3fb` (v1.5.17, versionCode 27), plus any later commits.
   ```bash
   git fetch origin && git checkout main-2cmtj2 && git pull && npm install
   ```
