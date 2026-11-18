@@ -81,6 +81,24 @@ global.fetch = async (url, opts) => { calls.push({ url, opts }); return reply(ur
   assert.strictEqual(r.ok, false);
   assert.strictEqual(r.duplicateId, 10);
 
+  // The Suggestions box renders real API rows (numeric ids) into #ntSuggest
+  const box = { hidden: true, innerHTML: '', _h: null, querySelector: () => null };
+  const realGet = global.document.getElementById;
+  global.document.getElementById = id => (id === 'ntSuggest' ? box : realGet(id));
+  const view = await import('../src/announcements/notices-view.js');
+  Suggestions.list = [{ id: 10, name: 'A', title: 'DS cancelled', announcement: 'sick', type: 'cancellation', subject: 'DS', subject_override: 'DS', date_override: '2026-11-20', semester: '4', section: 'c', created_at: new Date().toISOString(), up: 3, down: 1, state: 'applied' }];
+  view.renderSuggestions();
+  assert.strictEqual(box.hidden, false);
+  assert.ok(/class="sg-card/.test(box.innerHTML) && /data-sid="10"/.test(box.innerHTML), 'card rendered');
+  assert.ok(/Not confirmed/.test(box.innerHTML) && /In your routine/.test(box.innerHTML));
+  global.document.getElementById = realGet;
+
+  // Rendering regression: ids are numbers from the API; escapeHtml must not choke on them
+  const { escapeHtml } = await import('../src/core/utils.js');
+  assert.strictEqual(escapeHtml(10), '10');
+  assert.strictEqual(escapeHtml('<b>'), '&lt;b&gt;');
+  assert.strictEqual(escapeHtml(null), '');
+
   console.log('suggestions client tests passed');
   process.exit(0);
 })().catch(e => { console.error(e); process.exit(1); });

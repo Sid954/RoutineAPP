@@ -79,11 +79,12 @@ export const Suggestions = {
     } catch (e) {}
   },
 
-  async load() {
+  /** fresh: skip the 10-40s CDN cache (used right after the user's own suggestion). */
+  async load(fresh = false) {
     const sem = Storage.getSemester() || '';
     const sec = Storage.getSection() || '';
     try {
-      const res = await fetchWithTimeout(`${API()}?semester=${encodeURIComponent(sem)}&section=${encodeURIComponent(sec)}`);
+      const res = await fetchWithTimeout(`${API()}?semester=${encodeURIComponent(sem)}&section=${encodeURIComponent(sec)}${fresh ? `&_=${Date.now()}` : ''}`);
       if (!res.ok) throw new Error('suggestions unavailable');
       const rows = await res.json();
       if (!Array.isArray(rows)) throw new Error('bad payload');
@@ -118,7 +119,7 @@ export const Suggestions = {
         subject_override: fields.subject_override || '', semester: fields.semester || '', section: fields.section || ''
       });
       const votes = readVotes(); votes[String(row.id)] = 1; writeVotes(votes);
-      await this.load();
+      await this.load(true);
       return { ok: true, id: row.id };
     } catch (err) {
       return { ok: false, duplicateId: err.data && err.data.duplicateId, error: err.message };
