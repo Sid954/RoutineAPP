@@ -496,3 +496,5 @@
 .sg-act { padding: 6px 12px; font-size: 12px; }
 .sg-act.is-danger { color: #F43F5E; }
 :root[data-color="light"] .sg-act.is-danger { color: #BE123C; }
+.sg-card .nt-card-top { flex-wrap: wrap; row-gap: 4px; }
+.sg-card .nt-card-main { min-width: 0; }

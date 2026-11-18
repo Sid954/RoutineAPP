@@ -81,6 +81,8 @@ export const Suggestions = {
 
   /** fresh: skip the 10-40s CDN cache (used right after the user's own suggestion). */
   async load(fresh = false) {
+    // Right after the user's own vote/suggestion, a cached (up to 40s old) list would undo it on screen
+    if (Date.now() < (this._freshUntil || 0)) fresh = true;
     const sem = Storage.getSemester() || '';
     const sec = Storage.getSection() || '';
     try {
@@ -119,6 +121,7 @@ export const Suggestions = {
         subject_override: fields.subject_override || '', semester: fields.semester || '', section: fields.section || ''
       });
       const votes = readVotes(); votes[String(row.id)] = 1; writeVotes(votes);
+      this._freshUntil = Date.now() + 45000;
       await this.load(true);
       return { ok: true, id: row.id };
     } catch (err) {
@@ -133,6 +136,7 @@ export const Suggestions = {
     const prev = this.myVote(id);
     const next = prev === value ? 0 : value;
 
+    this._freshUntil = Date.now() + 45000;
     // Optimistic update
     const before = { up: row.up, down: row.down };
     if (prev === 1) row.up--; else if (prev === -1) row.down--;
