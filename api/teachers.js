@@ -1,7 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const { SUPABASE_OPTIONS } = require('./_lib/supabase-options.js');
 const { applyCors } = require('./_lib/cors.js');
-const { getClientIp, checkPassword } = require('./_lib/security.js');
+const { getClientIp, checkPassword, guard } = require('./_lib/security.js');
 const { VALID_TEACHER_CODES } = require('./_lib/teacher-codes.js');
 const { handlePhotoUpload } = require('./_lib/photo-upload.js');
 
@@ -53,6 +53,7 @@ async function listPending(res, tableName) {
 
 module.exports = async (req, res) => {
   if (applyCors(req, res, 'GET,OPTIONS,PATCH,DELETE,POST,PUT')) return;
+  if (guard(req, res, 'teachers')) return;
 
   if (!supabase) {
     return res.status(500).json({ error: 'Supabase credentials are not configured on the server.' });

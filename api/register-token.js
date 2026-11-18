@@ -2,6 +2,7 @@ const { createClient } = require('@supabase/supabase-js');
 const { SUPABASE_OPTIONS } = require('./_lib/supabase-options.js');
 const { applyCors } = require('./_lib/cors.js');
 const { sanitizePrefs } = require('./_lib/notif-prefs.js');
+const { guard } = require('./_lib/security.js');
 
 // Initialize Supabase Client
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -14,6 +15,7 @@ if (supabaseUrl && supabaseServiceKey) {
 
 module.exports = async (req, res) => {
   if (applyCors(req, res, 'GET,OPTIONS,PATCH,DELETE,POST,PUT')) return;
+  if (guard(req, res, 'register-token', { write: { max: 120, windowMs: 60 * 60 * 1000 } })) return;
 
   if (!supabase) {
     return res.status(500).json({ error: 'Supabase credentials are not configured on the server.' });
@@ -27,7 +29,7 @@ module.exports = async (req, res) => {
     }
 
     try {
-      const row = { token, platform: String(platform).slice(0, 20), semester: semester || null, section: section || null };
+      const row = { token, platform: String(platform).slice(0, 20), semester: semester ? String(semester).slice(0, 20) : null, section: section ? String(section).slice(0, 20) : null };
       const cleanPrefs = sanitizePrefs(prefs);
       // Upsert with notice preferences; servers whose device_tokens has no `prefs` column yet
       // (supabase_notification_prefs.sql not run) fall back to the old row so pushes keep working.

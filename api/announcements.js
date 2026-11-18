@@ -2,7 +2,7 @@ const { createClient } = require('@supabase/supabase-js');
 const { SUPABASE_OPTIONS } = require('./_lib/supabase-options.js');
 const { applyCors } = require('./_lib/cors.js');
 const admin = require('firebase-admin');
-const { checkPassword } = require('./_lib/security.js');
+const { checkPassword, guard } = require('./_lib/security.js');
 const { pushDecision, pushTitle } = require('./_lib/notif-prefs.js');
 
 // Initialize Supabase Client
@@ -246,6 +246,7 @@ function sanitizeAndValidatePayload(body) {
 
 module.exports = async (req, res) => {
   if (applyCors(req, res, 'GET,OPTIONS,PATCH,DELETE,POST,PUT')) return;
+  if (guard(req, res, 'announcements', { read: { max: 90, windowMs: 60 * 1000 } })) return;
 
   if (!supabase) {
     return res.status(500).json({ error: 'Supabase credentials are not configured on the server.' });
@@ -253,6 +254,8 @@ module.exports = async (req, res) => {
 
   // GET: Fetch all announcements
   if (req.method === 'GET') {
+    // Short CDN cache: the app polls every 30s, so a flood of readers mostly hits the edge, not Supabase.
+    res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=30');
     try {
       let { data, error } = await supabase
         .from('announcements')

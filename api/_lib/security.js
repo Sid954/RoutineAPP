@@ -77,4 +77,64 @@ function checkPassword(req, provided, expected) {
   return { ok: true };
 }
 
-module.exports = { getClientIp, safeEqual, createRateLimiter, checkPassword };
+// ── Per-endpoint request limits + temporary blocking ──────────────────────────
+// guard() is called first in every api function. Each endpoint has a read limit (GET/HEAD) and
+// a stricter write limit. An IP that keeps hitting limits (3 strikes in 10 minutes) is blocked
+// on EVERY endpoint of this instance for 15 minutes. Like the limiter above, state is per warm
+// instance: a best-effort first line, not a replacement for Vercel's Firewall rate limit.
+const DEFAULT_READ = { max: 120, windowMs: 60 * 1000 };
+const DEFAULT_WRITE = { max: 20, windowMs: 10 * 60 * 1000 };
+const BLOCK_MS = 15 * 60 * 1000;
+const guardLimiters = new Map();
+const strikes = createRateLimiter({ max: 3, windowMs: 10 * 60 * 1000 });
+const blockedUntil = new Map();
+
+function limiterFor(key, cfg) {
+  let l = guardLimiters.get(key);
+  if (!l) { l = createRateLimiter(cfg); guardLimiters.set(key, l); }
+  return l;
+}
+
+function deny(res, seconds, message) {
+  res.setHeader('Retry-After', String(Math.max(1, Math.ceil(seconds))));
+  res.status(429).json({ error: message });
+  return true;
+}
+
+/**
+ * Applies rate limits and the temporary block.
+ * @param {string} name endpoint name (separate counters per endpoint)
+ * @param {{ read?: {max:number, windowMs:number}, write?: {max:number, windowMs:number} }} [limits]
+ * @returns {boolean} true when the request was rejected (a 429 has been sent): stop handling it
+ */
+function guard(req, res, name, limits = {}) {
+  const ip = getClientIp(req);
+  const now = Date.now();
+
+  const until = blockedUntil.get(ip);
+  if (until) {
+    if (until > now) return deny(res, (until - now) / 1000, 'Too many requests. You are blocked for a while, try again later.');
+    blockedUntil.delete(ip);
+  }
+
+  const isRead = req.method === 'GET' || req.method === 'HEAD';
+  const cfg = (isRead ? limits.read : limits.write) || (isRead ? DEFAULT_READ : DEFAULT_WRITE);
+  const limiter = limiterFor(`${name}:${isRead ? 'r' : 'w'}`, cfg);
+
+  if (limiter.isLimited(ip)) {
+    strikes.hit(ip);
+    if (strikes.isLimited(ip)) {
+      blockedUntil.set(ip, now + BLOCK_MS);
+      strikes.reset(ip);
+      if (blockedUntil.size > 5000) {
+        for (const [k, v] of blockedUntil) if (v <= now) blockedUntil.delete(k);
+      }
+      return deny(res, BLOCK_MS / 1000, 'Too many requests. You are blocked for 15 minutes.');
+    }
+    return deny(res, cfg.windowMs / 1000, 'Too many requests. Slow down and try again shortly.');
+  }
+  limiter.hit(ip);
+  return false;
+}
+
+module.exports = { getClientIp, safeEqual, createRateLimiter, checkPassword, guard };

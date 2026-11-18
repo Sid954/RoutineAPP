@@ -13,6 +13,7 @@
  * Env: GITHUB_TOKEN (needed once the repo is private), GITHUB_REPO (default Sid954/RoutineAPP)
  */
 const { applyCors } = require('./_lib/cors.js');
+const { guard } = require('./_lib/security.js');
 
 const REPO = process.env.GITHUB_REPO || 'Sid954/RoutineAPP';
 const ASSET_NAME = 'app-release.apk';
@@ -62,6 +63,7 @@ function sha256Of(asset) {
 
 module.exports = async (req, res) => {
   if (applyCors(req, res, 'GET,OPTIONS')) return;
+  if (guard(req, res, 'app-update', { read: { max: 30, windowMs: 60 * 1000 } })) return;
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   const wantsDownload = req.query && (req.query.download === '1' || req.query.download === 'true');

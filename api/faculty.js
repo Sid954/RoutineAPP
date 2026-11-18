@@ -1,6 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const { SUPABASE_OPTIONS } = require('./_lib/supabase-options.js');
 const { applyCors } = require('./_lib/cors.js');
+const { guard } = require('./_lib/security.js');
 
 // Initialize Supabase Client
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -13,6 +14,7 @@ if (supabaseUrl && supabaseServiceKey) {
 
 module.exports = async (req, res) => {
   if (applyCors(req, res, 'GET,OPTIONS')) return;
+  if (guard(req, res, 'faculty')) return;
 
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET', 'OPTIONS']);

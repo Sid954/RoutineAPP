@@ -1,6 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const { SUPABASE_OPTIONS } = require('./_lib/supabase-options.js');
 const { applyCors } = require('./_lib/cors.js');
+const { guard } = require('./_lib/security.js');
 const { handlePhotoUpload } = require('./_lib/photo-upload.js');
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -13,6 +14,7 @@ if (supabaseUrl && supabaseServiceKey) {
 
 module.exports = async (req, res) => {
   if (applyCors(req, res, 'GET,OPTIONS,PATCH,DELETE,POST,PUT')) return;
+  if (guard(req, res, 'upload-photo', { write: { max: 10, windowMs: 60 * 60 * 1000 } })) return;
 
   if (!supabase) {
     return res.status(500).json({ error: 'Supabase credentials are not configured on the server.' });
