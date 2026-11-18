@@ -1,9 +1,7 @@
-# v1.5.16
+# v1.5.17
 
 ## Fixed
-- The new Suggestions list stayed empty even when someone had suggested something. It now shows suggestions, with their votes.
-- After you send a suggestion it shows up right away.
+- Your vote on a suggestion no longer jumps back for a moment after you tap it.
+- The tags on a suggestion (Not confirmed, In your routine) are no longer cut off.
 
-## Also in this version (from 1.5.15)
-- Suggest a notice: anyone can suggest a cancellation, test or change, and your section votes on it. Suggestions are marked Not confirmed until enough students agree, then become a Community confirmed notice with its own chime.
-- Messages no longer cover the bottom bar.
+Suggest a notice, from 1.5.15: your section votes on student suggestions. Confirmed ones become a Community confirmed notice with their own chime.

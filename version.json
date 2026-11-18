@@ -1,8 +1,8 @@
 {
-  "versionCode": 26,
-  "versionName": "1.5.16",
+  "versionCode": 27,
+  "versionName": "1.5.17",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.16 - Fixes the Suggestions list not showing. Suggest a notice: your section votes on student suggestions; confirmed ones get their own chime.",
+  "releaseNotes": "v1.5.17 - Your vote on a suggestion no longer jumps back for a moment. Suggestion tags no longer get cut off.",
   "minRequiredVersionCode": 1
 }
