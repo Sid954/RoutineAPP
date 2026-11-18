@@ -501,13 +501,40 @@
 }
 .nt-card.is-unread { border-color: var(--tone-ink); }
 .nt-card-head { display: flex; align-items: flex-start; gap: 8px; }
+/* Type icon: small, in the type colour, sitting on the headline's first line */
+.nt-type-icon {
+  width: 26px; height: 26px; flex-shrink: 0; margin: -2px 2px 0 -2px;
+  border-radius: 8px; display: grid; place-items: center;
+  background: var(--card-bg); color: var(--tone-ink);
+}
+.nt-type-icon svg { width: 15px; height: 15px; }
+.sg-head .nt-type-icon { width: 24px; height: 24px; margin: -1px 0 0; }
+.sg-head .nt-type-icon svg { width: 14px; height: 14px; }
 .nt-card-head .nt-title { flex: 1; min-width: 0; font-size: 15.5px; }
 .nt-card-head .nt-pin { color: var(--text-muted); margin-top: 2px; }
 .nt-card-head .nt-pin svg { width: 14px; height: 14px; }
 .nt-card-head .nt-dot { margin-top: 6px; background: var(--tone-ink); }
+/* Day on the top right; everything under the headline starts where the headline starts */
+.nt-card-head .nt-when { flex-shrink: 0; margin-top: 1px; white-space: nowrap; }
+.nt-card-body { display: flex; flex-direction: column; gap: 4px; padding-left: 32px; min-width: 0; }
 .nt-card .nt-summary { font-size: 13.5px; color: var(--text-muted); line-height: 1.4; -webkit-line-clamp: 2; }
-.nt-card .nt-card-foot { margin-top: 4px; }
+.nt-card .nt-card-foot { margin-top: 2px; }
 .nt-card .nt-when { background: var(--card-bg); }
+/* Who posted it: bottom right */
+.nt-card .nt-by { margin-left: auto; text-align: right; }
+.nt-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Join (online class) / Upload (assignment), right on the card */
+.nt-link-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 30px; padding: 0 12px;
+  border-radius: 999px;
+  background: var(--tone-ink); color: var(--card-bg);
+  font: 800 12.5px var(--font-ui); text-decoration: none;
+}
+.nt-link-btn svg { width: 13px; height: 13px; }
+.nt-link-btn:active { transform: scale(0.96); }
+.nt-link-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Folding groups */
 .nt-group-head {

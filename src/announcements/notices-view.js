@@ -64,27 +64,44 @@ function audienceTag(n) {
   return n.audience.isWide ? `<span class="nt-aud">${escapeHtml(n.audience.short)}</span>` : '';
 }
 
+/** A class link opens straight from the card: Join for online classes, Upload for assignments. */
+function linkButtonHtml(n) {
+  if (!n.link || n.past) return '';
+  const label = n.type === 'assignment' ? 'Upload' : 'Join';
+  const icon = n.type === 'assignment'
+    ? '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>'
+    : UI.play;
+  return `<a class="nt-link-btn" href="${escapeHtml(n.link)}" target="_blank" rel="noopener noreferrer" aria-label="${label}: ${escapeHtml(hostOf(n.link) || n.link)}">${svg(icon)}<span>${label}</span></a>`;
+}
+
 /**
- * One notice. The headline names the type ("ICMP cancelled"), the faint background tint
- * carries its colour, and the detail line only says something new. No type label, no tile.
+ * One notice. Icon + headline on top with the day on the right; the detail line and the
+ * footer start under the headline; who posted it sits bottom right. The faint background
+ * tint carries the type colour. The card is a div (role=button) so a Join link can sit inside.
  */
 export function cardHtml(n, read, i) {
-  const when = whenText(n);
+  // Top right holds just the day; the time is in the detail line where it matters
+  const when = n.date ? dayLabel(n.date) : '';
   const confirmed = n.raw && n.raw.source === 'community';
-  return `<button type="button" class="nt-card tone-${n.tone}${read ? '' : ' is-unread'}${n.past ? ' is-past' : ''}" data-id="${escapeHtml(n.id)}" style="--i:${Math.min(i, 10)}">
+  const link = linkButtonHtml(n);
+  return `<div role="button" tabindex="0" class="nt-card tone-${n.tone}${read ? '' : ' is-unread'}${n.past ? ' is-past' : ''}" data-id="${escapeHtml(n.id)}" style="--i:${Math.min(i, 10)}">
     <span class="nt-card-head">
+      <span class="nt-type-icon" title="${escapeHtml(n.meta.label)}">${svg(ICONS[n.tone] || ICONS.general)}</span>
       <span class="nt-title">${escapeHtml(n.headline || n.title)}</span>
       ${n.pinned ? `<span class="nt-pin" title="Pinned">${svg(UI.pin)}</span>` : ''}
+      ${when ? `<span class="nt-when">${escapeHtml(when)}</span>` : ''}
       ${read ? '' : '<span class="nt-dot" aria-label="New"></span>'}
     </span>
-    ${n.detail ? `<span class="nt-summary">${escapeHtml(n.detail)}</span>` : ''}
-    <span class="nt-card-foot">
-      ${when ? `<span class="nt-when">${escapeHtml(when)}</span>` : ''}
-      ${confirmed ? '<span class="nt-community">Confirmed by votes</span>' : ''}
-      ${audienceTag(n)}
-      <span class="nt-by">${escapeHtml([n.author, postedAgo(n.createdAt)].filter(Boolean).join(', '))}</span>
+    <span class="nt-card-body">
+      ${n.detail ? `<span class="nt-summary">${escapeHtml(n.detail)}</span>` : ''}
+      <span class="nt-card-foot">
+        ${link}
+        ${confirmed ? '<span class="nt-community">Confirmed by votes</span>' : ''}
+        ${audienceTag(n)}
+        <span class="nt-by">${escapeHtml([n.author, postedAgo(n.createdAt)].filter(Boolean).join(', '))}</span>
+      </span>
     </span>
-  </button>`;
+  </div>`;
 }
 
 function emptyHtml(title, sub) {
@@ -118,6 +135,7 @@ function suggestionCard(s, admin) {
     </div>
     <div class="sg-main">
       <div class="sg-head">
+        <span class="nt-type-icon" title="${escapeHtml(n.meta.label)}">${svg(ICONS[n.tone] || ICONS.general)}</span>
         <span class="sg-title">${escapeHtml(n.headline || n.title)}</span>
         <span class="sg-tag${s.state === 'hidden' ? ' is-hidden' : ''}">${s.state === 'hidden' ? 'Hidden' : 'Unconfirmed'}</span>
       </div>
@@ -354,7 +372,7 @@ function renderSheet(id) {
     ${when ? `<div class="nt-sheet-when"><span>${escapeHtml(when)}</span>${cd && !n.past ? `<span class="nt-countdown">${escapeHtml(cd)}</span>` : ''}${n.past ? '<span class="nt-countdown is-past">Past</span>' : ''}</div>` : ''}
     ${facts.length ? `<dl class="nt-facts">${facts.map(d => `<div><dt>${escapeHtml(d.label)}</dt><dd${d.mono ? ' class="is-mono"' : ''}>${escapeHtml(d.value)}</dd></div>`).join('')}</dl>` : ''}
     ${text ? `<div class="nt-text">${textLabel ? `<div class="nt-text-label">${escapeHtml(textLabel)}</div>` : ''}<p>${escapeHtml(text)}</p></div>` : ''}
-    ${n.link ? `<a class="nt-join" href="${escapeHtml(n.link)}" target="_blank" rel="noopener noreferrer">${svg(UI.play)}<span>Join class</span><span class="nt-join-host">${escapeHtml(hostOf(n.link))}</span></a>` : ''}
+    ${n.link ? `<a class="nt-join" href="${escapeHtml(n.link)}" target="_blank" rel="noopener noreferrer">${svg(UI.play)}<span>${n.type === 'assignment' ? 'Open the upload page' : 'Join class'}</span><span class="nt-join-host">${escapeHtml(hostOf(n.link))}</span></a>` : ''}
     <div class="nt-actions">
       ${n.date ? `<button type="button" class="nt-action" data-act="calendar">${svg(UI.cal)}<span>Calendar</span></button>` : ''}
       ${canRoutine ? `<button type="button" class="nt-action" data-act="routine">${svg(UI.route)}<span>In routine</span></button>` : ''}
@@ -557,8 +575,17 @@ export function initAnnouncementEvents() {
       renderNotices();
       return;
     }
+    if (e.target.closest('.nt-link-btn')) return; // Join / Upload open the link, not the sheet
     const card = e.target.closest('.nt-card');
     if (card && card.dataset.id) openNotice(card.dataset.id);
+  });
+  // Cards are role="button" divs: open them from the keyboard too
+  if (page) page.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.nt-card[role="button"]');
+    if (!card || e.target !== card || !card.dataset.id) return;
+    e.preventDefault();
+    openNotice(card.dataset.id);
   });
 
   const sheet = $('ntSheet');

@@ -228,6 +228,9 @@ export function toNotice(item, ctx = {}) {
       add('Task', task);
       add('Due', [n.date ? dayLabel(n.date, ctx.now) : '', n.time].filter(Boolean).join(' '));
       add('Notes', n.body);
+      // Optional page to hand it in; opens like a class's join link
+      const link = String(p.link || '').trim();
+      if (/^https?:\/\//i.test(link)) n.link = link;
       break;
     }
   }
@@ -240,16 +243,16 @@ const DEFAULT_CANCEL = /^(The|Reminding you that the) .* (class|scheduled).*(can
 const clip = (s, max = 90) => { const t = String(s || '').replace(/\s+/g, ' ').trim(); return t.length > max ? `${t.slice(0, max - 1)}…` : t; };
 
 /**
- * What a feed card says, without repeating itself: one headline that already names the
- * type ("ICMP cancelled", "DMNT CT-2"), and one optional detail line that adds something new.
- * The date and the author sit in the card footer, the type colour in its background.
+ * What a feed card says, without repeating itself: one headline that names the course and
+ * what kind of thing it is ("ICMP class cancelled", "DMNT class test (CT-2)"), and one
+ * optional detail line that adds something new. Date, author and type colour live elsewhere.
  */
 export function cardLines(n, p = {}) {
   const subj = n.subject;
   let headline = n.title, detail = '';
   switch (n.type) {
     case 'cancellation': {
-      headline = `${subj || 'A class'} cancelled`;
+      headline = subj ? `${subj} class cancelled` : 'Class cancelled';
       const note = String(n.body || '').trim();
       detail = note && !DEFAULT_CANCEL.test(note) && !/will not be held/i.test(note) ? note : '';
       break;
@@ -257,18 +260,19 @@ export function cardLines(n, p = {}) {
     case 'class_test': {
       const exam = String(p.exam_name || '').trim();
       const named = exam && !/^class test$/i.test(exam);
-      headline = subj ? `${subj} ${named ? exam : 'class test'}` : (named ? exam : 'Class test');
+      headline = subj ? `${subj} class test${named ? ` (${exam})` : ''}` : (named ? `Class test (${exam})` : 'Class test');
       detail = n.body ? `Covers ${n.body}` : '';
       break;
     }
     case 'assignment': {
-      const task = String(p.task_title || '').trim() || 'Assignment';
-      headline = subj && !task.toUpperCase().includes(subj.toUpperCase()) ? `${task} for ${subj}` : task;
+      const task = String(p.task_title || '').trim();
+      const generic = !task || /^assignment$/i.test(task);
+      headline = subj ? `${subj} assignment${generic ? '' : `: ${task}`}` : (generic ? 'Assignment' : `Assignment: ${task}`);
       detail = [n.time ? `Due ${n.time}` : '', n.body].filter(Boolean).join('. ');
       break;
     }
     case 'online_class': {
-      headline = `${subj || 'Class'} ${n.kind === 'extra' ? 'extra class' : 'online'}`;
+      headline = `${subj || 'Class'} ${n.kind === 'extra' ? 'extra class' : 'online class'}`;
       const span = n.time ? (n.endTime ? `${n.time} to ${n.endTime}` : `at ${n.time}`) : '';
       const where = n.kind === 'extra' ? n.place : (n.link ? '' : (n.place && n.place !== 'Online' ? n.place : ''));
       detail = [span, where].filter(Boolean).join(', ');
@@ -276,13 +280,15 @@ export function cardLines(n, p = {}) {
       break;
     }
     case 'rescheduled': {
-      headline = `${subj || 'Class'} moved`;
+      headline = subj ? `${subj} class rescheduled` : 'Class rescheduled';
       detail = [n.time ? `Now at ${n.time}` : '', n.place, n.body].filter(Boolean).join(', ');
       break;
     }
     case 'holiday': {
-      const name = String(n.title || '').replace(/\s*Holiday$/i, '').trim();
-      headline = name && !/^holiday$/i.test(name) ? `${name}, no classes` : 'Holiday, no classes';
+      const name = String(n.title || '').replace(/^Holiday:\s*/i, '').replace(/\s*Holiday$/i, '').trim();
+      const named = name && !/^holiday$/i.test(name);
+      headline = named ? `Holiday: ${name}` : 'Holiday';
+      detail = 'No classes';
       break;
     }
     default: {

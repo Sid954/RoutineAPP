@@ -408,6 +408,14 @@ export function validateAnnouncementPayload(rawData = {}) {
     const descCheck = validateField(descRaw, ANNOUNCEMENT_LIMITS.ASSIGNMENT_DESC, 'Notes / Submission Info', false);
     if (!descCheck.valid) return { valid: false, error: descCheck.error };
 
+    // Optional page to hand the work in (works like a class's join link)
+    const linkRaw = cleanString(parsedPayload.link || rawData.link || '');
+    const linkCheck = validateField(linkRaw, ANNOUNCEMENT_LIMITS.PLATFORM_LINK, 'Upload link', false);
+    if (!linkCheck.valid) return { valid: false, error: linkCheck.error };
+    if (linkCheck.cleaned && !/^https?:\/\/\S+$/i.test(linkCheck.cleaned)) {
+      return { valid: false, error: 'The upload link must start with http:// or https://' };
+    }
+
     const structuredObj = {
       subject: subj,
       task_title: taskTitleCheck.cleaned,
@@ -415,6 +423,7 @@ export function validateAnnouncementPayload(rawData = {}) {
       due_time: dueTime,
       description: descCheck.cleaned
     };
+    if (linkCheck.cleaned) structuredObj.link = linkCheck.cleaned;
 
     sanitized.title = `${taskTitleCheck.cleaned}: ${subj}`;
     sanitized.date_override = cleanString(rawData.date_override);

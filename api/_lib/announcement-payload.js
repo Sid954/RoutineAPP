@@ -176,11 +176,20 @@ function sanitizeAndValidatePayload(body) {
       if (desc.length > LIMITS.ASSIGNMENT_DESC) {
         return { error: `Notes / Submission Info cannot exceed ${LIMITS.ASSIGNMENT_DESC} characters.` };
       }
+      // Optional page to hand the work in: an http(s) link only, never script/data URLs
+      const link = String(parsed?.link || '').trim();
+      if (link.length > LIMITS.PLATFORM_LINK) {
+        return { error: `Upload link cannot exceed ${LIMITS.PLATFORM_LINK} characters.` };
+      }
+      if (link && !/^https?:\/\/\S+$/i.test(link)) {
+        return { error: 'The upload link must start with http:// or https://' };
+      }
       const obj = {
         task_title: taskTitle,
         due_time: (parsed?.due_time || '').trim(),
         description: desc
       };
+      if (link) obj.link = link;
       cleanAnnouncement = JSON.stringify(obj);
     } catch (e) {
       cleanAnnouncement = collapseNewlines(typeof announcement === 'string' ? announcement : '');

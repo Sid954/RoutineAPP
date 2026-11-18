@@ -17,6 +17,7 @@ const {
 } = require('../src/announcements/notice-model.js');
 const { isForMe } = require('../src/announcements/announcements.js');
 const { audienceTargets } = require('../src/announcements/post-form.js');
+const { validateAnnouncementPayload } = require('../src/announcements/validation.js');
 
 console.log('Testing Notices model, audience and post targets...');
 
@@ -134,5 +135,37 @@ assert.deepStrictEqual(audienceTargets({ aud: 'all' }, me), [{ semester: '2', se
 assert.deepStrictEqual(audienceTargets({ mode: 'suggest', aud: 'sections', sem: '3', secs: new Set(['a']) }, me), [{ semester: '2', section: 'c' }]);
 assert.deepStrictEqual(audienceTargets({ aud: 'sections', sem: '3', secs: new Set() }, me), [], 'no sections picked -> nothing to send');
 console.log('✅ Test 8: post audience targets');
+
+// 9. Card titles name the course and the kind of thing, once
+{
+  const card = row => toNotice(row, { semester: '2', section: 'c' });
+  const cancel = card({ id: 91, type: 'cancellation', title: 'ICMP Class', announcement: 'The ICMP class on Nov 21, 2026 is cancelled.', date_override: '2099-11-21', subject_override: 'ICMP' });
+  assert.strictEqual(cancel.headline, 'ICMP class cancelled');
+  assert.strictEqual(cancel.detail, '', 'the default sentence would only repeat the headline');
+  const test = card({ id: 92, type: 'class_test', title: 'DMNT CT-2', announcement: JSON.stringify({ exam_name: 'CT-2', topics: 'Ch 3-4' }), date_override: '2099-11-21', subject_override: 'DMNT' });
+  assert.strictEqual(test.headline, 'DMNT class test (CT-2)');
+  assert.strictEqual(test.detail, 'Covers Ch 3-4');
+  const task = card({ id: 93, type: 'assignment', title: 'x', announcement: JSON.stringify({ task_title: 'Lab report 5', due_time: '11:59 PM', link: 'https://classroom.google.com/c/abc' }), date_override: '2099-11-21', subject_override: 'CPL' });
+  assert.strictEqual(task.headline, 'CPL assignment: Lab report 5');
+  assert.strictEqual(task.link, 'https://classroom.google.com/c/abc', 'upload link opens like a join link');
+  const online = card({ id: 94, type: 'online_class', title: 'PHYL Online Class', announcement: JSON.stringify({ is_online: true, platform: 'https://meet.google.com/x', start_time: '11:00 AM', end_time: '01:30 PM' }), date_override: '2099-11-21', subject_override: 'PHYL' });
+  assert.strictEqual(online.headline, 'PHYL online class');
+  assert.strictEqual(online.detail, '11:00 AM to 1:30 PM');
+  const moved = card({ id: 95, type: 'rescheduled', title: 'Rescheduled: DS', announcement: JSON.stringify({ new_date: '2099-11-21', new_start_time: '03:00 PM', new_room: '404' }), date_override: '2099-11-22', subject_override: 'DS' });
+  assert.strictEqual(moved.headline, 'DS class rescheduled');
+  const hol = card({ id: 96, type: 'holiday', title: 'Victory Day', announcement: 'x', date_override: '2099-12-16' });
+  assert.strictEqual(hol.headline, 'Holiday: Victory Day');
+  console.log('✅ Test 9: card titles');
+}
+
+// 10. Assignment upload links: http(s) only
+{
+  const base = { name: 'CR', type: 'assignment', date_override: '2099-11-21', subject_override: 'CPL', task_title: 'Report' };
+  assert.strictEqual(validateAnnouncementPayload({ ...base, link: 'https://drive.google.com/x' }).valid, true);
+  assert.ok(JSON.parse(validateAnnouncementPayload({ ...base, link: 'https://drive.google.com/x' }).sanitized.announcement).link.startsWith('https://'));
+  assert.strictEqual(validateAnnouncementPayload({ ...base, link: 'javascript:alert(1)' }).valid, false);
+  assert.strictEqual(validateAnnouncementPayload({ ...base }).valid, true, 'the link is optional');
+  console.log('✅ Test 10: assignment upload link');
+}
 
 console.log('All Notices tests passed.');

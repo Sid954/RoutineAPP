@@ -95,7 +95,7 @@ global.fetch = async (url, opts) => { calls.push({ url, opts }); return reply(ur
   assert.ok(/Unconfirmed/.test(box.innerHTML), 'short status tag');
   assert.ok(/class="sg-score is-pos"[^>]*>2</.test(box.innerHTML), 'score = 3 agree - 1 disagree');
   assert.ok(/4\/8 votes/.test(box.innerHTML), 'votes so far out of the 8 needed');
-  assert.ok(/ICMP cancelled|DS cancelled/.test(box.innerHTML), 'headline says it once');
+  assert.ok(/DS class cancelled/.test(box.innerHTML), 'headline says it once');
   global.document.getElementById = realGet;
 
   // Rendering regression: ids are numbers from the API; escapeHtml must not choke on them

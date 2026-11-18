@@ -462,7 +462,7 @@ function buildPayload(name, dateOverride) {
       });
     }
     case 'assignment':
-      return validateAnnouncementPayload({ name, type, date_override: val('paTaskDate'), subject_override: val('paTaskSubject'), task_title: val('paTaskTitle') || 'Assignment', due_time: val('paTaskDue') ? format12h(val('paTaskDue')) : '11:59 PM', description: val('paTaskNotes') });
+      return validateAnnouncementPayload({ name, type, date_override: val('paTaskDate'), subject_override: val('paTaskSubject'), task_title: val('paTaskTitle') || 'Assignment', due_time: val('paTaskDue') ? format12h(val('paTaskDue')) : '11:59 PM', description: val('paTaskNotes'), link: val('paTaskLink').trim() });
   }
   return { valid: false, error: 'Pick what it is about.' };
 }
@@ -559,7 +559,7 @@ function updateSubmitLabel() {
 
 /* ── Open ──────────────────────────────────────────────────────────────── */
 function resetFields(today) {
-  ['paTitle', 'paContent', 'paCancelNote', 'paHolidayName', 'paClassLink', 'paClassRoom', 'paClassTeacher', 'paTestName', 'paTestTopics', 'paMoveRoom', 'paMoveReason', 'paTaskTitle', 'paTaskNotes']
+  ['paTitle', 'paContent', 'paCancelNote', 'paHolidayName', 'paClassLink', 'paClassRoom', 'paClassTeacher', 'paTestName', 'paTestTopics', 'paMoveRoom', 'paMoveReason', 'paTaskTitle', 'paTaskNotes', 'paTaskLink']
     .forEach(id => { if ($(id)) $(id).value = ''; });
   ['paCancelDate', 'paHolidayStart', 'paClassDate', 'paTestDate', 'paMoveFromDate', 'paMoveToDate', 'paTaskDate']
     .forEach(id => { if ($(id)) { $(id).value = today; $(id).min = today; } });
@@ -655,6 +655,7 @@ export function openPostForm(existing = null) {
         $('paTaskTitle').value = p.task_title || '';
         $('paTaskDue').value = parseTo24h(p.due_time) || '23:59';
         $('paTaskNotes').value = p.description || '';
+        if ($('paTaskLink')) $('paTaskLink').value = p.link || '';
         break;
     }
     st.steps = ['details', 'review'];
@@ -882,6 +883,6 @@ export function initPostForm() {
   // Limits come from validation.js so the counters never disagree with the validator
   const L = ANNOUNCEMENT_LIMITS;
   const limits = { paName: L.AUTHOR_NAME, paTitle: L.TITLE, paHolidayName: L.HOLIDAY_NAME, paClassLink: L.PLATFORM_LINK, paClassRoom: L.ROOM,
-    paTestName: L.EXAM_NAME, paTestTopics: L.TOPICS, paMoveRoom: L.ROOM, paMoveReason: L.REASON, paTaskTitle: L.TASK_TITLE, paTaskNotes: L.ASSIGNMENT_DESC, paCancelNote: L.REASON };
+    paTestName: L.EXAM_NAME, paTestTopics: L.TOPICS, paMoveRoom: L.ROOM, paMoveReason: L.REASON, paTaskTitle: L.TASK_TITLE, paTaskNotes: L.ASSIGNMENT_DESC, paTaskLink: L.PLATFORM_LINK, paCancelNote: L.REASON };
   Object.entries(limits).forEach(([id, max]) => { const el = $(id); if (el) { el.dataset.max = max; el.maxLength = max; } });
 }
