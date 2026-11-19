@@ -230,6 +230,18 @@ if (dockRoutineBtn) {
 }
 
 const dockCenterFab = document.getElementById('dockCenterFab');
+/** A small dot on the centre button while the viewed day (Home or Routine) is not today. */
+function updateFabAway() {
+  if (!dockCenterFab) return;
+  const now = new Date();
+  const routineOpen = DOM.viewModal && DOM.viewModal.classList.contains('open');
+  const away = routineOpen
+    ? (CONFIG.activeDays.includes(now.getDay()) && State.matrixSelectedDayIdx !== now.getDay())
+    : !!State.viewDate && State.viewDate.toDateString() !== now.toDateString();
+  dockCenterFab.classList.toggle('is-away', away);
+  dockCenterFab.title = away ? 'Jump to today' : 'Daily Routine Timeline';
+}
+window.__updateFabAway = updateFabAway;
 if (dockCenterFab) {
   // Tap: go Home; on Home jump to today, or refresh if already on today. Hold: open the calendar.
   let holdTimer = null;
@@ -253,6 +265,18 @@ if (dockCenterFab) {
     e.preventDefault();
     e.stopPropagation();
     if (held) { held = false; return; }
+
+    // On the Weekly Routine: jump to today's tab first, and leave only when already there
+    const routineOpen = DOM.viewModal && DOM.viewModal.classList.contains('open');
+    if (routineOpen) {
+      const todayIdx = new Date().getDay();
+      if (CONFIG.activeDays.includes(todayIdx) && State.matrixSelectedDayIdx !== todayIdx) {
+        State.matrixSelectedDayIdx = todayIdx;
+        renderWeeklyMatrix();
+        updateFabAway();
+        return;
+      }
+    }
 
     const currentView = window.__currentAppViewId || 'home';
     if (closeDockReachablePages() || currentView !== 'home') {

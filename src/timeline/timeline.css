@@ -1240,3 +1240,9 @@ html[data-theme="light"] .resting-tag.rescheduled {
 /* Community suggestion applied to the routine but not confirmed yet */
 .override-indicator.unconfirmed { color: #FBBF24; }
 :root[data-color="light"] .override-indicator.unconfirmed { color: #B45309; }
+
+/* Centre dock button: dot while the viewed day is not today (tap jumps back) */
+.dock-center-raised-fab.is-away::after {
+  content: ""; position: absolute; top: 12px; right: 12px; width: 9px; height: 9px; border-radius: 50%;
+  background: #fff; border: 2px solid var(--accent); box-sizing: content-box;
+}

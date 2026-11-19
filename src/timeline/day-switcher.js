@@ -21,17 +21,18 @@ function getPrevActiveDay(currentDay) {
   return activeDays[(idx - 1 + activeDays.length) % activeDays.length];
 }
 
-function calculateTargetDate(targetDayIdx) {
-  const anchorDate = State.viewDate || new Date();
-  const anchorDayIdx = anchorDate.getDay();
-  const thuOffset = (anchorDayIdx - 4 + 7) % 7;
-  const weekStartThu = new Date(anchorDate);
-  weekStartThu.setDate(anchorDate.getDate() - thuOffset);
-
-  const targetOffset = (targetDayIdx - 4 + 7) % 7;
-  const targetDate = new Date(weekStartThu);
-  targetDate.setDate(weekStartThu.getDate() + targetOffset);
-  return targetDate;
+/**
+ * The date a swipe lands on. Moves forward (or back) from the viewed date to the target weekday,
+ * so Wed -> Sat is Wed + 3 days (the next week) and Sat -> Wed is Sat - 3 days (the previous week).
+ */
+function calculateTargetDate(targetDayIdx, direction) {
+  const anchor = State.viewDate || new Date();
+  const from = anchor.getDay();
+  const forward = (targetDayIdx - from + 7) % 7 || 7;
+  const back = (from - targetDayIdx + 7) % 7 || 7;
+  const target = new Date(anchor);
+  target.setDate(anchor.getDate() + (direction === 'prev' ? -back : forward));
+  return target;
 }
 
 export function smoothSwitchDay(direction) {
@@ -53,7 +54,7 @@ export function smoothSwitchDay(direction) {
 
   setTimeout(() => {
     State.currentViewDayIdx = nextIdx;
-    State.viewDate = calculateTargetDate(nextIdx);
+    State.viewDate = calculateTargetDate(nextIdx, direction);
     renderTimeline(true);
 
     container.classList.remove('swipe-transition');
@@ -166,7 +167,7 @@ function swipeEnd(endX) {
 
     setTimeout(() => {
       State.currentViewDayIdx = dragTargetDayIdx;
-      State.viewDate = calculateTargetDate(dragTargetDayIdx);
+      State.viewDate = calculateTargetDate(dragTargetDayIdx, isSwipingLeft ? 'next' : 'prev');
       renderTimeline(true);
 
       container.classList.remove('swipe-transition');

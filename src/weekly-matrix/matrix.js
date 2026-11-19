@@ -137,6 +137,7 @@ function bindMatrixTouchSwipe() {
 }
 
 export function renderWeeklyMatrix() {
+  if (window.__updateFabAway) setTimeout(window.__updateFabAway, 0);
   const todayIdx = new Date().getDay();
   const currentMins = getCurrentMinutes();
   const intervals = CONFIG.matrixIntervals;
