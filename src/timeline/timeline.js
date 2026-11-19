@@ -1,4 +1,5 @@
 import { DOM } from '../core/dom.js';
+import { getPref } from '../settings/prefs.js';
 import { State } from '../core/state.js';
 import { DAY_NAMES, FULL_COURSE_NAMES } from '../core/config.js';
 import { getClassesForDay, getEffectiveClassesForDay } from '../schedule/queries.js';
@@ -202,7 +203,7 @@ function countHeldClasses(dayIdx, date) {
  */
 function renderOverrideBadges(override, variant) {
   if (!override) return '';
-  const { icons, more } = getOverrideBadgeSlots(override.types || [override.type]);
+  const { icons, more } = getOverrideBadgeSlots(override.types || [override.type], variant === 'focal' ? 99 : 3);
   const cls = variant === 'focal' ? 'focal-override-badge' : 'satellite-override-badge';
   const badges = icons
     .map(t => `<span class="${cls} ${t}" title="${t.replace('_', ' ')}">${OVERRIDE_ICONS[t] || ''}</span>`)
@@ -211,9 +212,94 @@ function renderOverrideBadges(override, variant) {
   return `<span class="override-badge-stack">${badges}${moreChip}</span>`;
 }
 
+const MONTH_SHORT =['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const POP_LABEL = { holiday: 'Campus closed', cancellation: 'Class cancelled', class_test: 'Class test', rescheduled: 'Class rescheduled', online_class: 'Online class', assignment: 'Assignment due' };
+const POP_ORDER = ['holiday', 'cancellation', 'class_test', 'rescheduled', 'online_class', 'assignment'];
+let _dayPop = null;
+
+function closeDayPop() {
+  if (!_dayPop) return;
+  _dayPop.remove();
+  _dayPop = null;
+  document.removeEventListener('pointerdown', onPopOutside, true);
+  document.removeEventListener('keydown', onPopKey, true);
+}
+function onPopOutside(e) { if (_dayPop && !_dayPop.contains(e.target)) closeDayPop(); }
+function onPopKey(e) { if (e.key === 'Escape') closeDayPop(); }
+
+/** Everything announced for one date, as [type, title] rows (rescheduled also counts on its new date). */
+function announcementsOn(dateStr) {
+  const rows = [];
+  (State.announcementsList || []).forEach(item => {
+    if (!item || !item.date_override) return;
+    const type = item.type;
+    if (!POP_LABEL[type]) return;
+    let hit = normalizeDate(item.date_override) === dateStr;
+    if (!hit && type === 'rescheduled') {
+      let a = item.announcement;
+      if (typeof a === 'string') { try { a = JSON.parse(a); } catch (e) { a = {}; } }
+      hit = !!(a && a.new_date && normalizeDate(a.new_date) === dateStr);
+    }
+    if (hit) rows.push([type, String(item.title || '').trim(), item.id == null ? '' : String(item.id)]);
+  });
+  rows.sort((a, b) => POP_ORDER.indexOf(a[0]) - POP_ORDER.indexOf(b[0]));
+  return rows;
+}
+
+/** Small popup under a week-strip icon stack: what is going on that day. */
+function openDayPop(stack) {
+  closeDayPop();
+  const cell = stack.closest('[data-date]');
+  if (!cell) return;
+  const dateStr = cell.dataset.date;
+  const rows = announcementsOn(dateStr);
+  if (!rows.length) return;
+  const d = new Date(dateStr + 'T00:00:00');
+  const heading = isNaN(d) ? dateStr : `${DAY_NAMES[d.getDay()]}, ${d.getDate()} ${MONTH_SHORT[d.getMonth()]}`;
+  const pop = document.createElement('div');
+  pop.className = 'day-pop';
+  pop.setAttribute('role', 'dialog');
+  pop.innerHTML = `<div class="day-pop-head">${escapeHtml(heading)}</div>` + rows.map(([t, title, id]) => `
+    <button type="button" class="day-pop-row" data-id="${escapeHtml(id)}"${id ? '' : ' disabled'}>
+      <span class="day-pop-ico ${t}">${OVERRIDE_ICONS[t] || ''}</span>
+      <div class="day-pop-text"><strong>${POP_LABEL[t]}</strong>${title ? `<span>${escapeHtml(title)}</span>` : ''}</div>
+      ${id ? '<svg class="day-pop-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>' : ''}
+    </button>`).join('');
+  // Tap a row: close the popup and open that notice
+  pop.addEventListener('click', e => {
+    const row = e.target.closest('.day-pop-row');
+    if (!row || !row.dataset.id) return;
+    closeDayPop();
+    if (window.__openNotice) window.__openNotice(row.dataset.id);
+  });
+  document.body.appendChild(pop);
+  const r = stack.getBoundingClientRect();
+  const w = pop.offsetWidth;
+  const left = Math.max(12, Math.min(window.innerWidth - w - 12, r.left + r.width / 2 - w / 2));
+  pop.style.left = `${left}px`;
+  pop.style.top = `${r.bottom + 10}px`;
+  const arrow = Math.max(14, Math.min(w - 14, r.left + r.width / 2 - left));
+  pop.style.setProperty('--arrow-x', `${arrow}px`);
+  _dayPop = pop;
+  document.addEventListener('pointerdown', onPopOutside, true);
+  document.addEventListener('keydown', onPopKey, true);
+}
+
 export function renderWeekStrip() {
   const container = document.getElementById('focalStripContainer');
   if (!container) return;
+  if (!container.dataset.popBound) {
+    container.dataset.popBound = '1';
+    // Capture phase: the icons open the popup instead of switching day / opening the calendar
+    container.addEventListener('click', e => {
+      const stack = e.target.closest && e.target.closest('.override-badge-stack');
+      if (!stack) return;
+      e.stopPropagation();
+      e.preventDefault();
+      openDayPop(stack);
+    }, true);
+  }
 
   const realToday = new Date();
   const realTodayIdx = realToday.getDay();
@@ -252,7 +338,7 @@ export function renderWeekStrip() {
     // Subtext label logic
     let subText = '';
     if (isHoliday) {
-      subText = ''; // No class count and no "Holiday" text label (icon + box color communicates status)
+      subText = 'No classes'; // the date is struck through and the icon says why
     } else if (isOffDay) {
       if (isOnlineClass && classCount > 0) {
         subText = `${classCount} ${classCount === 1 ? 'class' : 'classes'}`; // Suppress 'Off Day' if online class exists
@@ -260,9 +346,11 @@ export function renderWeekStrip() {
         subText = 'Off Day';
       }
     } else {
-      subText = `${classCount} ${classCount === 1 ? 'class' : 'classes'}`;
+      subText = classCount === 0 ? 'No classes' : `${classCount} ${classCount === 1 ? 'class' : 'classes'}`;
     }
 
+    // First of a month: say which month it is (the strip can cross a month change)
+    const monthTag = d.getDate() === 1 ? MONTH_SHORT[d.getMonth()] : '';
     const overrideClass = override ? `override-${override.type}` : '';
     const isEffectiveOffDay = isOffDay && !isOnlineClass;
 
@@ -274,7 +362,7 @@ export function renderWeekStrip() {
           <span class="focal-num-large">${d.getDate()}</span>
           <div class="focal-meta">
             <span class="focal-day-label">${DAY_NAMES[dow]}</span>
-            ${subText ? `<span class="focal-day-sub">${subText}</span>` : ''}
+            ${(monthTag || subText) ? `<span class="focal-day-sub">${[monthTag, subText].filter(Boolean).join(' · ')}</span>` : ''}
           </div>
         </div>
       `;
@@ -283,6 +371,7 @@ export function renderWeekStrip() {
       html += `
         <div class="satellite-pill ${overrideClass} ${isEffectiveOffDay ? 'off-day' : ''} ${isToday ? 'is-real-today' : ''}" data-date="${dateStr}" onclick="window.__switchTimelineDay(${dow}, ${d.getTime()})" title="${DAY_NAMES[dow]}${override ? ` (${override.type.replace('_', ' ')})` : ''}">
           ${satelliteBadge}
+          ${monthTag ? `<span class="satellite-month">${monthTag}</span>` : ''}
           <span class="satellite-name">${short3[dow]}</span>
           <span class="satellite-num">${d.getDate()}</span>
           ${isToday ? '<span class="today-subtle-dot" title="Today"></span>' : ''}
@@ -300,6 +389,8 @@ export function renderWeekStrip() {
 
 const sameDate = (a, b) => a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 const SHORT_DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+/** A gap shorter than this does not get a break strip: the classes join into one block. */
+const BREAK_MIN = 15;
 const fmtMins = m => { const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h}h ${r}m` : `${h}h`) : `${r}m`; };
 
 /** First class that is actually held after `fromDate`'s day (looks 8 days ahead). */
@@ -362,7 +453,11 @@ export function renderTimeline(force = false) {
   // Count held classes (not the raw routine), so it agrees with the week strip:
   // cancelled / rescheduled-away excluded, rescheduled-in and extra classes included
   const heldCount = countHeldClasses(State.currentViewDayIdx, State.viewDate);
-  const subText = isOffDay && heldCount === 0 ? 'OFF DAY' : `${heldCount} ${heldCount === 1 ? 'SESSION' : 'SESSIONS'}`;
+  // Total time in class that day, next to the count ("3 classes, 3h 45m")
+  const heldMins = getEffectiveClassesForDay(State.currentViewDayIdx, State.viewDate)
+    .filter(c => !c.isCancelled && !('rescheduledTo' in c))
+    .reduce((n, c) => { const d = toMinutes(c.end) - toMinutes(c.start); return n + (d > 0 ? d : 0); }, 0);
+  const subText = isOffDay && heldCount === 0 ? 'OFF DAY' : `${heldCount} ${heldCount === 1 ? 'class' : 'classes'}${heldMins ? `, ${fmtMins(heldMins)}` : ''}`;
   
   if (DOM.timelineTitle) DOM.timelineTitle.textContent = titleText;
   if (DOM.timelineSubtitle) DOM.timelineSubtitle.textContent = subText;
@@ -380,20 +475,17 @@ export function renderTimeline(force = false) {
     // A holiday that falls on a day with routine classes still lists them (marked cancelled)
     // under a banner; the full "Day Off" card is only for days with nothing in the routine.
     if (!hasOnlineClasses && classes.length) {
-      const hn = holidayOverride.announcement || {};
       holidayBanner = `
-        <div class="holiday-strip">
+        <div class="campus-closed">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <div class="holiday-strip-text"><strong>${escapeHtml(hn.title || 'Holiday / Day Off')}</strong>${hn.announcement ? `<span>${escapeHtml(hn.announcement)}</span>` : ''}</div>
+          <span>Campus closed</span>
         </div>`;
     } else if (!hasOnlineClasses) {
       if (DOM.timelineGrid) {
         DOM.timelineGrid.innerHTML = `
           <div class="off-day-card">
             <span class="off-day-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-            <div class="off-day-title">Holiday / Day Off</div>
-            <div style="font-size: 13px; font-weight: 700; color: var(--accent); margin: 2px 0;">${escapeHtml(holidayOverride.announcement.title)}</div>
-            <div class="off-day-desc">${escapeHtml(holidayOverride.announcement.announcement)}</div>
+            <div class="off-day-title">Campus closed</div>
             ${nextClassLinkHtml(State.viewDate)}
           </div>
         `;
@@ -609,9 +701,11 @@ function findInstructorForSubject(subj) {
 
   let html = '';
   let lastEndMins = null;
+  let lastWasClass = false; // the card just before this one is a class (so back-to-back classes can join)
 
   renderItems.forEach((item) => {
     if (item.kind === 'ghost_strip') {
+      lastWasClass = false;
       const g = item.data;
       const destinationText = g.newDate && g.formattedNewDate ? `moved to ${escapeHtml(g.formattedNewDate)}` : 'moved to new slot';
       html += `
@@ -630,6 +724,7 @@ function findInstructorForSubject(subj) {
     }
 
     if (item.kind === 'deadline') {
+      lastWasClass = false;
       const d = item.data;
       html += `
         <div class="timeline-deadline-banner${d.id ? ' tappable' : ''}"${d.id ? ` onclick="window.__openNotice && window.__openNotice('${escapeHtml(String(d.id))}')"` : ''}>
@@ -654,9 +749,11 @@ function findInstructorForSubject(subj) {
     const fullTiming = hasExplicitEndTime ? `${format12h(c.start)} – ${format12h(c.end)}` : `Starts at ${format12h(c.start)}`;
     const isLab = (c.type || '').toLowerCase() === 'lab';
 
-    // Insert break card between non-contiguous classes (only when startMins > lastEndMins)
+    // A gap of 15 minutes or more gets a break strip; a shorter one (or none) joins the classes into one block
     const isOverlap = lastEndMins !== null && startMins < lastEndMins;
-    if (lastEndMins !== null && startMins > lastEndMins) {
+    const joinsPrev = lastWasClass && lastEndMins !== null && startMins - lastEndMins < BREAK_MIN;
+    lastWasClass = true;
+    if (lastEndMins !== null && startMins - lastEndMins >= BREAK_MIN) {
       const breakDuration = startMins - lastEndMins;
       const breakTiming = `${format12h(toTimeString(lastEndMins))} – ${format12h(toTimeString(startMins))}`;
       const isNowBreak = isToday && currentMins >= lastEndMins && currentMins < startMins;
@@ -664,9 +761,9 @@ function findInstructorForSubject(subj) {
         <div class="break-transition-strip${isNowBreak ? ' is-now' : ''}">
           <div class="break-left">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
-            <span>${isNowBreak ? `Free now · ${fmtMins(startMins - currentMins)} left` : 'Cafeteria Recharge'}</span>
+            <span>${isNowBreak ? `Free now, ${fmtMins(startMins - currentMins)} left` : `${fmtMins(breakDuration)} break`}</span>
           </div>
-          <span class="break-time-badge">${breakTiming} &bull; ${breakDuration}m</span>
+          <span class="break-time-badge">${breakTiming}</span>
         </div>
       `;
     }
@@ -717,6 +814,8 @@ function findInstructorForSubject(subj) {
 
     const teacherCode = (c.teacher || c.instructor || '').trim() || findInstructorForSubject(c.title);
     const teacherFullName = getFullName(teacherCode) || teacherCode || 'TBA';
+    // Settings → Class cards → Teacher name: full name or the short code on the card
+    const teacherShown = getPref('teacherName') === 'code' ? (teacherCode || 'TBA') : teacherFullName;
     const cleanRoom = isOnline ? 'Online' : formatRoom(c.room);
 
     const detailsData = {
@@ -797,8 +896,8 @@ function findInstructorForSubject(subj) {
       cardModifierClass = 'is-online-override';
       tagHtml = `<span class="resting-tag online">ONLINE</span>`;
     } else if (effectiveCancelled) {
-      cardModifierClass = 'is-cancelled-override';
-      const reason = isCancelled
+      cardModifierClass = isHolidayCancelled ? 'is-cancelled-override is-campus-closed' : 'is-cancelled-override';
+      const reason = isHolidayCancelled ? '' : isCancelled
         ? (cancelOverride.announcement && cancelOverride.announcement.announcement) || ''
         : (holidayOverride && holidayOverride.announcement && holidayOverride.announcement.title) || '';
       if (reason) {
@@ -810,6 +909,9 @@ function findInstructorForSubject(subj) {
         `;
       }
     }
+
+    // Back-to-back with the class above: drawn as one block (settings/prefs.css, "Group back-to-back classes")
+    if (joinsPrev) cardModifierClass += ' joins-prev';
 
     // A community suggestion applied to the routine: say it is not confirmed yet
     const ovAnn = cancelOverride && cancelOverride.announcement;
@@ -846,7 +948,7 @@ function findInstructorForSubject(subj) {
                 </div>
                 <div class="meta-line-item instructor">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  <span>${escapeHtml(teacherFullName)}</span>
+                  <span>${escapeHtml(teacherShown)}</span>
                 </div>
                 ${subMetaHtml}
               </div>
@@ -891,7 +993,7 @@ function findInstructorForSubject(subj) {
                 </div>
                 <div class="meta-line-item instructor">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  <span>${escapeHtml(teacherFullName)}</span>
+                  <span>${escapeHtml(teacherShown)}</span>
                 </div>
                 ${subMetaHtml}
               </div>
@@ -934,6 +1036,12 @@ function findInstructorForSubject(subj) {
 
   if (DOM.timelineGrid) {
     DOM.timelineGrid.innerHTML = holidayBanner + html;
+    // The class above a joined card needs its bottom corners squared too
+    DOM.timelineGrid.querySelectorAll('.resting-class-row.joins-prev').forEach(r => {
+      const p = r.previousElementSibling;
+      if (p && p.classList.contains('resting-class-row')) p.classList.add('joins-next');
+      else r.classList.remove('joins-prev');
+    });
   }
 }
 

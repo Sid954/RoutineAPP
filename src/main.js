@@ -8,6 +8,7 @@
 import { FEATURES } from './features.js';
 import { DOM } from './core/dom.js';
 import { State } from './core/state.js';
+import { isOn } from './settings/prefs.js';
 import { CONFIG } from './core/config.js';
 import { openModal, closeModal, setParticlesRef } from './modals/modal.js';
 import { Particles } from './particles/particles.js';
@@ -80,7 +81,11 @@ export function switchAppView(viewId, payload) {
 
   const previousViewId = window.__currentAppViewId;
   window.__currentAppViewId = viewId;
+  // Leaving Notices: what was shown as new counts as read now
+  if (previousViewId === 'announcements' && viewId !== 'announcements' && window.__leaveNotices) window.__leaveNotices();
   if (window.__updateAmbient) window.__updateAmbient(true);
+  // "Back to today" belongs to Home and the Routine only: re-check on every page change
+  if (window.__updateFabAway) window.__updateFabAway();
 
   // Pages open at the top. Reset the outgoing page now, while its layout is still clean;
   // scrolling the incoming page right after showing it forced a full synchronous layout.
@@ -233,13 +238,22 @@ const dockCenterFab = document.getElementById('dockCenterFab');
 /** Floating "Today" button above the Home tab: visible while the viewed day (Home or Routine) is not today. */
 const dockTodayFab = document.getElementById('dockTodayFab');
 function routineIsOpen() { return !!(DOM.viewModal && DOM.viewModal.classList.contains('open')); }
+/** Week start for this app: weeks run Thursday to Wednesday. */
+function weekStartOf(d) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 3) % 7)).getTime();
+}
+/** Any page or sheet other than the Routine is open (Settings, Notifications, calendar, class sheet...). */
+function otherPageOpen() {
+  return [...document.querySelectorAll('.mo.open, .class-sheet-modal-overlay.open')].some(m => m !== DOM.viewModal);
+}
 function updateFabAway() {
   if (!dockTodayFab) return;
   const now = new Date();
-  let away;
-  if (routineIsOpen()) away = CONFIG.activeDays.includes(now.getDay()) && State.matrixSelectedDayIdx !== now.getDay();
-  else if ((window.__currentAppViewId || 'home') !== 'home') away = false;
-  else away = !!State.viewDate && State.viewDate.toDateString() !== now.toDateString();
+  let away = false;
+  // Only when the viewed day is in a different week than today (Home only; the Routine tabs are one week)
+  if (isOn('todayFab') && !otherPageOpen() && !routineIsOpen() && (window.__currentAppViewId || 'home') === 'home') {
+    away = !!State.viewDate && weekStartOf(State.viewDate) !== weekStartOf(now);
+  }
   dockTodayFab.hidden = !away;
 }
 if (dockTodayFab) {
@@ -271,6 +285,9 @@ if (dockTodayFab) {
   });
 }
 window.__updateFabAway = updateFabAway;
+// Pages and sheets open and close by toggling body.modal-open: re-check the button then
+const _fabObs = new MutationObserver(updateFabAway);
+document.querySelectorAll('.mo, .class-sheet-modal-overlay').forEach(m => _fabObs.observe(m, { attributes: true, attributeFilter: ['class'] }));
 if (dockCenterFab) {
   // Tap: go Home; on Home jump to today, or refresh if already on today. Hold: open the calendar.
   let holdTimer = null;

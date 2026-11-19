@@ -4,6 +4,7 @@ import { CONFIG } from '../core/config.js';
 import { renderTimeline } from './timeline.js';
 import { bindMouseDrag, bindWheelSwipe } from '../core/desktop-input.js';
 import { shouldHideDay } from '../core/off-days.js';
+import { getPref } from '../settings/prefs.js';
 import { getOverridesByDateMap } from '../announcements/overrides.js';
 
 /**
@@ -76,10 +77,12 @@ let touchStartTime = 0;
 let isDragging = false;
 let dragTargetDayIdx = -1;
 let dragTargetDate = null;
+let swipeAllowed = true;
 
 const container = DOM.timelineGrid;
 
 function swipeStart(x, y) {
+  swipeAllowed = getPref('swipe') !== 'off'; // Settings → Gestures → Swipe between days
   touchStartX = x;
   touchStartY = y;
   touchStartTime = performance.now();
@@ -89,6 +92,7 @@ function swipeStart(x, y) {
 }
 
 function swipeMove(x, y) {
+  if (!swipeAllowed) return;
   const deltaX = x - touchStartX;
   const deltaY = y - touchStartY;
 
@@ -209,5 +213,5 @@ if (container) {
     move: (x, y) => swipeMove(x, y),
     end: (x, y, ev) => (ev ? swipeEnd(x) : swipeCancel())
   });
-  bindWheelSwipe(container, dir => smoothSwitchDay(dir));
+  bindWheelSwipe(container, dir => { if (getPref('swipe') !== 'off') smoothSwitchDay(dir); });
 }

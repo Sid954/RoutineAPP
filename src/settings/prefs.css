@@ -1,0 +1,363 @@
+/* ==========================================================================
+   Preferences (Settings). prefs.js mirrors each value onto <html> as data-p-<name>;
+   these rules turn them into layout. Calm: nothing here animates.
+   ========================================================================== */
+
+/* ── Home screen ─────────────────────────────────────────────────────────── */
+html[data-p-greeting="off"] .greeting-headline-row { display: none; }
+html[data-p-clock="off"] #dashboardView .digital-clock { display: none; }
+html[data-p-week-strip="off"] .strip-direction-container { display: none; }
+html[data-p-count-badge="off"] .timeline-count-badge { display: none; }
+html[data-p-time-format="24"] .clock-period { display: none; }
+
+/* ── Class cards ─────────────────────────────────────────────────────────── */
+html[data-p-density="compact"] .resting-class-row { padding-top: 9px; padding-bottom: 9px; }
+html[data-p-density="compact"] .chg { --tl-gap: 8px; }
+html[data-p-density="compact"] .card-meta-stacked { gap: 3px; margin-top: 3px; }
+html[data-p-density="roomy"] .resting-class-row { padding-top: 18px; padding-bottom: 18px; }
+html[data-p-density="roomy"] .chg { --tl-gap: 20px; }
+html[data-p-density="roomy"] .card-meta-stacked { gap: 8px; margin-top: 8px; }
+
+html[data-p-room="off"] .resting-class-row .meta-line-item.room { display: none; }
+html[data-p-teacher="off"] .resting-class-row .meta-line-item.instructor { display: none; }
+html[data-p-duration="off"] .duration-chip { display: none; }
+html[data-p-type-tag="off"] .resting-tag.theory,
+html[data-p-type-tag="off"] .resting-tag.lab { display: none; }
+html[data-p-progress="off"] .live-fill { display: none; }
+html[data-p-done-badge="off"] .resting-class-row:not(.is-live-card) .finished-check-badge:not(.cancelled):not(.is-next) { display: none; }
+html[data-p-breaks="off"] .break-transition-strip:not(.day-done-strip) { display: none; }
+
+/* ── Appearance ──────────────────────────────────────────────────────────── */
+html[data-p-corners="sharp"] .resting-class-row,
+html[data-p-corners="sharp"] .m-matrix-card,
+html[data-p-corners="sharp"] .break-transition-strip { border-radius: 8px; }
+html[data-p-corners="round"] .resting-class-row,
+html[data-p-corners="round"] .m-matrix-card { border-radius: 26px; }
+html[data-p-corners="round"] .break-transition-strip { border-radius: 22px; }
+
+html[data-p-text-size="small"] .resting-class-row,
+html[data-p-text-size="small"] .m-matrix-card { zoom: 0.92; }
+html[data-p-text-size="large"] .resting-class-row,
+html[data-p-text-size="large"] .m-matrix-card { zoom: 1.08; }
+html[data-p-text-size="xl"] .resting-class-row,
+html[data-p-text-size="xl"] .m-matrix-card { zoom: 1.16; }
+
+/* ── Weekly routine ──────────────────────────────────────────────────────── */
+html[data-p-routine-badge="off"] .m-card-badge,
+html[data-p-routine-badge="off"] .t-badge { display: none; }
+html[data-p-routine-dot="off"] .m-tab-dot { display: none; }
+html[data-p-dim-past="off"] .m-matrix-card.past { opacity: 1 !important; }
+
+/* ==========================================================================
+   Settings page: collapsible groups, search, preference controls
+   ========================================================================== */
+/* ── One UI style list: search pill, clusters of rows, a page per group ─────── */
+.st-page .st-body { gap: 16px; }
+.st-page .st-header .page-title { font-size: 28px; letter-spacing: -0.4px; }
+
+.st-page .st-search { position: relative; display: block; }
+.st-page .st-search svg {
+  position: absolute; left: 16px; top: 50%; width: 18px; height: 18px; margin-top: -9px;
+  color: var(--text-muted); pointer-events: none;
+}
+.st-page .st-search input {
+  width: 100%; box-sizing: border-box; height: 48px; padding: 0 18px 0 44px;
+  border-radius: 999px; border: 0; background: var(--card-bg);
+  color: var(--text-main); font: 600 15px var(--font-ui);
+}
+.st-page .st-search input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.st-page .st-search input::placeholder { color: var(--text-muted); font-weight: 500; }
+
+.st-page .st-groups { display: flex; flex-direction: column; gap: 12px; }
+/* A cluster is one rounded card holding several rows */
+.st-page .st-cluster {
+  background: var(--card-bg);
+  border-radius: 24px;
+  overflow: hidden;
+}
+.st-page .st-acc { background: none; border: 0; border-radius: 0; overflow: visible; }
+.st-page .st-acc.st-hide, .st-page .st-cluster.st-hide { display: none !important; }
+.st-page .st-acc + .st-acc > .st-acc-head { box-shadow: inset 0 1px 0 var(--card-border); }
+.st-page .st-acc + .st-acc > .st-acc-head { background-clip: padding-box; }
+.st-page .st-acc-head {
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  cursor: pointer;
+  position: relative;
+}
+.st-page .st-acc-head:active { background: var(--st-inset); }
+.st-page .st-acc-head:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+/* Round coloured icon, one colour per group */
+.st-page .st-acc-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--ic, #64748B); color: #fff;
+}
+.st-page .st-acc-icon svg { width: 20px; height: 20px; }
+.st-page .st-acc[data-acc="class"] { --ic: #3B82F6; }
+.st-page .st-acc[data-acc="routine"] { --ic: #F59E0B; }
+.st-page .st-acc[data-acc="appearance"] { --ic: #A855F7; }
+.st-page .st-acc[data-acc="home"] { --ic: #0EA5E9; }
+.st-page .st-acc[data-acc="cards"] { --ic: #14B8A6; }
+.st-page .st-acc[data-acc="routine-page"] { --ic: #6366F1; }
+.st-page .st-acc[data-acc="time"] { --ic: #EF4444; }
+.st-page .st-acc[data-acc="gestures"] { --ic: #22C55E; }
+.st-page .st-acc[data-acc="notifications"] { --ic: #F97316; }
+.st-page .st-acc[data-acc="widgets"] { --ic: #EC4899; }
+.st-page .st-acc[data-acc="app"] { --ic: #64748B; }
+.st-page .st-acc-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.st-page .st-acc-text strong { font: 600 16px var(--font-ui); color: var(--text-main); }
+.st-page .st-acc-text span { font: 500 12.5px var(--font-ui); color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st-page .st-acc-chev { width: 18px; height: 18px; color: var(--text-muted); opacity: 0.7; }
+.st-page .st-acc-chev svg { width: 18px; height: 18px; display: block; transform: rotate(-90deg); }
+.st-page .st-acc-chev-go svg { transform: none; }
+
+/* Bodies stay hidden in the list; a group's page (or a search result) shows them */
+.st-page .st-acc-body { display: none; }
+.st-page .st-acc.is-open > .st-acc-body { display: flex; flex-direction: column; }
+.st-page .st-acc-body[hidden] { display: none; }
+
+/* Searching: matching groups show as their own cards with the rows inside */
+.st-page .st-body.st-searching .st-cluster { background: none; border-radius: 0; overflow: visible; }
+.st-page .st-body.st-searching .st-groups { gap: 12px; }
+.st-page .st-body.st-searching .st-acc { background: var(--card-bg); border-radius: 24px; overflow: hidden; margin-bottom: 0; }
+.st-page .st-body.st-searching .st-acc + .st-acc > .st-acc-head { box-shadow: none; }
+.st-page .st-body.st-searching .st-cluster { display: flex; flex-direction: column; gap: 12px; }
+.st-page .st-body.st-searching .st-acc.is-open > .st-acc-body { border-top: 1px solid var(--card-border); padding: 4px 16px 12px; gap: 6px; }
+
+/* A group's own page: the header shows its name, the rows sit in one rounded card */
+.st-page .st-body.st-in > .st-profile,
+.st-page .st-body.st-in > .st-search,
+.st-page .st-body.st-in > .st-empty-search { display: none; }
+.st-page .st-body.st-in .st-cluster { display: none; background: none; border-radius: 0; overflow: visible; }
+.st-page .st-body.st-in .st-cluster.has-open { display: block; }
+.st-page .st-body.st-in .st-acc:not(.is-open) { display: none; }
+.st-page .st-body.st-in .st-acc.is-open > .st-acc-head { display: none; }
+.st-page .st-body.st-in .st-acc.is-open > .st-acc-body {
+  background: none; padding: 0; border: 0; gap: 20px;
+  animation: stPageIn 180ms var(--mx-ease, ease) both;
+}
+@keyframes stPageIn { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .st-page .st-body.st-in .st-acc.is-open > .st-acc-body { animation: none; } }
+html[data-motion="off"] .st-page .st-body.st-in .st-acc.is-open > .st-acc-body { animation: none; }
+
+/* One preference: separated by a thin line */
+.st-page .st-item { padding: 13px 0; border-top: 1px solid var(--card-border); }
+.st-page .st-acc-body > .st-item:first-child,
+.st-page .st-acc-body > .st-items:first-child > .st-item:first-child { border-top: 0; }
+.st-page .st-item[hidden] { display: none; }
+.st-page .st-items { display: flex; flex-direction: column; }
+.st-page .st-item.st-switch-row { display: flex; }
+
+/* Segmented choice (any number of options) */
+.st-page .st-choice {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 3px;
+  border-radius: 12px; border: 1px solid var(--card-border); background: var(--st-inset, var(--canvas));
+  margin-top: 10px;
+}
+.st-page .st-choice button {
+  height: 34px; border: none; border-radius: 9px; background: transparent; color: var(--text-muted);
+  font: 700 13px var(--font-ui); cursor: pointer; padding: 0 6px; min-width: 0;
+}
+.st-page .st-choice button.active { background: var(--accent); color: var(--btn-text, #fff); }
+.st-page .st-choice-head { display: flex; flex-direction: column; gap: 1px; }
+.st-page .st-choice-head strong { font: 700 14px var(--font-ui); color: var(--text-main); }
+.st-page .st-choice-head span { font: 500 12px var(--font-ui); color: var(--text-muted); }
+
+/* Accent swatches */
+.st-page .st-accents { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.st-page .st-accent {
+  width: 34px; height: 34px; border-radius: 50%; border: 2px solid transparent; padding: 0; cursor: pointer;
+  background: var(--sw, var(--accent)); position: relative; box-shadow: inset 0 0 0 1px rgba(128,128,128,0.25);
+}
+.st-page .st-accent.active { border-color: var(--text-main); }
+.st-page .st-accent.active::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 10px; height: 6px; margin: -5px 0 0 -5px;
+  border-left: 2.5px solid var(--sw-on, #fff); border-bottom: 2.5px solid var(--sw-on, #fff); transform: rotate(-45deg);
+}
+.st-page .st-accent-default { background: conic-gradient(#38BDF8, #2563EB, #38BDF8); }
+
+.st-page .st-empty-search { padding: 22px 8px; text-align: center; color: var(--text-muted); font: 600 13px var(--font-ui); }
+.st-page .st-reset { margin-top: 4px; }
+
+/* Group-level sub headings inside a body (e.g. class vs. off days) */
+.st-page .st-sub { margin: 14px 0 2px; font: 700 11.5px var(--font-ui); color: var(--text-muted); }
+.st-page .st-acc-body > .st-sub:first-child { margin-top: 10px; }
+.st-page .st-acc-body > .st-card:first-child { padding-top: 10px; }
+
+/* One UI: the page sits on the canvas colour so the rounded cards stand out */
+.st-page:not(.nf-page) .md,
+.st-page:not(.nf-page) .st-header { background: var(--canvas); }
+.st-page:not(.nf-page) .st-profile { border-radius: 24px; border: 0; }
+
+/* ── Sections inside a group page: a small heading, then one rounded card ── */
+.st-page .st-items { display: flex; flex-direction: column; gap: 20px; }
+.st-page .st-sec { display: flex; flex-direction: column; gap: 8px; }
+.st-page .st-sec.st-hide { display: none !important; }
+.st-page .st-sec-title { margin: 0 0 0 14px; font: 700 12.5px var(--font-ui); color: var(--text-muted); letter-spacing: 0.1px; }
+.st-page .st-sec-card { background: var(--card-bg); border-radius: 24px; padding: 0 16px; overflow: hidden; }
+.st-page .st-sec-card.is-bare { background: none; padding: 0; overflow: visible; }
+.st-page .st-sec-card.is-flush { padding: 0; }
+.st-page .st-sec-card.is-flush .st-row + .st-row { border-top: 1px solid var(--card-border); }
+.st-page .st-sec-note { margin: 0 14px; font: 500 12px/1.45 var(--font-ui); color: var(--text-muted); }
+.st-page .st-sec-card > .st-item:first-child { border-top: 0; }
+.st-page .st-sec-card .st-offdays { padding: 14px 0; }
+.st-page .st-body.st-searching .st-sec-card { background: none; padding: 0; border-radius: 0; }
+.st-page .st-body.st-searching .st-sec-title { margin: 8px 0 0; }
+.st-page .st-body.st-searching .st-sec-card.is-bare { padding: 0; }
+/* A bare item that sits straight in a body (widget preview) */
+.st-page .st-acc-body > .st-item.st-widget { background: var(--card-bg); border: 0; border-radius: 24px; padding: 16px; }
+
+/* Class hero */
+.st-page .st-hero {
+  border: 0; padding: 20px 18px; border-radius: 24px; display: flex; flex-direction: column; gap: 4px;
+  background: var(--accent-soft);
+}
+.st-page .st-hero-k { font: 700 12px var(--font-ui); color: var(--accent); }
+:root[data-color="light"] .st-page .st-hero-k { color: var(--accent-hover); }
+.st-page .st-hero strong { font: 800 24px/1.15 var(--font-ui); color: var(--text-main); letter-spacing: -0.3px; }
+.st-page .st-hero-s { font: 500 12.5px var(--font-ui); color: var(--text-muted); }
+
+/* Live preview card */
+.st-page .st-preview { padding: 0; border: 0; pointer-events: none; }
+.st-page .st-preview .resting-class-row { cursor: default; }
+
+/* Accent swatches: eight in one row */
+.st-page .st-accents { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-top: 14px; }
+.st-page .st-accent { width: 100%; max-width: 36px; height: auto; aspect-ratio: 1; justify-self: center; }
+
+/* Selects and the editor sit well inside a card */
+.st-page .st-sec-card .st-editor-foot { margin-top: 0; padding-top: 0; border-top: 0; }
+.st-page .st-sec-card .st-class-list .st-class { background: var(--st-inset, var(--canvas)); }
+.st-page .st-sec-card .st-add-toggle { margin-top: 0; }
+
+/* Editor: the group page gives .st-editor its own cards */
+.st-page .st-editor { padding: 0; border-top: 0; display: flex; flex-direction: column; gap: 20px; }
+.st-page .st-class-edit {
+  all: unset; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
+  color: var(--text-muted); cursor: pointer;
+}
+.st-page .st-class-edit svg { width: 16px; height: 16px; }
+.st-page .st-class-edit:hover, .st-page .st-class-edit:focus-visible { color: var(--accent); background: var(--accent-soft); }
+.st-page .st-class { grid-template-columns: 64px 1fr 36px 36px; cursor: pointer; }
+.st-page .st-class.is-editing { border-color: var(--accent); background: var(--accent-soft); }
+.st-page #cancelEditB { margin-top: 8px; }
+.st-page #cancelEditB[hidden] { display: none; }
+
+/* Animations item and off days inside a card */
+.st-page .st-sec-card .st-motion { margin: 0; padding: 13px 0; gap: 10px; border-top: 1px solid var(--card-border); }
+.st-page .st-sec-card > .st-motion:first-child { border-top: 0; }
+.st-page .st-sec-card .st-offdays { margin: 0; gap: 10px; }
+.st-page .st-sec-card .st-theme-grid { margin: 0; }
+.st-page .st-widget { display: flex; flex-direction: column; gap: 12px; }
+
+/* Room to scroll the last card clear of the dock */
+.st-page:not(.nf-page) .st-body { padding-bottom: calc(var(--dock-clearance, 112px) + 16px); }
+
+/* ── Home list: back-to-back classes form one block ─────────────────────── */
+html .chg { gap: var(--tl-gap, 14px); }
+html:not([data-p-group-classes="off"]) .resting-class-row.joins-prev {
+  /* Each box stays whole; a small 4px gap and tighter inner corners show they belong together */
+  margin-top: calc(4px - var(--tl-gap, 14px));
+  border-top-left-radius: 9px; border-top-right-radius: 9px;
+}
+html:not([data-p-group-classes="off"]) .resting-class-row.joins-next {
+  border-bottom-left-radius: 9px; border-bottom-right-radius: 9px;
+}
+
+/* ── Home week strip, One UI style: one rounded card, quiet days, a filled pill for the selected one ── */
+html .strip-direction-container {
+  height: 72px; min-height: 72px; max-height: 72px;
+  padding: 6px; border-radius: 24px;
+  background: var(--card-bg);
+}
+html #dashboardView .strip-direction-container { margin-bottom: 22px; }
+html .strip-dir-b-row { gap: 2px; }
+html .satellite-pill {
+  background: transparent; border: 0; border-radius: 18px; gap: 3px; padding: 0;
+  box-shadow: none !important;
+}
+html .satellite-pill:hover { border-color: transparent; }
+html .satellite-pill:active { background: var(--accent-soft); }
+html .satellite-name { font-size: 10.5px; font-weight: 600; letter-spacing: .2px; color: var(--text-muted); }
+html .satellite-num { font-family: var(--font-ui); font-size: 16px; font-weight: 600; color: var(--text-main); }
+html .satellite-pill.is-real-today .satellite-name,
+html .satellite-pill.is-real-today .satellite-num { color: var(--accent); font-weight: 700; }
+html .today-subtle-dot { margin-top: 0; width: 4px; height: 4px; }
+html .satellite-pill.off-day { opacity: .45; }
+/* Holiday / test days: a soft tint, no outline, no glow */
+html .focal-day-card {
+  border-radius: 18px; box-shadow: none; gap: 8px; padding: 0 12px;
+}
+html .focal-num-large { font-family: var(--font-ui); font-size: 20px; font-weight: 700; }
+html .focal-day-label { font-size: 12px; font-weight: 700; letter-spacing: .2px; text-transform: none; }
+html .focal-day-sub { font-size: 10.5px; font-weight: 600; letter-spacing: 0; text-transform: none; opacity: .85; }
+html .focal-day-card.override-holiday,
+html .focal-day-card.override-class_test { border: 0; }
+html .focal-day-card { min-width: 128px; padding: 0 10px; gap: 7px; }
+/* The 1st of a month: the month name sits above the day name */
+html .satellite-month { font-size: 9.5px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase; color: var(--accent); line-height: 1; margin-bottom: -1px; }
+html .satellite-pill:has(.satellite-month) { gap: 1px; }
+
+/* Campus closed: one big label, every class greyed out like a cancelled one */
+.campus-closed {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 22px 16px; margin-bottom: 12px; border-radius: 24px;
+  background: var(--card-bg); color: var(--text-main);
+  font-size: 24px; font-weight: 800; letter-spacing: -.3px;
+}
+.campus-closed svg { width: 28px; height: 28px; flex-shrink: 0; color: var(--text-muted); }
+html .resting-class-row.is-campus-closed { border: 1px solid var(--card-border); filter: grayscale(1); }
+html .resting-class-row.is-campus-closed .resting-left { opacity: .38; }
+html .resting-class-row.is-campus-closed .resting-code { text-decoration: line-through; }
+
+/* Week strip: holiday / test days get a soft tint (no glow); the corner icon badges are the original ones */
+html .satellite-pill.override-holiday { background: rgba(245, 158, 11, .14) !important; border: 0 !important; }
+html .satellite-pill.override-class_test { background: rgba(249, 115, 22, .14) !important; border: 0 !important; }
+/* Holiday: the date is crossed out */
+html .satellite-pill.override-holiday .satellite-num { color: var(--text-muted); text-decoration: line-through; }
+html .focal-day-card.override-holiday .focal-num-large { text-decoration: line-through; text-decoration-thickness: 2px; }
+
+/* Week strip icons are tappable: a small popup says what is on that day */
+html .override-badge-stack { cursor: pointer; }
+html .override-badge-stack::before { content: ''; position: absolute; inset: -6px -6px -4px -6px; }
+.day-pop {
+  position: fixed; z-index: 100200; width: min(280px, calc(100vw - 24px)); box-sizing: border-box;
+  padding: 12px 14px 8px; border-radius: 20px;
+  background: var(--card-bg); color: var(--text-main);
+  border: 1px solid var(--card-border); box-shadow: 0 8px 28px rgba(0, 0, 0, .35);
+  animation: dayPopIn .16s var(--mx-ease, cubic-bezier(.2, 0, 0, 1));
+}
+:root[data-color="light"] .day-pop { background: #fff; box-shadow: 0 8px 28px rgba(15, 23, 42, .18); }
+.day-pop::before {
+  content: ''; position: absolute; top: -6px; left: var(--arrow-x, 50%); width: 12px; height: 12px;
+  margin-left: -6px; transform: rotate(45deg); background: inherit;
+  border-top: 1px solid var(--card-border); border-left: 1px solid var(--card-border);
+}
+.day-pop-head { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+.day-pop-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; }
+.day-pop-row + .day-pop-row { border-top: 1px solid var(--card-border); }
+.day-pop-ico { width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; }
+.day-pop-ico svg { width: 14px; height: 14px; stroke-width: 2.4; }
+.day-pop-ico.holiday { background: #F59E0B; color: #07090E; }
+.day-pop-ico.class_test { background: #F97316; }
+.day-pop-ico.cancellation { background: #F43F5E; }
+.day-pop-ico.online_class { background: #10B981; }
+.day-pop-ico.rescheduled { background: #64748B; }
+.day-pop-ico.assignment { background: #A855F7; }
+.day-pop-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.day-pop-text strong { font-size: 14px; font-weight: 700; }
+.day-pop-text span { font-size: 12.5px; color: var(--text-muted); line-height: 1.35; overflow-wrap: anywhere; }
+@keyframes dayPopIn { from { opacity: 0; } to { opacity: 1; } }
+button.day-pop-row { width: 100%; background: none; border-left: 0; border-right: 0; border-bottom: 0; border-top-width: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; align-items: center; border-radius: 12px; }
+button.day-pop-row + button.day-pop-row { border-top: 1px solid var(--card-border); border-radius: 0 0 12px 12px; }
+button.day-pop-row:active { background: var(--accent-soft); }
+button.day-pop-row:disabled { cursor: default; }
+.day-pop-text { flex: 1; }
+.day-pop-go { width: 16px; height: 16px; flex-shrink: 0; color: var(--text-muted); }

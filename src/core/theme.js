@@ -1,4 +1,5 @@
 import { Storage } from '../storage/storage.js';
+import { applyPrefs, applyAccent } from '../settings/prefs.js';
 
 export const THEME_COLORS = {
   dark:  { name: 'Dark Mode',  desc: 'Refined Charcoal & Luminescent Sky', bg: '#18191E', card: '#23252C', accent: '#38BDF8', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>' },
@@ -25,6 +26,7 @@ export function applyTheme(style, color) {
   root.setAttribute('data-style', activeStyle);
   root.setAttribute('data-color', activeColor);
   root.setAttribute('data-theme', activeColor);
+  applyAccent(); // the chosen accent colour has a light and a dark shade
 
   // Update canvas visibility
   const ptc = document.getElementById('ptc');
@@ -99,6 +101,7 @@ export function renderThemePaletteGrid() {
 }
 
 export function initThemeEngine() {
+  applyPrefs(); // Settings preferences as data-p-* attributes on <html>, before the first paint
   const currentStyle = Storage.getThemeStyle();
   const currentColor = Storage.getThemeColor();
   applyTheme(currentStyle, currentColor);

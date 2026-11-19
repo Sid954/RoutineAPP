@@ -1,10 +1,11 @@
 import { DOM } from '../core/dom.js';
 import { DAY_NAMES, FULL_MONTHS, MONTHS } from '../core/config.js';
 import { pad } from '../core/utils.js';
+import { getPref } from '../settings/prefs.js';
 
 export function updateClock() {
   const now = new Date();
-  const hours = now.getHours() % 12 || 12;
+  const hours = getPref('timeFormat') === '24' ? now.getHours() : (now.getHours() % 12 || 12);
   const mins = pad(now.getMinutes());
   const period = now.getHours() >= 12 ? 'PM' : 'AM';
 

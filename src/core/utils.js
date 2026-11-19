@@ -1,3 +1,5 @@
+import { getPref } from '../settings/prefs.js';
+
 export const pad = num => String(num).padStart(2, '0');
 
 /**
@@ -57,6 +59,8 @@ export function format12h(timeStr) {
   if (m < 0) return clean;
   let hours = Math.floor(m / 60);
   const mins = m % 60;
+  // Settings → Time format: 24 hour clock ("14:30")
+  if (getPref('timeFormat') === '24') return `${pad(hours)}:${pad(mins)}`;
   const period = hours >= 12 ? 'PM' : 'AM';
   hours = hours % 12 || 12;
   return `${pad(hours)}:${pad(mins)} ${period}`;

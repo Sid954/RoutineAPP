@@ -12,6 +12,7 @@
  *  sheets, pull-to-refresh on Home / Notices / Faculty / Rooms, and small celebrations.
  */
 import { bindMouseDrag } from './desktop-input.js';
+import { getPref } from '../settings/prefs.js';
 
 const PREF_KEY = 'motion_pref';
 const HAPTIC_KEY = 'haptics_pref';
@@ -355,6 +356,7 @@ function bindPull() {
   const TRIGGER = 72;
   const start = (target, x, y) => {
     if (Motion.tier === 'off' || document.body.classList.contains('modal-open')) return false;
+    if (getPref('pull') === 'off') return false; // Settings → Gestures → Pull to refresh
     const view = target.closest('.app-page-view');
     if (!view || !PULL_VIEWS[view.id] || view.style.display === 'none') return false;
     const scroller = view.id === 'dashboardView' ? (document.getElementById('chG') || view) : view;

@@ -3,7 +3,7 @@
  *  - Two tabs: Notices (your section) and Suggestions (classmates' posts waiting for votes)
  *  - Icon filter chips; the selected one shows its name
  *  - Feed in folding groups (Pinned, Today, Tomorrow, This week, Later, Other notices, Past);
- *    Today, Tomorrow and anything unread open by default
+ *    Pinned, Today, Tomorrow and anything unread open by default
  *  - Cards say each thing once: headline + one detail line, tinted by type
  *  - Detail sheet: facts, join link, calendar, share, "Show in routine", admin actions
  */
@@ -49,6 +49,8 @@ const UI = {
 };
 
 let _openId = null;
+const STAY_NEW_WHILE_HERE = true;
+const _openedHere = new Set();
 let _observer = null;
 let _timers = new Map();
 let _lastNotices = [];
@@ -243,6 +245,8 @@ function renderHeader() {
   }
   const banner = $('ntAdminBar');
   if (banner) banner.hidden = !Announcements.isAdminMode;
+  const readAll = $('ntReadAll');
+  if (readAll) readAll.hidden = Announcements.tab === 'suggestions' || Announcements.unreadCount() === 0;
 }
 
 const FILTER_ICON = {
@@ -253,7 +257,17 @@ const FILTER_ICON = {
 const FILTER_TONE = { all: '', class_test: 'exam', assignment: 'task', cancellation: 'cancel', online_class: 'online', rescheduled: 'moved', holiday: 'holiday', general: 'general' };
 
 /** Icon chips; only the selected one spells out its name. */
-function renderFilters(counts) {
+let _chipCounts = null; // { all, current }: every notice, and only the ones that are not past
+
+/** The number on a chip counts what is current. Past notices are added only while the Past group is open. */
+function chipNumber(id) {
+  if (!_chipCounts) return 0;
+  const withPast = !!(_groupOpen && _groupOpen.past);
+  return (withPast ? _chipCounts.all : _chipCounts.current)[id] || 0;
+}
+
+function renderFilters(counts, current = counts) {
+  _chipCounts = { all: counts, current };
   const bar = $('announceFilterBar');
   if (!bar) return;
   if (Announcements.activeFilter !== 'all' && !counts[Announcements.activeFilter]) Announcements.activeFilter = 'all';
@@ -262,8 +276,8 @@ function renderFilters(counts) {
   _filterOrder = list.map(f => f.id);
   setHtmlIfChanged(bar, list.map(f => {
     const on = f.id === Announcements.activeFilter;
-    return `<button type="button" role="tab" class="nt-chip${on ? ' active' : ''}${FILTER_TONE[f.id] ? ` tone-${FILTER_TONE[f.id]}` : ''}" data-filter="${f.id}" aria-selected="${on}" aria-label="${f.label}, ${counts[f.id] || 0}" title="${f.label}">
-      ${svg(FILTER_ICON[f.id])}${on ? `<span>${f.label}</span>` : ''}<span class="nt-chip-count">${counts[f.id] || 0}</span></button>`;
+    return `<button type="button" role="tab" class="nt-chip${on ? ' active' : ''}${FILTER_TONE[f.id] ? ` tone-${FILTER_TONE[f.id]}` : ''}" data-filter="${f.id}" aria-selected="${on}" aria-label="${f.label}${chipNumber(f.id) ? `, ${chipNumber(f.id)}` : ''}" title="${f.label}">
+      ${svg(FILTER_ICON[f.id])}${on ? `<span>${f.label}</span>` : ''}${chipNumber(f.id) ? `<span class="nt-chip-count">${chipNumber(f.id)}</span>` : ''}</button>`;
   }).join(''));
 }
 
@@ -282,27 +296,33 @@ let _groupOpen = null;
 function groupIsOpen(key, items, read) {
   if (Announcements.query || Announcements.activeFilter !== 'all') return true;
   if (!_groupOpen) _groupOpen = {};
-  if (!(key in _groupOpen)) _groupOpen[key] = key === 'today' || key === 'tomorrow' || items.some(n => !n.past && !read.has(n.id));
+  if (!(key in _groupOpen)) _groupOpen[key] = key === 'pinned' || key === 'today' || key === 'tomorrow' || items.some(n => !n.past && !read.has(n.id));
   return _groupOpen[key];
 }
 
 let _groupItems = {};
 
+/** The Past group can be long: show the newest few and let the reader ask for more. */
+const PAST_STEP = 10;
+let _pastShown = PAST_STEP;
+
 /** One folding group: its heading and, when open, its rows. Used by the full render and by a fold. */
 function groupSectionHtml(k, label, items, read, startIndex = 0) {
   const open = groupIsOpen(k, items, read);
   const fresh = items.filter(n => !n.past && !read.has(n.id)).length;
+  const shown = k === 'past' ? items.slice(0, _pastShown) : items;
+  const more = items.length - shown.length;
   let i = startIndex;
   return `<section class="nt-group${open ? ' is-open' : ''}" data-group="${k}">
       <button type="button" class="nt-group-head" data-group-toggle="${k}" aria-expanded="${open}">
         <span>${label}</span>${groupDateHtml(k)}
         <span class="nt-group-meta">
           ${fresh && !open ? `<span class="nt-group-new">${fresh} new</span>` : ''}
-          <span class="nt-group-count">${items.length}</span>
+          ${k === 'past' && !open ? '' : `<span class="nt-group-count">${items.length}</span>`}
           ${svg('<polyline points="6 9 12 15 18 9"/>', 'nt-group-chev')}
         </span>
       </button>
-      ${open ? `<div class="nt-group-list">${items.map(n => cardHtml(n, k === 'past' || read.has(n.id), i++, k)).join('')}</div>` : ''}
+      ${open ? `<div class="nt-group-list">${shown.map(n => cardHtml(n, k === 'past' || read.has(n.id), i++, k)).join('')}</div>${more > 0 ? `<button type="button" class="nt-past-toggle" data-past-more>Show ${Math.min(more, PAST_STEP)} more</button>` : ''}` : ''}
     </section>`;
 }
 
@@ -310,23 +330,90 @@ function groupSectionHtml(k, label, items, read, startIndex = 0) {
  * Fold / unfold ONE group in place. The page is not re-drawn, nothing fades and the scroll
  * position does not move: only this group's own markup changes.
  */
-function toggleGroup(k) {
+const FX_EASE = 'cubic-bezier(0.2, 0, 0, 1)';
+const fxOn = () => document.documentElement.dataset.motion !== 'off' && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+/** Category / tab switch: the new content fades in, easing a few pixels in from the side it came from. */
+function swapFx(el, dir = 0) {
+  if (!el || !el.animate || !fxOn() || el.hidden) return;
+  el.animate([{ opacity: 0.2, transform: `translateX(${dir * 16}px)` }, { opacity: 1, transform: 'none' }], { duration: 240, easing: FX_EASE });
+}
+
+/** Category chips: the picked one opens up to show its name while the old one shuts back to an icon. */
+function chipWidths() {
+  const m = new Map();
+  document.querySelectorAll('#announceFilterBar .nt-chip').forEach(c => m.set(c.dataset.filter, c.getBoundingClientRect().width));
+  return m;
+}
+function morphChips(before) {
+  if (!before || !fxOn()) return;
+  document.querySelectorAll('#announceFilterBar .nt-chip').forEach(c => {
+    const from = before.get(c.dataset.filter);
+    if (from == null || !c.animate) return;
+    const to = c.getBoundingClientRect().width;
+    if (Math.abs(from - to) < 1) return;
+    c.style.overflow = 'hidden';
+    c.style.whiteSpace = 'nowrap';
+    const done = () => { c.style.overflow = ''; c.style.whiteSpace = ''; };
+    c.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration: 280, easing: FX_EASE }).finished.then(done, done);
+    if (c.classList.contains('active')) {
+      const label = c.querySelector('svg + span:not(.nt-chip-count)');
+      if (label) label.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, delay: 70, easing: FX_EASE, fill: 'backwards' });
+    }
+  });
+}
+
+const _folding = new Set();
+
+/** Fold: the rows slide shut and fade, the chevron turns back. Resolves when done. */
+function foldOutFx(section) {
+  const list = section.querySelector('.nt-group-list');
+  if (!list || !list.animate || !fxOn()) return Promise.resolve();
+  const h = list.offsetHeight;
+  list.style.overflow = 'hidden';
+  const chev = section.querySelector('.nt-group-chev');
+  if (chev) chev.animate([{ transform: 'none' }, { transform: 'rotate(-90deg)' }], { duration: 220, easing: FX_EASE, fill: 'forwards' });
+  return list.animate([{ height: `${h}px`, opacity: 1 }, { height: '0px', opacity: 0 }], { duration: 240, easing: FX_EASE, fill: 'forwards' }).finished.catch(() => {});
+}
+
+/** Unfold: the rows grow open and fade in, the chevron turns down. */
+function foldInFx(section) {
+  const list = section.querySelector('.nt-group-list');
+  if (!list || !list.animate || !fxOn()) return;
+  const h = list.offsetHeight;
+  list.style.overflow = 'hidden';
+  const chev = section.querySelector('.nt-group-chev');
+  if (chev) chev.animate([{ transform: 'rotate(-90deg)' }, { transform: 'none' }], { duration: 240, easing: FX_EASE });
+  const a = list.animate([{ height: '0px', opacity: 0 }, { height: `${h}px`, opacity: 1 }], { duration: 260, easing: FX_EASE });
+  a.finished.then(() => { list.style.overflow = ''; }).catch(() => { list.style.overflow = ''; });
+}
+
+function toggleGroup(k, keepFold = false) {
   const data = _groupItems[k];
   const feed = $('announceList');
   const section = feed && feed.querySelector(`.nt-group[data-group="${k}"]`);
-  if (!data || !section) return;
+  if (!data || !section || _folding.has(k)) return;
   if (!_groupOpen) _groupOpen = {};
   const wasOpen = section.classList.contains('is-open');
-  _groupOpen[k] = !wasOpen;
-  const read = Announcements.getReadIds();
-  const html = groupSectionHtml(k, data.label, data.items, read);
-  const tpl = document.createElement('template');
-  tpl.innerHTML = html.trim();
-  section.replaceWith(tpl.content.firstElementChild);
-  // The feed's remembered markup must match what is on screen, or the next full render would skip
-  const feedEl = $('announceList');
-  if (feedEl) feedEl.__html = feedEl.innerHTML;
-  bindObserver(feedEl);
+  _groupOpen[k] = keepFold ? wasOpen : !wasOpen;
+  if (k === 'past' && _chipCounts) renderFilters(_chipCounts.all, _chipCounts.current); // chip numbers include past only while it is open
+  const swap = () => {
+    const read = Announcements.getReadIds();
+    const html = groupSectionHtml(k, data.label, data.items, read);
+    const tpl = document.createElement('template');
+    tpl.innerHTML = html.trim();
+    const fresh = tpl.content.firstElementChild;
+    section.replaceWith(fresh);
+    // The feed's remembered markup must match what is on screen, or the next full render would skip
+    const feedEl = $('announceList');
+    if (feedEl) feedEl.__html = feedEl.innerHTML;
+    bindObserver(feedEl);
+    if (!keepFold && !wasOpen) foldInFx(fresh);
+  };
+  if (!keepFold && wasOpen) {
+    _folding.add(k);
+    foldOutFx(section).then(() => { _folding.delete(k); swap(); });
+  } else swap();
 }
 
 export function renderNotices() {
@@ -341,7 +428,7 @@ export function renderNotices() {
   _lastNotices = all;
 
   const searched = all.filter(n => matchesQuery(n, Announcements.query));
-  renderFilters(filterCounts(searched));
+  renderFilters(filterCounts(searched), filterCounts(searched.filter(n => !n.past)));
   const filtered = Announcements.activeFilter === 'all' ? searched : searched.filter(n => n.type === Announcements.activeFilter);
 
   if (!all.length) {
@@ -385,6 +472,9 @@ function bindObserver(feed) {
   if (_observer) { _observer.disconnect(); _observer = null; }
   _timers.forEach(t => clearTimeout(t));
   _timers.clear();
+  // New notices stay marked "new" for as long as the reader is on this page; they are marked read
+  // when the reader moves to another page (leaveNotices). The on-screen timer below is not used.
+  if (STAY_NEW_WHILE_HERE) return;
   if (Announcements.scope !== 'mine' || !('IntersectionObserver' in window)) return;
   const cards = feed.querySelectorAll('.nt-card.is-unread');
   if (!cards.length) return;
@@ -401,11 +491,7 @@ function bindObserver(feed) {
           if (dot) dot.remove();
           if (_observer) _observer.unobserve(e.target);
           _timers.delete(id);
-          const left = Announcements.unreadCount();
-          const ub = $('ntUnreadBar');
-          if (ub) ub.hidden = left === 0;
-          const t = $('ntUnreadText');
-          if (t) t.textContent = `${left} new notice${left === 1 ? '' : 's'}`;
+          renderHeader(); // the "Mark all read" button goes away with the last unread notice
         }, 900));
       } else if (_timers.has(id)) {
         clearTimeout(_timers.get(id));
@@ -478,7 +564,7 @@ function renderSheet(id) {
   const uploadIcon = '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>';
 
   body.innerHTML = `
-    <div class="ns-top">
+    <div class="ns-top tone-${n.tone}">
       <span class="ns-ico">${svg(ICONS[n.tone] || ICONS.general)}</span>
       <span class="ns-kind">${escapeHtml(n.meta.label)}<span class="ns-aud">${escapeHtml(n.audience.short || n.audience.label)}</span></span>
       ${n.pinned ? `<span class="ns-pin">${svg(UI.pin)}Pinned</span>` : ''}
@@ -525,9 +611,22 @@ export function openNotice(id) {
   const body = $('ntSheetBody');
   if (body) body.scrollTop = 0;
   openModal(sheet);
+  // On the Notices page the notice keeps its "new" mark until the reader leaves the page
+  if (window.__currentAppViewId === 'announcements') { _openedHere.add(String(id)); return; }
   Announcements.markItemAsRead(id);
   const card = document.querySelector(`.nt-card[data-id="${CSS.escape(String(id))}"]`);
   if (card) { card.classList.remove('is-unread'); const d = card.querySelector('.nt-dot'); if (d) d.remove(); }
+}
+
+/** The reader moved to another page: everything that was shown as new counts as read now. */
+function leaveNotices() {
+  const ids = new Set([..._openedHere].map(String));
+  document.querySelectorAll('#announceList .nt-card.is-unread').forEach(c => { if (c.dataset.id) ids.add(c.dataset.id); });
+  _openedHere.clear();
+  if (!ids.size) return;
+  ids.forEach(id => Announcements.markItemAsRead(id));
+  renderTabs();
+  renderHeader();
 }
 
 function closeNotice() {
@@ -614,6 +713,7 @@ export function initAnnouncementEvents() {
    */
   window.__fetchAndRenderAnnouncements = () => {
     _groupOpen = null;
+    _pastShown = PAST_STEP;
     if (Announcements.unreadCount() === 0 && Suggestions.unseenCount() > 0) Announcements.tab = 'suggestions';
     else Announcements.tab = 'notices';
     renderNotices();
@@ -621,11 +721,18 @@ export function initAnnouncementEvents() {
     Announcements.fetchAll();
   };
   window.__openNotice = openNotice;
+  window.__leaveNotices = leaveNotices;
 
   const back = $('announcePageBackBtn');
   if (back) back.addEventListener('click', () => window.switchAppView && window.switchAppView('home'));
   const post = $('newAnnounceBtn');
   if (post) post.addEventListener('click', () => window.switchAppView && window.switchAppView('post_announcement', Announcements.tab === 'suggestions' ? { __suggest: true } : null));
+  const readAll = $('ntReadAll');
+  if (readAll) readAll.addEventListener('click', () => {
+    Announcements.markAllRead();
+    renderNotices();
+    showToast('All notices marked as read', 'success');
+  });
   const notifBtn = $('ntNotifBtn');
   if (notifBtn) notifBtn.addEventListener('click', () => { const b = $('notifSettingsBtn'); if (b) b.click(); });
 
@@ -653,6 +760,9 @@ export function initAnnouncementEvents() {
     if (!b || b.dataset.tab === Announcements.tab) return;
     Announcements.tab = b.dataset.tab;
     renderNotices();
+    const dir = b.dataset.tab === 'suggestions' ? 1 : -1;
+    swapFx($(b.dataset.tab === 'suggestions' ? 'ntSuggest' : 'announceList'), dir);
+    if (b.dataset.tab !== 'suggestions') swapFx($('announceFilterBar'), dir);
   });
 
   const sgBox = $('ntSuggest');
@@ -687,8 +797,13 @@ export function initAnnouncementEvents() {
     const b = e.target.closest('.nt-chip');
     if (!b) return;
     // Tapping the selected chip again goes back to everything
+    const prevIdx = _filterOrder.indexOf(Announcements.activeFilter);
+    const widths = chipWidths();
     Announcements.activeFilter = b.dataset.filter === Announcements.activeFilter ? 'all' : b.dataset.filter;
     renderNotices();
+    morphChips(widths);
+    const nextIdx = _filterOrder.indexOf(Announcements.activeFilter);
+    swapFx($('announceList'), nextIdx === prevIdx ? 0 : (nextIdx > prevIdx ? 1 : -1));
   });
 
   /* Swipe the list sideways to move to the next / previous type (touch and mouse). Starts on the
@@ -709,10 +824,11 @@ export function initAnnouncementEvents() {
       const i = Math.max(0, _filterOrder.indexOf(Announcements.activeFilter));
       const next = _filterOrder[i + (dx < 0 ? 1 : -1)];
       if (!next) return; // already at the first / last type
+      const widths = chipWidths();
       Announcements.activeFilter = next;
       renderNotices();
-      const feed = $('announceList');
-      if (feed && feed.animate && document.documentElement.dataset.motion !== 'off') feed.animate([{ opacity: 0.35 }, { opacity: 1 }], { duration: 180, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+      morphChips(widths);
+      swapFx($('announceList'), dx < 0 ? 1 : -1);
       const chip = document.querySelector('#announceFilterBar .nt-chip.active');
       if (chip && chip.scrollIntoView) chip.scrollIntoView({ block: 'nearest', inline: 'center' });
     };
@@ -724,6 +840,7 @@ export function initAnnouncementEvents() {
 
   const page = $('announcementsAppView');
   if (page) page.addEventListener('click', e => {
+    if (e.target.closest('[data-past-more]')) { _pastShown += PAST_STEP; toggleGroup('past', true); return; }
     const head = e.target.closest('[data-group-toggle]');
     if (head) {
       const k = head.dataset.groupToggle;

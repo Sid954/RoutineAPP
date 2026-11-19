@@ -756,3 +756,67 @@
 .ns-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; margin-top: 16px; font-size: 12.5px; font-weight: 500; color: var(--nt-text-3); }
 .ns-meta strong { color: var(--nt-text-2); font-weight: 700; }
 .ns-confirmed { font-weight: 700; color: var(--nt-warn); }
+
+
+/* ── Notices v5 (One UI style): big title, pill controls, rounded clusters, round coloured icons ── */
+.tone-general { --tone-solid: #0EA5E9; }
+.tone-cancel  { --tone-solid: #F43F5E; }
+.tone-holiday { --tone-solid: #F59E0B; }
+.tone-online, .tone-extra { --tone-solid: #10B981; }
+.tone-exam    { --tone-solid: #F97316; }
+.tone-moved   { --tone-solid: #64748B; }
+.tone-task    { --tone-solid: #A855F7; }
+
+.nt-page .page-title { font-size: 30px; letter-spacing: -0.4px; }
+.nt-page .nt-notif-btn { border: 0; border-radius: 50%; width: 38px; height: 38px; background: var(--nt-surface); }
+
+/* Notices | Suggestions and search: pills on the card colour, no outlines */
+.nt-tabs { border: 0; border-radius: 999px; padding: 4px; background: var(--nt-surface); }
+.nt-tabs button { border-radius: 999px; height: 40px; }
+.nt-search { height: 48px; border: 0; border-radius: 999px; padding: 0 10px 0 18px; background: var(--nt-surface); }
+.nt-search:focus-within { box-shadow: 0 0 0 2px var(--accent); }
+.nt-chip { border: 0; background: var(--nt-surface); height: 36px; }
+.nt-chip.active { background: var(--accent); color: var(--btn-text, #fff); }
+.nt-chip.active svg, .nt-chip.active .nt-chip-count { color: inherit; }
+
+/* Groups: a small heading over one rounded cluster */
+.nt-feed { gap: 18px; }
+.nt-group-head { padding: 0 6px; margin: 0 0 8px; }
+.nt-group-head > span:first-child { font-size: 12.5px; font-weight: 700; color: var(--nt-text-2); }
+.nt-group-list, .sg-list { border: 0; border-radius: 24px; }
+
+/* The row: a round coloured icon, then headline, detail, who and when */
+.nt-page .nt-card { gap: 14px; padding: 14px 16px; }
+.nt-page .nt-card + .nt-card { border-top: 0; }
+.nt-page .nt-card + .nt-card::after { content: ''; position: absolute; top: 0; left: 74px; right: 0; border-top: 1px solid var(--nt-line); }
+.nt-page .nt-card .nt-ico {
+  width: 44px; height: 44px; border-radius: 50%; margin-top: 1px;
+  background: var(--tone-solid, #64748B); color: #fff;
+}
+.nt-page .nt-card .nt-ico svg { width: 22px; height: 22px; }
+.nt-page .nt-card.is-unread::before { left: 0; top: 14px; bottom: 14px; }
+.nt-page .nt-card.is-past .nt-ico { opacity: 0.7; }
+.nt-empty-icon { border: 0; border-radius: 50%; width: 56px; height: 56px; background: var(--nt-surface); }
+.nt-past-toggle { border-radius: 999px; }
+.sg-new { height: 48px; border-radius: 999px; }
+.nt-admin-bar, #ntHealth .nh-item, .nh-box { border-radius: 20px; }
+
+
+/* ── Notices v5: the detail sheet ── */
+.nt-sheet { border-radius: 28px 28px 0 0; }
+.ns-top { gap: 12px; min-height: 40px; }
+.ns-ico { width: 40px; height: 40px; border-radius: 50%; background: var(--tone-solid, #64748B); color: #fff; }
+.ns-ico svg { width: 20px; height: 20px; }
+.ns-kind { flex-direction: column; align-items: flex-start; gap: 0; font-size: 14px; color: var(--nt-text); }
+.ns-aud { font-size: 11.5px; }
+.ns-title { font-size: 26px; margin: 14px 0 16px; }
+.ns-when, .ns-facts, .ns-text { background: var(--nt-hover); border: 0; border-radius: 20px; }
+.ns-when { padding: 16px 18px; }
+.ns-facts { padding: 2px 16px; margin-bottom: 14px; }
+.ns-facts > div { padding: 12px 0; }
+.ns-text { margin: 0 0 14px; padding: 14px 16px; border-top: 0; }
+.ns-primary { border-radius: 999px; height: 54px; }
+.ns-action { border: 0; border-radius: 999px; height: 46px; background: var(--nt-hover); }
+.nt-past-toggle { align-self: center; margin: 10px auto 0; display: block; }
+#ntReadAll { color: var(--accent); }
+:root[data-color="light"] #ntReadAll { color: var(--accent-hover); }

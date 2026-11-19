@@ -25,15 +25,15 @@ const AUTHOR_KEY = 'routine_notice_author';
 const CLASS_TIED = new Set(['cancellation', 'online_class', 'class_test', 'rescheduled', 'assignment']);
 
 const TYPES = [
-  { id: 'cancellation', tone: 'cancel', label: 'A class is cancelled', desc: 'The class is crossed out in the routine for that day.' },
-  { id: 'class_test', tone: 'exam', label: 'A class test', desc: 'Date, course and syllabus. It shows on that day and everyone gets a reminder.' },
-  { id: 'assignment', tone: 'task', label: 'An assignment', desc: 'What to hand in and when. Reminders go out before the deadline.' },
-  { id: 'rescheduled', tone: 'moved', label: 'A class moved', desc: 'To another day, time or room. The routine shows it in the new slot.' },
-  { id: 'online_class', tone: 'online', label: 'An online or extra class', desc: 'Added to the routine for that day, with the link or the room.' },
-  { id: 'holiday', tone: 'holiday', label: 'A holiday', desc: 'Every class that day is off.' },
-  { id: 'general', tone: 'general', label: 'Something else', desc: 'A message for the class: a reminder, a change, news from a teacher.' }
+  { id: 'general', tone: 'general', label: 'Notice', desc: 'Anything for the class that is not on the routine: a reminder, news, a message from a teacher.' },
+  { id: 'cancellation', tone: 'cancel', label: 'Class cancelled', desc: 'The class is crossed out in the routine for that day.' },
+  { id: 'class_test', tone: 'exam', label: 'Class test', desc: 'Course, date and syllabus. It appears on that day and a reminder goes out.' },
+  { id: 'assignment', tone: 'task', label: 'Assignment', desc: 'What to submit and by when. A reminder goes out before the deadline.' },
+  { id: 'rescheduled', tone: 'moved', label: 'Class moved', desc: 'New day, time or room. The routine shows the class in its new slot.' },
+  { id: 'online_class', tone: 'online', label: 'Online or extra class', desc: 'Adds a class to that day, with the link or the room.' },
+  { id: 'holiday', tone: 'holiday', label: 'Campus closed', desc: 'No classes that day. Every class is crossed out.' }
 ];
-const typeMeta = id => TYPES.find(t => t.id === id) || TYPES[TYPES.length - 1];
+const typeMeta = id => TYPES.find(t => t.id === id) || TYPES[0];
 
 const STEP_TEXT = {
   mode: { title: 'What do you want to do?', sub: () => 'Pick one. You can go back at any step.' },

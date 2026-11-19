@@ -187,84 +187,75 @@
             </div>
 
             <div class="apps-hub-grid">
-              <!-- Faculty Directory Card -->
-              <div class="apps-hub-card" id="appHubFaculty">
-                <div class="apps-hub-card-icon-squircle purple">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                </div>
-                <div class="apps-hub-card-content">
-                  <div class="apps-hub-card-title-row">
-                    <span class="apps-hub-card-title">Faculty Directory</span>
+              <div class="ah-sec">
+                <h4 class="ah-sec-title">Campus services</h4>
+                <div class="ah-cluster">
+                <div class="apps-hub-card" id="appHubFaculty">
+                  <div class="apps-hub-card-icon-squircle purple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                   </div>
-                  <p class="apps-hub-card-desc">Search instructors, class routines, contacts & course distributions</p>
+                  <div class="apps-hub-card-content">
+                    <div class="apps-hub-card-title-row">
+                      <span class="apps-hub-card-title">Faculty Directory</span>
+                    </div>
+                    <p class="apps-hub-card-desc">Instructors, contacts and routines</p>
+                  </div>
+                  <span class="apps-hub-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
                 </div>
-                <div class="apps-hub-card-arrow">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <div class="apps-hub-card" id="appHubFreeRooms">
+                  <div class="apps-hub-card-icon-squircle emerald">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                  </div>
+                  <div class="apps-hub-card-content">
+                    <div class="apps-hub-card-title-row">
+                      <span class="apps-hub-card-title">Rooms</span>
+                    </div>
+                    <p class="apps-hub-card-desc">Free rooms and labs, now or later</p>
+                  </div>
+                  <span class="apps-hub-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+                </div>
+                <div class="apps-hub-card is-soon" id="appHubWifi" aria-disabled="true">
+                  <div class="apps-hub-card-icon-squircle sky">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+                  </div>
+                  <div class="apps-hub-card-content">
+                    <div class="apps-hub-card-title-row">
+                      <span class="apps-hub-card-title">Wi-Fi Passwords</span>
+                      <span class="apps-hub-soon-badge">Coming soon</span>
+                    </div>
+                    <p class="apps-hub-card-desc">Campus Wi-Fi networks and passwords</p>
+                  </div>
+                  
+                </div>
                 </div>
               </div>
-
-              <!-- Free Rooms Finder Card -->
-              <div class="apps-hub-card" id="appHubFreeRooms">
-                <div class="apps-hub-card-icon-squircle emerald">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                </div>
-                <div class="apps-hub-card-content">
-                  <div class="apps-hub-card-title-row">
-                    <span class="apps-hub-card-title">Rooms</span>
+              <div class="ah-sec">
+                <h4 class="ah-sec-title">In this app</h4>
+                <div class="ah-cluster">
+                <div class="apps-hub-card" id="appHubRoutineMatrix">
+                  <div class="apps-hub-card-icon-squircle indigo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                   </div>
-                  <p class="apps-hub-card-desc">See which classrooms and labs are free, now or later</p>
-                </div>
-                <div class="apps-hub-card-arrow">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </div>
-              </div>
-
-              <!-- Wifi Passwords -->
-              <!-- Not built yet: shown as "Coming soon", not clickable (it used to share the
-                   Routine Matrix card's id, so tapping it opened the matrix) -->
-              <div class="apps-hub-card is-soon" id="appHubWifi" aria-disabled="true">
-                <div class="apps-hub-card-icon-squircle cyan">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
-                </div>
-                <div class="apps-hub-card-content">
-                  <div class="apps-hub-card-title-row">
-                    <span class="apps-hub-card-title">Wi-Fi Passwords</span>
-                    <span class="apps-hub-soon-badge">Coming soon</span>
+                  <div class="apps-hub-card-content">
+                    <div class="apps-hub-card-title-row">
+                      <span class="apps-hub-card-title">Routine Matrix</span>
+                    </div>
+                    <p class="apps-hub-card-desc">The full weekly timetable</p>
                   </div>
-                  <p class="apps-hub-card-desc">Shared campus Wi-Fi networks and passwords</p>
+                  <span class="apps-hub-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
                 </div>
-              </div>
-
-              <!-- Weekly Routine Matrix Card -->
-              <div class="apps-hub-card" id="appHubRoutineMatrix">
-                <div class="apps-hub-card-icon-squircle cyan">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                </div>
-                <div class="apps-hub-card-content">
-                  <div class="apps-hub-card-title-row">
-                    <span class="apps-hub-card-title">Routine Matrix</span>
+                <div class="apps-hub-card" id="appHubSettings">
+                  <div class="apps-hub-card-icon-squircle amber">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                   </div>
-                  <p class="apps-hub-card-desc">View full weekly department timetable grid</p>
-                </div>
-                <div class="apps-hub-card-arrow">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </div>
-              </div>
-
-
-              <!-- Routine Settings Card -->
-              <div class="apps-hub-card" id="appHubSettings">
-                <div class="apps-hub-card-icon-squircle amber">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                </div>
-                <div class="apps-hub-card-content">
-                  <div class="apps-hub-card-title-row">
-                    <span class="apps-hub-card-title">Settings</span>
+                  <div class="apps-hub-card-content">
+                    <div class="apps-hub-card-title-row">
+                      <span class="apps-hub-card-title">Settings</span>
+                    </div>
+                    <p class="apps-hub-card-desc">Class, theme and notifications</p>
                   </div>
-                  <p class="apps-hub-card-desc">Your class, name, theme, widgets and updates</p>
+                  <span class="apps-hub-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
                 </div>
-                <div class="apps-hub-card-arrow">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </div>
               </div>
             </div>
@@ -333,6 +324,7 @@
               <div class="page-title-group nt-title-group">
                 <div class="nt-title-row">
                   <h1 class="page-title">Notices</h1>
+                  <button type="button" class="nt-notif-btn" id="ntReadAll" aria-label="Mark all as read" title="Mark all as read" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12l5 5L17 7"/><path d="M12 15l1.5 1.5L22 8"/></svg></button>
                   <button type="button" class="nt-notif-btn" id="ntNotifBtn" aria-label="Notification settings" title="Notification settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></button>
                 </div>
                 <span class="page-subtitle" id="announceSubtitle"></span>
@@ -672,154 +664,336 @@
           </div>
         </section>
 
-        <!-- Class: switching section downloads that routine and reloads -->
-        <section class="st-group">
-          <h3 class="st-group-title">Your class</h3>
-          <div class="st-card">
-            <div class="st-pair">
-              <label class="st-field">
-                <span class="st-label">Semester</span>
-                <span class="st-select-wrap"><select id="routineSemesterSelect" class="st-select"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-              </label>
-              <label class="st-field">
-                <span class="st-label">Section</span>
-                <span class="st-select-wrap"><select id="routineSectionSelect" class="st-select"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-              </label>
-            </div>
-            <div class="st-switch" id="stSwitchBar" hidden>
-              <span class="st-switch-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span>
-              <div class="st-switch-text">
-                <strong id="stSwitchTitle">Switch class</strong>
-                <span>Downloads that routine and reloads the app</span>
-              </div>
-              <div class="st-switch-acts">
-                <button type="button" class="st-btn st-btn-ghost" id="stSwitchUndo">Undo</button>
-                <button type="button" class="st-btn st-btn-primary" id="saveAllSettingsBtn">Switch</button>
-              </div>
-            </div>
-            <div class="st-offdays">
-              <span class="st-label">University off days</span>
-              <div class="st-offday-chips" id="stOffDays" role="group" aria-label="Off days">
-                <button type="button" data-dow="6">Sat</button><button type="button" data-dow="0">Sun</button><button type="button" data-dow="1">Mon</button><button type="button" data-dow="2">Tue</button><button type="button" data-dow="3">Wed</button><button type="button" data-dow="4">Thu</button><button type="button" data-dow="5">Fri</button>
-              </div>
-              <label class="st-switch-row">
-                <span><strong>Hide off days</strong><span>Only show them in Home and Rooms when a class or event is on</span></span>
-                <input type="checkbox" id="stHideOff" class="st-switch-input">
-                <span class="st-switch-ui" aria-hidden="true"></span>
-              </label>
-            </div>
-          </div>
-        </section>
+        <!-- Search every setting -->
+        <label class="st-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="stSearch" placeholder="Search settings" autocomplete="off" aria-label="Search settings">
+        </label>
 
-        <!-- Appearance -->
-        <section class="st-group">
-          <h3 class="st-group-title">Appearance</h3>
-          <div class="st-theme-grid" id="themePaletteGrid" role="radiogroup" aria-label="Theme"></div>
-          <div class="st-card st-motion">
-            <div class="st-motion-head">
-              <span class="st-label">Animations</span>
-              <span class="st-hint" id="stMotionHint">Auto</span>
-            </div>
-            <div class="st-motion-seg" id="stMotionSeg" role="radiogroup" aria-label="Animations">
-              <button type="button" role="radio" data-motion-pref="auto">Auto</button>
-              <button type="button" role="radio" data-motion-pref="full">Full</button>
-              <button type="button" role="radio" data-motion-pref="lite">Lite</button>
-              <button type="button" role="radio" data-motion-pref="off">Off</button>
-            </div>
-            <label class="st-switch-row">
-              <span><strong>Vibrate on tap</strong><span>Light haptic feedback on buttons and actions</span></span>
-              <input type="checkbox" id="stHaptics" class="st-switch-input">
-              <span class="st-switch-ui" aria-hidden="true"></span>
-            </label>
-          </div>
-        </section>
-
-        <!-- Android home screen widgets (shown by widget.js in the native app) -->
-        <section class="st-group" id="widgetPinSection" style="display: none;">
-          <h3 class="st-group-title">Home screen widgets</h3>
-          <div class="st-card st-widget">
-            <div class="st-seg" id="widgetSizeSegmented" role="tablist" aria-label="Widget">
-              <button type="button" class="widget-size-pill active" data-type="live">Live class</button>
-              <button type="button" class="widget-size-pill" data-type="landscape">Week</button>
-              <button type="button" class="widget-size-pill" data-type="portrait">Day</button>
-            </div>
-            <div class="widget-mockup-frame st-widget-frame">
-              <div class="widget-adaptive-preview" id="widgetPreviewContainer"></div>
-            </div>
-            <button type="button" id="pinWidgetBtn" class="st-btn st-btn-primary st-btn-block">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span id="pinWidgetBtnText">Add Live Class Tracker to Home Screen</span>
+        <!-- Groups: tap one to open it. Preference controls inside are rendered from src/settings/pref-schema.js -->
+        <div class="st-groups" id="stGroups">
+          <div class="st-cluster">
+          <!-- Your class: switching section downloads that routine and reloads -->
+          <section class="st-acc" data-acc="class">
+            <button type="button" class="st-acc-head" data-acc-head aria-expanded="false">
+              <span class="st-acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg></span>
+              <span class="st-acc-text"><strong>Your class</strong><span id="stClassSummary">Semester and section</span></span>
+              <span class="st-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
             </button>
-            <div id="widgetFeedbackBox" class="st-note" style="display: none;"></div>
-          </div>
-        </section>
-
-        <!-- Routine editor -->
-        <section class="st-group">
-          <h3 class="st-group-title">Your routine</h3>
-          <div class="st-card st-card-flush">
-            <button type="button" class="st-row" id="toggleEditRoutineCollapseBtn" aria-expanded="false" aria-controls="collapsibleRoutineSection">
-              <span class="st-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
-              <span class="st-row-text"><strong>Edit classes</strong><span id="stRoutineSummary">Add, remove or restore classes</span></span>
-              <span class="st-row-chev st-row-chev-down" id="editRoutineChevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+            <div class="st-acc-body" hidden>
+              <div class="st-sec">
+                <div class="st-sec-card is-bare">
+                  <div class="st-hero st-item" data-q="class semester section current">
+                    <span class="st-hero-k">Your class</span>
+                    <strong id="stHeroClass">Semester 2 · Section C</strong>
+                    <span class="st-hero-s">Your routine, rooms and notices follow this class</span>
+                  </div>
+                </div>
+              </div>
+              <div class="st-sec">
+                <h4 class="st-sec-title">Change class</h4>
+                <div class="st-sec-card">
+                  <div class="st-item" data-q="class semester section batch switch routine change">
+                    <div class="st-pair">
+                      <label class="st-field">
+                        <span class="st-label">Semester</span>
+                        <span class="st-select-wrap"><select id="routineSemesterSelect" class="st-select"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                      </label>
+                      <label class="st-field">
+                        <span class="st-label">Section</span>
+                        <span class="st-select-wrap"><select id="routineSectionSelect" class="st-select"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                      </label>
+                    </div>
+                    <div class="st-switch" id="stSwitchBar" hidden>
+                      <span class="st-switch-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span>
+                      <div class="st-switch-text">
+                        <strong id="stSwitchTitle">Switch class</strong>
+                        <span>Downloads that routine and reloads the app</span>
+                      </div>
+                      <div class="st-switch-acts">
+                        <button type="button" class="st-btn st-btn-ghost" id="stSwitchUndo">Undo</button>
+                        <button type="button" class="st-btn st-btn-primary" id="saveAllSettingsBtn">Switch</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p class="st-sec-note">Picking another class only previews it. Tap Switch to download that routine.</p>
+              </div>
+            </div>
+          </section>
+          <!-- Routine editor: tap a class to change it -->
+          <section class="st-acc" data-acc="routine">
+            <button type="button" class="st-acc-head" data-acc-head aria-expanded="false">
+              <span class="st-acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
+              <span class="st-acc-text"><strong>Edit your routine</strong><span id="stRoutineSummary">Add, change, move or remove classes</span></span>
+              <span class="st-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
             </button>
-            <div id="collapsibleRoutineSection" class="st-editor" style="display: none;">
-              <div class="st-days" id="stEditDays" role="tablist" aria-label="Day"></div>
-              <div class="st-class-list" id="rCols"></div>
-
-              <button type="button" class="st-add-toggle" id="toggleAddClassBtn" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span id="stAddLabel">Add a class</span></button>
-              <div class="st-add-form" id="addClassForm" style="display: none;">
-                <div class="st-form-grid">
-                  <label class="st-field st-span-2"><span class="st-label">Subject</span><input type="text" id="eT" class="st-input" placeholder="e.g. DSL" autocomplete="off"></label>
-                  <label class="st-field"><span class="st-label">Starts</span><input type="time" id="eS" class="st-input" value="09:45"></label>
-                  <label class="st-field"><span class="st-label">Ends</span><input type="time" id="eE" class="st-input" value="11:00"></label>
-                  <label class="st-field"><span class="st-label">Room</span><input type="text" id="eR" class="st-input" placeholder="e.g. 905" autocomplete="off"></label>
-                  <label class="st-field"><span class="st-label">Teacher</span><input type="text" id="eI" class="st-input" placeholder="e.g. MHE" autocomplete="off"></label>
-                  <label class="st-field"><span class="st-label">Type</span>
-                    <span class="st-select-wrap"><select id="eTy" class="st-select st-input">
-                      <option value="Theory">Theory</option>
-                      <option value="Lab">Lab</option>
-                      <option value="Break">Break</option>
-                      <option value="Other">Other</option>
-                    </select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-                  </label>
-                  <label class="st-field"><span class="st-label">Day</span>
-                    <span class="st-select-wrap"><select id="eDay" class="st-select st-input"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+            <div class="st-acc-body" hidden>
+              <div id="collapsibleRoutineSection" class="st-editor">
+                <div class="st-sec">
+                  <h4 class="st-sec-title">Classes</h4>
+                  <div class="st-sec-card">
+                    <div class="st-item" data-q="edit routine classes day list change remove delete pencil">
+                      <div class="st-days" id="stEditDays" role="tablist" aria-label="Day"></div>
+                      <div class="st-class-list" id="rCols"></div>
+                    </div>
+                  </div>
+                  <p class="st-sec-note">Tap a class to change it, or the bin to remove it. Every change can be undone.</p>
+                </div>
+                <div class="st-sec">
+                  <h4 class="st-sec-title" id="stFormTitle">Add a class</h4>
+                  <div class="st-sec-card">
+                    <div class="st-item" data-q="add class new subject room teacher time type day">
+                      <button type="button" class="st-add-toggle" id="toggleAddClassBtn" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span id="stAddLabel">Add a class</span></button>
+                      <div class="st-add-form" id="addClassForm" style="display: none;">
+                        <div class="st-form-grid">
+                          <label class="st-field st-span-2"><span class="st-label">Subject</span><input type="text" id="eT" class="st-input" placeholder="e.g. DSL" autocomplete="off"></label>
+                          <label class="st-field"><span class="st-label">Starts</span><input type="time" id="eS" class="st-input" value="09:45"></label>
+                          <label class="st-field"><span class="st-label">Ends</span><input type="time" id="eE" class="st-input" value="11:00"></label>
+                          <label class="st-field"><span class="st-label">Room</span><input type="text" id="eR" class="st-input" placeholder="e.g. 905" autocomplete="off"></label>
+                          <label class="st-field"><span class="st-label">Teacher</span><input type="text" id="eI" class="st-input" placeholder="e.g. MHE" autocomplete="off"></label>
+                          <label class="st-field"><span class="st-label">Type</span>
+                            <span class="st-select-wrap"><select id="eTy" class="st-select st-input">
+                              <option value="Theory">Theory</option>
+                              <option value="Lab">Lab</option>
+                              <option value="Break">Break</option>
+                              <option value="Other">Other</option>
+                            </select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                          </label>
+                          <label class="st-field"><span class="st-label">Day</span>
+                            <span class="st-select-wrap"><select id="eDay" class="st-select st-input"></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                          </label>
+                        </div>
+                        <button type="button" class="st-btn st-btn-primary st-btn-block" id="addB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span id="addBText">Add class</span></button>
+                        <button type="button" class="st-btn st-btn-ghost st-btn-block" id="cancelEditB" hidden>Cancel editing</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="st-sec">
+                  <h4 class="st-sec-title">More</h4>
+                  <div class="st-sec-card">
+                    <div class="st-item" data-q="clear day restore official routine reset">
+                      <div class="st-editor-foot">
+                        <button type="button" class="st-btn st-btn-ghost st-btn-danger" id="clrB">Clear day</button>
+                        <button type="button" class="st-btn st-btn-ghost" id="rstB">Restore official routine</button>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="st-sec-note">Restore replaces your edits with the official routine for your class.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+          </div>
+          <div class="st-cluster">
+          <!-- Appearance -->
+          <section class="st-acc" data-acc="appearance">
+            <button type="button" class="st-acc-head" data-acc-head aria-expanded="false">
+              <span class="st-acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2c0-.6-.3-1.1-.6-1.5-.3-.4-.4-.9-.4-1.5a2 2 0 0 1 2-2h2.3A5.7 5.7 0 0 0 22 10.7C22 5.8 17.5 2 12 2z"/></svg></span>
+              <span class="st-acc-text"><strong>Appearance</strong><span id="stAppearSummary">Theme, accent colour, corners, text size</span></span>
+              <span class="st-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+            </button>
+            <div class="st-acc-body" hidden>
+              <div class="st-sec">
+                <h4 class="st-sec-title">Theme</h4>
+                <div class="st-sec-card is-bare">
+                  <div class="st-item" data-q="theme dark light mode night day">
+                    <div class="st-theme-grid" id="themePaletteGrid" role="radiogroup" aria-label="Theme"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="st-sec">
+                <h4 class="st-sec-title">Preview</h4>
+                <div class="st-sec-card is-bare">
+                  <div class="st-item st-preview" data-card-preview data-q="preview sample"></div>
+                </div>
+              </div>
+              <div class="st-items" data-pref-group="appearance"></div>
+            </div>
+          </section>
+          <!-- Home screen -->
+          <section class="st-acc" data-acc="home">
+            <button type="button" class="st-acc-head" data-acc-head aria-expanded="false">
+              <span class="st-acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+              <span class="st-acc-text"><strong>Home screen</strong><span>Greeting, clock, week strip and shortcuts</span></span>
+              <span class="st-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+            </button>
+            <div class="st-acc-body" hidden>
+              <div class="st-items" data-pref-group="home"></div>
+            </div>
+          </section>
+          <!-- Class cards -->
+          <section class="st-acc" data-acc="cards">
+            <button type="button" class="st-acc-head" data-acc-head aria-expanded="false">
+              <span class="st-acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/></svg></span>
+              <span class="st-acc-text"><strong>Class cards</strong><span>What each class on Home shows</span></span>
+              <span class="st-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+            </button>
+            <div class="st-acc-body" hidden>
+              <div class="st-sec">
+                <h4 class="st-sec-title">Preview</h4>
+                <div class="st-sec-card is-bare">
+                  <div class="st-item st-preview" data-card-preview data-q="preview sample"></div>
+                </div>
+              </div>
+              <div class="st-items" data-pref-group="cards"></div>
+            </div>
+          </section>
+          <!-- Weekly routine page -->
+          <section class="st-acc" data-acc="routine-page">
+            <button type="button" class="st-acc-head" data-acc-head aria-expanded="false">
+              <span class="st-acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+              <span class="st-acc-text"><strong>Weekly routine page</strong><span>The Routine tab at the bottom</span></span>
+              <span class="st-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+            </button>
+            <div class="st-acc-body" hidden>
+              <div class="st-items" data-pref-group="routine"></div>
+            </div>
+          </section>
+          </div>
+          <div class="st-cluster">
+          <!-- Time and week -->
+          <section class="st-acc" data-acc="time">
+            <button type="button" class="st-acc-head" data-acc-head aria-expanded="false">
+              <span class="st-acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+              <span class="st-acc-text"><strong>Time and week</strong><span id="stTimeSummary">Time format and university off days</span></span>
+              <span class="st-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+            </button>
+            <div class="st-acc-body" hidden>
+              <div class="st-items" data-pref-group="time"></div>
+              <div class="st-sec">
+                <h4 class="st-sec-title">University week</h4>
+                <div class="st-sec-card">
+                  <div class="st-item st-offdays" data-q="off days weekend friday saturday holiday university week">
+                    <span class="st-label">Off days</span>
+                    <div class="st-offday-chips" id="stOffDays" role="group" aria-label="Off days">
+                      <button type="button" data-dow="6">Sat</button><button type="button" data-dow="0">Sun</button><button type="button" data-dow="1">Mon</button><button type="button" data-dow="2">Tue</button><button type="button" data-dow="3">Wed</button><button type="button" data-dow="4">Thu</button><button type="button" data-dow="5">Fri</button>
+                    </div>
+                  </div>
+                  <label class="st-switch-row st-item" data-q="hide off days weekend empty">
+                    <span><strong>Hide off days</strong><span>Only show them in Home and Rooms when a class or event is on</span></span>
+                    <input type="checkbox" id="stHideOff" class="st-switch-input">
+                    <span class="st-switch-ui" aria-hidden="true"></span>
                   </label>
                 </div>
-                <button type="button" class="st-btn st-btn-primary st-btn-block" id="addB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add class</span></button>
-              </div>
-
-              <div class="st-editor-foot">
-                <button type="button" class="st-btn st-btn-ghost st-btn-danger" id="clrB">Clear day</button>
-                <button type="button" class="st-btn st-btn-ghost" id="rstB">Restore official routine</button>
               </div>
             </div>
-          </div>
-        </section>
-
-        <!-- App -->
-        <section class="st-group">
-          <h3 class="st-group-title">App</h3>
-          <div class="st-card st-card-flush">
-            <!-- Opens the Notifications popup (#notifModal): permission + health check -->
-            <button type="button" class="st-row" id="notifSettingsBtn">
-              <span class="st-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
-              <span class="st-row-text"><strong>Notifications</strong><span id="stNotifSummary">Permission and delivery check</span></span>
-              <span class="st-row-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></span>
+          </section>
+          <!-- Gestures and feel -->
+          <section class="st-acc" data-acc="gestures">
+            <button type="button" class="st-acc-head" data-acc-head aria-expanded="false">
+              <span class="st-acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span>
+              <span class="st-acc-text"><strong>Animations and gestures</strong><span>Motion, vibration, swipes and pull to refresh</span></span>
+              <span class="st-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
             </button>
-            <button type="button" class="st-row" id="checkUpdateBtn">
-              <span class="st-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
-              <span class="st-row-text"><strong>Check for updates</strong><span id="stAppVersion">Version</span></span>
-              <span class="st-row-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></span>
-            </button>
-            <div id="updateCheckDetails" class="st-update" style="display: none;"></div>
-            <div class="st-row st-row-static">
-              <span class="st-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span>
-              <span class="st-row-text"><strong>Offline data</strong><span id="editCacheVersion">Loading…</span></span>
-              <span class="st-pill" id="editCacheStatus">Online</span>
+            <div class="st-acc-body" hidden>
+              <div class="st-sec">
+                <h4 class="st-sec-title">Motion</h4>
+                <div class="st-sec-card">
+                  <div class="st-item st-motion" data-q="animations motion full lite off smooth fast battery">
+                    <div class="st-motion-head">
+                      <span class="st-label">Animations</span>
+                      <span class="st-hint" id="stMotionHint">Auto</span>
+                    </div>
+                    <div class="st-motion-seg" id="stMotionSeg" role="radiogroup" aria-label="Animations">
+                      <button type="button" role="radio" data-motion-pref="auto">Auto</button>
+                      <button type="button" role="radio" data-motion-pref="full">Full</button>
+                      <button type="button" role="radio" data-motion-pref="lite">Lite</button>
+                      <button type="button" role="radio" data-motion-pref="off">Off</button>
+                    </div>
+                  </div>
+                  <label class="st-switch-row st-item" data-q="vibrate haptic vibration tap feedback">
+                    <span><strong>Vibrate on tap</strong><span>Light haptic feedback on buttons and actions</span></span>
+                    <input type="checkbox" id="stHaptics" class="st-switch-input">
+                    <span class="st-switch-ui" aria-hidden="true"></span>
+                  </label>
+                </div>
+              </div>
+              <div class="st-items" data-pref-group="gestures"></div>
             </div>
+          </section>
           </div>
-        </section>
+          <div class="st-cluster">
+          <!-- Notifications: opens its own page -->
+          <section class="st-acc" data-acc="notifications">
+            <button type="button" class="st-acc-head" id="notifSettingsBtn">
+              <span class="st-acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+              <span class="st-acc-text"><strong>Notifications</strong><span id="stNotifSummary">Permission and delivery check</span></span>
+              <span class="st-acc-chev st-acc-chev-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></span>
+            </button>
+          </section>
+          <!-- Android home screen widgets (shown by widget.js in the native app) -->
+          <section class="st-acc" data-acc="widgets" id="widgetPinSection" style="display: none;">
+            <button type="button" class="st-acc-head" data-acc-head aria-expanded="false">
+              <span class="st-acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg></span>
+              <span class="st-acc-text"><strong>Home screen widgets</strong><span>Live class, week and day widgets</span></span>
+              <span class="st-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+            </button>
+            <div class="st-acc-body" hidden>
+              <div class="st-item st-widget" data-q="widget home screen pin live week day">
+                <div class="st-seg" id="widgetSizeSegmented" role="tablist" aria-label="Widget">
+                  <button type="button" class="widget-size-pill active" data-type="live">Live class</button>
+                  <button type="button" class="widget-size-pill" data-type="landscape">Week</button>
+                  <button type="button" class="widget-size-pill" data-type="portrait">Day</button>
+                </div>
+                <div class="widget-mockup-frame st-widget-frame">
+                  <div class="widget-adaptive-preview" id="widgetPreviewContainer"></div>
+                </div>
+                <button type="button" id="pinWidgetBtn" class="st-btn st-btn-primary st-btn-block">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span id="pinWidgetBtnText">Add Live Class Tracker to Home Screen</span>
+                </button>
+                <div id="widgetFeedbackBox" class="st-note" style="display: none;"></div>
+              </div>
+            </div>
+          </section>
+          </div>
+          <div class="st-cluster">
+          <!-- App and data -->
+          <section class="st-acc" data-acc="app">
+            <button type="button" class="st-acc-head" data-acc-head aria-expanded="false">
+              <span class="st-acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
+              <span class="st-acc-text"><strong>App and data</strong><span id="stAppSummary">Updates, offline data and reset</span></span>
+              <span class="st-acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+            </button>
+            <div class="st-acc-body" hidden>
+              <div class="st-sec">
+                <h4 class="st-sec-title">Updates</h4>
+                <div class="st-sec-card is-flush">
+                  <button type="button" class="st-row" id="checkUpdateBtn" data-q="update version check new release">
+                    <span class="st-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
+                    <span class="st-row-text"><strong>Check for updates</strong><span id="stAppVersion">Version</span></span>
+                    <span class="st-row-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></span>
+                  </button>
+                  <div id="updateCheckDetails" class="st-update" style="display: none;"></div>
+                </div>
+              </div>
+              <div class="st-sec">
+                <h4 class="st-sec-title">Storage</h4>
+                <div class="st-sec-card is-flush">
+                  <div class="st-row st-row-static" data-q="offline data cache storage">
+                    <span class="st-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span>
+                    <span class="st-row-text"><strong>Offline data</strong><span id="editCacheVersion">Loading…</span></span>
+                    <span class="st-pill" id="editCacheStatus">Online</span>
+                  </div>
+                </div>
+                <p class="st-sec-note">The routine is saved on this phone, so Home works without internet.</p>
+              </div>
+              <div class="st-sec">
+                <h4 class="st-sec-title">Reset</h4>
+                <div class="st-sec-card is-flush">
+                  <button type="button" class="st-row" id="stResetPrefs" data-q="reset default display settings restore">
+                    <span class="st-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></span>
+                    <span class="st-row-text"><strong>Reset display settings</strong><span>Back to the defaults. Your routine and class are kept</span></span>
+                    <span class="st-row-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+          </div>
+        </div>
+        <div class="st-empty-search" id="stNoResults" hidden>No settings match that search.</div>
       </div>
     </div>
   </div>

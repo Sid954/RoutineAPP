@@ -1,10 +1,10 @@
 import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
-import { CONFIG, DAY_NAMES, DAY_SHORT } from '../core/config.js';
+import { CONFIG, DAY_NAMES, DAY_SHORT, MONTHS } from '../core/config.js';
 import { getClassesForDay } from '../schedule/queries.js';
-import { getOverrideFor } from '../announcements/overrides.js';
+import { getOverrideFor, getOverridesByDateMap, getDateForDayIndex } from '../announcements/overrides.js';
 import { getSubjectTheme } from '../schedule/themes.js';
-import { toMinutes, format12h, getCurrentMinutes, escapeHtml, formatRoom, truncateText, LAB_LABEL_HTML, setHtmlIfChanged } from '../core/utils.js';
+import { toMinutes, format12h, getCurrentMinutes, escapeHtml, formatRoom, truncateText, LAB_LABEL_HTML, setHtmlIfChanged, localDateStr, toTimeString } from '../core/utils.js';
 import { bindCourseTitleClicks } from '../timeline/course-title.js';
 import { bindMouseDrag, bindWheelSwipe } from '../core/desktop-input.js';
 
@@ -145,18 +145,36 @@ export function renderWeeklyMatrix() {
 
   if (isMobile) {
     // Mobile Tab View
+    const overridesByDate = getOverridesByDateMap();
+    const realToday = localDateStr();
+    const dateOf = {};
     let html = `<div class="m-matrix-tabs">`;
     CONFIG.activeDays.forEach(dayIdx => {
+      const ds = getDateForDayIndex(dayIdx);
+      dateOf[dayIdx] = ds;
       const isSelected = dayIdx === State.matrixSelectedDayIdx;
-      const isToday = dayIdx === todayIdx;
+      const isToday = ds === realToday;
+      const ov = overridesByDate.get(ds);
+      const marker = ov ? `<span class="m-tab-flag" data-t="${ov.type}" aria-hidden="true"></span>` : '';
       html += `
-        <button class="m-matrix-tab${isSelected ? ' active' : ''}${isToday ? ' today' : ''}" data-day="${dayIdx}">
+        <button class="m-matrix-tab${isSelected ? ' active' : ''}${isToday ? ' today' : ''}" data-day="${dayIdx}" aria-label="${DAY_NAMES[dayIdx]} ${Number(ds.slice(8))}${isToday ? ', today' : ''}">
           <span class="m-tab-name">${DAY_SHORT[dayIdx]}</span>
+          <span class="m-tab-date">${Number(ds.slice(8))}</span>
+          ${marker}
           ${isToday ? '<span class="m-tab-dot"></span>' : ''}
         </button>
       `;
     });
     html += `</div>`;
+
+    // Header subtitle: the week being shown
+    const sub = document.querySelector('#viewModal .page-subtitle');
+    const first = dateOf[CONFIG.activeDays[0]];
+    const last = dateOf[CONFIG.activeDays[CONFIG.activeDays.length - 1]];
+    if (sub && first && last) {
+      const f = new Date(first + 'T00:00:00'), l = new Date(last + 'T00:00:00');
+      sub.textContent = `${f.getDate()} ${MONTHS[f.getMonth()]} to ${l.getDate()} ${MONTHS[l.getMonth()]}`;
+    }
 
     // Active day classes
     const dayEntries = getClassesForDay(State.matrixSelectedDayIdx);
@@ -170,7 +188,7 @@ export function renderWeeklyMatrix() {
     });
 
     html += `<div class="m-matrix-cards">`;
-    if (isHoliday && !hasOnlineClasses) {
+    if (isHoliday && !hasOnlineClasses && !dayEntries.length) {
       html += `
         <div class="m-matrix-empty" style="border: 1.5px dashed var(--pink) !important; color: var(--pink2); background: rgba(244, 63, 94, 0.05) !important; padding: 25px 15px; border-radius: var(--rx); text-align: center;">
           <span style="font-size: 24px; display: block; margin-bottom: 6px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
@@ -179,7 +197,23 @@ export function renderWeeklyMatrix() {
         </div>
       `;
     } else if (dayEntries.length) {
+      // Day summary: what the day looks like in one line
+      const starts = dayEntries.map(c => toMinutes(c.start)).filter(m => m >= 0);
+      const ends = dayEntries.map(c => toMinutes(c.end)).filter(m => m >= 0);
+      const sumDate = new Date(dateOf[State.matrixSelectedDayIdx] + 'T00:00:00');
+      html += `<div class="m-day-sum"><span class="m-day-sum-d">${DAY_NAMES[State.matrixSelectedDayIdx]}, ${sumDate.getDate()} ${MONTHS[sumDate.getMonth()]}</span><span class="m-day-sum-n">${dayEntries.length} ${dayEntries.length === 1 ? 'class' : 'classes'}${starts.length && ends.length ? ` · ${format12h(toTimeString(Math.min(...starts)))} to ${format12h(toTimeString(Math.max(...ends)))}` : ''}</span></div>`;
+      if (isHoliday && !hasOnlineClasses) {
+        html += `<div class="m-holiday-note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span><strong>Day off</strong> ${escapeHtml(holidayOverride.announcement.title || '')}</span></div>`;
+      }
+      let lastEnd = null;
       dayEntries.forEach((item, index) => {
+        const sM = toMinutes(item.start);
+        if (lastEnd !== null && sM - lastEnd >= 15) {
+          const g = sM - lastEnd;
+          html += `<div class="m-gap"><span>${g >= 60 ? `${Math.floor(g / 60)}h${g % 60 ? ` ${g % 60}m` : ''}` : `${g}m`} free</span></div>`;
+        }
+        const eM = toMinutes(item.end);
+        if (lastEnd === null || eM > lastEnd) lastEnd = eM;
         const startMins = toMinutes(item.start);
         const endMins = toMinutes(item.end);
         const cancelOverride = getOverrideFor(State.matrixSelectedDayIdx, item.title);

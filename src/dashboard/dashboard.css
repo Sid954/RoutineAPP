@@ -728,3 +728,35 @@
   stroke-width: 2.2;
 }
 
+
+/* ── Campus Hub, One UI style: small headings over rounded clusters of rows ── */
+#appsHubView .page-title { font-size: 30px; letter-spacing: -0.4px; }
+#appsHubView .page-separator { display: none; }
+.apps-hub-grid { gap: 22px; padding: 4px 0 calc(var(--dock-clearance, 112px) + 16px); }
+.apps-hub-grid .ah-sec { display: flex; flex-direction: column; gap: 8px; }
+.apps-hub-grid .ah-sec-title { margin: 0 0 0 14px; font: 700 12.5px var(--font-ui); color: var(--text-muted); }
+.apps-hub-grid .ah-cluster { background: var(--card-bg); border-radius: 24px; overflow: hidden; }
+.apps-hub-grid .apps-hub-card {
+  background: none; border: 0; border-radius: 0; box-shadow: none;
+  padding: 14px 16px; gap: 14px; position: relative;
+}
+.apps-hub-grid .apps-hub-card + .apps-hub-card::before {
+  content: ''; position: absolute; top: 0; left: 74px; right: 0; border-top: 1px solid var(--card-border);
+}
+.apps-hub-grid .apps-hub-card:active { transform: none; background: var(--st-inset, rgba(128, 128, 128, 0.12)); }
+/* Round coloured icon, white glyph (same language as Settings) */
+.apps-hub-grid .apps-hub-card-icon-squircle { width: 46px; height: 46px; border-radius: 50%; border: 0; color: #fff; background: var(--ic, #64748B); }
+.apps-hub-grid .apps-hub-card-icon-squircle svg { width: 22px; height: 22px; }
+.apps-hub-grid .apps-hub-card-icon-squircle.purple { --ic: #A855F7; color: #fff; }
+.apps-hub-grid .apps-hub-card-icon-squircle.emerald { --ic: #22C55E; color: #fff; }
+.apps-hub-grid .apps-hub-card-icon-squircle.sky { --ic: #0EA5E9; color: #fff; }
+.apps-hub-grid .apps-hub-card-icon-squircle.indigo { --ic: #6366F1; color: #fff; }
+.apps-hub-grid .apps-hub-card-icon-squircle.amber { --ic: #F59E0B; color: #fff; }
+.apps-hub-grid .apps-hub-card-title { font: 600 16px var(--font-ui); }
+.apps-hub-grid .apps-hub-card-title-row { margin-bottom: 2px; justify-content: flex-start; }
+.apps-hub-grid .apps-hub-card-desc { font: 500 12.5px var(--font-ui); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apps-hub-grid .apps-hub-card-arrow { opacity: 0.7; }
+.apps-hub-grid .apps-hub-card.is-soon { opacity: 1; }
+.apps-hub-grid .apps-hub-card.is-soon .apps-hub-card-icon-squircle { opacity: 0.55; }
+.apps-hub-grid .apps-hub-card.is-soon .apps-hub-card-title,
+.apps-hub-grid .apps-hub-card.is-soon .apps-hub-card-desc { opacity: 0.6; }
