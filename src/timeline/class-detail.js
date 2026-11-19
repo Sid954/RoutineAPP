@@ -1,6 +1,7 @@
 import { State } from '../core/state.js';
 import { FULL_COURSE_NAMES, DAY_NAMES } from '../core/config.js';
-import { format12h, formatRoom, escapeHtml, LAB_LABEL_HTML } from '../core/utils.js';
+import { format12h, formatRoom, escapeHtml, toMinutes } from '../core/utils.js';
+import { toNotice } from '../announcements/notice-model.js';
 import { getTeacherInfo } from '../teachers/teacher-names.js';
 import { openModal, closeModal } from '../modals/modal.js';
 import { Storage } from '../storage/storage.js';
@@ -186,6 +187,137 @@ async function updateRemindRow(data, dayIdx) {
   } catch (e) { row.hidden = true; }
 }
 
+/* ── Class sheet v2 (2026-11-19) ─────────────────────────────────────────────
+   Reading order: what class and what kind, WHAT IS HAPPENING on this date (live / starts in /
+   cancelled / test / online / moved), when, where, who, notices about this class, reminder,
+   the weekly pattern, quick updates. */
+
+const MON3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const WD3 = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const ymdOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const nice = ymd => { const [y, m, d] = ymd.split('-').map(Number); const t = new Date(y, m - 1, d); return `${WD3[t.getDay()]} ${d} ${MON3[m - 1]}`; };
+const daysUntil = ymd => { const [y, m, d] = ymd.split('-').map(Number); const t = new Date(); return Math.round((new Date(y, m - 1, d) - new Date(t.getFullYear(), t.getMonth(), t.getDate())) / 864e5); };
+const span = mins => (mins >= 60 ? `${Math.floor(mins / 60)}h${mins % 60 ? ` ${mins % 60}m` : ''}` : `${mins}m`);
+const SVG = (d, w = 18) => `<svg width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const I = {
+  live: '<circle cx="12" cy="12" r="3"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  cancel: '<circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>',
+  test: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/>',
+  online: '<path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/>',
+  moved: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><polyline points="21 3 21 8 16 8"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  done: '<polyline points="20 6 9 17 4 12"/>',
+  task: '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/>',
+  play: '<polygon points="6 4 20 12 6 20 6 4"/>'
+};
+
+/**
+ * The one status panel. Tells what is true for THIS date, in plain words:
+ *   cancelled / test / online (+ Join) / moved (+ was) / extra, or for a normal class:
+ *   "Live now, 25m left" with a progress bar, "Starts in 2h 10m", "Done for today", "Next: Sat 21 Nov".
+ * Returns { html, tone } where tone only changes the lead word's colour for cancelled.
+ */
+function statusHtml(data, date) {
+  const rows = [];
+  const lead = (icon, text, cls = '') => `<div class="cs2-status-lead${cls ? ` ${cls}` : ''}">${SVG(icon, 17)}<span>${escapeHtml(text)}</span></div>`;
+  const line = text => `<div class="cs2-status-line">${text}</div>`;
+  const when = date ? (daysUntil(date) === 0 ? 'today' : daysUntil(date) === 1 ? 'tomorrow' : nice(date)) : '';
+
+  if (data.isCancelled) {
+    rows.push(lead(I.cancel, `Cancelled ${when}`.trim(), 'is-bad'));
+    if (data.cancelReason && !/^Class cancelled for this date$/i.test(data.cancelReason)) rows.push(line(escapeHtml(data.cancelReason)));
+    return rows.join('');
+  }
+  if (data.isExam) {
+    rows.push(lead(I.test, `${data.examName || 'Class test'}${when ? `, ${when}` : ''}`));
+    if (data.examTopics) rows.push(line(`<span class="cs2-k">Covers</span> ${escapeHtml(data.examTopics)}`));
+    return rows.join('');
+  }
+  if (data.isOnline) {
+    rows.push(lead(I.online, `Online ${when}`.trim()));
+    const platform = String(data.onlinePlatform || '').trim();
+    if (/^https?:\/\//i.test(platform)) {
+      let host = '';
+      try { host = new URL(platform).hostname.replace(/^www\./, ''); } catch (e) {}
+      rows.push(`<a class="cs2-join" href="${escapeHtml(platform)}" target="_blank" rel="noopener noreferrer">${SVG(I.play, 16)}<span>Join class</span><span class="cs2-join-host">${escapeHtml(host)}</span></a>`);
+    } else if (platform) {
+      rows.push(line(`<span class="cs2-k">Where</span> ${escapeHtml(platform)}`));
+    }
+    return rows.join('');
+  }
+  if (data.isRescheduled) {
+    rows.push(lead(I.moved, `Rescheduled ${when}`.trim()));
+    if (data.origDate) {
+      const [oy, om, od] = String(data.origDate).split('-').map(Number);
+      if (oy && om && od) rows.push(line(`<span class="cs2-k">Was</span> ${escapeHtml(`${WD3[new Date(oy, om - 1, od).getDay()]} ${od} ${MON3[om - 1]}${data.origStart ? `, ${format12h(data.origStart)}` : ''}`)}`));
+    }
+    if (data.rescheduledReason) rows.push(line(`<span class="cs2-k">Reason</span> ${escapeHtml(data.rescheduledReason)}`));
+    return rows.join('');
+  }
+  if (data.isExtraClass) {
+    rows.push(lead(I.plus, `Extra class ${when}`.trim()));
+    return rows.join('');
+  }
+
+  // A normal class: where is it in time?
+  if (!date) return '';
+  const start = toMinutes(data.start || ''), end = toMinutes(data.end || '');
+  const d = daysUntil(date);
+  if (d === 0 && start >= 0) {
+    const now = new Date();
+    const m = now.getHours() * 60 + now.getMinutes();
+    if (end > start && m >= start && m < end) {
+      const pct = Math.round(((m - start) / (end - start)) * 100);
+      rows.push(lead(I.live, `Live now, ${span(end - m)} left`, 'is-live'));
+      rows.push(`<div class="cs2-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><span style="width:${pct}%"></span></div>`);
+      return rows.join('');
+    }
+    if (m < start) return lead(I.clock, `Starts in ${span(start - m)}`);
+    return lead(I.done, 'Done for today');
+  }
+  if (d === 1) return lead(I.clock, 'Tomorrow');
+  return lead(I.clock, `Next: ${nice(date)}${d > 1 ? `, in ${d} days` : ''}`);
+}
+
+/** Notices about this class in the next two weeks (cancelled, tests, tasks, online, moved). */
+function classNotices(code) {
+  const types = new Set(['cancellation', 'class_test', 'assignment', 'online_class', 'rescheduled']);
+  const today = ymdOf(new Date());
+  const last = ymdOf(new Date(Date.now() + 14 * 864e5));
+  const ctx = { semester: String(Storage.getSemester() || '').toLowerCase(), section: String(Storage.getSection() || '').toLowerCase(), schedule: State.schedule };
+  return (State.announcementsList || [])
+    .filter(a => types.has(a.type) && String(a.subject_override || a.subject || '').toUpperCase().trim() === code)
+    .map(a => ({ raw: a, n: toNotice(a, ctx) }))
+    .filter(x => x.n.date && x.n.date >= today && x.n.date <= last)
+    .sort((a, b) => a.n.date.localeCompare(b.n.date))
+    .slice(0, 5);
+}
+
+function noticesHtml(items) {
+  if (!items.length) return '';
+  return `<h3 class="cs2-h">Coming up for this class</h3><div class="cs2-notice-list">${items.map(({ raw, n }) => {
+    const unconfirmed = raw.is_unconfirmed === true;
+    const tag = unconfirmed ? 'div' : 'button type="button"';
+    const end = unconfirmed ? 'div' : 'button';
+    const f = n.focus || {};
+    const t = f.hasTime ? ` ${f.big} ${f.ampm}` : '';
+    return `<${tag} class="cs2-notice${unconfirmed ? ' is-static' : ''}" ${unconfirmed ? '' : `data-nid="${escapeHtml(n.id)}"`}>
+      <span class="cs2-notice-head"><span class="cs2-notice-title">${escapeHtml(n.headline)}</span>${unconfirmed ? '<span class="cs2-unconf">Unconfirmed</span>' : ''}</span>
+      <span class="cs2-notice-when">${escapeHtml(nice(n.date))}${escapeHtml(t)}</span>
+    </${end}>`;
+  }).join('')}</div>`;
+}
+
+const SHOW_ICON = {
+  code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+  lab: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.5L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 9.5V2"/><line x1="8" y1="2" x2="16" y2="2"/></svg>',
+  book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>'
+};
+
+let _statusTimer = null;
+let _showToken = null;
+
 export function showClassDetails(data) {
   _quickData = data;
   initQuickActions();
@@ -200,16 +332,11 @@ export function showClassDetails(data) {
 
   let classDayIdx = (data.dayIdx !== undefined && data.dayIdx !== null) ? data.dayIdx : undefined;
   if (classDayIdx === undefined) {
-    if (data.dayName && DAY_NAMES.includes(data.dayName)) {
-      classDayIdx = DAY_NAMES.indexOf(data.dayName);
-    } else if (data.day && DAY_NAMES.includes(data.day)) {
-      classDayIdx = DAY_NAMES.indexOf(data.day);
-    }
+    if (data.dayName && DAY_NAMES.includes(data.dayName)) classDayIdx = DAY_NAMES.indexOf(data.dayName);
+    else if (data.day && DAY_NAMES.includes(data.day)) classDayIdx = DAY_NAMES.indexOf(data.day);
   }
   if (classDayIdx === undefined || classDayIdx === -1) {
-    classDayIdx = (State.currentViewDayIdx !== undefined && State.currentViewDayIdx !== -1)
-      ? State.currentViewDayIdx
-      : new Date().getDay();
+    classDayIdx = (State.currentViewDayIdx !== undefined && State.currentViewDayIdx !== -1) ? State.currentViewDayIdx : new Date().getDay();
   }
   _activeModalDayIdx = classDayIdx;
   updateRemindRow(data, classDayIdx);
@@ -217,303 +344,129 @@ export function showClassDetails(data) {
   const teacherCode = (data.instructor || data.teacher || '').trim();
   const info = getTeacherInfo(teacherCode);
   const teacherName = data.instructorName || info.name || teacherCode || 'Not Assigned';
-  const desigText = info.designation || 'Assistant Professor';
   const initials = (teacherName || teacherCode).split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
   _activeModalTeacherCode = teacherCode;
 
   const currentDayName = DAY_NAMES[new Date().getDay()];
   const recurrences = getWeeklyRecurrences(code);
+  const $ = id => document.getElementById(id);
 
-  // Contextual Icon for Subject
-  let iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>';
-  if (code === 'DSL' || code === 'DS') {
-    iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>';
-  } else if (code === 'ICMP' || code === 'PHYL') {
-    iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 21a9 9 0 0 0 9-9 9 9 0 0 0-9-9 9 9 0 0 0-9 9 9 9 0 0 0 9 9z"/><path d="M3.6 9h16.8"/><path d="M3.6 15h16.8"/></svg>';
-  } else if (code === 'EE' || code === 'IEE' || code === 'IEEL') {
-    iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>';
-  } else if (code === 'DMNT' || code === 'DM') {
-    iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/></svg>';
-  }
-
-  const iconEl = document.getElementById('modalSquircleIcon');
-  const codeEl = document.getElementById('modalCourseCode');
-  const titleEl = document.getElementById('modalFullTitle');
-  const semSecEl = document.getElementById('modalSemSec');
-  const timingEl = document.getElementById('modalTiming');
-  const durationEl = document.getElementById('modalDuration');
-  const roomEl = document.getElementById('modalRoom');
-  const teacherEl = document.getElementById('modalInstructor');
-  const formatEl = document.getElementById('modalFormat');
-  const badgeEl = document.getElementById('modalTypeBadge');
-  const listEl = document.getElementById('modalRecurrenceList');
-  const avatarEl = document.getElementById('modalInstructorAvatar');
-  const desigEl = document.getElementById('modalInstructorDesig');
-
-  if (iconEl) iconEl.innerHTML = iconSvg;
-  if (codeEl) codeEl.textContent = code;
-  if (titleEl) titleEl.textContent = fullTitle;
-
-  // Semester & Section subtitle directly under course title
+  const iconEl = $('modalSquircleIcon');
+  if (iconEl) iconEl.innerHTML = (code === 'DSL' || code === 'DS') ? SHOW_ICON.code : (isLab ? SHOW_ICON.lab : SHOW_ICON.book);
+  $('modalCourseCode').textContent = code;
+  $('modalFullTitle').textContent = fullTitle;
   const semSecText = formatClassSemSec(data);
-  if (semSecEl) {
-    if (semSecText) {
-      semSecEl.textContent = semSecText;
-      semSecEl.style.display = 'block';
-    } else {
-      semSecEl.textContent = '';
-      semSecEl.style.display = 'none';
-    }
-  }
+  const semEl = $('modalSemSec');
+  if (semEl) { semEl.textContent = semSecText; semEl.hidden = !semSecText; }
 
-  if (timingEl) {
-    timingEl.textContent = data.timing || (data.hasExplicitEndTime && data.end ? `${data.start} – ${data.end}` : `Starts at ${data.start}`);
-  }
-  if (durationEl) {
-    if (data.duration && data.hasExplicitEndTime !== false) {
-      durationEl.style.display = 'block';
-      durationEl.textContent = `${data.duration} session`;
-    } else {
-      durationEl.style.display = 'none';
-    }
-  }
-  if (roomEl) roomEl.textContent = `Room ${cleanRoom}`;
-  if (teacherEl) teacherEl.textContent = teacherName;
-  if (formatEl) {
-    if (data.isRescheduled) {
-      formatEl.textContent = 'Rescheduled Class';
-    } else if (data.isExtraClass) {
-      formatEl.textContent = data.isOnline ? 'Extra Online Class' : 'Extra In-Person Class';
-    } else {
-      formatEl.textContent = isLab ? 'Laboratory Session' : 'Theory Lecture';
-    }
-  }
-
-  if (avatarEl) {
-    if (info.photo) {
-      avatarEl.innerHTML = `<span class="faculty-avatar-initials">${escapeHtml(initials)}</span><img src="${escapeHtml(info.photo)}" alt="${escapeHtml(teacherCode)}" loading="lazy" decoding="async" onload="this.classList.add('loaded');" onerror="this.remove();" />`;
-    } else {
-      avatarEl.innerHTML = `<span class="faculty-avatar-initials">${escapeHtml(initials)}</span>`;
-    }
-  }
-
-  if (desigEl) {
-    desigEl.textContent = desigText;
-  }
-
-  // Active / Override banner inside modal
-  const overrideBox = document.getElementById('modalOverrideDetails');
-  if (overrideBox) {
-    if (data.isExam) {
-      overrideBox.style.display = 'block';
-      overrideBox.innerHTML = `
-        <div class="class-detail-override-card exam">
-          <div class="cd-override-header">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-            <span>${escapeHtml(data.examName || 'Class Test / Exam')}</span>
-          </div>
-          <div class="cd-override-body">
-            <div class="cd-override-topics-label">Syllabus / Topics:</div>
-            <div class="cd-override-topics-text">${escapeHtml(data.examTopics || 'Topics not specified.')}</div>
-          </div>
-        </div>
-      `;
-    } else if (data.isOnline) {
-      overrideBox.style.display = 'block';
-      overrideBox.innerHTML = `
-        <div class="class-detail-override-card online">
-          <div class="cd-override-header">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
-            <span>Virtual Online Session</span>
-          </div>
-          <div class="cd-override-body">
-            <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 4px;">This class will be conducted online for this date.</div>
-            ${(() => {
-              const platformStr = (data.onlinePlatform || '').trim();
-              const isUrl = /^https?:\/\//i.test(platformStr);
-              if (isUrl) {
-                return `
-                  <a href="${escapeHtml(platformStr)}" target="_blank" rel="noopener noreferrer" class="announce-join-btn" style="margin-top: 6px;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                    <span>Join Online Session</span>
-                  </a>
-                `;
-              }
-              if (platformStr) {
-                return `
-                  <div style="font-size: 12px; font-weight: 600; color: var(--text); margin-top: 5px;">
-                    Platform / Info: <span style="font-weight: 400;">${escapeHtml(platformStr)}</span>
-                  </div>
-                `;
-              }
-              return '';
-            })()}
-          </div>
-        </div>
-      `;
-    } else if (data.isCancelled) {
-      overrideBox.style.display = 'block';
-      overrideBox.innerHTML = `
-        <div class="class-detail-override-card cancellation">
-          <div class="cd-override-header">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-            <span>Class Cancelled</span>
-          </div>
-          <div class="cd-override-body">
-            <span>This lecture is officially cancelled by the faculty for this scheduled date.</span>
-            ${data.cancelReason ? `<div style="margin-top: 4px; font-size: 11.5px; color: var(--text-muted);">${escapeHtml(data.cancelReason)}</div>` : ''}
-          </div>
-        </div>
-      `;
-    } else if (data.isRescheduled) {
-      overrideBox.style.display = 'block';
-      let origSlotText = '';
-      if (data.origDate) {
-        const [oy, om, od] = data.origDate.split('-').map(Number);
-        if (oy && om && od) {
-          const dObj = new Date(oy, om - 1, od);
-          const dNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-          const mNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-          origSlotText = `${dNames[dObj.getDay()]}, ${mNames[dObj.getMonth()]} ${od}${data.origStart ? ` at ${format12h(data.origStart)}` : ''}`;
-        }
-      }
-      overrideBox.innerHTML = `
-        <div class="class-detail-override-card rescheduled">
-          <div class="cd-override-header">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>Rescheduled Session</span>
-          </div>
-          <div class="cd-override-body">
-            <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 4px;">This class was moved to this date & time slot.</div>
-            ${origSlotText ? `
-              <div style="font-size: 12px; font-weight: 600; color: var(--text); margin-top: 4px;">
-                Original Slot: <span style="font-weight: 400;">${escapeHtml(origSlotText)}</span>
-              </div>
-            ` : ''}
-            ${data.rescheduledReason ? `
-              <div style="font-size: 12px; font-weight: 600; color: var(--text); margin-top: 4px;">
-                Reason / Note: <span style="font-weight: 400;">${escapeHtml(data.rescheduledReason)}</span>
-              </div>
-            ` : ''}
-          </div>
-        </div>
-      `;
-    } else if (data.isExtraClass && !data.isOnline) {
-      overrideBox.style.display = 'block';
-      overrideBox.innerHTML = `
-        <div class="class-detail-override-card extra">
-          <div class="cd-override-header">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
-            <span>In-Person Extra Class</span>
-          </div>
-          <div class="cd-override-body">
-            <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 4px;">This is an additional in-person class scheduled for this date.</div>
-            ${cleanRoom && cleanRoom !== 'TBA' ? `
-              <div style="font-size: 12px; font-weight: 600; color: var(--text); margin-top: 4px;">
-                Room: <span style="font-weight: 400;">${escapeHtml(cleanRoom)}</span>
-              </div>
-            ` : ''}
-          </div>
-        </div>
-      `;
-    } else {
-      overrideBox.style.display = 'none';
-      overrideBox.innerHTML = '';
-    }
-  }
-
+  const badgeEl = $('modalTypeBadge');
   if (badgeEl) {
-    if (data.isExam) {
-      badgeEl.textContent = (data.examName || 'EXAM').toUpperCase();
-      badgeEl.className = 'resting-tag exam';
-    } else if (data.isRescheduled) {
-      badgeEl.textContent = 'RESCHEDULED';
-      badgeEl.className = 'resting-tag rescheduled';
-    } else if (data.isOnline) {
-      badgeEl.textContent = 'ONLINE';
-      badgeEl.className = 'resting-tag online';
-    } else if (data.isCancelled) {
-      badgeEl.textContent = 'CANCELLED';
-      badgeEl.className = 'resting-tag cancelled';
-    } else if (data.isExtraClass) {
-      badgeEl.textContent = 'EXTRA CLASS';
-      badgeEl.className = 'resting-tag extra';
-    } else {
-      if (isLab) badgeEl.innerHTML = LAB_LABEL_HTML; else badgeEl.textContent = 'THEORY';
-      badgeEl.className = `resting-tag ${isLab ? 'lab' : 'theory'}`;
-    }
+    badgeEl.textContent = data.isExam ? (data.examName || 'Class test')
+      : data.isRescheduled ? 'Rescheduled'
+      : data.isOnline ? 'Online class'
+      : data.isCancelled ? 'Cancelled'
+      : data.isExtraClass ? 'Extra class'
+      : (isLab ? 'Laboratory' : 'Theory');
+    badgeEl.className = 'cs2-kind';
   }
 
+  // When
+  const f12 = v => (typeof v === 'number' ? format12h(v) : v);
+  const startTxt = f12(data.start), endTxt = f12(data.end);
+  $('modalTiming').textContent = data.timing || (data.hasExplicitEndTime !== false && endTxt ? `${startTxt} – ${endTxt}` : `Starts ${startTxt}`);
+  let durTxt = '';
+  const sMin = toMinutes(startTxt || ''), eMin = toMinutes(endTxt || '');
+  if (data.hasExplicitEndTime !== false && eMin > sMin && sMin >= 0) {
+    const m = eMin - sMin;
+    durTxt = m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ''}` : `${m}m`;
+  } else if (data.duration) durTxt = String(data.duration);
+  const durEl = $('modalDuration');
+  durEl.textContent = durTxt;
+  durEl.hidden = !durTxt;
+
+  $('modalRoom').textContent = `Room ${cleanRoom}`;
+  $('modalInstructor').textContent = teacherName;
+  $('modalInstructorDesig').textContent = info.designation || (teacherCode && teacherCode !== 'TBA' ? 'Faculty' : '');
+  $('modalFormat').textContent = data.isRescheduled ? 'Moved here for this date'
+    : data.isExtraClass ? (data.isOnline ? 'Extra online class' : 'Extra class')
+    : (isLab ? 'Laboratory session' : 'Theory lecture');
+  const avatarEl = $('modalInstructorAvatar');
+  if (avatarEl) {
+    avatarEl.innerHTML = info.photo
+      ? `<span class="faculty-avatar-initials">${escapeHtml(initials)}</span><img src="${escapeHtml(info.photo)}" alt="${escapeHtml(teacherCode)}" loading="lazy" decoding="async" onload="this.classList.add('loaded');" onerror="this.remove();" />`
+      : `<span class="faculty-avatar-initials">${escapeHtml(initials)}</span>`;
+  }
+
+  // What is happening on this date; kept live every 30s while the sheet is open
+  const statusBox = $('modalOverrideDetails');
+  const noticesBox = $('classNoticesBox');
+  clearInterval(_statusTimer);
+  const paintStatus = date => {
+    if (!statusBox) return;
+    const html = statusHtml(data, date);
+    statusBox.hidden = !html;
+    if (statusBox.dataset.sig !== html) { statusBox.innerHTML = html; statusBox.dataset.sig = html; }
+    statusBox.className = `cs2-status${data.isCancelled ? ' is-bad' : ''}`;
+  };
+  paintStatus('');
+  if (noticesBox) { noticesBox.hidden = true; noticesBox.innerHTML = ''; }
+  const token = {};
+  _showToken = token;
+  classDate(classDayIdx).then(date => {
+    if (_showToken !== token) return;
+    paintStatus(date);
+    _statusTimer = setInterval(() => {
+      if (!modal.classList.contains('open')) { clearInterval(_statusTimer); return; }
+      paintStatus(date);
+    }, 30000);
+    try {
+      const html = noticesHtml(classNotices(code));
+      if (noticesBox) { noticesBox.innerHTML = html; noticesBox.hidden = !html; }
+    } catch (err) { /* notices are optional */ }
+  });
+
+  // This class each week
+  const listEl = $('modalRecurrenceList');
   if (listEl) {
-    let recHtml = '';
     const displayList = recurrences.length ? recurrences : [{
       day: data.dayName || currentDayName,
       dayIdx: data.dayIdx !== undefined ? data.dayIdx : new Date().getDay(),
       dayShort: (data.dayName || currentDayName).substring(0, 3).toUpperCase(),
       time: data.timing || (data.start && data.end ? `${data.start} – ${data.end}` : 'Scheduled'),
-      start: data.start,
-      end: data.end,
-      room: cleanRoom,
-      instructor: teacherCode,
-      type: data.type,
-      semSec: data.semSec || '',
-      semester: data.semester || '',
-      section: data.section || ''
+      start: data.start, end: data.end, room: cleanRoom, instructor: teacherCode, type: data.type,
+      semSec: data.semSec || '', semester: data.semester || '', section: data.section || ''
     }];
-
     const activeDay = data.dayName || currentDayName;
     const activeTime = data.timing || (data.start && data.end ? `${data.start} – ${data.end}` : '');
-
-    displayList.forEach((r, idx) => {
-      const isCurrentSession = (r.day === activeDay && (!activeTime || r.time === activeTime || displayList.length === 1));
-
-      recHtml += `
-        <div class="recurrence-card-row is-clickable ${isCurrentSession ? 'is-active-session' : ''}" data-rec-idx="${idx}" title="Switch view to ${escapeHtml(r.dayShort)} session">
-          <div class="recurrence-row-left">
-            <span class="recurrence-day-chip">${escapeHtml(r.dayShort)}</span>
-            <span class="recurrence-row-time">${escapeHtml(r.time)}</span>
-          </div>
-          <div class="recurrence-row-right">
-            <span class="recurrence-room-label">Room ${escapeHtml(r.room)}</span>
-            ${isCurrentSession ? '<span class="recurrence-active-badge">CURRENT</span>' : ''}
-            <svg class="recurrence-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-        </div>
-      `;
-    });
-    listEl.innerHTML = recHtml;
-
-    // Attach in-place refresh click handler to each recurrence row
-    listEl.querySelectorAll('.recurrence-card-row.is-clickable').forEach(row => {
-      row.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const idx = parseInt(row.dataset.recIdx, 10);
-        const r = displayList[idx];
+    listEl.parentElement.hidden = !recurrences.length;
+    listEl.innerHTML = displayList.map((r, idx) => {
+      const cur = r.day === activeDay && (!activeTime || r.time === activeTime || displayList.length === 1);
+      return `<button type="button" class="cs2-week-row${cur ? ' is-current' : ''}" data-rec-idx="${idx}"${cur ? ' aria-current="true"' : ''}>
+        <span class="cs2-week-day">${escapeHtml(r.dayShort)}</span>
+        <span class="cs2-week-time">${escapeHtml(r.time)}</span>
+        <span class="cs2-week-room">Room ${escapeHtml(r.room)}</span>
+      </button>`;
+    }).join('');
+    listEl.querySelectorAll('.cs2-week-row').forEach(row => {
+      row.addEventListener('click', ev => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const r = displayList[parseInt(row.dataset.recIdx, 10)];
         if (!r) return;
-
-        const newSessionData = {
-          ...data,
-          code: code,
-          title: code,
-          name: fullTitle,
-          start: r.start ? (typeof r.start === 'number' ? format12h(r.start) : r.start) : data.start,
-          end: r.end ? (typeof r.end === 'number' ? format12h(r.end) : r.end) : data.end,
-          timing: r.time || (r.start && r.end ? `${typeof r.start === 'number' ? format12h(r.start) : r.start} – ${typeof r.end === 'number' ? format12h(r.end) : r.end}` : data.timing),
+        showClassDetails({
+          ...data, code, title: code, name: fullTitle,
+          start: r.start ? f12(r.start) : data.start,
+          end: r.end ? f12(r.end) : data.end,
+          timing: r.time || data.timing,
           room: r.room || 'TBA',
           instructor: r.instructor || data.instructor,
           teacher: r.instructor || data.teacher,
           type: r.type || data.type,
-          dayName: r.day,
-          dayIdx: r.dayIdx,
-          hasExplicitEndTime: true,
-          semSec: r.semSec || data.semSec,
-          semester: r.semester || data.semester,
-          section: r.section || data.section
-        };
-
-        // In-place refresh
-        showClassDetails(newSessionData);
+          dayName: r.day, dayIdx: r.dayIdx, hasExplicitEndTime: true,
+          semSec: r.semSec || data.semSec, semester: r.semester || data.semester, section: r.section || data.section,
+          // an override belongs to one date; another weekday shows the plain class
+          isCancelled: false, isExam: false, isOnline: false, isRescheduled: false, isExtraClass: false
+        });
       });
     });
   }

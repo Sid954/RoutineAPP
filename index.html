@@ -881,78 +881,53 @@
 
   <!-- Modal: Class Detail Bottom Sheet (100% Solid Card Surface) -->
   <div class="class-sheet-modal-overlay" id="classDetailModal" style="z-index: 100030;">
-    <div class="class-detail-bottom-sheet">
+    <div class="class-detail-bottom-sheet cs2" role="dialog" aria-modal="true" aria-labelledby="modalCourseCode">
       <!-- Drag Handle -->
       <div class="sheet-drag-handle-bar">
         <div class="sheet-drag-handle"></div>
       </div>
 
-      <!-- Top Header Row -->
-      <div class="class-sheet-top-header">
-        <div class="class-sheet-left-hero">
-          <div class="class-sheet-icon-squircle" id="modalSquircleIcon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-          </div>
-          <div class="class-sheet-code-title-stack">
-            <div class="class-sheet-code-badge-row">
-              <span class="class-sheet-hero-code" id="modalCourseCode">DSL</span>
-              <span class="resting-tag lab" id="modalTypeBadge"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-1px;margin-right:3px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>LAB</span>
-            </div>
-            <div class="class-sheet-hero-title" id="modalFullTitle">Data Structures Laboratory</div>
-            <div class="class-sheet-hero-semsec" id="modalSemSec" style="display: none;"></div>
-          </div>
-        </div>
-        <button class="class-sheet-close-btn" id="classDetailClose" title="Close sheet">&times;</button>
+      <!-- Type, class and close -->
+      <div class="cs2-top">
+        <span class="cs2-ico" id="modalSquircleIcon" aria-hidden="true"></span>
+        <span class="cs2-kind" id="modalTypeBadge"></span>
+        <button class="class-sheet-close-btn" id="classDetailClose" title="Close sheet" aria-label="Close">&times;</button>
       </div>
 
-      <!-- Contextual Override Banner (Exam Topics / Online Join Link / Cancellation Notice) -->
-      <div id="modalOverrideDetails" style="display: none;"></div>
+      <h2 class="cs2-code" id="modalCourseCode">DSL</h2>
+      <div class="cs2-name" id="modalFullTitle">Data Structures Laboratory</div>
+      <div class="cs2-sem" id="modalSemSec"></div>
 
-      <!-- Core Parameters Grid -->
-      <div class="class-sheet-params-grid">
-        <!-- 1. Timing & Duration -->
-        <div class="class-param-tile">
-          <div class="class-param-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>Time &bull; Duration</span>
-          </div>
-          <div class="class-param-main-val mono" id="modalTiming">11:00 AM – 01:30 PM</div>
-          <div class="class-param-subtext" id="modalDuration">2h 30m session</div>
-        </div>
+      <!-- Status for this date: live / starts in / cancelled / test / online / moved ... -->
+      <div class="cs2-status" id="modalOverrideDetails" hidden></div>
 
-        <!-- 2. Room & Location (Interactive -> Deep-links to Free Rooms) -->
-        <div class="class-param-tile interactive-room-tile" id="modalRoomTile" title="Tap to check room availability in Free Rooms">
-          <div class="class-param-header" style="justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 5.5px;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              <span>Campus Room</span>
-            </div>
-          </div>
-          <div class="class-param-main-val" id="modalRoom">Room 905</div>
-          <div class="class-param-subtext" id="modalFormat">Laboratory Session</div>
-        </div>
-
-        <!-- 3. Full Verified Instructor Row (Tappable -> Opens Faculty Profile) -->
-        <div class="class-param-tile full-width interactive-faculty-tile" id="modalInstructorTile" title="Tap to view full faculty profile and routine">
-          <div class="class-param-header" style="justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 5.5px;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              <span>Instructor</span>
-            </div>
-            <span class="view-profile-hint">Profile &rsaquo;</span>
-          </div>
-          <div class="class-param-main-val" style="align-items: center; gap: 10px;">
-            <div class="faculty-tile-left-content" style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
-              <div class="faculty-avatar-mini" id="modalInstructorAvatar">MH</div>
-              <div class="faculty-tile-text-stack" style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
-                <span id="modalInstructor" style="font-size: 15px; font-weight: 800; color: var(--text-main); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Mahmudul Hasan Emon</span>
-                <span id="modalInstructorDesig" class="class-param-subtext" style="font-size: 12px; font-weight: 600; color: var(--text-muted); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Assistant Professor</span>
-              </div>
-            </div>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0;"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-        </div>
+      <!-- When -->
+      <div class="cs2-when">
+        <div class="cs2-time" id="modalTiming">11:00 AM – 01:30 PM</div>
+        <div class="cs2-dur" id="modalDuration">2h 30m</div>
       </div>
+
+      <!-- Room (tap: is it free?) and teacher (tap: profile) -->
+      <div class="cs2-people">
+        <button type="button" class="cs2-tile interactive-room-tile" id="modalRoomTile" title="Tap to check room availability in Free Rooms">
+          <span class="cs2-tile-label">Room</span>
+          <span class="cs2-tile-main" id="modalRoom">Room 905</span>
+          <span class="cs2-tile-sub" id="modalFormat">Laboratory session</span>
+        </button>
+        <button type="button" class="cs2-tile interactive-faculty-tile" id="modalInstructorTile" title="Tap to view full faculty profile and routine">
+          <span class="cs2-tile-label">Teacher</span>
+          <span class="cs2-teacher">
+            <span class="faculty-avatar-mini" id="modalInstructorAvatar">MH</span>
+            <span class="cs2-teacher-text">
+              <span class="cs2-tile-main" id="modalInstructor">Mahmudul Hasan Emon</span>
+              <span class="cs2-tile-sub" id="modalInstructorDesig">Assistant Professor</span>
+            </span>
+          </span>
+        </button>
+      </div>
+
+      <!-- Notices about this class in the next two weeks -->
+      <section class="cs2-notices" id="classNoticesBox" hidden></section>
 
       <!-- Reminder for this class on its next date (notifications.js; hidden when none is planned) -->
       <label class="cs-remind" id="classRemindRow" hidden>
@@ -962,28 +937,21 @@
         <span class="cs-remind-ui" aria-hidden="true"></span>
       </label>
 
+      <!-- Every day this class meets (tap a day to switch the sheet to it) -->
+      <section class="cs2-week">
+        <h3 class="cs2-h">This class each week</h3>
+        <div class="cs2-week-list" id="modalRecurrenceList"></div>
+      </section>
+
       <!-- Quick updates for this class (prefills the post form) -->
       <div class="cs-quick" id="classQuickActions">
-        <span class="cs-quick-label">Add an update for this class</span>
+        <span class="cs-quick-label">Something changed? Tell your section</span>
         <div class="cs-quick-row">
-          <button type="button" class="cs-quick-btn tone-exam" data-quick="class_test"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg><span>Test</span></button>
-          <button type="button" class="cs-quick-btn tone-cancel" data-quick="cancellation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg><span>Cancel</span></button>
-          <button type="button" class="cs-quick-btn tone-moved" data-quick="rescheduled"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><polyline points="21 3 21 8 16 8"/></svg><span>Move</span></button>
-          <button type="button" class="cs-quick-btn tone-online" data-quick="online_class"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg><span>Online</span></button>
-          <button type="button" class="cs-quick-btn tone-task" data-quick="assignment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg><span>Task</span></button>
-        </div>
-      </div>
-
-      <!-- Weekly Schedule Recurrence Section -->
-      <div class="class-recurrence-card">
-        <div class="recurrence-card-header">
-          <div class="recurrence-card-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            <span>Weekly Schedule</span>
-          </div>
-        </div>
-        <div class="recurrence-card-rows-list" id="modalRecurrenceList">
-          <!-- Populated dynamically -->
+          <button type="button" class="cs-quick-btn" data-quick="class_test"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg><span>Test</span></button>
+          <button type="button" class="cs-quick-btn" data-quick="cancellation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg><span>Cancel</span></button>
+          <button type="button" class="cs-quick-btn" data-quick="rescheduled"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><polyline points="21 3 21 8 16 8"/></svg><span>Move</span></button>
+          <button type="button" class="cs-quick-btn" data-quick="online_class"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg><span>Online</span></button>
+          <button type="button" class="cs-quick-btn" data-quick="assignment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg><span>Task</span></button>
         </div>
       </div>
 
