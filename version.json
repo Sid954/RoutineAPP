@@ -1,8 +1,8 @@
 {
-  "versionCode": 28,
-  "versionName": "1.5.18",
+  "versionCode": 29,
+  "versionName": "1.5.19",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.18 - New Notices page: your section only, clearer cards, a Suggestions tab with up and down votes, and a simpler step-by-step way to suggest or announce something.",
+  "releaseNotes": "v1.5.19 - Smoother Notices (no more hitch every 30 seconds), and a check that tells us what blocks the bottom bar when it stops responding.",
   "minRequiredVersionCode": 1
 }
