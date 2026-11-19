@@ -1,12 +1,14 @@
-# v1.5.21
+# v1.5.22
 
-## New
-- **New Notifications page.** Settings > Notifications is now a list: Class reminders, Daily summary, Tests, Assignment deadlines, Notices, Upcoming alerts, Sound and vibration, and Days and quiet hours. Open one to change it.
-- **A bell on Home.** Tap the bell beside "Today's Schedule" to set notifications for just that day. Turn the day off, change how early class reminders come, skip the morning or evening summary, or switch single alerts off. A dot on the bell shows the day has its own settings.
-- **Upcoming alerts.** See the next 7 days, switch any alert or whole day, and tap "Customize this day".
-- **A sound for each alert.** Pick a different sound for class reminders, summaries, tests, deadlines and notices (Chime, Bell, Drop, Pulse, Glass, silent, or the phone's own). Vibration is separate for each, and "Send a test" lets you hear it.
-- **More options.** Leave out online classes, and hide the details of an alert when the phone is locked.
+## Faster and smoother
+- **Taps answer at once.** The tap ripple was slowing every touch, so it is gone (cards and buttons still press in a little).
+- **Opens faster.** Fonts now come with the app, so the first screen no longer waits for the internet, and the first screen draws before Settings and the editor finish loading.
+- **Calmer background.** The twinkling stars and moving shapes on Home now stay still. They kept the phone busy for nothing.
+- **No more hiccups every 30 seconds.** The app used to redraw Home and reset every reminder each time it checked for notices, even when nothing had changed.
+- **Smoother day swipes** on Home.
 
-## Notes
-- Your old notification settings are kept.
-- Notice sounds need a phone on this version and the server update, which goes out with this release.
+## Notifications
+- **Swipe between days.** Tap the bell beside the day title, then swipe sideways (or use the arrows) to set the next day.
+- **Clear bell icons.** A bell with a cross means that day's alerts are off. A bell with sliders means that day has its own settings.
+- **Simpler day settings.** Each day can be switched off, have class reminders turned off, or change how early they come. Morning and evening summaries are set only in Settings > Notifications.
+- **Removed "Upcoming alerts"** from Settings.

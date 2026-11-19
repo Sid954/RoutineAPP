@@ -1,8 +1,8 @@
 {
-  "versionCode": 31,
-  "versionName": "1.5.21",
+  "versionCode": 32,
+  "versionName": "1.5.22",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.21 - A new Notifications page, a bell on Home to set notifications for one day, and a sound for each kind of alert.",
+  "releaseNotes": "v1.5.22 - A faster, smoother app (quicker taps and startup), simpler per-day notifications you can swipe through, and clearer bell icons.",
   "minRequiredVersionCode": 1
 }
