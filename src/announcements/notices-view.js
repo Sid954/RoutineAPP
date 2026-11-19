@@ -319,9 +319,12 @@ export function renderNotices() {
     const fresh = items.filter(n => !n.past && !read.has(n.id)).length;
     html += `<section class="nt-group${open ? ' is-open' : ''}" data-group="${k}">
       <button type="button" class="nt-group-head" data-group-toggle="${k}" aria-expanded="${open}">
-        <span>${label}</span>${groupDateHtml(k)}<span class="nt-group-count">${items.length}</span>
-        ${fresh && !open ? `<span class="nt-group-new">${fresh} new</span>` : ''}
-        ${svg('<polyline points="6 9 12 15 18 9"/>', 'nt-group-chev')}
+        <span>${label}</span>${groupDateHtml(k)}
+        <span class="nt-group-meta">
+          ${fresh && !open ? `<span class="nt-group-new">${fresh} new</span>` : ''}
+          <span class="nt-group-count">${items.length}</span>
+          ${svg('<polyline points="6 9 12 15 18 9"/>', 'nt-group-chev')}
+        </span>
       </button>
       ${open ? `<div class="nt-group-list">${items.map(n => cardHtml(n, k === 'past' || read.has(n.id), i++, k)).join('')}</div>` : ''}
     </section>`;

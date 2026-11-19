@@ -535,7 +535,8 @@
 .nt-group-head > span:first-child { color: var(--nt-text); font-size: 15px; font-weight: 800; flex: 0 1 auto; }
 .nt-group-count { font: 600 12px var(--font-mono); color: var(--nt-text-3); }
 .nt-group-new { font: 700 11.5px var(--font-ui); color: var(--nt-bad); }
-.nt-group-chev { width: 16px; height: 16px; margin-left: auto; color: var(--nt-text-3); transform: rotate(-90deg); transition: transform var(--dur-2) var(--mx-ease, ease); }
+.nt-group-meta { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.nt-group-chev { width: 16px; height: 16px; color: var(--nt-text-3); transform: rotate(-90deg); transition: transform var(--dur-2) var(--mx-ease, ease); }
 .nt-group.is-open .nt-group-chev { transform: none; }
 .nt-group-head:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
 .nt-group-list {
