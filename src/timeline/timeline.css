@@ -1250,9 +1250,11 @@ html[data-theme="light"] .resting-tag.rescheduled {
   font: 800 13.5px var(--font-ui); cursor: pointer;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
   -webkit-tap-highlight-color: transparent;
-  animation: todayFabIn 0.2s var(--mx-ease, ease) both;
+  animation: todayFabIn 0.2s var(--mx-ease, ease) backwards;
 }
 .dock-today-fab[hidden] { display: none; }
 .dock-today-fab svg { width: 17px; height: 17px; }
 .dock-today-fab:active { transform: scale(0.96); }
 @keyframes todayFabIn { from { opacity: 0; } to { opacity: 1; } }
+.dock-today-fab { height: 36px; padding: 0 14px 0 11px; font-size: 12.5px; transition: opacity 0.18s ease; }
+.dock-today-fab.is-quiet { opacity: 0; pointer-events: none; }

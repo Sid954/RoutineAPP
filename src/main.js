@@ -255,6 +255,16 @@ if (dockTodayFab) {
     }
     updateFabAway();
   });
+  // Out of the way while the page is moving: fades while scrolling or dragging, returns once still
+  let _tfTimer = null;
+  const quiet = () => {
+    dockTodayFab.classList.add('is-quiet');
+    clearTimeout(_tfTimer);
+    _tfTimer = setTimeout(() => dockTodayFab.classList.remove('is-quiet'), 700);
+  };
+  window.addEventListener('scroll', quiet, { capture: true, passive: true });
+  window.addEventListener('touchmove', quiet, { capture: true, passive: true });
+  window.addEventListener('wheel', quiet, { capture: true, passive: true });
   ['dockHomeBtn', 'dockRoutineBtn', 'dockNoticesBtn', 'dockAppsBtn', 'dockCenterFab'].forEach(id => {
     const b = document.getElementById(id);
     if (b) b.addEventListener('click', () => setTimeout(updateFabAway, 350));
