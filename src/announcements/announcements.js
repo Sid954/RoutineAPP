@@ -162,6 +162,15 @@ export const Announcements = {
       if (!res.ok) throw new Error('Failed to fetch');
       const raw = await res.json();
       const rows = Array.isArray(raw) ? raw : [];
+      // The 30s poll mostly finds nothing new. Re-rendering the feed AND the whole timeline for the
+      // same data made every poll a visible hitch (taps in that moment are lost), so skip it.
+      const sig = JSON.stringify(rows);
+      if (sig === this._lastSig && !this._loadError) {
+        Suggestions.load();
+        return true;
+      }
+      this._lastSig = sig;
+      this._loadError = false;
       const pins = this.getPinnedIds();
 
       State.allAnnouncementsList = this._applyPins(rows, pins);

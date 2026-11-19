@@ -130,8 +130,11 @@ export const Suggestions = {
       if (!res.ok) throw new Error('suggestions unavailable');
       const rows = await res.json();
       if (!Array.isArray(rows)) throw new Error('bad payload');
+      const sig = JSON.stringify(rows);
+      if (sig === this._lastSig && !fresh) return true; // nothing changed: no re-render, no timeline rebuild
+      this._lastSig = sig;
       this.list = rows;
-      try { localStorage.setItem(CACHE_KEY, JSON.stringify(rows)); } catch (e) {}
+      try { localStorage.setItem(CACHE_KEY, sig); } catch (e) {}
       // Votes on suggestions that are gone (approved or expired) are no longer needed
       const open = new Set(rows.map(r => String(r.id)));
       const mine = readVotes();

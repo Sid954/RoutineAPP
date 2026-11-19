@@ -21,7 +21,7 @@ import { initServiceWorker } from './events/service-worker.js';
 import { initializeApp } from './events/init.js';
 
 // Self-registering modules (run on import)
-import './toast/toast.js';           // registers undo button listener
+import { showToast } from './toast/toast.js'; // also registers the undo button listener
 import { NativePush } from './notifications/native-push.js'; // also calls setNativePush()
 import './timeline/day-switcher.js'; // registers prev/next day buttons
 
@@ -187,6 +187,31 @@ window.switchAppView = switchAppView;
     const activeId = isOpen ? 'dockRoutineBtn' : DOCK_BTN_FOR_VIEW[window.__currentAppViewId || 'home'];
     btns.forEach(b => b.classList.toggle('active', b.id === activeId));
   }).observe(routinePage, { attributes: true, attributeFilter: ['class'] });
+})();
+
+/* Dock watchdog (diagnostic, 2026-11-19): the dock sometimes stopped answering taps while the page
+   kept working. If a touch lands on the dock's area but the element that actually receives it is not
+   part of the dock, something is sitting on top of it. Say what, once per few seconds, so it can be
+   fixed instead of guessed at. */
+(function dockWatchdog() {
+  const dockEl = document.querySelector('.dock-tab') && document.querySelector('.dock-tab').parentElement;
+  if (!dockEl) return;
+  let lastShown = 0;
+  document.addEventListener('touchstart', ev => {
+    const t = ev.touches && ev.touches[0];
+    if (!t) return;
+    const r = dockEl.getBoundingClientRect();
+    if (t.clientY < r.top || t.clientY > r.bottom || t.clientX < r.left || t.clientX > r.right) return;
+    const top = document.elementFromPoint(t.clientX, t.clientY);
+    if (!top || dockEl.contains(top) || top.closest('.dock-center-raised-fab')) return;
+    const name = (top.id ? '#' + top.id : '') + (typeof top.className === 'string' && top.className ? '.' + top.className.trim().split(/\s+/).slice(0, 2).join('.') : '') || top.tagName;
+    window.__dockBlocker = name;
+    console.warn('Dock covered by', name);
+    if (performance.now() - lastShown > 4000) {
+      lastShown = performance.now();
+      showToast('Dock covered by ' + String(name).slice(0, 60), 'warning');
+    }
+  }, { capture: true, passive: true });
 })();
 
 // Set default active tab

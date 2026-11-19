@@ -8,13 +8,15 @@
   padding: 14px 24px; border-radius: var(--rs);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
   font-size: 15px; font-weight: 600;
-  transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1), opacity 0.3s;
+  transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1), opacity 0.3s, visibility 0s linear 0.4s;
   opacity: 0; z-index: 1100; border: 1px solid var(--border);
+  /* Hidden, it must not catch taps: it sits right above the dock and keeps its last message's width */
+  pointer-events: none; visibility: hidden;
   display: flex; align-items: center; gap: 12px;
   /* Wrap long messages instead of running off-screen on phones */
   white-space: normal; width: max-content; max-width: calc(100vw - 32px); box-sizing: border-box; line-height: 1.35;
 }
-.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.show { transition-delay: 0s; transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; visibility: visible; }
 
 /* SVG icons via CSS mask (SVG-only icon rule); colour comes from the toast type */
 .toast-icon { flex-shrink: 0; display: inline-flex; width: 18px; height: 18px; }
