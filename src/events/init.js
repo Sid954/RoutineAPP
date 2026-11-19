@@ -21,7 +21,9 @@ import { fetchWithTimeout } from '../core/utils.js';
 
 export function fetchAnnouncementsAndNotify() {
   return Announcements.fetchAll().then(fetched => {
-    if (fetched) {
+    // Same notices as the last poll (every 30 s): nothing to redraw, and re-planning would
+    // cancel and re-schedule every alert over the native bridge for nothing
+    if (fetched && Announcements.lastFetchChanged !== false) {
       State.lastRenderedMinute = -1;
       updateDashboard();
       if (FEATURES.notifications) {

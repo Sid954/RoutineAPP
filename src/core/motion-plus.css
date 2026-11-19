@@ -309,7 +309,8 @@ html[data-daypart="night"] { --gt-icon: #A5B4FC; }
 /* Home's looping decorations (ambient scene, live-card water edge, live dots) pause while
    Home is hidden behind another page, or a page, sheet or popup covers it. */
 #ambientLayer.is-hidden *,
-html:has(:is(.mo.open, .class-sheet-modal-overlay.open, .rm-sheet-overlay.open, #calendarPickerModal.open)) :is(#ambientLayer *, .live-fill-edge, .rm-live-dot::after, .hm-live-dot::after) {
+/* body.modal-open (set by openModal) instead of html:has(...): a :has() on the root is re-checked on every DOM change */
+body.modal-open :is(#ambientLayer *, .live-fill-edge, .rm-live-dot::after, .hm-live-dot::after) {
   animation-play-state: paused !important;
 }
 
@@ -367,3 +368,9 @@ html.mx-mouse-drag *, html.mx-mouse-fling * { scroll-behavior: auto !important; 
 /* Scroll snapping would pull a row back to the nearest card after every mouse move; it is
    paused while dragging / flinging and snaps once the mouse lets go. */
 html.mx-mouse-drag *, html.mx-mouse-fling * { scroll-snap-type: none !important; }
+
+/* ── 26. Performance pass (2026-11-19: "slow and unresponsive on my phone") ───
+   The ambient scene is drawn once and stays still: 16 twinkling stars, drifting bubbles, a turning
+   sun and a breathing dusk kept the compositor and style engine busy on every frame, forever. */
+#ambientLayer i, #ambientLayer b { animation: none !important; will-change: auto; }
+.amb-bubble { display: none; }

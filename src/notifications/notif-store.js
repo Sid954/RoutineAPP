@@ -9,7 +9,7 @@ import { normalizePrefs } from './planner.js';
 const PREFS_KEY = 'notif_prefs_v2';
 const SKIPS_KEY = 'notif_skips_v1';
 const PAUSE_KEY = 'notif_pause';
-const DATES_KEY = 'notif_dates_v1'; // { [date]: { lead?, classes?, briefing?, preview? } }
+const DATES_KEY = 'notif_dates_v1'; // { [date]: { lead?, classes? } }
 
 const read = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
 const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
@@ -87,7 +87,7 @@ export function endOfToday(now = new Date()) {
 }
 
 /* ── Per-date overrides (Home → bell beside the day title) ─────────────────── */
-const DATE_FIELDS = ['lead', 'classes', 'briefing', 'preview'];
+const DATE_FIELDS = ['lead', 'classes'];
 /** Overrides for dates from today on; past dates are dropped. */
 export function getDateOverrides(now = new Date()) {
   const raw = read(DATES_KEY, {}) || {};
@@ -97,7 +97,7 @@ export function getDateOverrides(now = new Date()) {
     if (d < today || !o || typeof o !== 'object') return;
     const clean = {};
     if (Number.isFinite(o.lead) && o.lead > 0) clean.lead = Math.min(120, Math.round(o.lead));
-    ['classes', 'briefing', 'preview'].forEach(k => { if (typeof o[k] === 'boolean') clean[k] = o[k]; });
+    ['classes'].forEach(k => { if (typeof o[k] === 'boolean') clean[k] = o[k]; });
     if (Object.keys(clean).length) out[d] = clean;
   });
   return out;

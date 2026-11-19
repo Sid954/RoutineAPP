@@ -194,7 +194,18 @@ export function getDeadlinesForDate(dayOrDate, explicitAnchor) {
  * Pre-builds a Map of YYYY-MM-DD -> { type, count, announcement }
  * with resolved multi-override priority: holiday > cancellation > class_test > rescheduled > online_class > assignment.
  */
+// The week strip, calendar, swipe and notification planner all ask for this map, several times per render.
+// State.announcementsList is replaced (never edited in place) when notices change, so the same array and
+// length mean the same map.
+let _ovCache = { list: null, len: -1, map: null };
 export function getOverridesByDateMap() {
+  const src = State.announcementsList;
+  if (src && src.length && _ovCache.list === src && _ovCache.len === src.length) return _ovCache.map;
+  const map = _buildOverridesByDateMap();
+  if (src && src.length) _ovCache = { list: src, len: src.length, map };
+  return map;
+}
+function _buildOverridesByDateMap() {
   const map = new Map();
   if (!State.announcementsList || State.announcementsList.length === 0) return map;
 

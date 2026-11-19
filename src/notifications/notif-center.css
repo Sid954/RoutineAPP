@@ -193,8 +193,10 @@
 .timeline-bell svg { width: 15px; height: 15px; }
 .timeline-bell:active { background: var(--accent-soft); color: var(--accent); }
 .timeline-bell:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.timeline-bell-dot { position: absolute; top: 4px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
-.timeline-bell-dot[hidden] { display: none; }
+/* The bell shows the viewed day: cross = switched off, sliders = customized */
+.timeline-bell[data-state="off"] { color: var(--st-err-ink); border-color: rgba(244, 63, 94, 0.45); }
+.timeline-bell[data-state="custom"] { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+:root[data-color="light"] .timeline-bell[data-state="custom"] { color: var(--accent-hover); }
 
 /* Day sheet */
 .nf-day-sheet { background: var(--canvas); max-height: 90vh; max-height: 90dvh; }
@@ -233,15 +235,14 @@
 :root[data-color="light"] .nf-page .nf-test { color: var(--accent-hover); }
 .nf-page .nf-test:disabled { opacity: 0.6; cursor: default; }
 
-/* Upcoming alerts: one card per day */
-.nf-page .nf-days { display: flex; flex-direction: column; gap: 12px; }
-.nf-page .nf-days .nf-day-card { background: var(--card-bg); border-radius: 24px; overflow: hidden; }
-.nf-page .nf-days .nf-day-head { background: none; padding: 14px 16px 10px; }
-.nf-page .nf-days .nf-up-row { padding: 11px 16px; }
-.nf-page .nf-days .nf-empty { padding: 6px 16px 14px; text-align: left; }
-.nf-page .nf-day-edit {
-  display: block; width: calc(100% - 32px); margin: 10px 16px 14px; height: 38px;
-  border: 0; border-radius: 999px; background: var(--st-inset); color: var(--accent);
-  font: 700 13px var(--font-ui); cursor: pointer;
+/* Day sheet: previous / next day */
+.nf-day-nav { display: flex; align-items: center; gap: 10px; padding-right: 44px; }
+.nf-day-nav .nf-day-head-block { flex: 1; min-width: 0; }
+.nf-day-step {
+  width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; border: 0; cursor: pointer;
+  display: grid; place-items: center; background: var(--card-bg); color: var(--text-main);
 }
-:root[data-color="light"] .nf-page .nf-day-edit { color: var(--accent-hover); }
+.nf-day-step svg { width: 18px; height: 18px; }
+.nf-day-step:disabled { opacity: 0.3; cursor: default; }
+.nf-day-step:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.nf-swipe-hint { margin: -6px 0 0; text-align: center; font: 500 12px var(--font-ui); color: var(--text-muted); }

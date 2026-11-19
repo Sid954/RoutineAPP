@@ -5,13 +5,12 @@
  * (day-sheet.js) or under "Upcoming alerts".
  */
 import { Notifications } from './notifications.js';
-import { getPrefs, updatePrefs, getPause, getDateOverrides, endOfToday } from './notif-store.js';
+import { getPrefs, updatePrefs, getPause, endOfToday } from './notif-store.js';
 import { fmtTime, NOTICE_TYPES, SOUNDS } from './planner.js';
-import { dayBlockHtml, upcomingPlan, getSkips, handleSkipChange, ymd } from './upcoming.js';
+import { handleSkipChange } from './upcoming.js';
 
 const $ = id => document.getElementById(id);
 const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const DAY_LONG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const WEEK_ORDER = [6, 0, 1, 2, 3, 4, 5]; // university week starts on Saturday
 const NOTICE_LABEL = { cancellation: 'Cancelled', holiday: 'Holiday', class_test: 'Tests', online_class: 'Online', rescheduled: 'Moved', assignment: 'Assignments', general: 'General' };
 const SOUND_LABEL = Object.fromEntries(SOUNDS.map(s => [s.id, s.label]));
@@ -25,7 +24,6 @@ const ICON = {
   notice: svg('<path d="M3 11l18-8v18L3 13z"/><path d="M11 14v5a2 2 0 0 1-4 0v-3"/>'),
   sound: svg('<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>'),
   clock: svg('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'),
-  list: svg('<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/>'),
   pause: svg('<line x1="9" y1="5" x2="9" y2="19"/><line x1="15" y1="5" x2="15" y2="19"/>', 2.2),
   play: svg('<polygon points="6 4 20 12 6 20 6 4"/>'),
   chev: svg('<polyline points="9 18 15 12 9 6"/>')
@@ -60,8 +58,7 @@ const PAGES = {
   deadlines: { title: 'Assignment deadlines', sub: 'From assignment notices' },
   notices: { title: 'Notices', sub: 'Posted by your section' },
   sounds: { title: 'Sound and vibration', sub: 'One sound for each kind of alert' },
-  when: { title: 'Days and quiet hours', sub: 'When alerts may arrive' },
-  upcoming: { title: 'Upcoming alerts', sub: 'The next 7 days' }
+  when: { title: 'Days and quiet hours', sub: 'When alerts may arrive' }
 };
 
 function pageClass(p) {
@@ -114,15 +111,7 @@ function pageWhen(p) {
   return sec('Days with class reminders and summaries', `<div class="st-item"><div class="nf-weekdays">${WEEK_ORDER.map(d => `<button type="button" data-weekday="${d}" aria-pressed="${p.days.includes(d)}" class="${p.days.includes(d) ? 'active' : ''}">${DAY_SHORT[d]}</button>`).join('')}</div></div>`) +
     sec('Quiet hours', sw('quiet.on', p.quiet.on, 'Quiet hours', 'No reminders, and notices arrive without sound') + (p.quiet.on ? `<div class="st-item nf-quiet">${timeField('quiet.from', p.quiet.from, 'From').replace('st-item ', '')}${timeField('quiet.to', p.quiet.to, 'To').replace('st-item ', '')}</div>` : ''));
 }
-function pageUpcoming(p) {
-  const plan = upcomingPlan();
-  const skips = getSkips();
-  const now = new Date();
-  const days = Array.from({ length: 7 }, (_, i) => ymd(new Date(now.getFullYear(), now.getMonth(), now.getDate() + i)));
-  return `<div class="nf-days">${days.map((date, i) => `<div class="st-sec-card nf-day-card">${dayBlockHtml(date, plan, skips, i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : DAY_LONG[new Date(`${date}T12:00:00`).getDay()], true)}</div>`).join('')}
-    <p class="st-sec-note">Switch a single alert or a whole day off. For class timing and summaries on one date, tap the bell beside the day title on Home.</p></div>`;
-}
-const BUILDERS = { class: pageClass, digest: pageDigest, tests: pageTests, deadlines: pageDeadlines, notices: pageNotices, sounds: pageSounds, when: pageWhen, upcoming: pageUpcoming };
+const BUILDERS = { class: pageClass, digest: pageDigest, tests: pageTests, deadlines: pageDeadlines, notices: pageNotices, sounds: pageSounds, when: pageWhen };
 
 /* ── Hub ──────────────────────────────────────────────────────────────────── */
 function renderStatus(prefs, pause, perm) {
@@ -154,7 +143,6 @@ function pauseHtml(pause) {
 
 const onOff = v => (v ? 'On' : 'Off');
 function hubHtml(p, pause) {
-  const dates = Object.keys(getDateOverrides()).length;
   const sounds = new Set(Object.values(p.sounds));
   const soundSub = sounds.size === 1 ? SOUND_LABEL[[...sounds][0]] : 'Different sounds';
   const rowsAlerts = [
@@ -165,7 +153,6 @@ function hubHtml(p, pause) {
     hubRow('notices', '#F43F5E', ICON.notice, 'Notices', p.notices.on ? `${NOTICE_TYPES.filter(t => p.notices.types[t] !== false).length} of ${NOTICE_TYPES.length} types` : 'Off')
   ];
   const rowsMore = [
-    hubRow('upcoming', '#0EA5E9', ICON.list, 'Upcoming alerts', `Next 7 days${dates ? ` · ${dates} custom day${dates === 1 ? '' : 's'}` : ''}`),
     hubRow('sounds', '#22C55E', ICON.sound, 'Sound and vibration', soundSub),
     hubRow('when', '#6366F1', ICON.clock, 'Days and quiet hours', p.quiet.on ? `Quiet ${fmtTime(p.quiet.from)} to ${fmtTime(p.quiet.to)}` : `${p.days.length} days · quiet hours ${onOff(false).toLowerCase()}`)
   ];
@@ -195,7 +182,7 @@ export async function renderNotifCenter(view) {
   if (!root) return;
   const scroll = page.querySelector('.md');
   const keep = scroll && !switched ? scroll.scrollTop : 0;
-  const html = _view === 'hub' ? hubHtml(prefs, pause) : `${perm !== 'granted' && _view === 'upcoming' ? '<p class="st-sec-note">Allow notifications on the Notifications page to receive these.</p>' : ''}${BUILDERS[_view](prefs)}`;
+  const html = _view === 'hub' ? hubHtml(prefs, pause) : `${BUILDERS[_view](prefs)}`;
   root.innerHTML = html;
   if (scroll) scroll.scrollTop = keep;
 }
@@ -265,7 +252,6 @@ export function initNotifCenter() {
     const b = e.target.closest('button');
     if (!b || !page.contains(b)) return;
     if (b.dataset.view) { renderNotifCenter(b.dataset.view); return; }
-    if (b.dataset.dayEdit) { import('./day-sheet.js').then(m => m.openDaySheet(b.dataset.dayEdit)); return; }
     if (b.dataset.soundId) {
       previewSound(b.dataset.soundId);
       updatePrefs('sounds', { [b.dataset.soundType]: b.dataset.soundId });

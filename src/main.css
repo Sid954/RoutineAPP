@@ -2,7 +2,8 @@
  * main.css — Master CSS entry point
  *
  * Imports all feature CSS in the correct order.
- * Comment out any @import to visually disable that feature's styles.
+ * Comment out any @import './fonts/fonts.css';
+@import to visually disable that feature's styles.
  */
 
 @import './core/core.css';

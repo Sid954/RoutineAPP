@@ -209,9 +209,10 @@ body.boot-enter #dashboardView { animation: bootFade var(--dur-3) var(--ease-out
 #cBar, .cd-progress-fill, .widget-progress-fill, [class*="progress-fill"], [class*="progress-bar-fill"] {
   transition: width var(--dur-4) var(--ease-in-out);
 }
+/* Opacity only: a box-shadow keyframe repaints the dot on every frame */
 @keyframes livePulse {
-  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); }
-  100% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--accent) 0%, transparent); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
 }
 .live-dot, .pulse-dot, .t-live-dot { animation: livePulse 1.8s var(--ease-out) infinite; }
 

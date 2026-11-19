@@ -77,6 +77,7 @@ let touchStartTime = 0;
 let isDragging = false;
 let dragTargetDayIdx = -1;
 let dragTargetDate = null;
+let dragDir = 0; // -1 next, 1 prev: the target day is looked up once per direction, not on every touchmove
 let swipeAllowed = true;
 
 const container = DOM.timelineGrid;
@@ -89,6 +90,7 @@ function swipeStart(x, y) {
   isDragging = false;
   dragTargetDayIdx = -1;
   dragTargetDate = null;
+  dragDir = 0;
 }
 
 function swipeMove(x, y) {
@@ -116,13 +118,11 @@ function swipeMove(x, y) {
     container.style.transform = `translateX(${draggedX}px) scale(${scale})`;
     container.style.opacity = opacity.toFixed(2);
 
-    if (deltaX < 0) {
-      // Moved left -> next active day (skipping Thu & Fri)
-      dragTargetDate = nextShownDate('next');
-      dragTargetDayIdx = dragTargetDate.getDay();
-    } else if (deltaX > 0) {
-      // Moved right -> previous active day (skipping Thu & Fri)
-      dragTargetDate = nextShownDate('prev');
+    // nextShownDate() rebuilds the overrides map and walks up to 14 dates: only when the direction changes
+    const dir = deltaX < 0 ? -1 : (deltaX > 0 ? 1 : 0);
+    if (dir && dir !== dragDir) {
+      dragDir = dir;
+      dragTargetDate = nextShownDate(dir < 0 ? 'next' : 'prev'); // left -> next shown day, right -> previous
       dragTargetDayIdx = dragTargetDate.getDay();
     }
   }

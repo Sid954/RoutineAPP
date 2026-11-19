@@ -205,6 +205,8 @@ window.switchAppView = switchAppView;
   document.addEventListener('touchstart', ev => {
     const t = ev.touches && ev.touches[0];
     if (!t) return;
+    // Cheap exit first: getBoundingClientRect forces a layout, and this runs on every touch
+    if (t.clientY < window.innerHeight - 180) return;
     const r = dockEl.getBoundingClientRect();
     if (t.clientY < r.top || t.clientY > r.bottom || t.clientX < r.left || t.clientX > r.right) return;
     const top = document.elementFromPoint(t.clientX, t.clientY);
@@ -399,8 +401,10 @@ if (notifModalClose) {
 }
 
 
-/* ── Dynamic feature imports (parallel for faster boot) ───────── */
-await Promise.all([
+/* ── Dynamic feature imports (parallel, NOT awaited here) ───────
+   They only attach handlers for Settings, the editor, notices and banners. Awaiting them before
+   initializeApp() made the first render wait for ~140 KB of modules; they are awaited at the end of boot. */
+const deferredFeatures = Promise.all([
   FEATURES.editSchedule ? Promise.all([
     import('./edit-schedule/editor.js'),
     import('./settings/settings-page.js')
@@ -488,7 +492,7 @@ initMotion();
 initDesktopInput(); // mouse/trackpad: drags, sideways rows, arrow keys
 initBackButton();
 initNotificationHealth();
-import('./notifications/day-sheet.js').then(m => { window.__updateNfBell = m.updateBellDot; m.initDaySheet(); }).catch(() => {});
+import('./notifications/day-sheet.js').then(m => { window.__updateNfBell = m.updateBell; m.initDaySheet(); }).catch(() => {});
 initAmbient();
 initTips();
 initTestTime();
@@ -505,3 +509,4 @@ initWidgetPinningUI();
 initFreeRoomsUI();
 initTeacherFinderUI();
 initCalendarPicker();
+await deferredFeatures;

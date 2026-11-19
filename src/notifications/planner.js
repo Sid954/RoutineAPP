@@ -4,8 +4,9 @@
  * notifications.js collects the input and schedules the output; tests/test_notification_planner.js
  * covers the rules.
  *
- * Per-date overrides (input `dates`): { [YYYY-MM-DD]: { lead?: minutes, classes?: bool, briefing?: bool, preview?: bool } }
- *   lead = class reminder lead for that day only; the booleans switch that kind off (or on) for the day.
+ * Per-date overrides (input `dates`): { [YYYY-MM-DD]: { lead?: minutes, classes?: bool } }
+ *   lead = class reminder lead for that day only; classes:false switches that day's class reminders off.
+ *   (Summaries are not per-day settings: only the main Notifications page changes them.)
  *
  * Kinds:  class (X min before) · start (as it starts) · briefing (morning summary) ·
  *         preview (evening before) · test (heads-up the evening before, when preview is off) ·
@@ -214,8 +215,6 @@ export function planNotifications({ days = [], prefs: rawPrefs, skips = {}, date
   days.forEach((day) => {
     const ov = (dates && dates[day.date]) || {};
     const classesOn = prefs.classes.on && ov.classes !== false;
-    const briefingOn = ov.briefing === undefined ? prefs.briefing.on : !!ov.briefing;
-    const previewOn = ov.preview === undefined ? prefs.preview.on : !!ov.preview;
     const baseLead = Number.isFinite(ov.lead) && ov.lead > 0 ? ov.lead : 0;
     const dayOn = prefs.days.includes(day.dayIdx) && !skipDays.has(day.date);
     const classes = day.classes.filter(held).sort((a, b) => parseTime(a.start) - parseTime(b.start));
@@ -246,7 +245,7 @@ export function planNotifications({ days = [], prefs: rawPrefs, skips = {}, date
     }
 
     // Morning summary
-    if (dayOn && briefingOn && hasNews(day)) {
+    if (dayOn && prefs.briefing.on && hasNews(day)) {
       const first = classes.length ? parseTime(classes[0].start) : 1440;
       if (prefs.briefing.time < first) {
         const t = digestText(day, 'today');
@@ -257,7 +256,7 @@ export function planNotifications({ days = [], prefs: rawPrefs, skips = {}, date
     // Evening before: preview, or separate test / deadline heads-ups when the preview is off
     const eve = prevDate(day.date);
     const tests = classes.filter(c => c.test);
-    if (previewOn && dayOn && hasNews(day)) {
+    if (prefs.preview.on && dayOn && hasNews(day)) {
       const t = digestText(day, 'tomorrow');
       push({ key: `preview|${day.date}`, at: atLocal(eve, prefs.preview.time), kind: 'preview', channel: 'daily_digest', title: t.title, body: t.body, date: day.date, actionType: 'DIGEST' });
     } else {

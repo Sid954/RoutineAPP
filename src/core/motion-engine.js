@@ -118,38 +118,8 @@ const TAPPABLE = [
   '.theme-palette-card', '.t-card', '.m-matrix-card', '.st-row', '.st-class', '.timeline-ghost-strip.tappable',
   '.day-done-strip.tappable', '.timeline-deadline-banner.tappable', '.dock-tab', '.dock-center-raised-fab'
 ].join(',');
-// Elements that must not get a ripple layer (tiny, or positioned children that would clip)
-const NO_RIPPLE = '.satellite-pill, .focal-day-card, [data-no-ripple], input, select, textarea, .teacher-clickable-badge, .dock-center-raised-fab';
-
-function ripple(el, x, y) {
-  if (Motion.tier === 'off' || el.matches(NO_RIPPLE)) return;
-  const rect = el.getBoundingClientRect();
-  if (rect.width < 24 || rect.height < 20) return;
-  if (!el._mxPos) {
-    el._mxPos = true;
-    if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
-  }
-  let layer = el.querySelector(':scope > .mx-ripple-layer');
-  if (!layer) {
-    layer = document.createElement('span');
-    layer.className = 'mx-ripple-layer';
-    layer.setAttribute('aria-hidden', 'true');
-    el.appendChild(layer);
-  }
-  // Just big enough to reach the farthest corner from the touch point (was 2x the diagonal)
-  const px = (x || rect.left + rect.width / 2) - rect.left;
-  const py = (y || rect.top + rect.height / 2) - rect.top;
-  const size = 2 * Math.hypot(Math.max(px, rect.width - px), Math.max(py, rect.height - py));
-  const r = document.createElement('span');
-  r.className = 'mx-ripple';
-  r.style.width = r.style.height = `${size}px`;
-  r.style.left = `${px - size / 2}px`;
-  r.style.top = `${py - size / 2}px`;
-  layer.appendChild(r);
-  const done = () => r.remove();
-  r.addEventListener('animationend', done, { once: true });
-  setTimeout(done, 900);
-}
+/* Press feedback is CSS only (.mx-pressed scale, motion-plus.css §2). The old ripple measured the element
+   (getBoundingClientRect + getComputedStyle = a forced layout) and added DOM on every tap. */
 
 // A touch only becomes a "press" once it's clearly a tap: after PRESS_DELAY ms without
 // moving, or when the finger lifts first. Scroll flicks no longer scale a card, add a ripple
@@ -163,7 +133,6 @@ function bindPress() {
   const begin = (el, x, y) => {
     pressed = el;
     el.classList.add('mx-pressed');
-    ripple(el, x, y);
   };
   const cancelPending = () => { if (pending) { clearTimeout(pending.timer); pending = null; } };
   const release = () => {

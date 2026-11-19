@@ -167,8 +167,10 @@ export const Announcements = {
       const sig = JSON.stringify(rows);
       if (sig === this._lastSig && !this._loadError) {
         Suggestions.load();
+        this.lastFetchChanged = false; // callers skip the dashboard re-render and the notification re-plan
         return true;
       }
+      this.lastFetchChanged = true;
       this._lastSig = sig;
       this._loadError = false;
       const pins = this.getPinnedIds();

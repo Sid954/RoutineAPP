@@ -46,22 +46,6 @@ export function alertRowHtml(n, skips, dayOff) {
     </label>`;
 }
 
-/** Day header (with the whole-day switch) plus its alert rows. */
-export function dayBlockHtml(date, plan, skips, label, editable = false) {
-  const dayOff = skips.days.includes(date);
-  const rows = dayAlerts(plan, date);
-  const d = new Date(`${date}T12:00:00`);
-  return `<div class="nf-day">
-      <label class="nf-day-head">
-        <span><strong>${escapeHtml(label || DAY_SHORT[d.getDay()])}</strong><span>${DAY_SHORT[d.getDay()]} ${d.getDate()}${rows.length ? ` · ${rows.length} alert${rows.length === 1 ? '' : 's'}` : ''}</span></span>
-        <input type="checkbox" class="st-switch-input" data-skip-day="${date}" ${dayOff ? '' : 'checked'} aria-label="Alerts on this day">
-        <span class="st-switch-ui" aria-hidden="true"></span>
-      </label>
-      ${rows.length ? rows.map(n => alertRowHtml(n, skips, dayOff)).join('') : `<div class="nf-empty">${dayOff ? 'Alerts are off for this day.' : 'Nothing planned.'}</div>`}
-      ${editable ? `<button type="button" class="nf-day-edit" data-day-edit="${date}">Customize this day</button>` : ''}
-    </div>`;
-}
-
 export function upcomingPlan() { return Notifications.getPlan({ ignoreSkips: true }); }
 export { getSkips };
 
