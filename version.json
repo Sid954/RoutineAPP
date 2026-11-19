@@ -1,8 +1,8 @@
 {
-  "versionCode": 29,
-  "versionName": "1.5.19",
+  "versionCode": 30,
+  "versionName": "1.5.20",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.19 - Smoother Notices (no more hitch every 30 seconds), and a check that tells us what blocks the bottom bar when it stops responding.",
+  "releaseNotes": "v1.5.20 - Settings sorted into groups with many new options, a cleaner Home, Routine, Apps and Notices, a tappable day popup for announcements, and a clear \"Campus closed\" view.",
   "minRequiredVersionCode": 1
 }
