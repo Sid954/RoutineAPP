@@ -231,7 +231,8 @@ function staggerReplay(el) {
   el._mxAnim = el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: Motion.tier === 'full' ? 200 : 140, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
   el._mxAnim.onfinish = () => { el._mxAnim = null; };
 }
-const NO_FADE = new Set(['focalStripContainer', 'fdFilters', 'announceFilterBar', 'calendarDaysGrid']);
+// announceList: folding a group or a poll must never fade the whole Notices page (swipes fade it themselves)
+const NO_FADE = new Set(['focalStripContainer', 'fdFilters', 'announceFilterBar', 'calendarDaysGrid', 'announceList']);
 
 function bindStagger() {
   const seen = new WeakSet();

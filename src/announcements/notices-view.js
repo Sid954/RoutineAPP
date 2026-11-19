@@ -286,6 +286,49 @@ function groupIsOpen(key, items, read) {
   return _groupOpen[key];
 }
 
+let _groupItems = {};
+
+/** One folding group: its heading and, when open, its rows. Used by the full render and by a fold. */
+function groupSectionHtml(k, label, items, read, startIndex = 0) {
+  const open = groupIsOpen(k, items, read);
+  const fresh = items.filter(n => !n.past && !read.has(n.id)).length;
+  let i = startIndex;
+  return `<section class="nt-group${open ? ' is-open' : ''}" data-group="${k}">
+      <button type="button" class="nt-group-head" data-group-toggle="${k}" aria-expanded="${open}">
+        <span>${label}</span>${groupDateHtml(k)}
+        <span class="nt-group-meta">
+          ${fresh && !open ? `<span class="nt-group-new">${fresh} new</span>` : ''}
+          <span class="nt-group-count">${items.length}</span>
+          ${svg('<polyline points="6 9 12 15 18 9"/>', 'nt-group-chev')}
+        </span>
+      </button>
+      ${open ? `<div class="nt-group-list">${items.map(n => cardHtml(n, k === 'past' || read.has(n.id), i++, k)).join('')}</div>` : ''}
+    </section>`;
+}
+
+/**
+ * Fold / unfold ONE group in place. The page is not re-drawn, nothing fades and the scroll
+ * position does not move: only this group's own markup changes.
+ */
+function toggleGroup(k) {
+  const data = _groupItems[k];
+  const feed = $('announceList');
+  const section = feed && feed.querySelector(`.nt-group[data-group="${k}"]`);
+  if (!data || !section) return;
+  if (!_groupOpen) _groupOpen = {};
+  const wasOpen = section.classList.contains('is-open');
+  _groupOpen[k] = !wasOpen;
+  const read = Announcements.getReadIds();
+  const html = groupSectionHtml(k, data.label, data.items, read);
+  const tpl = document.createElement('template');
+  tpl.innerHTML = html.trim();
+  section.replaceWith(tpl.content.firstElementChild);
+  // The feed's remembered markup must match what is on screen, or the next full render would skip
+  const feedEl = $('announceList');
+  if (feedEl) feedEl.__html = feedEl.innerHTML;
+  bindObserver(feedEl);
+}
+
 export function renderNotices() {
   const feed = $('announceList');
   if (!feed) return;
@@ -312,22 +355,13 @@ export function renderNotices() {
   const g = groupFeed(bundleHolidays(filtered));
   let i = 0;
   let html = '';
+  _groupItems = {};
   GROUPS.forEach(([k, label]) => {
     const items = g[k];
     if (!items.length) return;
-    const open = groupIsOpen(k, items, read);
-    const fresh = items.filter(n => !n.past && !read.has(n.id)).length;
-    html += `<section class="nt-group${open ? ' is-open' : ''}" data-group="${k}">
-      <button type="button" class="nt-group-head" data-group-toggle="${k}" aria-expanded="${open}">
-        <span>${label}</span>${groupDateHtml(k)}
-        <span class="nt-group-meta">
-          ${fresh && !open ? `<span class="nt-group-new">${fresh} new</span>` : ''}
-          <span class="nt-group-count">${items.length}</span>
-          ${svg('<polyline points="6 9 12 15 18 9"/>', 'nt-group-chev')}
-        </span>
-      </button>
-      ${open ? `<div class="nt-group-list">${items.map(n => cardHtml(n, k === 'past' || read.has(n.id), i++, k)).join('')}</div>` : ''}
-    </section>`;
+    _groupItems[k] = { label, items };
+    html += groupSectionHtml(k, label, items, read, i);
+    i += items.length;
   });
   if (!html) {
     html = Announcements.query
@@ -645,9 +679,7 @@ export function initAnnouncementEvents() {
     const head = e.target.closest('[data-group-toggle]');
     if (head) {
       const k = head.dataset.groupToggle;
-      if (!_groupOpen) _groupOpen = {};
-      _groupOpen[k] = head.getAttribute('aria-expanded') !== 'true';
-      renderNotices();
+      toggleGroup(k);
       return;
     }
     if (e.target.closest('.nt-link-btn')) return; // Join / Upload open the link, not the sheet
