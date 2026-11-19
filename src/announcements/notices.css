@@ -692,3 +692,67 @@
 :root[data-color="light"] .sg-act { color: var(--accent-hover); }
 .sg-act.is-danger { border-color: var(--nt-line); background: transparent; color: var(--nt-bad); }
 .sg-arrow:focus-visible, .sg-act:focus-visible, .sg-new:focus-visible, .nt-tabs button:focus-visible, .nt-notif-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ── Detail sheet v2 (2026-11-19): reading order, one big action ─────────── */
+.nt-sheet { background: var(--nt-surface); border-color: var(--nt-line); padding-left: 20px; padding-right: 20px; }
+.nt-sheet-body { margin: 0 -20px; padding: 0 20px max(24px, env(safe-area-inset-bottom, 24px)); }
+.nt-sheet-close { background: var(--nt-hover); border-color: var(--nt-line); color: var(--nt-text); }
+.ns-top { display: flex; align-items: center; gap: 8px; padding-right: 44px; min-height: 34px; }
+.ns-ico { width: 24px; height: 24px; display: grid; place-items: center; color: var(--nt-ico); }
+.ns-ico svg { width: 20px; height: 20px; }
+.ns-kind { display: flex; align-items: baseline; gap: 8px; font-size: 13.5px; font-weight: 700; color: var(--nt-text-2); }
+.ns-aud { font: 600 11.5px var(--font-mono); color: var(--nt-text-3); }
+.ns-pin { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--nt-text-3); }
+.ns-pin svg { width: 13px; height: 13px; }
+.ns-title { margin: 6px 0 16px; font-size: 24px; font-weight: 800; line-height: 1.2; letter-spacing: -0.4px; color: var(--nt-text); overflow-wrap: anywhere; }
+
+/* WHEN: the day on the left, the time (only if real) big on the right */
+.ns-when {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 16px; margin-bottom: 14px;
+  border-radius: 16px; background: var(--nt-hover); border: 1px solid var(--nt-line);
+}
+.ns-when-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ns-day { font-size: 16px; font-weight: 800; color: var(--nt-text); }
+.ns-away { font-size: 13px; font-weight: 600; color: var(--accent); }
+:root[data-color="light"] .ns-away { color: var(--accent-hover); }
+.ns-away.is-past { color: var(--nt-text-3); }
+.ns-time { flex-shrink: 0; text-align: right; font: 800 24px/1 var(--font-mono); letter-spacing: -0.8px; color: var(--nt-text); }
+.ns-time span { display: block; margin-bottom: 4px; font: 700 11px var(--font-ui); letter-spacing: 0; color: var(--nt-text-3); }
+
+.ns-primary {
+  display: flex; align-items: center; gap: 10px;
+  height: 52px; padding: 0 16px; margin-bottom: 16px;
+  border-radius: 16px; background: var(--accent); color: var(--btn-text, #fff);
+  font: 800 15.5px var(--font-ui); text-decoration: none;
+}
+.ns-primary svg { width: 18px; height: 18px; flex-shrink: 0; }
+.ns-primary:active { transform: scale(0.985); }
+.ns-primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ns-host { margin-left: auto; font-size: 12px; font-weight: 600; opacity: 0.8; }
+
+/* Facts: a plain list, label left, value right */
+.ns-facts { margin: 0 0 4px; padding: 0; }
+.ns-facts > div { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 11px 2px; border-top: 1px solid var(--nt-line); }
+.ns-facts > div:first-child { border-top: none; }
+.ns-facts dt { font-size: 13.5px; font-weight: 500; color: var(--nt-text-3); }
+.ns-facts dd { margin: 0; text-align: right; font-size: 15px; font-weight: 700; color: var(--nt-text); overflow-wrap: anywhere; }
+.ns-facts dd.is-mono { font-family: var(--font-mono); font-size: 14.5px; }
+.ns-text { margin: 12px 0 4px; padding-top: 12px; border-top: 1px solid var(--nt-line); }
+.ns-text-label { font-size: 13px; font-weight: 500; color: var(--nt-text-3); margin-bottom: 5px; }
+.ns-text p { margin: 0; font-size: 15.5px; line-height: 1.55; color: var(--nt-text); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.ns-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.ns-action {
+  flex: 1 1 0; min-width: 0;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  height: 42px; padding: 0 14px; border-radius: 12px;
+  border: 1px solid var(--nt-line); background: transparent; color: var(--nt-text);
+  font: 700 13px var(--font-ui); cursor: pointer; white-space: nowrap;
+}
+.ns-action svg { width: 16px; height: 16px; color: var(--nt-ico); }
+.ns-action:active { transform: scale(0.97); }
+.ns-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ns-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; margin-top: 16px; font-size: 12.5px; font-weight: 500; color: var(--nt-text-3); }
+.ns-meta strong { color: var(--nt-text-2); font-weight: 700; }
+.ns-confirmed { font-weight: 700; color: var(--nt-warn); }

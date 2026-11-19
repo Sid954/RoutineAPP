@@ -189,7 +189,7 @@ export function toNotice(item, ctx = {}) {
       n.summary = [subject, n.time, n.place].filter(Boolean).join(' · ');
       add('Course', subject, true);
       add('Starts', n.time, true);
-      add(online ? 'Where' : 'Room', online ? (n.link ? 'Online (link below)' : (platform || 'Check the class group for the link')) : String(p.room || '').trim(), !online);
+      add(online ? 'Where' : 'Room', online ? (n.link ? 'Online' : (platform || 'Check the class group for the link')) : String(p.room || '').trim(), !online);
       add('Teacher', String(p.teacher || '').trim(), true);
       break;
     }

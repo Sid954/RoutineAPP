@@ -9,7 +9,7 @@
  */
 import { State } from '../core/state.js';
 import { Storage } from '../storage/storage.js';
-import { escapeHtml, setHtmlIfChanged } from '../core/utils.js';
+import { escapeHtml, setHtmlIfChanged, toMinutes } from '../core/utils.js';
 import { bindMouseDrag } from '../core/desktop-input.js';
 import { showToast } from '../toast/toast.js';
 import { openModal, closeModal, showConfirm } from '../modals/modal.js';
@@ -428,35 +428,83 @@ function findNotice(id) {
   return toNotice(raw, { semester: String(Storage.getSemester() || '').toLowerCase(), section: String(Storage.getSection() || '').toLowerCase() });
 }
 
+/** "starts in 2h 10m" when it is today and has a time; otherwise "in 3 days", "tomorrow", "today", "past". */
+function whenCountdown(n) {
+  if (!n.date) return '';
+  if (n.past) return 'Past';
+  const f = n.focus || {};
+  const t = f.hasTime ? toMinutes(`${f.big} ${f.ampm}`) : -1;
+  if (dayLabel(n.date) === 'Today' && t >= 0) {
+    const now = new Date();
+    const left = t - (now.getHours() * 60 + now.getMinutes());
+    if (left > 0) {
+      const span = left >= 60 ? `${Math.floor(left / 60)}h${left % 60 ? ` ${left % 60}m` : ''}` : `${left}m`;
+      return `${f.note === 'due' ? 'due' : 'starts'} in ${span}`;
+    }
+    if (left > -90 && f.note !== 'due') return 'happening now';
+  }
+  return countdown(n.date);
+}
+
+/**
+ * The detail sheet, in reading order:
+ *   type + who it is for      (small)
+ *   headline                  (big)
+ *   WHEN: the day, and the time only if it is real, with how far away it is
+ *   one big action            (Join / Open the upload page), when there is a link
+ *   the facts, as a plain list; long text (reason, syllabus, message) as a paragraph
+ *   secondary actions         (calendar, routine, share)
+ *   who posted it
+ */
 function renderSheet(id) {
   const body = $('ntSheetBody');
   const n = findNotice(id);
   if (!body || !n) return false;
-  const when = n.date ? [longDate(n.date), n.time].filter(Boolean).join(' · ') : '';
-  const cd = n.date ? countdown(n.date) : '';
-  const facts = n.details.filter(d => !(d.label === 'Course' && n.title.includes(d.value)) && d.label !== 'Syllabus' && d.label !== 'Notes' && d.label !== 'Reason');
+  const f = n.focus || {};
+  const time = f.hasTime ? `${f.big} ${f.ampm}`.trim() : '';
+  const cd = whenCountdown(n);
+  const SKIP = new Set(['Starts', 'Due', 'To', 'Exam', 'Task', 'Syllabus', 'Notes', 'Reason']);
+  const facts = n.details.filter(d => !SKIP.has(d.label)).map(d => ({ ...d, label: d.label === 'From' ? 'Was' : d.label }));
+  // Room from the routine (cancelled class / test) when the notice itself has none
+  (n.lines || []).forEach(l => {
+    if (/^Room /.test(l) && !facts.some(x => /room|where/i.test(x.label))) facts.push({ label: 'Room', value: l.replace(/^Room /, ''), mono: true });
+  });
   const longText = n.details.find(d => ['Syllabus', 'Notes', 'Reason'].includes(d.label));
   const text = n.type === 'general' || n.type === 'holiday' || n.type === 'cancellation' ? n.body : (longText ? longText.value : '');
-  const textLabel = longText ? longText.label : (n.type === 'cancellation' ? 'Note' : '');
+  const textLabel = longText ? ({ Syllabus: 'Covers', Notes: 'Notes', Reason: 'Reason' }[longText.label]) : (n.type === 'cancellation' ? 'Reason' : (n.type === 'general' ? '' : 'Note'));
   const canRoutine = !!n.date && n.audience.isMine && !n.past;
+  const confirmed = n.raw && n.raw.source === 'community';
+  const upload = n.type === 'assignment';
+  const uploadIcon = '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>';
 
   body.innerHTML = `
-    <div class="nt-sheet-type tone-${n.tone}">
-      <span class="nt-tile">${svg(ICONS[n.tone] || ICONS.general)}</span>
-      <span class="nt-sheet-type-text"><strong>${escapeHtml(n.meta.label)}</strong><span>${escapeHtml(n.audience.label)}</span></span>
-      ${n.pinned ? `<span class="nt-pin is-label">${svg(UI.pin)}Pinned</span>` : ''}
+    <div class="ns-top">
+      <span class="ns-ico">${svg(ICONS[n.tone] || ICONS.general)}</span>
+      <span class="ns-kind">${escapeHtml(n.meta.label)}<span class="ns-aud">${escapeHtml(n.audience.short || n.audience.label)}</span></span>
+      ${n.pinned ? `<span class="ns-pin">${svg(UI.pin)}Pinned</span>` : ''}
     </div>
-    <h2 class="nt-sheet-title" id="ntSheetTitle">${escapeHtml(n.headline || n.title)}</h2>
-    ${when ? `<div class="nt-sheet-when"><span>${escapeHtml(when)}</span>${cd && !n.past ? `<span class="nt-countdown">${escapeHtml(cd)}</span>` : ''}${n.past ? '<span class="nt-countdown is-past">Past</span>' : ''}</div>` : ''}
-    ${facts.length ? `<dl class="nt-facts">${facts.map(d => `<div><dt>${escapeHtml(d.label)}</dt><dd${d.mono ? ' class="is-mono"' : ''}>${escapeHtml(d.value)}</dd></div>`).join('')}</dl>` : ''}
-    ${text ? `<div class="nt-text">${textLabel ? `<div class="nt-text-label">${escapeHtml(textLabel)}</div>` : ''}<p>${escapeHtml(text)}</p></div>` : ''}
-    ${n.link ? `<a class="nt-join" href="${escapeHtml(n.link)}" target="_blank" rel="noopener noreferrer">${svg(UI.play)}<span>${n.type === 'assignment' ? 'Open the upload page' : 'Join class'}</span><span class="nt-join-host">${escapeHtml(hostOf(n.link))}</span></a>` : ''}
-    <div class="nt-actions">
-      ${n.date ? `<button type="button" class="nt-action" data-act="calendar">${svg(UI.cal)}<span>Calendar</span></button>` : ''}
-      ${canRoutine ? `<button type="button" class="nt-action" data-act="routine">${svg(UI.route)}<span>In routine</span></button>` : ''}
-      <button type="button" class="nt-action" data-act="share">${svg(UI.share)}<span>Share</span></button>
+    <h2 class="ns-title" id="ntSheetTitle">${escapeHtml(n.headline || n.title)}</h2>
+    ${n.date ? `<div class="ns-when">
+      <div class="ns-when-main">
+        <span class="ns-day">${escapeHtml(longDate(n.date))}</span>
+        ${cd ? `<span class="ns-away${n.past ? ' is-past' : ''}">${escapeHtml(cd)}</span>` : ''}
+      </div>
+      ${time ? `<div class="ns-time">${f.note ? `<span>${escapeHtml(f.note)}</span>` : ''}${escapeHtml(time)}</div>` : ''}
+    </div>` : ''}
+    ${n.link ? `<a class="ns-primary" href="${escapeHtml(n.link)}" target="_blank" rel="noopener noreferrer">
+      ${svg(upload ? uploadIcon : UI.play)}
+      <span>${upload ? 'Open the upload page' : 'Join class'}</span><span class="ns-host">${escapeHtml(hostOf(n.link))}</span></a>` : ''}
+    ${facts.length ? `<dl class="ns-facts">${facts.map(d => `<div><dt>${escapeHtml(d.label)}</dt><dd${d.mono ? ' class="is-mono"' : ''}>${escapeHtml(d.value)}</dd></div>`).join('')}</dl>` : ''}
+    ${text ? `<div class="ns-text">${textLabel ? `<div class="ns-text-label">${escapeHtml(textLabel)}</div>` : ''}<p>${escapeHtml(text)}</p></div>` : ''}
+    <div class="ns-actions">
+      ${n.date ? `<button type="button" class="ns-action" data-act="calendar">${svg(UI.cal)}<span>Calendar</span></button>` : ''}
+      ${canRoutine ? `<button type="button" class="ns-action" data-act="routine">${svg(UI.route)}<span>In routine</span></button>` : ''}
+      <button type="button" class="ns-action" data-act="share">${svg(UI.share)}<span>Share</span></button>
     </div>
-    <div class="nt-sheet-meta">Posted by <strong>${escapeHtml(n.author || 'Unknown')}</strong> · ${escapeHtml(postedAgo(n.createdAt))}${n.isEdited ? ' · edited' : ''}</div>
+    <div class="ns-meta">
+      <span>Posted by <strong>${escapeHtml(n.author || 'Unknown')}</strong>, ${escapeHtml(postedAgo(n.createdAt))}${n.isEdited ? ', edited' : ''}</span>
+      ${confirmed ? '<span class="ns-confirmed">Confirmed by votes</span>' : ''}
+    </div>
     ${Announcements.isAdminMode ? `<div class="nt-admin">
       <button type="button" class="nt-admin-btn" data-act="pin">${svg(UI.pin)}<span>${n.pinned ? 'Unpin' : 'Pin'}</span></button>
       <button type="button" class="nt-admin-btn" data-act="edit">${svg(UI.edit)}<span>Edit</span></button>
