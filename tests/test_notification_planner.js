@@ -124,4 +124,28 @@ assert.strictEqual(noticeAllowed('general', { prefs: { ...prefs, quiet: { on: tr
 assert.strictEqual(classKey({ title: 'dsl', start: '9:45 AM' }), 'DSL@585');
 console.log('✅ Test 7: prefs repair and notice filter');
 
+
+// Per-date overrides, sounds, online classes
+{
+  const only = [day(D1, 3, [cls('EDC', '10:00 AM', '11:15 AM'), cls('NET', '12:00 PM', '01:00 PM', { online: true })])];
+  const lead = (dates, p = {}) => planNotifications({ days: only, prefs: normalizePrefs(p), dates, now })
+    .filter(n => n.kind === 'class').map(n => n.at);
+  const base0 = lead({});
+  assert.strictEqual(base0.length, 2);
+  assert.strictEqual(lead({ [D1]: { lead: 20 } })[0], atLocal(D1, parseTime('10:00 AM') - 20), 'lead override moves the reminder');
+  assert.strictEqual(lead({ [D1]: { classes: false } }).length, 0, 'class reminders off for the day');
+  assert.strictEqual(lead({ [D0]: { classes: false } }).length, 2, 'other dates unaffected');
+  assert.strictEqual(lead({}, { classes: { online: false } }).length, 1, 'online classes can be left out');
+  const kindsOf = dates => planNotifications({ days: only, prefs: normalizePrefs({}), dates, now }).map(n => n.kind);
+  assert.ok(kindsOf({}).includes('briefing') && kindsOf({}).includes('preview'));
+  assert.ok(!kindsOf({ [D1]: { briefing: false } }).includes('briefing'), 'morning summary off for the day');
+  assert.ok(!kindsOf({ [D1]: { preview: false } }).includes('preview'), 'evening-before summary off for the day');
+  const sp = normalizePrefs({ sounds: { class: 'bell', test: 'nope' }, vibrate: { digest: true } });
+  assert.strictEqual(sp.sounds.class, 'bell');
+  assert.strictEqual(sp.sounds.test, 'default', 'unknown sound falls back');
+  assert.strictEqual(sp.vibrate.digest, true);
+  assert.strictEqual(sp.privacy.hideOnLock, false);
+  console.log('✅ Per-date overrides, sounds and online classes');
+}
+
 console.log('All notification planner tests passed.');

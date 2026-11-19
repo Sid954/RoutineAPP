@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { sanitizePrefs, pushDecision, pushTitle } = require('../api/_lib/notif-prefs.js');
+const { sanitizePrefs, pushDecision, pushTitle, noticeChannel } = require('../api/_lib/notif-prefs.js');
 
 console.log('Testing server-side notice push preferences...');
 
@@ -34,5 +34,11 @@ assert.strictEqual(pushTitle('holiday', 'Holiday tomorrow'), 'Holiday tomorrow')
 assert.strictEqual(pushTitle('general', ''), 'Notice');
 assert.ok(!/[\u{1F300}-\u{1FAFF}]/u.test(pushTitle('class_test', 'CT-2')));
 console.log('✅ Test 3: plain titles');
+
+// 4. Notice sound channel: only a well-formed id is kept
+assert.strictEqual(noticeChannel(sanitizePrefs({ noticeChannel: 'nf_notice_bell_10' })), 'nf_notice_bell_10');
+assert.strictEqual(noticeChannel(sanitizePrefs({ noticeChannel: 'announcements_channel; drop' })), '');
+assert.strictEqual(noticeChannel(sanitizePrefs({})), '');
+console.log('✅ Test 4: notice channel id is validated');
 
 console.log('All notice push preference tests passed.');

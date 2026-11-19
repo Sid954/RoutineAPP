@@ -85,6 +85,21 @@
                 android:resource="@xml/routine_list_widget_info" />
         </receiver>
 
+        <!-- Widget refresh: alarm ticks, refresh buttons, reboot, app update, clock/timezone changes -->
+        <receiver
+            android:name=".WidgetUpdateReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.routine.app.WIDGET_TICK" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".RoutineListRemoteViewsService"
             android:permission="android.permission.BIND_REMOTEVIEWS"
@@ -94,5 +109,11 @@
 
     <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- In-app updater (AppUpdaterPlugin): hand downloaded release APKs to the system installer -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- Widgets: restore the refresh alarm after a restart; refresh on time at class boundaries -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 </manifest>

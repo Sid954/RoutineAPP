@@ -4,6 +4,9 @@
  * notifications.js collects the input and schedules the output; tests/test_notification_planner.js
  * covers the rules.
  *
+ * Per-date overrides (input `dates`): { [YYYY-MM-DD]: { lead?: minutes, classes?: bool, briefing?: bool, preview?: bool } }
+ *   lead = class reminder lead for that day only; the booleans switch that kind off (or on) for the day.
+ *
  * Kinds:  class (X min before) · start (as it starts) · briefing (morning summary) ·
  *         preview (evening before) · test (heads-up the evening before, when preview is off) ·
  *         deadline_day (evening before a due date, when preview is off) · deadline (N hours before)
@@ -14,7 +17,7 @@ export const PREFS_VERSION = 2;
 export const DEFAULT_PREFS = {
   version: PREFS_VERSION,
   enabled: true,                        // master switch; nothing is scheduled without OS permission anyway
-  classes: { on: true, lead: 10, labLead: 0, atStart: false, scope: 'all' }, // labLead 0 = same as lead; scope all|first
+  classes: { on: true, lead: 10, labLead: 0, atStart: false, scope: 'all', online: true }, // labLead 0 = same as lead; scope all|first; online = also remind for online classes
   briefing: { on: true, time: 450 },    // 7:30 AM, days with classes or news
   preview: { on: true, time: 1260 },    // 9:00 PM, evening before a day with classes or news
   tests: { on: true, lead: 30, eveningBefore: true },
@@ -24,8 +27,24 @@ export const DEFAULT_PREFS = {
   notices: {
     on: true,
     types: { cancellation: true, holiday: true, class_test: true, online_class: true, rescheduled: true, assignment: true, general: true }
-  }
+  },
+  sounds: { class: 'default', digest: 'default', test: 'default', deadline: 'default', notice: 'default' }, // see SOUNDS
+  vibrate: { class: true, digest: false, test: true, deadline: true, notice: true },
+  privacy: { hideOnLock: false }        // hide the details when the phone is locked
 };
+
+/** Per-type notification sound choices. 'default' = the phone's own, 'silent' = none; the rest ship with the app. */
+export const SOUNDS = [
+  { id: 'default', label: 'Phone default' },
+  { id: 'silent', label: 'Silent' },
+  { id: 'chime', label: 'Chime' },
+  { id: 'bell', label: 'Bell' },
+  { id: 'drop', label: 'Drop' },
+  { id: 'pulse', label: 'Pulse' },
+  { id: 'glass', label: 'Glass' }
+];
+export const SOUND_TYPES = ['class', 'digest', 'test', 'deadline', 'notice'];
+const SOUND_IDS = SOUNDS.map(s => s.id);
 
 export const NOTICE_TYPES = ['cancellation', 'holiday', 'class_test', 'online_class', 'rescheduled', 'assignment', 'general'];
 
@@ -47,8 +66,14 @@ export function normalizePrefs(raw) {
     deadlines: sub('deadlines'),
     days: Array.isArray(r.days) ? r.days.filter(n => Number.isInteger(n) && n >= 0 && n <= 6) : d.days.slice(),
     quiet: sub('quiet'),
-    notices: { on: isObj(r.notices) && typeof r.notices.on === 'boolean' ? r.notices.on : true, types: { ...d.notices.types, ...(isObj(r.notices) && isObj(r.notices.types) ? r.notices.types : {}) } }
+    notices: { on: isObj(r.notices) && typeof r.notices.on === 'boolean' ? r.notices.on : true, types: { ...d.notices.types, ...(isObj(r.notices) && isObj(r.notices.types) ? r.notices.types : {}) } },
+    sounds: { ...d.sounds, ...(isObj(r.sounds) ? r.sounds : {}) },
+    vibrate: { ...d.vibrate, ...(isObj(r.vibrate) ? r.vibrate : {}) },
+    privacy: { ...d.privacy, ...(isObj(r.privacy) ? r.privacy : {}) }
   };
+  SOUND_TYPES.forEach(t => { if (!SOUND_IDS.includes(p.sounds[t])) p.sounds[t] = 'default'; p.vibrate[t] = !!p.vibrate[t]; });
+  p.privacy.hideOnLock = !!p.privacy.hideOnLock;
+  p.classes.online = p.classes.online !== false;
   p.classes.lead = clampInt(p.classes.lead, 1, 120, 10);
   p.classes.labLead = clampInt(p.classes.labLead, 0, 120, 0);
   p.classes.scope = p.classes.scope === 'first' ? 'first' : 'all';
@@ -167,7 +192,7 @@ const hasNews = day => {
  *   now:       ms timestamp
  * @returns {Array<{id,key,at,kind,channel,title,body,date,classKey?,deadlineId?,actionType}>} sorted by time
  */
-export function planNotifications({ days = [], prefs: rawPrefs, skips = {}, pausedUntil = 0, now = Date.now(), horizonDays = 7, max = 60 } = {}) {
+export function planNotifications({ days = [], prefs: rawPrefs, skips = {}, dates = {}, pausedUntil = 0, now = Date.now(), horizonDays = 7, max = 60 } = {}) {
   const prefs = normalizePrefs(rawPrefs);
   if (!prefs.enabled) return [];
   if (pausedUntil === -1) return [];
@@ -187,12 +212,17 @@ export function planNotifications({ days = [], prefs: rawPrefs, skips = {}, paus
   };
 
   days.forEach((day) => {
+    const ov = (dates && dates[day.date]) || {};
+    const classesOn = prefs.classes.on && ov.classes !== false;
+    const briefingOn = ov.briefing === undefined ? prefs.briefing.on : !!ov.briefing;
+    const previewOn = ov.preview === undefined ? prefs.preview.on : !!ov.preview;
+    const baseLead = Number.isFinite(ov.lead) && ov.lead > 0 ? ov.lead : 0;
     const dayOn = prefs.days.includes(day.dayIdx) && !skipDays.has(day.date);
     const classes = day.classes.filter(held).sort((a, b) => parseTime(a.start) - parseTime(b.start));
 
     // Class reminders (+ test reminders before a test class)
     if (dayOn && !day.holiday) {
-      const list = prefs.classes.scope === 'first' ? classes.slice(0, 1) : classes;
+      const list = (prefs.classes.scope === 'first' ? classes.slice(0, 1) : classes).filter(c => prefs.classes.online || !c.online);
       const testClasses = classes.filter(c => c.test);
       const remind = new Set([...list, ...(prefs.tests.on ? testClasses : [])]);
       remind.forEach(c => {
@@ -201,21 +231,22 @@ export function planNotifications({ days = [], prefs: rawPrefs, skips = {}, paus
         const start = parseTime(c.start);
         if (start < 0) return;
         const isTest = !!c.test && prefs.tests.on;
-        if (!isTest && !prefs.classes.on) return;
-        const lead = isTest ? prefs.tests.lead : (isLab(c) && prefs.classes.labLead ? prefs.classes.labLead : prefs.classes.lead);
+        if (!isTest && !classesOn) return;
+        if (!isTest && !prefs.classes.online && c.online) return;
+        const lead = isTest ? prefs.tests.lead : (baseLead || (isLab(c) && prefs.classes.labLead ? prefs.classes.labLead : prefs.classes.lead));
         const title = isTest
           ? `Test in ${lead} min: ${c.title}${c.test.name ? ` (${c.test.name})` : ''}`
           : c.online ? `${c.title} online in ${lead} min` : `${c.title} in ${lead} min`;
         const body = isTest && c.test.topics ? `${classLine(c)}\nTopics: ${c.test.topics}` : classLine(c);
         push({ key: `class|${day.date}|${key}`, at: atLocal(day.date, start - lead), kind: isTest ? 'test' : 'class', channel: isTest ? 'deadlines' : 'class_reminders', title, body, date: day.date, classKey: key, actionType: 'CLASS' });
-        if (prefs.classes.on && prefs.classes.atStart && list.includes(c)) {
+        if (classesOn && prefs.classes.atStart && list.includes(c)) {
           push({ key: `start|${day.date}|${key}`, at: atLocal(day.date, start), kind: 'start', channel: 'class_reminders', title: `${c.title} is starting`, body: classLine(c), date: day.date, classKey: key, actionType: 'CLASS' });
         }
       });
     }
 
     // Morning summary
-    if (dayOn && prefs.briefing.on && hasNews(day)) {
+    if (dayOn && briefingOn && hasNews(day)) {
       const first = classes.length ? parseTime(classes[0].start) : 1440;
       if (prefs.briefing.time < first) {
         const t = digestText(day, 'today');
@@ -226,7 +257,7 @@ export function planNotifications({ days = [], prefs: rawPrefs, skips = {}, paus
     // Evening before: preview, or separate test / deadline heads-ups when the preview is off
     const eve = prevDate(day.date);
     const tests = classes.filter(c => c.test);
-    if (prefs.preview.on && dayOn && hasNews(day)) {
+    if (previewOn && dayOn && hasNews(day)) {
       const t = digestText(day, 'tomorrow');
       push({ key: `preview|${day.date}`, at: atLocal(eve, prefs.preview.time), kind: 'preview', channel: 'daily_digest', title: t.title, body: t.body, date: day.date, actionType: 'DIGEST' });
     } else {

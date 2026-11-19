@@ -1,187 +1,132 @@
 package com.routine.app;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-/**
- * Supplies class cards for the vertical up/down touch-scrollable ListView.
- * Cards feature full subject theme colors, room/instructor, and status indicators.
- */
+/** Rows of the day-list widget: the selected day's classes with live/done/cancelled states. */
 public class RoutineListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     private final Context ctx;
-    private final List<Card> cards = new ArrayList<>();
+    private final List<Row> rows = new ArrayList<>();
 
-    // Palette themes matching web app: [bgDark, badgeBg]
-    private static final int[][] PALETTES = {
-        {0xFF252859, 0x55818cf8},  // 0: Royal Indigo / Blue (EDC)
-        {0xFF0b4d45, 0x5522d3ee},  // 1: Cyan Teal
-        {0xFF0f4c5c, 0x552dd4bf},  // 2: Deep Ocean Teal
-        {0xFF4c249f, 0x55c084fc},  // 3: Electric Violet (ICMP)
-        {0xFF701235, 0x55fb7185},  // 4: Crimson / Ruby (DSL / Labs)
-        {0xFF6e1273, 0x55f0abfc},  // 5: Fuchsia Magenta
-        {0xFF09524a, 0x554ade80},  // 6: Emerald Green (DS)
-        {0xFF0c4a6e, 0x5560a5fa},  // 7: Sapphire Azure
-        {0xFF581c87, 0x55c084fc},  // 8: Berry Plum
-        {0xFF78350f, 0x55fb923c},  // 9: Amber Orange
-    };
+    // Subject colours (dark surfaces) matching the app's palettes; labs always crimson
+    static final int[] PALETTE = {0xFF252859, 0xFF0B4D45, 0xFF0F4C5C, 0xFF4C249F, 0xFF6E1273, 0xFF09524A, 0xFF0C4A6E, 0xFF581C87, 0xFF78350F};
+    static final int LAB = 0xFF701235, MUTED_BG = 0xFF1F2937, EMPTY_BG = 0xFF111827;
 
-    static class Card {
-        String timeRange;
-        String title;
-        String subInfo;
-        String badgeText;
-        int    bgColor;
-        boolean isLive;
-        boolean isPast;
+    static final class Row {
+        String time, title, sub, badge;
+        int bg, timeColor;
     }
 
-    public RoutineListRemoteViewsFactory(Context ctx) {
-        this.ctx = ctx;
+    public RoutineListRemoteViewsFactory(Context ctx) { this.ctx = ctx; }
+
+    @Override public void onCreate() { load(); }
+    @Override public void onDataSetChanged() { load(); }
+    @Override public void onDestroy() { rows.clear(); }
+
+    static int colorFor(WidgetNow.Cls c) {
+        if (c.isLab()) return LAB;
+        return PALETTE[Math.abs(c.title.hashCode()) % PALETTE.length];
     }
 
-    @Override public void onCreate()          { loadData(); }
-    @Override public void onDataSetChanged()  { loadData(); }
-    @Override public void onDestroy()         { cards.clear(); }
+    static String badgeFor(WidgetNow.Cls c) {
+        if ("cancelled".equals(c.status)) return "CANCELLED";
+        if ("moved_away".equals(c.status)) return "MOVED";
+        if (c.exam) return "TEST";
+        if ("online".equals(c.status)) return "ONLINE";
+        if ("extra".equals(c.status)) return "EXTRA";
+        if ("moved_in".equals(c.status)) return "RESCHEDULED";
+        return c.isLab() ? "LAB" : "THEORY";
+    }
 
-    private void loadData() {
-        cards.clear();
-        SharedPreferences prefs = ctx.getSharedPreferences("RoutineWidgetData", Context.MODE_PRIVATE);
-        String json = prefs.getString("full_schedule_json", "");
-
-        Calendar cal = Calendar.getInstance();
-        int todayIdx = cal.get(Calendar.DAY_OF_WEEK) - 1; // 0=Sun, ..., 6=Sat
-        int selectedDayIdx = prefs.getInt("widget_selected_day_idx", todayIdx);
-        int nowMins = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
-
-        if (json.isEmpty()) {
-            Card empty = new Card();
-            empty.timeRange = "--:-- → --:--";
-            empty.title = "No Schedule Synced";
-            empty.subInfo = "Open app to sync";
-            empty.badgeText = "INFO";
-            empty.bgColor = 0xFF111827;
-            cards.add(empty);
+    private void load() {
+        rows.clear();
+        WidgetData data = WidgetData.load(ctx);
+        Calendar now = Calendar.getInstance();
+        if (!data.hasData()) {
+            rows.add(empty("Open the app to sync", "Your routine appears here after the first sync"));
             return;
         }
+        int sel = WidgetUpdater.selectedDow(ctx, now);
+        Calendar date = WidgetUpdater.dateForDow(now, sel);
+        boolean isToday = WidgetData.ymd(date).equals(WidgetData.ymd(now));
+        int nowMins = WidgetNow.minutesOf(now);
+        WidgetNow.Day day = data.dayFor(date);
 
-        try {
-            JSONObject sched = new JSONObject(json);
-            JSONArray dayArr = sched.optJSONArray(String.valueOf(selectedDayIdx));
+        if (day.classes.isEmpty()) {
+            rows.add(empty(day.holiday.isEmpty() ? "No classes" : day.holiday, day.holiday.isEmpty() ? "Nothing in the routine for this day" : "Holiday"));
+            return;
+        }
+        if (!day.holiday.isEmpty()) rows.add(empty(day.holiday, "Holiday: classes are off unless moved online"));
 
-            if (dayArr == null || dayArr.length() == 0) {
-                Card empty = new Card();
-                empty.timeRange = "--:-- → --:--";
-                empty.title = "No Classes Scheduled";
-                empty.subInfo = "Enjoy your day off!";
-                empty.badgeText = "FREE";
-                empty.bgColor = 0xFF111827;
-                cards.add(empty);
-                return;
+        for (WidgetNow.Cls c : day.classes) {
+            Row r = new Row();
+            boolean held = c.isHeld();
+            boolean live = isToday && held && nowMins >= c.start && nowMins < c.end;
+            boolean past = isToday && nowMins >= c.end;
+            r.title = c.title;
+            String room = WidgetUpdater.roomText(c);
+            String sub = ("ONLINE".equals(room) ? "Online" : "Room " + room) + (c.instructor.isEmpty() ? "" : " · " + c.instructor);
+            if (!c.note.isEmpty() && !held) sub = c.note;
+            r.sub = sub;
+            r.badge = badgeFor(c);
+            r.bg = held ? colorFor(c) : MUTED_BG;
+            String range = WidgetNow.t12(c.start) + " – " + WidgetNow.t12(c.end);
+            if (live) {
+                r.time = "● NOW · " + WidgetNow.dur(c.end - nowMins) + " left";
+                r.timeColor = WidgetUpdater.C_ACCENT;
+            } else if (past && held) {
+                r.time = range + "  ✓";
+                r.timeColor = 0xFF94A3B8;
+            } else if (isToday && held && c.start > nowMins && c.start - nowMins <= 60) {
+                r.time = range + " · in " + WidgetNow.dur(c.start - nowMins);
+                r.timeColor = WidgetUpdater.C_WARN;
+            } else {
+                r.time = range;
+                r.timeColor = held ? 0xFFCBD5E1 : WidgetUpdater.C_DANGER;
             }
-
-            for (int i = 0; i < dayArr.length(); i++) {
-                JSONObject item = dayArr.optJSONObject(i);
-                if (item == null) continue;
-
-                Card c = new Card();
-                String startStr = item.optString("start", "--:--");
-                String endStr   = item.optString("end",   "--:--");
-                c.timeRange = fmt12(startStr) + " → " + fmt12(endStr);
-                c.title = item.optString("title", "Unknown");
-
-                String room = item.optString("room", "");
-                String instr = item.optString("instructor", "");
-                String roomStr = room.isEmpty() ? "" : "Room " + room;
-                String sub = roomStr;
-                if (!instr.isEmpty()) {
-                    sub += (sub.isEmpty() ? "" : " · ") + instr;
-                }
-                c.subInfo = sub.isEmpty() ? "No room info" : sub;
-
-                String type = item.optString("type", "THEORY");
-                boolean isLab = "LAB".equalsIgnoreCase(type);
-                boolean isExam = item.optBoolean("isExam", false);
-                c.badgeText = isExam ? "📝 EXAM" : (isLab ? "★ LAB" : type.toUpperCase());
-
-                int pi = Math.abs(c.title.hashCode()) % PALETTES.length;
-                if (isLab) {
-                    c.bgColor = 0xFF701235; // Crimson Red for Labs
-                } else {
-                    c.bgColor = PALETTES[pi][0];
-                }
-
-                if (selectedDayIdx == todayIdx) {
-                    int sm = RoutineScheduleEngine.parseTimeToMins(startStr);
-                    int em = RoutineScheduleEngine.parseTimeToMins(endStr);
-                    if (sm != -1 && em != -1) {
-                        c.isLive = nowMins >= sm && nowMins < em;
-                        c.isPast = nowMins >= em;
-                    }
-                }
-
-                cards.add(c);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+            rows.add(r);
         }
     }
 
-    @Override
-    public int getCount() {
-        return cards.size();
+    private static Row empty(String title, String sub) {
+        Row r = new Row();
+        r.time = "";
+        r.title = title;
+        r.sub = sub;
+        r.badge = "";
+        r.bg = EMPTY_BG;
+        r.timeColor = 0xFF94A3B8;
+        return r;
     }
+
+    @Override public int getCount() { return rows.size(); }
 
     @Override
     public RemoteViews getViewAt(int position) {
-        if (position < 0 || position >= cards.size()) return null;
-        Card card = cards.get(position);
-
+        if (position < 0 || position >= rows.size()) return null;
+        Row r = rows.get(position);
         RemoteViews rv = new RemoteViews(ctx.getPackageName(), R.layout.widget_list_item);
-
-        rv.setTextViewText(R.id.card_title, card.title);
-        rv.setTextViewText(R.id.card_sub, card.subInfo);
-        rv.setTextViewText(R.id.card_badge, card.badgeText);
-        rv.setInt(R.id.card_root, "setBackgroundColor", card.bgColor);
+        rv.setTextViewText(R.id.card_time, r.time);
+        rv.setTextColor(R.id.card_time, r.timeColor);
+        rv.setTextViewText(R.id.card_title, r.title);
         rv.setTextColor(R.id.card_title, 0xFFFFFFFF);
-        rv.setTextColor(R.id.card_sub, 0xFFe2e8f0);
+        rv.setTextViewText(R.id.card_sub, r.sub);
+        rv.setTextColor(R.id.card_sub, 0xFFE2E8F0);
+        rv.setTextViewText(R.id.card_badge, r.badge);
         rv.setTextColor(R.id.card_badge, 0xFFFFFFFF);
-
-        if (card.isLive) {
-            rv.setTextViewText(R.id.card_time, "● LIVE  " + card.timeRange);
-            rv.setTextColor(R.id.card_time, 0xFF38bdf8);
-        } else if (card.isPast) {
-            rv.setTextViewText(R.id.card_time, card.timeRange + "  ✓");
-            rv.setTextColor(R.id.card_time, 0xFFcbd5e1);
-        } else {
-            rv.setTextViewText(R.id.card_time, card.timeRange);
-            rv.setTextColor(R.id.card_time, 0xFFcbd5e1);
-        }
-
+        rv.setViewVisibility(R.id.card_badge, r.badge.isEmpty() ? android.view.View.GONE : android.view.View.VISIBLE);
+        rv.setInt(R.id.card_root, "setBackgroundColor", r.bg);
         return rv;
     }
 
     @Override public RemoteViews getLoadingView() { return null; }
-    @Override public int getViewTypeCount()       { return 1; }
-    @Override public long getItemId(int pos)      { return pos; }
-    @Override public boolean hasStableIds()       { return true; }
-
-    private static String fmt12(String raw) {
-        int m = RoutineScheduleEngine.parseTimeToMins(raw);
-        if (m < 0) return raw;
-        int h = m / 60, min = m % 60;
-        String ap = h >= 12 ? "PM" : "AM";
-        int h12 = h % 12;
-        if (h12 == 0) h12 = 12;
-        return String.format("%02d:%02d %s", h12, min, ap);
-    }
+    @Override public int getViewTypeCount() { return 1; }
+    @Override public long getItemId(int pos) { return pos; }
+    @Override public boolean hasStableIds() { return false; }
 }

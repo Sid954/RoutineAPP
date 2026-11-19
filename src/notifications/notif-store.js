@@ -9,6 +9,7 @@ import { normalizePrefs } from './planner.js';
 const PREFS_KEY = 'notif_prefs_v2';
 const SKIPS_KEY = 'notif_skips_v1';
 const PAUSE_KEY = 'notif_pause';
+const DATES_KEY = 'notif_dates_v1'; // { [date]: { lead?, classes?, briefing?, preview? } }
 
 const read = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
 const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
@@ -83,4 +84,35 @@ export function setPause(until) { write(PAUSE_KEY, until || 0); }
 /** End of today (23:59:59) for "rest of today". */
 export function endOfToday(now = new Date()) {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).getTime();
+}
+
+/* ── Per-date overrides (Home → bell beside the day title) ─────────────────── */
+const DATE_FIELDS = ['lead', 'classes', 'briefing', 'preview'];
+/** Overrides for dates from today on; past dates are dropped. */
+export function getDateOverrides(now = new Date()) {
+  const raw = read(DATES_KEY, {}) || {};
+  const today = ymd(now);
+  const out = {};
+  Object.entries(raw).forEach(([d, o]) => {
+    if (d < today || !o || typeof o !== 'object') return;
+    const clean = {};
+    if (Number.isFinite(o.lead) && o.lead > 0) clean.lead = Math.min(120, Math.round(o.lead));
+    ['classes', 'briefing', 'preview'].forEach(k => { if (typeof o[k] === 'boolean') clean[k] = o[k]; });
+    if (Object.keys(clean).length) out[d] = clean;
+  });
+  return out;
+}
+/** Sets (or, with value === undefined, clears) one override for a date. */
+export function setDateOverride(date, field, value) {
+  if (!DATE_FIELDS.includes(field)) return;
+  const all = getDateOverrides();
+  const o = { ...(all[date] || {}) };
+  if (value === undefined || value === null) delete o[field]; else o[field] = value;
+  if (Object.keys(o).length) all[date] = o; else delete all[date];
+  write(DATES_KEY, all);
+}
+export function clearDateOverrides(date) {
+  const all = getDateOverrides();
+  delete all[date];
+  write(DATES_KEY, all);
 }

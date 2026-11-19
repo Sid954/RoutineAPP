@@ -192,8 +192,8 @@ html[data-motion="off"] .st-page .st-body.st-in .st-acc.is-open > .st-acc-body {
 .st-page .st-acc-body > .st-card:first-child { padding-top: 10px; }
 
 /* One UI: the page sits on the canvas colour so the rounded cards stand out */
-.st-page:not(.nf-page) .md,
-.st-page:not(.nf-page) .st-header { background: var(--canvas); }
+.st-page .md,
+.st-page .st-header { background: var(--canvas); }
 .st-page:not(.nf-page) .st-profile { border-radius: 24px; border: 0; }
 
 /* ── Sections inside a group page: a small heading, then one rounded card ── */

@@ -65,31 +65,16 @@ public class WidgetPlugin extends Plugin {
             editor.putString("theme_color", call.getString("theme_color", "dark"));
             editor.apply();
 
-            // Save full schedule JSON to RoutineWidgetData for Matrix & List widgets
+            // Dated schedule (v2) is what the widgets render from; the legacy weekday map is
+            // kept as a fallback for builds that do not send v2 yet.
+            SharedPreferences dataPrefs = context.getSharedPreferences(DATA_PREFS_NAME, Context.MODE_PRIVATE);
+            String v2 = call.getString("schedule_v2", "");
+            if (!v2.isEmpty()) WidgetData.save(context, v2);
             String fullSchedule = call.getString("full_schedule_json", "");
-            if (!fullSchedule.isEmpty()) {
-                SharedPreferences dataPrefs = context.getSharedPreferences(DATA_PREFS_NAME, Context.MODE_PRIVATE);
-                dataPrefs.edit().putString("full_schedule_json", fullSchedule).apply();
-            }
+            if (!fullSchedule.isEmpty()) dataPrefs.edit().putString("full_schedule_json", fullSchedule).apply();
 
-            AppWidgetManager manager = AppWidgetManager.getInstance(context);
-
-            // 1. Broadcast to Live Class Widget
-            Intent liveIntent = new Intent(context, RoutineWidgetProvider.class);
-            liveIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-            int[] liveIds = manager.getAppWidgetIds(new ComponentName(context, RoutineWidgetProvider.class));
-            liveIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, liveIds);
-            context.sendBroadcast(liveIntent);
-
-            // 2. Broadcast to Landscape Matrix Widget
-            Intent rotatedIntent = new Intent(context, RoutineRotatedWidgetProvider.class);
-            rotatedIntent.setAction(RoutineRotatedWidgetProvider.ACTION_UPDATE_ROTATED_WIDGET);
-            context.sendBroadcast(rotatedIntent);
-
-            // 3. Broadcast to Portrait Routine Widget
-            Intent listIntent = new Intent(context, RoutineListWidgetProvider.class);
-            listIntent.setAction(RoutineListWidgetProvider.ACTION_UPDATE_LIST_WIDGET);
-            context.sendBroadcast(listIntent);
+            // Re-render every widget natively and arm the next refresh
+            WidgetUpdater.updateAll(context);
 
             JSObject ret = new JSObject();
             ret.put("success", true);
@@ -138,6 +123,60 @@ public class WidgetPlugin extends Plugin {
             call.resolve(ret);
         } catch (Exception e) {
             call.reject("Could not pin widget: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Phone settings the web layer cannot see: notifications allowed for this app, battery
+     * optimisation, vibration hardware + the system "touch feedback" setting, exact alarms.
+     * Used by the notification health check and to grey out "Vibrate on tap".
+     */
+    @PluginMethod
+    public void getSystemState(PluginCall call) {
+        JSObject ret = new JSObject();
+        Context ctx = getContext();
+        try {
+            ret.put("notificationsEnabled", androidx.core.app.NotificationManagerCompat.from(ctx).areNotificationsEnabled());
+        } catch (Exception e) { ret.put("notificationsEnabled", true); }
+        try {
+            PowerManager pm = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
+            ret.put("batteryOptimized", Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && pm != null && !pm.isIgnoringBatteryOptimizations(ctx.getPackageName()));
+        } catch (Exception e) { ret.put("batteryOptimized", false); }
+        try {
+            android.os.Vibrator v = (android.os.Vibrator) ctx.getSystemService(Context.VIBRATOR_SERVICE);
+            ret.put("hasVibrator", v != null && v.hasVibrator());
+        } catch (Exception e) { ret.put("hasVibrator", true); }
+        try {
+            ret.put("hapticFeedbackEnabled", Settings.System.getInt(ctx.getContentResolver(), Settings.System.HAPTIC_FEEDBACK_ENABLED, 1) != 0);
+        } catch (Exception e) { ret.put("hapticFeedbackEnabled", true); }
+        try {
+            android.media.AudioManager am = (android.media.AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
+            ret.put("silentMode", am != null && am.getRingerMode() == android.media.AudioManager.RINGER_MODE_SILENT);
+        } catch (Exception e) { ret.put("silentMode", false); }
+        try {
+            android.app.AlarmManager alarms = (android.app.AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+            ret.put("exactAlarms", Build.VERSION.SDK_INT < Build.VERSION_CODES.S || (alarms != null && alarms.canScheduleExactAlarms()));
+        } catch (Exception e) { ret.put("exactAlarms", true); }
+        call.resolve(ret);
+    }
+
+    /** Opens this app's notification settings (or app details on old Android). */
+    @PluginMethod
+    public void openNotificationSettings(PluginCall call) {
+        try {
+            Context ctx = getContext();
+            Intent intent;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, ctx.getPackageName());
+            } else {
+                intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + ctx.getPackageName()));
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            ctx.startActivity(intent);
+            call.resolve();
+        } catch (Exception e) {
+            call.reject("Could not open settings: " + e.getMessage());
         }
     }
 

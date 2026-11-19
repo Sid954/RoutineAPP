@@ -20,8 +20,15 @@ function sanitizePrefs(raw) {
     types,
     quiet: { on: q.on === true, from: int(q.from, 0, 1439, 1380), to: int(q.to, 0, 1439, 420) },
     tz: int(raw.tz, -720, 840, 360), // minutes east of UTC (Bangladesh = 360)
-    mutedUntil
+    mutedUntil,
+    // The device's own notice channel (carries its chosen sound); only a well-formed id is kept
+    ...(typeof raw.noticeChannel === 'string' && /^nf_notice_[a-z0-9_]{1,40}$/.test(raw.noticeChannel) ? { noticeChannel: raw.noticeChannel } : {})
   };
+}
+
+/** The channel id this device created for notice sounds, or '' (older apps use the default channel). */
+function noticeChannel(prefs) {
+  return prefs && typeof prefs.noticeChannel === 'string' && /^nf_notice_[a-z0-9_]{1,40}$/.test(prefs.noticeChannel) ? prefs.noticeChannel : '';
 }
 
 function inQuiet(mins, quiet) {
@@ -55,4 +62,4 @@ function pushTitle(type, title) {
   return new RegExp(`^${label}\\b`, 'i').test(t) ? t : `${label}: ${t}`;
 }
 
-module.exports = { NOTICE_TYPES, sanitizePrefs, pushDecision, pushTitle };
+module.exports = { NOTICE_TYPES, sanitizePrefs, pushDecision, pushTitle, noticeChannel };

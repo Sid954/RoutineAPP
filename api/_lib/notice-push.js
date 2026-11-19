@@ -3,7 +3,7 @@
  * Initialises Firebase Admin once; without FIREBASE_* env vars every send is skipped.
  */
 const admin = require('firebase-admin');
-const { pushDecision, pushTitle } = require('./notif-prefs.js');
+const { pushDecision, pushTitle, noticeChannel } = require('./notif-prefs.js');
 
 // Initialize Firebase Admin SDK
 let firebaseApp = null;
@@ -68,11 +68,14 @@ async function sendNoticePush(supabase, sanitizedPayload, newAnnouncement, opts 
       const nowMs = Date.now();
       const loudTokens = [];
       const quietTokens = [];
+      const loudChannelOf = new Map(); // token -> the device's own notice channel (its chosen sound), if any
       tokenRows.forEach(row => {
         if (!row.token) return;
         const d = pushDecision(row.prefs, targetType || 'general', nowMs);
         if (!d.send) return;
         (d.quiet ? quietTokens : loudTokens).push(row.token);
+        const own = noticeChannel(row.prefs);
+        if (own && !d.quiet) loudChannelOf.set(row.token, own);
       });
 
       let notificationBody = targetAnnouncement;
@@ -105,7 +108,12 @@ async function sendNoticePush(supabase, sanitizedPayload, newAnnouncement, opts 
       const messagePayloads = [];
       const tokens = loudTokens.concat(quietTokens);
       const batches = [];
-      for (let i = 0; i < loudTokens.length; i += BATCH_SIZE) batches.push({ list: loudTokens.slice(i, i + BATCH_SIZE), quiet: false });
+      // Loud pushes grouped by the channel each device chose (its notice sound); the rest use the default one
+      const loudGroups = new Map();
+      loudTokens.forEach(t => { const ch = loudChannelOf.get(t) || ''; if (!loudGroups.has(ch)) loudGroups.set(ch, []); loudGroups.get(ch).push(t); });
+      loudGroups.forEach((list, ch) => {
+        for (let i = 0; i < list.length; i += BATCH_SIZE) batches.push({ list: list.slice(i, i + BATCH_SIZE), quiet: false, channel: opts.loudChannel ? '' : ch });
+      });
       for (let i = 0; i < quietTokens.length; i += BATCH_SIZE) batches.push({ list: quietTokens.slice(i, i + BATCH_SIZE), quiet: true });
 
       for (const batch of batches) {
@@ -127,7 +135,7 @@ async function sendNoticePush(supabase, sanitizedPayload, newAnnouncement, opts 
           },
           android: batch.quiet
             ? { priority: 'normal', notification: { channelId: 'notices_quiet' } }
-            : { priority: 'high', notification: opts.loudChannel ? { channelId: opts.loudChannel, sound: opts.loudSound || 'default' } : { channelId: 'announcements_channel', sound: 'default' } }
+            : { priority: 'high', notification: opts.loudChannel ? { channelId: opts.loudChannel, sound: opts.loudSound || 'default' } : (batch.channel ? { channelId: batch.channel } : { channelId: 'announcements_channel', sound: 'default' }) }
         };
         messagePayloads.push({ batchTokens, send: admin.messaging().sendEachForMulticast(message) });
       }

@@ -387,7 +387,7 @@ if (notifSettingsBtn) {
   notifSettingsBtn.addEventListener('click', () => {
     openModal(DOM.notifModal, () => {
       refreshHealthUI();
-      import('./notifications/notif-center.js').then(m => { m.initNotifCenter(); m.renderNotifCenter(); });
+      import('./notifications/notif-center.js').then(m => { m.initNotifCenter(); m.renderNotifCenter('hub'); });
       const md = DOM.notifModal && DOM.notifModal.querySelector('.md');
       if (md) md.scrollTop = 0;
     });
@@ -488,6 +488,7 @@ initMotion();
 initDesktopInput(); // mouse/trackpad: drags, sideways rows, arrow keys
 initBackButton();
 initNotificationHealth();
+import('./notifications/day-sheet.js').then(m => { window.__updateNfBell = m.updateBellDot; m.initDaySheet(); }).catch(() => {});
 initAmbient();
 initTips();
 initTestTime();

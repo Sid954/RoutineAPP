@@ -462,6 +462,7 @@ export function renderTimeline(force = false) {
   if (DOM.timelineTitle) DOM.timelineTitle.textContent = titleText;
   if (DOM.timelineSubtitle) DOM.timelineSubtitle.textContent = subText;
   if (window.__updateFabAway) window.__updateFabAway();
+  if (window.__updateNfBell) window.__updateNfBell();
 
   // Check holiday override for the day
   const holidayOverride = getOverrideFor(State.currentViewDayIdx);

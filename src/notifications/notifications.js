@@ -18,7 +18,7 @@ import { getOverrideFor, getDeadlinesForDate, normalizeDate } from '../announcem
 import { getEffectiveClassesForDay } from '../schedule/queries.js';
 import { planNotifications, noticeAllowed, parseTime } from './planner.js';
 import {
-  getPrefs, updatePrefs, getSkips, getPause, setPause, endOfToday,
+  getPrefs, updatePrefs, getSkips, getPause, setPause, endOfToday, getDateOverrides,
   setClassSkipped, setDeadlineDone
 } from './notif-store.js';
 
@@ -41,6 +41,24 @@ const CHANNELS = [
   // Notices the community confirmed by voting: their own short chime (android-custom/res/raw/suggestion_chime.wav)
   { id: 'suggestions_channel', name: 'Community confirmed', description: 'Suggestions your section confirmed by voting', importance: 5, sound: 'suggestion_chime.wav' }
 ];
+// One channel per type and sound/vibration/lock-screen choice (Android fixes a channel's sound once it
+// exists, so a new choice means a new channel). Ids stay [a-z0-9_] so the server can name the notice one.
+const KIND_TYPE = { class: 'class', start: 'class', briefing: 'digest', preview: 'digest', test: 'test', test_eve: 'test', deadline: 'deadline', deadline_day: 'deadline' };
+const TYPE_NAME = { class: 'Class reminders', digest: 'Daily summary', test: 'Tests', deadline: 'Assignment deadlines', notice: 'Notices' };
+export function channelSpec(type, prefs = getPrefs()) {
+  const sound = prefs.sounds[type] || 'default';
+  const vib = prefs.vibrate[type] ? 1 : 0;
+  const hide = prefs.privacy.hideOnLock ? 1 : 0;
+  return {
+    id: `nf_${type}_${sound}_${vib}${hide}`,
+    name: `${TYPE_NAME[type]}${sound === 'default' ? '' : ` (${sound})`}`,
+    description: `${TYPE_NAME[type]} alerts`,
+    importance: sound === 'silent' ? 2 : (type === 'digest' ? 3 : 4),
+    visibility: hide ? 0 : 1,
+    vibration: !!vib,
+    ...(sound !== 'default' && sound !== 'silent' ? { sound: `nf_${sound}.wav` } : {})
+  };
+}
 const COLORS = { class: '#38BDF8', start: '#38BDF8', briefing: '#38BDF8', preview: '#818CF8', test: '#F97316', test_eve: '#F97316', deadline: '#A855F7', deadline_day: '#A855F7' };
 const NOTICE_COLORS = { class_test: '#F97316', online_class: '#10B981', cancellation: '#F43F5E', rescheduled: '#64748B', assignment: '#A855F7', holiday: '#F59E0B' };
 
@@ -148,7 +166,7 @@ export const Notifications = {
   /** The alerts that would be scheduled now (for the "Coming up" list and Settings). */
   getPlan({ ignoreSkips = false, now = Date.now() } = {}) {
     const skips = ignoreSkips ? {} : getSkips(new Date(now));
-    return planNotifications({ days: collectDays(new Date(now)), prefs: getPrefs(), skips, pausedUntil: ignoreSkips ? 0 : getPause(now), now, horizonDays: HORIZON_DAYS });
+    return planNotifications({ days: collectDays(new Date(now)), prefs: getPrefs(), skips, dates: getDateOverrides(new Date(now)), pausedUntil: ignoreSkips ? 0 : getPause(now), now, horizonDays: HORIZON_DAYS });
   },
 
   /**
@@ -171,18 +189,26 @@ export const Notifications = {
     const perm = await this.getPermission();
     const plan = perm === 'granted' ? this.getPlan() : [];
     this._lastPlan = plan;
+    if (isNative() && perm === 'granted') {
+      // The notice channel must exist before a push names it; drop channels of sounds no longer chosen
+      await this._setupNative();
+      const spec = channelSpec('notice');
+      if (this._noticeChan !== spec.id) { await this.ensureChannel(spec); this._noticeChan = spec.id; this.pruneChannels(); }
+    }
     await this.cancelAll();
     if (!plan.length) return;
 
     if (isNative()) {
       await this._setupNative();
+      const prefs = getPrefs();
+      for (const type of new Set(plan.map(n => KIND_TYPE[n.kind] || 'class'))) await this.ensureChannel(channelSpec(type, prefs));
       const items = plan.map(n => ({
         id: n.id,
         title: n.title,
         body: n.body,
         largeBody: n.body,
         schedule: { at: new Date(n.at), allowWhileIdle: true },
-        ...(this._channels.has(n.channel) ? { channelId: n.channel } : {}),
+        ...(() => { const id = channelSpec(KIND_TYPE[n.kind] || 'class', prefs).id; return this._channels.has(id) ? { channelId: id } : (this._channels.has(n.channel) ? { channelId: n.channel } : {}); })(),
         actionTypeId: n.actionType,
         iconColor: COLORS[n.kind] || '#38BDF8',
         extra: { kind: n.kind, date: n.date, classKey: n.classKey || '', deadlineId: n.deadlineId || '', key: n.key }
@@ -225,6 +251,23 @@ export const Notifications = {
     } catch (e) {}
   },
 
+  /** Creates an Android channel once (cheap to repeat) and removes this app's channels that are no longer in use. */
+  async ensureChannel(spec) {
+    const ln = LN();
+    if (!ln || typeof ln.createChannel !== 'function' || this._channels.has(spec.id)) return;
+    try { await ln.createChannel(spec); this._channels.add(spec.id); } catch (e) {}
+  },
+  async pruneChannels() {
+    const ln = LN();
+    if (!ln || typeof ln.listChannels !== 'function' || typeof ln.deleteChannel !== 'function') return;
+    try {
+      const prefs = getPrefs();
+      const keep = new Set(['notice', 'class', 'digest', 'test', 'deadline'].map(t => channelSpec(t, prefs).id));
+      const { channels = [] } = await ln.listChannels();
+      for (const ch of channels) if (/^nf_/.test(ch.id) && !keep.has(ch.id)) await ln.deleteChannel({ id: ch.id });
+    } catch (e) {}
+  },
+
   async cancelAll() {
     this.timeouts.forEach(t => clearTimeout(t));
     this.timeouts = [];
@@ -246,6 +289,21 @@ export const Notifications = {
   skipClass(date, key, skipped = true) { setClassSkipped(date, key, skipped); this.scheduleForToday(true); },
   deadlineDone(id) { setDeadlineDone(id, true); this.scheduleForToday(true); },
   setEnabled(on) { updatePrefs({ enabled: !!on }); this.scheduleForToday(true); this.syncServerPrefs(); },
+
+  /** "Send a test" on the sound page: one alert of this type through its own channel, a second from now. */
+  async sendTest(type = 'class') {
+    if ((await this.getPermission()) !== 'granted') return false;
+    const title = `Test: ${TYPE_NAME[type] || 'Notification'}`;
+    const body = 'This is how this alert sounds.';
+    if (!isNative()) { this.show(title, body); return true; }
+    try {
+      await this._setupNative();
+      const spec = channelSpec(type);
+      await this.ensureChannel(spec);
+      await LN().schedule({ notifications: [{ id: Math.floor(Math.random() * 900000) + 1, title, body, schedule: { at: new Date(Date.now() + 1200) }, ...(this._channels.has(spec.id) ? { channelId: spec.id } : {}), extra: { kind: 'test_alert' } }] });
+      return true;
+    } catch (e) { return false; }
+  },
 
   /* ── Instant alerts (new notices while the app is open, tests) ───── */
   show(title, body) {
@@ -271,7 +329,8 @@ export const Notifications = {
     if (isNative()) {
       try {
         await this._setupNative();
-        const channel = quiet ? 'notices_quiet' : 'announcements_channel';
+        let channel = quiet ? 'notices_quiet' : 'announcements_channel';
+        if (!quiet) { const spec = channelSpec('notice'); await this.ensureChannel(spec); if (this._channels.has(spec.id)) channel = spec.id; }
         await LN().schedule({
           notifications: [{
             title, body, largeBody: body,
@@ -299,6 +358,7 @@ export const Notifications = {
       types: p.notices.types,
       quiet: p.quiet,
       tz: -new Date().getTimezoneOffset(),
+      noticeChannel: channelSpec('notice', p).id,
       mutedUntil: pause === -1 ? '9999-12-31T00:00:00Z' : (pause ? new Date(pause).toISOString() : null)
     };
   },

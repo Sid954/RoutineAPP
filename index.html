@@ -150,6 +150,10 @@
             <div class="timeline-header-row">
               <div class="timeline-title-text" id="timelineTitle">Today's Schedule</div>
               <div class="timeline-header-right">
+                <button type="button" class="timeline-bell" id="dayNotifBtn" aria-label="Notifications for this day" title="Notifications for this day">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                  <i class="timeline-bell-dot" hidden></i>
+                </button>
                 <div class="timeline-count-badge" id="timelineSubtitle">Loading...</div>
               </div>
             </div>
@@ -1015,7 +1019,7 @@
       </div>
 
       <div class="st-body">
-        <section class="st-group">
+        <section class="st-group nf-hub-only">
           <div class="st-card nf-status">
             <label class="st-switch-row">
               <span><strong>Notifications</strong><span id="nfStatusLine">Reminders, summaries and notices</span></span>
@@ -1027,32 +1031,10 @@
           </div>
         </section>
 
-        <section class="st-group" id="nfPauseGroup">
-          <h3 class="st-group-title">Quick pause</h3>
-          <div class="st-card" id="nfPause"></div>
-        </section>
+        <!-- Hub and sub pages, rendered by notif-center.js -->
+        <div class="nf-root" id="nfRoot"></div>
 
-        <section class="st-group">
-          <h3 class="st-group-title">Coming up</h3>
-          <div class="st-card st-card-flush" id="nfUpcoming"></div>
-        </section>
-
-        <section class="st-group">
-          <h3 class="st-group-title">What you get</h3>
-          <div class="nf-types" id="nfTypes"></div>
-        </section>
-
-        <section class="st-group">
-          <h3 class="st-group-title">Notices from your section</h3>
-          <div class="st-card" id="nfNotices"></div>
-        </section>
-
-        <section class="st-group">
-          <h3 class="st-group-title">Days and quiet hours</h3>
-          <div class="st-card" id="nfWhen"></div>
-        </section>
-
-        <p class="nf-foot">Alerts are planned a week ahead and still arrive when the app is closed. They update when your routine, notices or these settings change.</p>
+        <p class="nf-foot nf-hub-only">Alerts are planned a week ahead and still arrive when the app is closed. They update when your routine, notices or these settings change.</p>
       </div>
     </div>
   </div>
