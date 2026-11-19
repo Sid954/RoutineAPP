@@ -15,7 +15,7 @@ import { openModal, closeModal, showConfirm } from '../modals/modal.js';
 import { Announcements } from './announcements.js';
 import { Suggestions } from './suggestions.js';
 import {
-  FILTERS, groupFeed, filterCounts, matchesQuery, dayLabel, longDate, countdown,
+  FILTERS, groupFeed, bundleHolidays, filterCounts, matchesQuery, dayLabel, longDate, countdown,
   postedAgo, shareText, buildIcs, googleCalendarUrl, toNotice
 } from './notice-model.js';
 
@@ -74,30 +74,42 @@ function linkButtonHtml(n) {
   return `<a class="nt-link-btn" href="${escapeHtml(n.link)}" target="_blank" rel="noopener noreferrer" aria-label="${label}: ${escapeHtml(hostOf(n.link) || n.link)}">${svg(icon)}<span>${label}</span></a>`;
 }
 
+/** "Sat 28 – Sun 29 Nov": the month once, when both days are in it. */
+function rangeLabel(a, b) {
+  const x = dayLabel(a), y = dayLabel(b);
+  const mx = x.match(/ ([A-Z][a-z]{2})$/), my = y.match(/ ([A-Z][a-z]{2})$/);
+  return mx && my && mx[1] === my[1] ? `${x.slice(0, -4)} – ${y}` : `${x} – ${y}`;
+}
+
 /**
- * One notice. Icon + headline on top with the day on the right; the detail line and the
- * footer start under the headline; who posted it sits bottom right. The faint background
- * tint carries the type colour. The card is a div (role=button) so a Join link can sit inside.
+ * One notice as a list ROW (not a box). Scan order, like Gmail, Linear and Classroom:
+ *   headline ........................ day
+ *   one detail line
+ *   [Join / Upload]   confirmed       who posted it, when
+ * A small neutral icon names the type; there are no type colours. Unread = a thin bar on the
+ * left plus a bolder headline. Rows sit on one shared surface per time group.
  */
-export function cardHtml(n, read, i) {
-  // Top right holds just the day; the time is in the detail line where it matters
-  const when = n.date ? dayLabel(n.date) : '';
+export function cardHtml(n, read, i, group = '') {
+  // Inside the Today / Tomorrow groups the day is already the heading: show the time instead
+  const inDayGroup = group === 'today' || group === 'tomorrow';
+  const when = inDayGroup
+    ? (n.time && !String(n.detail || '').includes(n.time) ? n.time : '')
+    : (n.dateEnd ? rangeLabel(n.date, n.dateEnd) : (n.date ? dayLabel(n.date) : ''));
+  const soon = !inDayGroup && n.date && ['Today', 'Tomorrow'].includes(dayLabel(n.date));
   const confirmed = n.raw && n.raw.source === 'community';
   const link = linkButtonHtml(n);
+  const foot = [link, confirmed ? '<span class="nt-community">Confirmed by votes</span>' : '', audienceTag(n)].join('');
   return `<div role="button" tabindex="0" class="nt-card tone-${n.tone}${read ? '' : ' is-unread'}${n.past ? ' is-past' : ''}" data-id="${escapeHtml(n.id)}" style="--i:${Math.min(i, 10)}">
-    <span class="nt-card-head">
-      <span class="nt-type-icon" title="${escapeHtml(n.meta.label)}">${svg(ICONS[n.tone] || ICONS.general)}</span>
-      <span class="nt-title">${escapeHtml(n.headline || n.title)}</span>
-      ${n.pinned ? `<span class="nt-pin" title="Pinned">${svg(UI.pin)}</span>` : ''}
-      ${when ? `<span class="nt-when">${escapeHtml(when)}</span>` : ''}
-      ${read ? '' : '<span class="nt-dot" aria-label="New"></span>'}
-    </span>
-    <span class="nt-card-body">
+    <span class="nt-ico" title="${escapeHtml(n.meta.label)}">${svg(ICONS[n.tone] || ICONS.general)}</span>
+    <span class="nt-main">
+      <span class="nt-line1">
+        <span class="nt-title">${escapeHtml(n.headline || n.title)}</span>
+        ${n.pinned ? `<span class="nt-pin" title="Pinned">${svg(UI.pin)}</span>` : ''}
+        ${when ? `<span class="nt-day${soon ? ' is-soon' : ''}">${escapeHtml(when)}</span>` : ''}
+      </span>
       ${n.detail ? `<span class="nt-summary">${escapeHtml(n.detail)}</span>` : ''}
-      <span class="nt-card-foot">
-        ${link}
-        ${confirmed ? '<span class="nt-community">Confirmed by votes</span>' : ''}
-        ${audienceTag(n)}
+      <span class="nt-line3">
+        ${foot}
         <span class="nt-by">${escapeHtml([n.author, postedAgo(n.createdAt)].filter(Boolean).join(', '))}</span>
       </span>
     </span>
@@ -135,7 +147,7 @@ function suggestionCard(s, admin) {
     </div>
     <div class="sg-main">
       <div class="sg-head">
-        <span class="nt-type-icon" title="${escapeHtml(n.meta.label)}">${svg(ICONS[n.tone] || ICONS.general)}</span>
+        <span class="nt-ico" title="${escapeHtml(n.meta.label)}">${svg(ICONS[n.tone] || ICONS.general)}</span>
         <span class="sg-title">${escapeHtml(n.headline || n.title)}</span>
         <span class="sg-tag${s.state === 'hidden' ? ' is-hidden' : ''}">${s.state === 'hidden' ? 'Hidden' : 'Unconfirmed'}</span>
       </div>
@@ -268,7 +280,7 @@ export function renderNotices() {
     return;
   }
 
-  const g = groupFeed(filtered);
+  const g = groupFeed(bundleHolidays(filtered));
   let i = 0;
   let html = '';
   GROUPS.forEach(([k, label]) => {
@@ -282,7 +294,7 @@ export function renderNotices() {
         ${fresh && !open ? `<span class="nt-group-new">${fresh} new</span>` : ''}
         ${svg('<polyline points="6 9 12 15 18 9"/>', 'nt-group-chev')}
       </button>
-      ${open ? `<div class="nt-group-list">${items.map(n => cardHtml(n, k === 'past' || read.has(n.id), i++)).join('')}</div>` : ''}
+      ${open ? `<div class="nt-group-list">${items.map(n => cardHtml(n, k === 'past' || read.has(n.id), i++, k)).join('')}</div>` : ''}
     </section>`;
   });
   if (!html) {

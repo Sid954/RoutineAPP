@@ -13,7 +13,7 @@ global.document = {
 
 const {
   toNotice, audienceOf, groupFeed, comingUp, matchesQuery, filterCounts, dayLabel, countdown,
-  buildIcs, googleCalendarUrl, shareText, todayStr
+  buildIcs, googleCalendarUrl, shareText, todayStr, bundleHolidays
 } = require('../src/announcements/notice-model.js');
 const { isForMe } = require('../src/announcements/announcements.js');
 const { audienceTargets } = require('../src/announcements/post-form.js');
@@ -166,6 +166,17 @@ console.log('✅ Test 8: post audience targets');
   assert.strictEqual(validateAnnouncementPayload({ ...base, link: 'javascript:alert(1)' }).valid, false);
   assert.strictEqual(validateAnnouncementPayload({ ...base }).valid, true, 'the link is optional');
   console.log('✅ Test 10: assignment upload link');
+}
+
+// 11. A holiday stored one row per day becomes ONE row
+{
+  const hol = (id, date, title = 'Founders Day') => toNotice({ id, type: 'holiday', title, announcement: 'x', date_override: date, semester: '2', section: 'c', created_at: new Date().toISOString() }, { semester: '2', section: 'c' });
+  const out = bundleHolidays([hol(1, '2099-11-28'), hol(2, '2099-11-29'), hol(3, '2099-11-30'), hol(4, '2099-12-20'), hol(5, '2099-11-28', 'Other')]);
+  assert.strictEqual(out.length, 3, 'three consecutive days + a later day + another holiday');
+  const b = out.find(n => n.dateEnd);
+  assert.strictEqual(b.date, '2099-11-28'); assert.strictEqual(b.dateEnd, '2099-11-30'); assert.strictEqual(b.days, 3);
+  assert.strictEqual(b.detail, 'No classes for 3 days');
+  console.log('✅ Test 11: holiday bundling');
 }
 
 console.log('All Notices tests passed.');

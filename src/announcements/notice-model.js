@@ -320,6 +320,36 @@ export function filterCounts(notices) {
 }
 
 /**
+ * A holiday is stored one row per day. Show consecutive days of the same holiday as ONE row
+ * ("Sat 28 – Sun 29") instead of repeating it. Returns a new list; other notices are untouched.
+ */
+export function bundleHolidays(notices) {
+  const out = [];
+  const open = new Map(); // key -> the bundle still accepting a next day
+  const sorted = notices.slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+  const keep = new Set();
+  sorted.forEach(n => {
+    if (n.type !== 'holiday' || !n.date || n.pinned) { keep.add(n); return; }
+    const key = `${n.title}|${n.audience.short}`;
+    const cur = open.get(key);
+    const gap = cur ? daysFrom(n.date, dateObj(cur.dateEnd || cur.date)) : null;
+    if (cur && gap === 1) {
+      cur.dateEnd = n.date;
+      cur.days = (cur.days || 1) + 1;
+      cur.detail = `No classes for ${cur.days} days`;
+      cur.unreadIds = (cur.unreadIds || [cur.id]).concat(n.id);
+      return;
+    }
+    const b = Object.assign({}, n, { days: 1, dateEnd: '' });
+    open.set(key, b);
+    keep.add(b);
+  });
+  notices.forEach(n => { if (keep.has(n)) out.push(n); });
+  keep.forEach(n => { if (!out.includes(n)) out.push(n); });
+  return out;
+}
+
+/**
  * Feed sections:
  *  pinned  - pinned (any date, past included)
  *  today / tomorrow / week / later - dated, not past, by event date then time

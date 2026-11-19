@@ -511,7 +511,7 @@ function renderPreview() {
   }
   const n = toNotice(row, { semester: mySem().toLowerCase(), section: mySec() });
   n.pinned = st.mode === 'announce' && !!($('paPin') && $('paPin').checked);
-  let html = cardHtml(n, true, 0).replace('<button', '<div').replace(/<\/button>\s*$/, '</div>');
+  let html = cardHtml(n, true, 0);
   if (st.mode === 'suggest') html = html.replace('class="nt-card ', 'class="nt-card is-suggestion ');
   box.innerHTML = html;
   const err = $('paPreviewNote');
