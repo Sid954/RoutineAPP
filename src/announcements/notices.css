@@ -551,7 +551,7 @@
   position: relative;
   display: flex; align-items: flex-start; gap: 12px;
   width: 100%; box-sizing: border-box;
-  padding: 13px 14px 13px 16px;
+  padding: 14px 14px 14px 16px;
   border: none; border-radius: 0;
   background: transparent;
   color: var(--nt-text); text-align: left; font-family: var(--font-ui);
@@ -568,12 +568,26 @@
   border-radius: 0 3px 3px 0; background: var(--accent);
 }
 .nt-ico {
-  width: 28px; height: 28px; flex-shrink: 0; margin-top: -1px;
+  width: 20px; height: 20px; flex-shrink: 0; align-self: flex-start; margin-top: 1px;
   display: grid; place-items: center; color: var(--nt-ico);
 }
-.nt-ico svg { width: 19px; height: 19px; }
+.nt-ico svg { width: 17px; height: 17px; }
+
+/* The WHEN column: the one thing people scan for, set apart, in mono so times line up down the list */
+.nt-when-col {
+  flex: 0 0 56px; width: 56px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1px;
+  padding-top: 1px;
+}
+.nt-time { font: 800 19px/1.05 var(--font-mono); letter-spacing: -0.5px; color: var(--nt-text); }
+.nt-time.is-word { font: 800 15px/1.15 var(--font-ui); letter-spacing: 0; }
+.nt-ampm { font: 700 11px/1 var(--font-mono); letter-spacing: 0.3px; color: var(--nt-text-2); }
+.nt-whenday { margin-top: 3px; font: 600 11.5px/1.2 var(--font-ui); color: var(--nt-text-3); }
+.nt-when-col.is-quiet .nt-time { color: var(--nt-text-2); font-size: 16px; }
+.nt-page .nt-card.is-unread .nt-time { color: var(--accent); }
+:root[data-color="light"] .nt-page .nt-card.is-unread .nt-time { color: var(--accent-hover); }
 .nt-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.nt-line1 { display: flex; align-items: baseline; gap: 8px; }
+.nt-line1 { display: flex; align-items: flex-start; gap: 7px; }
 .nt-page .nt-title {
   flex: 1; min-width: 0; overflow-wrap: anywhere;
   font-size: 15.5px; font-weight: 600; line-height: 1.3; color: var(--nt-text);
@@ -587,7 +601,7 @@
   font: 600 12.5px var(--font-ui); color: var(--nt-text-3);
 }
 .nt-day.is-soon { color: var(--nt-text); font-weight: 800; }
-.nt-page .nt-summary { font-size: 13.5px; font-weight: 500; line-height: 1.4; color: var(--nt-text-2); background: none; padding: 0; display: block; }
+.nt-page .nt-summary { margin-top: 0; font-size: 13.5px; font-weight: 500; line-height: 1.4; color: var(--nt-text-2); background: none; padding: 0; display: block; }
 .nt-line3 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 3px; min-height: 18px; }
 .nt-page .nt-by { margin-left: auto; text-align: right; font-size: 12px; font-weight: 500; color: var(--nt-text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .nt-page .nt-aud { font: 600 11px var(--font-mono); color: var(--nt-text-3); background: none; padding: 0; }

@@ -10,6 +10,7 @@
 import { State } from '../core/state.js';
 import { Storage } from '../storage/storage.js';
 import { escapeHtml, setHtmlIfChanged } from '../core/utils.js';
+import { bindMouseDrag } from '../core/desktop-input.js';
 import { showToast } from '../toast/toast.js';
 import { openModal, closeModal, showConfirm } from '../modals/modal.js';
 import { Announcements } from './announcements.js';
@@ -51,6 +52,7 @@ let _openId = null;
 let _observer = null;
 let _timers = new Map();
 let _lastNotices = [];
+let _filterOrder = ['all'];
 
 const $ = id => document.getElementById(id);
 
@@ -74,43 +76,72 @@ function linkButtonHtml(n) {
   return `<a class="nt-link-btn" href="${escapeHtml(n.link)}" target="_blank" rel="noopener noreferrer" aria-label="${label}: ${escapeHtml(hostOf(n.link) || n.link)}">${svg(icon)}<span>${label}</span></a>`;
 }
 
-/** "Sat 28 – Sun 29 Nov": the month once, when both days are in it. */
-function rangeLabel(a, b) {
+/** "Sat 21 Nov" -> "Sat 21" */
+const noMonth = label => String(label || '').replace(/ [A-Z][a-z]{2}$/, '');
+
+/** "21 – 23 Nov": a bundled holiday's days, the month once. */
+function daySpan(a, b) {
   const x = dayLabel(a), y = dayLabel(b);
   const mx = x.match(/ ([A-Z][a-z]{2})$/), my = y.match(/ ([A-Z][a-z]{2})$/);
-  return mx && my && mx[1] === my[1] ? `${x.slice(0, -4)} – ${y}` : `${x} – ${y}`;
+  const num = l => String(l).replace(/^[A-Za-z]{3} /, '');
+  return mx && my && mx[1] === my[1] ? `${num(noMonth(x))} – ${num(y)}` : `${num(x)} – ${num(y)}`;
 }
 
 /**
- * One notice as a list ROW (not a box). Scan order, like Gmail, Linear and Classroom:
- *   headline ........................ day
- *   one detail line
- *   [Join / Upload]   confirmed       who posted it, when
- * A small neutral icon names the type; there are no type colours. Unread = a thin bar on the
- * left plus a bolder headline. Rows sit on one shared surface per time group.
+ * The "when" column: the ONE thing people scan for, set apart in its own column.
+ *  - a time (class slot, new time, due time): big "3:00" + "PM"; the day under it outside Today/Tomorrow
+ *  - a day without a time: the weekday big, the date under it ("All day" inside Today/Tomorrow)
+ *  - undated news: how long ago it was posted
+ */
+function whenColumnHtml(n, group) {
+  const inDay = group === 'today' || group === 'tomorrow';
+  const f = n.focus || {};
+  const small = [];
+  if (f.hasTime) {
+    if (f.note) small.push(f.note);
+    if (!inDay && n.date) small.push(noMonth(dayLabel(n.date)));
+    return `<span class="nt-when-col"><span class="nt-time">${escapeHtml(f.big)}</span><span class="nt-ampm">${escapeHtml(f.ampm)}</span>${small.length ? `<span class="nt-whenday">${escapeHtml(small.join(' '))}</span>` : ''}</span>`;
+  }
+  if (n.date) {
+    // A holiday really is all day; for a class with no known slot, name the day instead
+    if (inDay) return `<span class="nt-when-col"><span class="nt-time is-word">${n.type === 'holiday' ? 'All day' : escapeHtml(dayLabel(n.date))}</span></span>`;
+    const wd = dayLabel(n.date).split(' ')[0];
+    const lab = ['Today', 'Tomorrow', 'Yesterday'].includes(wd) ? wd : wd;
+    const under = n.dateEnd ? daySpan(n.date, n.dateEnd) : dayLabel(n.date).replace(/^[A-Za-z]{3} /, '');
+    return `<span class="nt-when-col"><span class="nt-time is-word">${escapeHtml(lab)}</span><span class="nt-whenday">${escapeHtml(under)}</span></span>`;
+  }
+  const ago = postedAgo(n.createdAt).match(/^(\d+[mh]) ago$/);
+  return ago
+    ? `<span class="nt-when-col is-quiet"><span class="nt-time">${escapeHtml(ago[1])}</span><span class="nt-ampm">ago</span></span>`
+    : `<span class="nt-when-col is-quiet"><span class="nt-time is-word">${escapeHtml(postedAgo(n.createdAt))}</span></span>`;
+}
+
+/**
+ * One notice as a list ROW (not a box), in scan order:
+ *   WHEN column | icon + headline
+ *               | one fact per line
+ *               | [Join / Upload]            who posted it
+ * Neutral icon for the type, no type colours. Unread = a thin bar on the left and a heavier headline.
  */
 export function cardHtml(n, read, i, group = '') {
-  // Inside the Today / Tomorrow groups the day is already the heading: show the time instead
-  const inDayGroup = group === 'today' || group === 'tomorrow';
-  const when = inDayGroup
-    ? (n.time && !String(n.detail || '').includes(n.time) ? n.time : '')
-    : (n.dateEnd ? rangeLabel(n.date, n.dateEnd) : (n.date ? dayLabel(n.date) : ''));
-  const soon = !inDayGroup && n.date && ['Today', 'Tomorrow'].includes(dayLabel(n.date));
   const confirmed = n.raw && n.raw.source === 'community';
   const link = linkButtonHtml(n);
   const foot = [link, confirmed ? '<span class="nt-community">Confirmed by votes</span>' : '', audienceTag(n)].join('');
+  const undated = !n.date;
+  const by = undated ? n.author : [n.author, postedAgo(n.createdAt)].filter(Boolean).join(', ');
+  const lines = (n.lines || (n.detail ? [n.detail] : [])).map(l => `<span class="nt-summary">${escapeHtml(l)}</span>`).join('');
   return `<div role="button" tabindex="0" class="nt-card tone-${n.tone}${read ? '' : ' is-unread'}${n.past ? ' is-past' : ''}" data-id="${escapeHtml(n.id)}" style="--i:${Math.min(i, 10)}">
-    <span class="nt-ico" title="${escapeHtml(n.meta.label)}">${svg(ICONS[n.tone] || ICONS.general)}</span>
+    ${whenColumnHtml(n, group)}
     <span class="nt-main">
       <span class="nt-line1">
+        <span class="nt-ico" title="${escapeHtml(n.meta.label)}">${svg(ICONS[n.tone] || ICONS.general)}</span>
         <span class="nt-title">${escapeHtml(n.headline || n.title)}</span>
         ${n.pinned ? `<span class="nt-pin" title="Pinned">${svg(UI.pin)}</span>` : ''}
-        ${when ? `<span class="nt-day${soon ? ' is-soon' : ''}">${escapeHtml(when)}</span>` : ''}
       </span>
-      ${n.detail ? `<span class="nt-summary">${escapeHtml(n.detail)}</span>` : ''}
+      ${lines}
       <span class="nt-line3">
         ${foot}
-        <span class="nt-by">${escapeHtml([n.author, postedAgo(n.createdAt)].filter(Boolean).join(', '))}</span>
+        <span class="nt-by">${escapeHtml(by)}</span>
       </span>
     </span>
   </div>`;
@@ -151,7 +182,7 @@ function suggestionCard(s, admin) {
         <span class="sg-title">${escapeHtml(n.headline || n.title)}</span>
         <span class="sg-tag${s.state === 'hidden' ? ' is-hidden' : ''}">${s.state === 'hidden' ? 'Hidden' : 'Unconfirmed'}</span>
       </div>
-      ${n.detail ? `<p class="sg-detail">${escapeHtml(n.detail)}</p>` : ''}
+      ${(n.lines || []).map(l => `<p class="sg-detail">${escapeHtml(l)}</p>`).join('')}
       <p class="sg-foot">
         ${when ? `<span class="nt-when">${escapeHtml(when)}</span>` : ''}
         <span>${own ? 'You' : escapeHtml(n.author || 'Classmate')}, ${escapeHtml(postedAgo(n.createdAt))}</span>
@@ -239,6 +270,7 @@ function renderFilters(counts) {
   if (Announcements.activeFilter !== 'all' && !counts[Announcements.activeFilter]) Announcements.activeFilter = 'all';
   const list = FILTERS.filter(f => f.id === 'all' || counts[f.id] > 0);
   bar.hidden = Announcements.tab === 'suggestions' || list.length < 3; // "All" plus one type: nothing to filter
+  _filterOrder = list.map(f => f.id);
   setHtmlIfChanged(bar, list.map(f => {
     const on = f.id === Announcements.activeFilter;
     return `<button type="button" role="tab" class="nt-chip${on ? ' active' : ''}${FILTER_TONE[f.id] ? ` tone-${FILTER_TONE[f.id]}` : ''}" data-filter="${f.id}" aria-selected="${on}" aria-label="${f.label}, ${counts[f.id] || 0}" title="${f.label}">
@@ -576,6 +608,37 @@ export function initAnnouncementEvents() {
     Announcements.activeFilter = b.dataset.filter === Announcements.activeFilter ? 'all' : b.dataset.filter;
     renderNotices();
   });
+
+  /* Swipe the list sideways to move to the next / previous type (touch and mouse). Starts on the
+     chips, the search box or a tab are left alone: those scroll or type on their own. */
+  const pageEl = $('announcementsAppView');
+  if (pageEl) {
+    let sw = null;
+    const begin = (x, y, el) => {
+      if (Announcements.tab !== 'notices' || _filterOrder.length < 3) { sw = null; return false; }
+      if (el && el.closest && el.closest('.nt-filters, .nt-search, #ntTabs, .nt-admin-bar, input, textarea, select')) { sw = null; return false; }
+      sw = { x, y, t: performance.now() };
+    };
+    const finish = (x, y) => {
+      if (!sw) return;
+      const dx = x - sw.x, dy = y - sw.y, dt = performance.now() - sw.t;
+      sw = null;
+      if (Math.abs(dx) < 64 || Math.abs(dx) < Math.abs(dy) * 1.6 || dt > 700) return;
+      const i = Math.max(0, _filterOrder.indexOf(Announcements.activeFilter));
+      const next = _filterOrder[i + (dx < 0 ? 1 : -1)];
+      if (!next) return; // already at the first / last type
+      Announcements.activeFilter = next;
+      renderNotices();
+      const feed = $('announceList');
+      if (feed && feed.animate && document.documentElement.dataset.motion !== 'off') feed.animate([{ opacity: 0.35 }, { opacity: 1 }], { duration: 180, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+      const chip = document.querySelector('#announceFilterBar .nt-chip.active');
+      if (chip && chip.scrollIntoView) chip.scrollIntoView({ block: 'nearest', inline: 'center' });
+    };
+    pageEl.addEventListener('touchstart', e => { if (e.touches.length === 1) begin(e.touches[0].clientX, e.touches[0].clientY, e.target); }, { passive: true });
+    pageEl.addEventListener('touchend', e => { const t = e.changedTouches && e.changedTouches[0]; if (t) finish(t.clientX, t.clientY); }, { passive: true });
+    pageEl.addEventListener('touchcancel', () => { sw = null; }, { passive: true });
+    bindMouseDrag(pageEl, { start: (x, y, el) => begin(x, y, el), move() {}, end: (x, y, ev) => { if (ev) finish(x, y); else sw = null; } });
+  }
 
   const page = $('announcementsAppView');
   if (page) page.addEventListener('click', e => {

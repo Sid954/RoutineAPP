@@ -235,69 +235,107 @@ export function toNotice(item, ctx = {}) {
     }
   }
   if (!n.summary) n.summary = n.meta.label;
-  Object.assign(n, cardLines(n, p));
+  Object.assign(n, cardLines(n, p, ctx));
   return n;
 }
 
 const DEFAULT_CANCEL = /^(The|Reminding you that the) .* (class|scheduled).*(cancelled|canceled)?\.?$/i;
 const clip = (s, max = 90) => { const t = String(s || '').replace(/\s+/g, ' ').trim(); return t.length > max ? `${t.slice(0, max - 1)}…` : t; };
 
+/** The class a notice is about, looked up in the routine for that weekday: { time, room } or null. */
+function classOnDay(subject, ymd, schedule) {
+  const d = dateObj(ymd);
+  if (!d || !subject || !schedule) return null;
+  const list = schedule[d.getDay()];
+  if (!Array.isArray(list)) return null;
+  const hit = list.find(c => String(c.title || c.subject || '').toUpperCase().trim() === String(subject).toUpperCase().trim());
+  if (!hit) return null;
+  return { time: fmtTime(hit.start), end: fmtTime(hit.end), room: String(hit.room || '').trim() };
+}
+
+/** "3:00 PM" -> { big: '3:00', ampm: 'PM' } */
+function splitTime(t) {
+  const m = String(t || '').match(/^(\d{1,2}:\d{2})\s*([AP]M)$/i);
+  return m ? { big: m[1], ampm: m[2].toUpperCase() } : { big: String(t || ''), ampm: '' };
+}
+
 /**
- * What a feed card says, without repeating itself: one headline that names the course and
- * what kind of thing it is ("ICMP class cancelled", "DMNT class test (CT-2)"), and one
- * optional detail line that adds something new. Date, author and type colour live elsewhere.
+ * What a feed row says, one fact per line, nothing twice:
+ *  headline  names the course and what kind of thing it is ("ICMP class cancelled")
+ *  lines     short extra facts, each on its own line (room, reason, what it covers...)
+ *  focus     THE time people look for, shown in its own column:
+ *            { big: '3:00', ampm: 'PM', small: 'Sat 21' }  (or a day when no time applies)
+ * The time of a cancelled class or a test is the class's own slot, read from the routine.
  */
-export function cardLines(n, p = {}) {
+export function cardLines(n, p = {}, ctx = {}) {
   const subj = n.subject;
-  let headline = n.title, detail = '';
+  let headline = n.title;
+  const lines = [];
+  let time = '', timeNote = '';
+  const cls = classOnDay(subj, n.date, ctx.schedule);
   switch (n.type) {
     case 'cancellation': {
       headline = subj ? `${subj} class cancelled` : 'Class cancelled';
       const note = String(n.body || '').trim();
-      detail = note && !DEFAULT_CANCEL.test(note) && !/will not be held/i.test(note) ? note : '';
+      if (note && !DEFAULT_CANCEL.test(note) && !/will not be held/i.test(note)) lines.push(note);
+      if (cls && cls.room) lines.push(`Room ${cls.room}`);
+      if (cls) time = cls.time;
       break;
     }
     case 'class_test': {
       const exam = String(p.exam_name || '').trim();
       const named = exam && !/^class test$/i.test(exam);
       headline = subj ? `${subj} class test${named ? ` (${exam})` : ''}` : (named ? `Class test (${exam})` : 'Class test');
-      detail = n.body ? `Covers ${n.body}` : '';
+      if (n.body) lines.push(`Covers ${n.body}`);
+      if (cls && cls.room) lines.push(`Room ${cls.room}`);
+      if (cls) time = cls.time;
       break;
     }
     case 'assignment': {
       const task = String(p.task_title || '').trim();
       const generic = !task || /^assignment$/i.test(task);
       headline = subj ? `${subj} assignment${generic ? '' : `: ${task}`}` : (generic ? 'Assignment' : `Assignment: ${task}`);
-      detail = [n.time ? `Due ${n.time}` : '', n.body].filter(Boolean).join('. ');
+      if (n.body) lines.push(n.body);
+      time = n.time; timeNote = 'due';
       break;
     }
     case 'online_class': {
       headline = `${subj || 'Class'} ${n.kind === 'extra' ? 'extra class' : 'online class'}`;
-      const span = n.time ? (n.endTime ? `${n.time} to ${n.endTime}` : `at ${n.time}`) : '';
-      const where = n.kind === 'extra' ? n.place : (n.link ? '' : (n.place && n.place !== 'Online' ? n.place : ''));
-      detail = [span, where].filter(Boolean).join(', ');
-      detail = detail ? detail.charAt(0).toUpperCase() + detail.slice(1) : '';
+      if (n.endTime) lines.push(`Until ${n.endTime}`);
+      if (n.kind === 'extra' && n.place) lines.push(n.place);
+      else if (!n.link && n.place && n.place !== 'Online') lines.push(n.place);
+      time = n.time;
       break;
     }
     case 'rescheduled': {
       headline = subj ? `${subj} class rescheduled` : 'Class rescheduled';
-      detail = [n.time ? `Now at ${n.time}` : '', n.place, n.body].filter(Boolean).join(', ');
+      if (n.place) lines.push(n.place);
+      if (n.body) lines.push(`Reason: ${n.body}`);
+      const was = (n.details.find(d => d.label === 'From') || {}).value;
+      if (was) lines.push(`Was ${was}`);
+      time = n.time;
       break;
     }
     case 'holiday': {
       const name = String(n.title || '').replace(/^Holiday:\s*/i, '').replace(/\s*Holiday$/i, '').trim();
       const named = name && !/^holiday$/i.test(name);
       headline = named ? `Holiday: ${name}` : 'Holiday';
-      detail = 'No classes';
+      lines.push('No classes');
       break;
     }
     default: {
       headline = n.title || 'Notice';
-      const first = String(n.body || '').split('\n')[0].trim();
-      detail = first && first !== headline ? first : '';
+      const first = String(n.body || '').split(/\r?\n/)[0].trim();
+      if (first && first !== headline) lines.push(first);
     }
   }
-  return { headline: clip(headline, 70), detail: clip(detail) };
+  const out = lines.map(l => clip(l, 90)).slice(0, 3);
+  return {
+    headline: clip(headline, 70),
+    lines: out,
+    detail: out.join('. '),
+    focus: { ...splitTime(time), note: timeNote, hasTime: !!time }
+  };
 }
 
 /** Sort key for the time of day ("2:00 PM" -> 840), 0 when unknown. */
@@ -336,7 +374,8 @@ export function bundleHolidays(notices) {
     if (cur && gap === 1) {
       cur.dateEnd = n.date;
       cur.days = (cur.days || 1) + 1;
-      cur.detail = `No classes for ${cur.days} days`;
+      cur.lines = [`No classes for ${cur.days} days`];
+      cur.detail = cur.lines[0];
       cur.unreadIds = (cur.unreadIds || [cur.id]).concat(n.id);
       return;
     }

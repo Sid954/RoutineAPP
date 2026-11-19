@@ -124,7 +124,7 @@ export const Announcements = {
   /** Normalised notices for the current scope. */
   notices() {
     const { sem, sec } = mySemSec();
-    const ctx = { semester: sem, section: sec };
+    const ctx = { semester: sem, section: sec, schedule: State.schedule };
     return this.rowsForScope().map(r => toNotice(r, ctx));
   },
 

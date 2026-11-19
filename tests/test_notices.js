@@ -136,26 +136,39 @@ assert.deepStrictEqual(audienceTargets({ mode: 'suggest', aud: 'sections', sem: 
 assert.deepStrictEqual(audienceTargets({ aud: 'sections', sem: '3', secs: new Set() }, me), [], 'no sections picked -> nothing to send');
 console.log('✅ Test 8: post audience targets');
 
-// 9. Card titles name the course and the kind of thing, once
+// 9. Rows: headline once, one fact per line, and the time people look for in its own column
 {
-  const card = row => toNotice(row, { semester: '2', section: 'c' });
-  const cancel = card({ id: 91, type: 'cancellation', title: 'ICMP Class', announcement: 'The ICMP class on Nov 21, 2026 is cancelled.', date_override: '2099-11-21', subject_override: 'ICMP' });
+  // Section 2-C style routine: Saturday (6) has ICMP at 09:45 in room 404
+  const schedule = { 6: [{ title: 'ICMP', start: '09:45', end: '11:00', room: '404' }], 3: [{ title: 'DMNT', start: '12:15', end: '13:30', room: '410' }] };
+  const card = row => toNotice(row, { semester: '2', section: 'c', schedule });
+  const cancel = card({ id: 91, type: 'cancellation', title: 'ICMP Class', announcement: 'The ICMP class on Nov 21, 2026 is cancelled.', date_override: '2026-11-21', subject_override: 'ICMP' });
   assert.strictEqual(cancel.headline, 'ICMP class cancelled');
-  assert.strictEqual(cancel.detail, '', 'the default sentence would only repeat the headline');
-  const test = card({ id: 92, type: 'class_test', title: 'DMNT CT-2', announcement: JSON.stringify({ exam_name: 'CT-2', topics: 'Ch 3-4' }), date_override: '2099-11-21', subject_override: 'DMNT' });
+  assert.deepStrictEqual(cancel.lines, ['Room 404'], 'the default sentence only repeats the headline');
+  assert.strictEqual(cancel.focus.big, '9:45', 'the class time, read from the routine');
+  assert.strictEqual(cancel.focus.ampm, 'AM');
+  const withReason = card({ id: 97, type: 'cancellation', title: 'ICMP Class', announcement: 'Sir is at a seminar', date_override: '2026-11-21', subject_override: 'ICMP' });
+  assert.deepStrictEqual(withReason.lines, ['Sir is at a seminar', 'Room 404'], 'one fact per line');
+  const test = card({ id: 92, type: 'class_test', title: 'DMNT CT-2', announcement: JSON.stringify({ exam_name: 'CT-2', topics: 'Ch 3-4' }), date_override: '2026-11-18', subject_override: 'DMNT' });
   assert.strictEqual(test.headline, 'DMNT class test (CT-2)');
-  assert.strictEqual(test.detail, 'Covers Ch 3-4');
+  assert.deepStrictEqual(test.lines, ['Covers Ch 3-4', 'Room 410']);
+  assert.strictEqual(test.focus.big, '12:15');
   const task = card({ id: 93, type: 'assignment', title: 'x', announcement: JSON.stringify({ task_title: 'Lab report 5', due_time: '11:59 PM', link: 'https://classroom.google.com/c/abc' }), date_override: '2099-11-21', subject_override: 'CPL' });
   assert.strictEqual(task.headline, 'CPL assignment: Lab report 5');
   assert.strictEqual(task.link, 'https://classroom.google.com/c/abc', 'upload link opens like a join link');
+  assert.deepStrictEqual([task.focus.big, task.focus.ampm, task.focus.note], ['11:59', 'PM', 'due']);
   const online = card({ id: 94, type: 'online_class', title: 'PHYL Online Class', announcement: JSON.stringify({ is_online: true, platform: 'https://meet.google.com/x', start_time: '11:00 AM', end_time: '01:30 PM' }), date_override: '2099-11-21', subject_override: 'PHYL' });
   assert.strictEqual(online.headline, 'PHYL online class');
-  assert.strictEqual(online.detail, '11:00 AM to 1:30 PM');
-  const moved = card({ id: 95, type: 'rescheduled', title: 'Rescheduled: DS', announcement: JSON.stringify({ new_date: '2099-11-21', new_start_time: '03:00 PM', new_room: '404' }), date_override: '2099-11-22', subject_override: 'DS' });
+  assert.deepStrictEqual(online.lines, ['Until 1:30 PM']);
+  assert.deepStrictEqual([online.focus.big, online.focus.ampm], ['11:00', 'AM']);
+  const moved = card({ id: 95, type: 'rescheduled', title: 'Rescheduled: DS', announcement: JSON.stringify({ original_date: '2099-11-22', original_start_time: '11:00 AM', new_date: '2099-11-21', new_start_time: '03:00 PM', new_room: '404', reason: 'Lab clash' }), date_override: '2099-11-22', subject_override: 'DS' });
   assert.strictEqual(moved.headline, 'DS class rescheduled');
+  assert.deepStrictEqual(moved.focus.big + moved.focus.ampm, '3:00PM');
+  assert.ok(moved.lines.includes('Room 404') && moved.lines.includes('Reason: Lab clash'), 'room and reason each on their own line');
+  assert.ok(!moved.lines.some(l => l.includes(',')), 'nothing is crammed into one comma line');
   const hol = card({ id: 96, type: 'holiday', title: 'Victory Day', announcement: 'x', date_override: '2099-12-16' });
   assert.strictEqual(hol.headline, 'Holiday: Victory Day');
-  console.log('✅ Test 9: card titles');
+  assert.strictEqual(hol.focus.hasTime, false);
+  console.log('✅ Test 9: rows');
 }
 
 // 10. Assignment upload links: http(s) only
@@ -175,7 +188,7 @@ console.log('✅ Test 8: post audience targets');
   assert.strictEqual(out.length, 3, 'three consecutive days + a later day + another holiday');
   const b = out.find(n => n.dateEnd);
   assert.strictEqual(b.date, '2099-11-28'); assert.strictEqual(b.dateEnd, '2099-11-30'); assert.strictEqual(b.days, 3);
-  assert.strictEqual(b.detail, 'No classes for 3 days');
+  assert.deepStrictEqual(b.lines, ['No classes for 3 days']);
   console.log('✅ Test 11: holiday bundling');
 }
 
