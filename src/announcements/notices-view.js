@@ -88,55 +88,44 @@ function daySpan(a, b) {
 }
 
 /**
- * The "when" column: the ONE thing people scan for, set apart in its own column.
- *  - a time (class slot, new time, due time): big "3:00" + "PM"; the day under it outside Today/Tomorrow
- *  - a day without a time: the weekday big, the date under it ("All day" inside Today/Tomorrow)
- *  - undated news: how long ago it was posted
+ * The small "when" at the top right. Only what is real: a time the poster gave (or the class's own
+ * slot for a cancelled class / test), and the day when the group does not already say it.
+ * Nothing to say = nothing shown (no "All day", no filler).
  */
-function whenColumnHtml(n, group) {
+function whenHtml(n, group) {
   const inDay = group === 'today' || group === 'tomorrow';
   const f = n.focus || {};
-  const small = [];
-  if (f.hasTime) {
-    if (f.note) small.push(f.note);
-    if (!inDay && n.date) small.push(noMonth(dayLabel(n.date)));
-    return `<span class="nt-when-col"><span class="nt-time">${escapeHtml(f.big)}</span><span class="nt-ampm">${escapeHtml(f.ampm)}</span>${small.length ? `<span class="nt-whenday">${escapeHtml(small.join(' '))}</span>` : ''}</span>`;
-  }
-  if (n.date) {
-    // A holiday really is all day; for a class with no known slot, name the day instead
-    if (inDay) return `<span class="nt-when-col"><span class="nt-time is-word">${n.type === 'holiday' ? 'All day' : escapeHtml(dayLabel(n.date))}</span></span>`;
-    const wd = dayLabel(n.date).split(' ')[0];
-    const lab = ['Today', 'Tomorrow', 'Yesterday'].includes(wd) ? wd : wd;
-    const under = n.dateEnd ? daySpan(n.date, n.dateEnd) : dayLabel(n.date).replace(/^[A-Za-z]{3} /, '');
-    return `<span class="nt-when-col"><span class="nt-time is-word">${escapeHtml(lab)}</span><span class="nt-whenday">${escapeHtml(under)}</span></span>`;
-  }
-  const ago = postedAgo(n.createdAt).match(/^(\d+[mh]) ago$/);
-  return ago
-    ? `<span class="nt-when-col is-quiet"><span class="nt-time">${escapeHtml(ago[1])}</span><span class="nt-ampm">ago</span></span>`
-    : `<span class="nt-when-col is-quiet"><span class="nt-time is-word">${escapeHtml(postedAgo(n.createdAt))}</span></span>`;
+  const time = f.hasTime ? `${f.big} ${f.ampm}`.trim() : '';
+  let day = '';
+  if (!inDay && n.date) day = n.dateEnd ? daySpanLabel(n.date, n.dateEnd) : noMonth(dayLabel(n.date));
+  if (!day && !time) return '';
+  const timeHtml = time ? `<span class="nt-whentime">${f.note ? `${escapeHtml(f.note)} ` : ''}${escapeHtml(time)}</span>` : '';
+  return `<span class="nt-when">${day ? `<span class="nt-whenday">${escapeHtml(day)}</span>` : ''}${timeHtml}</span>`;
 }
+
+/** "Sat 21 – Mon 23": a bundled holiday's days. */
+function daySpanLabel(a, b) { return `${noMonth(dayLabel(a))} – ${noMonth(dayLabel(b))}`; }
 
 /**
  * One notice as a list ROW (not a box), in scan order:
- *   WHEN column | icon + headline
- *               | one fact per line
- *               | [Join / Upload]            who posted it
+ *   icon  headline ...................... time / day (only when real)
+ *         one fact per line
+ *         [Join / Upload]                who posted it
  * Neutral icon for the type, no type colours. Unread = a thin bar on the left and a heavier headline.
  */
 export function cardHtml(n, read, i, group = '') {
   const confirmed = n.raw && n.raw.source === 'community';
   const link = linkButtonHtml(n);
   const foot = [link, confirmed ? '<span class="nt-community">Confirmed by votes</span>' : '', audienceTag(n)].join('');
-  const undated = !n.date;
-  const by = undated ? n.author : [n.author, postedAgo(n.createdAt)].filter(Boolean).join(', ');
+  const by = !n.date ? n.author : [n.author, postedAgo(n.createdAt)].filter(Boolean).join(', ');
   const lines = (n.lines || (n.detail ? [n.detail] : [])).map(l => `<span class="nt-summary">${escapeHtml(l)}</span>`).join('');
   return `<div role="button" tabindex="0" class="nt-card tone-${n.tone}${read ? '' : ' is-unread'}${n.past ? ' is-past' : ''}" data-id="${escapeHtml(n.id)}" style="--i:${Math.min(i, 10)}">
-    ${whenColumnHtml(n, group)}
+    <span class="nt-ico" title="${escapeHtml(n.meta.label)}">${svg(ICONS[n.tone] || ICONS.general)}</span>
     <span class="nt-main">
       <span class="nt-line1">
-        <span class="nt-ico" title="${escapeHtml(n.meta.label)}">${svg(ICONS[n.tone] || ICONS.general)}</span>
         <span class="nt-title">${escapeHtml(n.headline || n.title)}</span>
         ${n.pinned ? `<span class="nt-pin" title="Pinned">${svg(UI.pin)}</span>` : ''}
+        ${whenHtml(n, group)}
       </span>
       ${lines}
       <span class="nt-line3">
@@ -280,6 +269,14 @@ function renderFilters(counts) {
 
 /* Groups fold. Opening the page unfolds Today, Tomorrow and any group with something new;
    what the person opens or closes after that stays as they left it until they leave. */
+const WD3 = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MON3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/** The grey date beside "Today" / "Tomorrow": "Thu 19 Nov". */
+function groupDateHtml(key) {
+  if (key !== 'today' && key !== 'tomorrow') return '';
+  const d = new Date(); d.setDate(d.getDate() + (key === 'tomorrow' ? 1 : 0));
+  return `<span class="nt-group-date">${WD3[d.getDay()]} ${d.getDate()} ${MON3[d.getMonth()]}</span>`;
+}
 const GROUPS = [['pinned', 'Pinned'], ['today', 'Today'], ['tomorrow', 'Tomorrow'], ['week', 'This week'], ['later', 'Later'], ['recent', 'Other notices'], ['past', 'Past']];
 let _groupOpen = null;
 function groupIsOpen(key, items, read) {
@@ -322,7 +319,7 @@ export function renderNotices() {
     const fresh = items.filter(n => !n.past && !read.has(n.id)).length;
     html += `<section class="nt-group${open ? ' is-open' : ''}" data-group="${k}">
       <button type="button" class="nt-group-head" data-group-toggle="${k}" aria-expanded="${open}">
-        <span>${label}</span><span class="nt-group-count">${items.length}</span>
+        <span>${label}</span>${groupDateHtml(k)}<span class="nt-group-count">${items.length}</span>
         ${fresh && !open ? `<span class="nt-group-new">${fresh} new</span>` : ''}
         ${svg('<polyline points="6 9 12 15 18 9"/>', 'nt-group-chev')}
       </button>

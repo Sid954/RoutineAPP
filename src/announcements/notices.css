@@ -568,26 +568,21 @@
   border-radius: 0 3px 3px 0; background: var(--accent);
 }
 .nt-ico {
-  width: 20px; height: 20px; flex-shrink: 0; align-self: flex-start; margin-top: 1px;
+  width: 22px; height: 22px; flex-shrink: 0; align-self: flex-start; margin-top: 0;
   display: grid; place-items: center; color: var(--nt-ico);
 }
-.nt-ico svg { width: 17px; height: 17px; }
+.nt-ico svg { width: 18px; height: 18px; }
 
-/* The WHEN column: the one thing people scan for, set apart, in mono so times line up down the list */
-.nt-when-col {
-  flex: 0 0 56px; width: 56px;
-  display: flex; flex-direction: column; align-items: flex-start; gap: 1px;
-  padding-top: 1px;
-}
-.nt-time { font: 800 19px/1.05 var(--font-mono); letter-spacing: -0.5px; color: var(--nt-text); }
-.nt-time.is-word { font: 800 15px/1.15 var(--font-ui); letter-spacing: 0; }
-.nt-ampm { font: 700 11px/1 var(--font-mono); letter-spacing: 0.3px; color: var(--nt-text-2); }
-.nt-whenday { margin-top: 3px; font: 600 11.5px/1.2 var(--font-ui); color: var(--nt-text-3); }
-.nt-when-col.is-quiet .nt-time { color: var(--nt-text-2); font-size: 16px; }
-.nt-page .nt-card.is-unread .nt-time { color: var(--accent); }
-:root[data-color="light"] .nt-page .nt-card.is-unread .nt-time { color: var(--accent-hover); }
+/* The small "when", top right: day muted, time heavier. Shown only when it is real. */
+.nt-page .nt-card .nt-when { background: none; border-radius: 0; font-family: var(--font-ui); font-weight: 500; flex-shrink: 0; margin-left: auto; padding: 0 0 0 8px; display: flex; align-items: baseline; gap: 6px; white-space: nowrap; font-size: 12.5px; }
+.nt-when .nt-whenday { font-weight: 600; color: var(--nt-text-3); }
+.nt-when .nt-whentime { font: 700 12.5px var(--font-mono); letter-spacing: -0.2px; color: var(--nt-text); }
+.nt-page .nt-card.is-unread .nt-whentime { color: var(--accent); }
+:root[data-color="light"] .nt-page .nt-card.is-unread .nt-whentime { color: var(--accent-hover); }
+.nt-group-date { font: 500 12.5px var(--font-ui); color: var(--nt-text-3); }
 .nt-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .nt-line1 { display: flex; align-items: flex-start; gap: 7px; }
+.nt-line1 .nt-title { padding-top: 0; }
 .nt-page .nt-title {
   flex: 1; min-width: 0; overflow-wrap: anywhere;
   font-size: 15.5px; font-weight: 600; line-height: 1.3; color: var(--nt-text);
