@@ -887,42 +887,46 @@
         <div class="sheet-drag-handle"></div>
       </div>
 
-      <!-- Type, class and close -->
-      <div class="cs2-top">
+      <!-- Header: icon, code + kind, name, close -->
+      <div class="cs2-head">
         <span class="cs2-ico" id="modalSquircleIcon" aria-hidden="true"></span>
-        <span class="cs2-kind" id="modalTypeBadge"></span>
+        <div class="cs2-head-text">
+          <div class="cs2-code-row">
+            <h2 class="cs2-code" id="modalCourseCode">DSL</h2>
+            <span class="cs2-kind" id="modalTypeBadge"></span>
+          </div>
+          <div class="cs2-name" id="modalFullTitle">Data Structures Laboratory</div>
+          <div class="cs2-sem" id="modalSemSec"></div>
+        </div>
         <button class="class-sheet-close-btn" id="classDetailClose" title="Close sheet" aria-label="Close">&times;</button>
       </div>
-
-      <h2 class="cs2-code" id="modalCourseCode">DSL</h2>
-      <div class="cs2-name" id="modalFullTitle">Data Structures Laboratory</div>
-      <div class="cs2-sem" id="modalSemSec"></div>
 
       <!-- Status for this date: live / starts in / cancelled / test / online / moved ... -->
       <div class="cs2-status" id="modalOverrideDetails" hidden></div>
 
-      <!-- When -->
-      <div class="cs2-when">
-        <div class="cs2-time" id="modalTiming">11:00 AM – 01:30 PM</div>
-        <div class="cs2-dur" id="modalDuration">2h 30m</div>
-      </div>
-
-      <!-- Room (tap: is it free?) and teacher (tap: profile) -->
-      <div class="cs2-people">
-        <button type="button" class="cs2-tile interactive-room-tile" id="modalRoomTile" title="Tap to check room availability in Free Rooms">
-          <span class="cs2-tile-label">Room</span>
-          <span class="cs2-tile-main" id="modalRoom">Room 905</span>
-          <span class="cs2-tile-sub" id="modalFormat">Laboratory session</span>
+      <!-- Time and room side by side, teacher full width (room and teacher are tappable) -->
+      <div class="cs2-grid">
+        <div class="cs2-box">
+          <span class="cs2-box-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time</span>
+          <span class="cs2-box-main cs2-time" id="modalTiming">11:00 AM – 01:30 PM</span>
+          <span class="cs2-box-sub" id="modalDuration">2h 30m</span>
+        </div>
+        <button type="button" class="cs2-box is-tap interactive-room-tile" id="modalRoomTile" title="Tap to check room availability in Free Rooms">
+          <span class="cs2-box-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Room<span class="cs2-hint">Free rooms</span></span>
+          <span class="cs2-box-main" id="modalRoom">Room 905</span>
+          <span class="cs2-box-sub" id="modalFormat">Laboratory session</span>
+          <svg class="cs2-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
-        <button type="button" class="cs2-tile interactive-faculty-tile" id="modalInstructorTile" title="Tap to view full faculty profile and routine">
-          <span class="cs2-tile-label">Teacher</span>
+        <button type="button" class="cs2-box is-tap is-wide interactive-faculty-tile" id="modalInstructorTile" title="Tap to view full faculty profile and routine">
+          <span class="cs2-box-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Teacher<span class="cs2-hint">Profile</span></span>
           <span class="cs2-teacher">
             <span class="faculty-avatar-mini" id="modalInstructorAvatar">MH</span>
             <span class="cs2-teacher-text">
-              <span class="cs2-tile-main" id="modalInstructor">Mahmudul Hasan Emon</span>
-              <span class="cs2-tile-sub" id="modalInstructorDesig">Assistant Professor</span>
+              <span class="cs2-box-main" id="modalInstructor">Mahmudul Hasan Emon</span>
+              <span class="cs2-box-sub" id="modalInstructorDesig">Assistant Professor</span>
             </span>
           </span>
+          <svg class="cs2-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
 
@@ -945,7 +949,7 @@
 
       <!-- Quick updates for this class (prefills the post form) -->
       <div class="cs-quick" id="classQuickActions">
-        <span class="cs-quick-label">Something changed? Tell your section</span>
+        <span class="cs-quick-label">Add an update for this class</span>
         <div class="cs-quick-row">
           <button type="button" class="cs-quick-btn" data-quick="class_test"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg><span>Test</span></button>
           <button type="button" class="cs-quick-btn" data-quick="cancellation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg><span>Cancel</span></button>

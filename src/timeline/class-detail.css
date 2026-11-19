@@ -620,84 +620,86 @@ html[data-theme="light"] .faculty-avatar-mini,
 .cs-quick-btn.tone-online { --tone: #0ea5e9; }
 .cs-quick-btn.tone-task { --tone: #10b981; }
 
-/* ── Class sheet v2 (2026-11-19): same quiet reading order as the notice sheet ── */
-.class-detail-bottom-sheet.cs2 { background: var(--nt-surface); border-top-color: var(--nt-line); padding: 12px 20px max(24px, env(safe-area-inset-bottom, 24px)); }
-.cs2 .class-sheet-close-btn { position: static; margin-left: auto; width: 34px; height: 34px; border-radius: 50%; background: var(--nt-hover); border: 1px solid var(--nt-line); color: var(--nt-text); font-size: 20px; line-height: 1; display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
-.cs2-top { display: flex; align-items: center; gap: 8px; min-height: 34px; }
-.cs2-ico { width: 24px; height: 24px; display: grid; place-items: center; color: var(--nt-ico); }
-.cs2-ico svg { width: 20px; height: 20px; }
-.cs2-kind { font: 700 13.5px var(--font-ui); color: var(--nt-text-2); background: none; padding: 0; border: 0; letter-spacing: 0; text-transform: none; }
-.cs2-code { margin: 8px 0 0; font: 800 30px/1.1 var(--font-mono); letter-spacing: -1px; color: var(--nt-text); }
-.cs2-name { margin-top: 4px; font-size: 16px; font-weight: 600; line-height: 1.35; color: var(--nt-text-2); }
-.cs2-sem { margin-top: 2px; font-size: 13px; font-weight: 500; color: var(--nt-text-3); }
-.cs2-sem[hidden], .cs2-dur[hidden], .cs2-status[hidden], .cs2-notices[hidden], .cs2-week[hidden] { display: none; }
+/* ── Class sheet v2 (2026-11-19): compact tiles like before, quiet colours, live status ── */
+.class-detail-bottom-sheet.cs2 { background: var(--nt-surface); border-top-color: var(--nt-line); padding: 10px 16px max(20px, env(safe-area-inset-bottom, 20px)); scrollbar-width: none; -ms-overflow-style: none; }
+.class-detail-bottom-sheet.cs2::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+.cs2-head { display: flex; align-items: flex-start; gap: 12px; margin-top: 4px; }
+.cs2-ico { width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; display: grid; place-items: center; background: var(--nt-hover); border: 1px solid var(--nt-line); color: var(--nt-ico); }
+.cs2-ico svg { width: 22px; height: 22px; }
+.cs2-head-text { flex: 1; min-width: 0; }
+.cs2-code-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cs2-code { margin: 0; font: 800 24px/1.15 var(--font-mono); letter-spacing: -0.6px; color: var(--nt-text); }
+.cs2-kind { font: 700 12px var(--font-ui); color: var(--nt-text-2); padding: 2px 8px; border-radius: 999px; border: 1px solid var(--nt-line); background: none; text-transform: none; letter-spacing: 0; }
+.cs2-name { margin-top: 2px; font-size: 14.5px; font-weight: 600; line-height: 1.3; color: var(--nt-text-2); }
+.cs2-sem { margin-top: 1px; font-size: 12.5px; font-weight: 500; color: var(--nt-text-3); }
+.cs2-sem[hidden], .cs2-box-sub[hidden], .cs2-status[hidden], .cs2-notices[hidden], .cs2-week[hidden] { display: none; }
+.cs2 .class-sheet-close-btn { position: static; width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; background: var(--nt-hover); border: 1px solid var(--nt-line); color: var(--nt-text); font-size: 19px; line-height: 1; display: grid; place-items: center; cursor: pointer; }
 
 /* Status for this date */
-.cs2-status { margin-top: 16px; padding: 14px 16px; border-radius: 16px; background: var(--nt-hover); border: 1px solid var(--nt-line); display: flex; flex-direction: column; gap: 8px; }
-.cs2-status-lead { display: flex; align-items: center; gap: 9px; font-size: 16px; font-weight: 800; color: var(--nt-text); }
+.cs2-status { margin-top: 12px; padding: 11px 14px; border-radius: 14px; background: var(--nt-hover); border: 1px solid var(--nt-line); display: flex; flex-direction: column; gap: 6px; }
+.cs2-status-lead { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; color: var(--nt-text); }
 .cs2-status-lead svg { flex-shrink: 0; color: var(--nt-ico); }
-.cs2-status-lead.is-live { color: var(--accent); }
-.cs2-status-lead.is-live svg { color: var(--accent); }
+.cs2-status-lead.is-live, .cs2-status-lead.is-live svg { color: var(--accent); }
 :root[data-color="light"] .cs2-status-lead.is-live, :root[data-color="light"] .cs2-status-lead.is-live svg { color: var(--accent-hover); }
 .cs2-status-lead.is-bad, .cs2-status-lead.is-bad svg { color: var(--nt-bad); }
-.cs2-status-line { font-size: 14.5px; line-height: 1.5; color: var(--nt-text-2); overflow-wrap: anywhere; }
+.cs2-status-line { font-size: 13.5px; line-height: 1.45; color: var(--nt-text-2); overflow-wrap: anywhere; }
 .cs2-k { font-weight: 700; color: var(--nt-text-3); margin-right: 4px; }
-.cs2-bar { height: 5px; border-radius: 999px; background: var(--nt-line); overflow: hidden; }
+.cs2-bar { height: 4px; border-radius: 999px; background: var(--nt-line); overflow: hidden; }
 .cs2-bar span { display: block; height: 100%; border-radius: 999px; background: var(--accent); }
-.cs2-join { display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 16px; border-radius: 14px; background: var(--accent); color: var(--btn-text, #fff); font: 800 15px var(--font-ui); text-decoration: none; }
-.cs2-join svg { width: 16px; height: 16px; flex-shrink: 0; }
-.cs2-join-host { margin-left: auto; font-size: 12px; font-weight: 600; opacity: .8; }
+.cs2-join { display: flex; align-items: center; gap: 9px; height: 42px; padding: 0 14px; border-radius: 12px; background: var(--accent); color: var(--btn-text, #fff); font: 800 14px var(--font-ui); text-decoration: none; }
+.cs2-join svg { width: 15px; height: 15px; flex-shrink: 0; }
+.cs2-join-host { margin-left: auto; font-size: 11.5px; font-weight: 600; opacity: .8; }
 .cs2-join:active { transform: scale(.985); }
 
-/* When */
-.cs2-when { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 18px 2px 14px; }
-.cs2-time { font: 800 24px/1.1 var(--font-mono); letter-spacing: -0.8px; color: var(--nt-text); }
-.cs2-dur { font-size: 14px; font-weight: 600; color: var(--nt-text-3); white-space: nowrap; }
-
-/* Room and teacher */
-.cs2-people { display: grid; grid-template-columns: 1fr; gap: 0; border-top: 1px solid var(--nt-line); }
-.cs2-tile { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 13px 2px; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--nt-line); color: inherit; font: inherit; cursor: pointer; border-radius: 0; box-shadow: none; }
-.cs2-tile:active { background: var(--nt-hover); }
-.cs2-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.cs2-tile-label { font-size: 12.5px; font-weight: 500; color: var(--nt-text-3); }
-.cs2-tile-main { font-size: 16px; font-weight: 700; color: var(--nt-text); overflow-wrap: anywhere; }
-.cs2-tile-sub { font-size: 13px; font-weight: 500; color: var(--nt-text-3); }
-.cs2-teacher { display: flex; align-items: center; gap: 12px; }
+/* Tiles: time | room, teacher full width. Tappable ones have a chevron and a hint. */
+.cs2-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.cs2-box { position: relative; display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 10px 12px; text-align: left; border-radius: 14px; background: var(--nt-hover); border: 1px solid var(--nt-line); color: inherit; font: inherit; box-shadow: none; }
+.cs2-box.is-wide { grid-column: 1 / -1; }
+.cs2-box.is-tap { cursor: pointer; padding-right: 28px; }
+.cs2-box.is-tap:active { transform: scale(.985); }
+.cs2-box.is-tap:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cs2-box-label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--nt-text-3); }
+.cs2-box-label svg { width: 13px; height: 13px; flex-shrink: 0; color: var(--nt-ico); }
+.cs2-hint { margin-left: auto; font-size: 11.5px; font-weight: 700; color: var(--accent); }
+:root[data-color="light"] .cs2-hint { color: var(--accent-hover); }
+.cs2-box-main { font-size: 15px; font-weight: 800; color: var(--nt-text); overflow-wrap: anywhere; line-height: 1.25; }
+.cs2-time { font: 800 14px/1.3 var(--font-mono); letter-spacing: -0.3px; }
+.cs2-box-sub { font-size: 12px; font-weight: 500; color: var(--nt-text-3); }
+.cs2-chev { position: absolute; right: 9px; top: 50%; width: 14px; height: 14px; margin-top: -7px; color: var(--nt-text-3); }
+.cs2-teacher { display: flex; align-items: center; gap: 10px; margin-top: 2px; min-width: 0; }
 .cs2-teacher-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .cs2 .faculty-avatar-mini { flex-shrink: 0; }
 
 /* Notices and weekly pattern */
-.cs2-h { margin: 18px 0 8px; font-size: 13px; font-weight: 600; color: var(--nt-text-3); }
+.cs2-h { margin: 14px 0 4px; font-size: 12.5px; font-weight: 600; color: var(--nt-text-3); }
 .cs2-notice-list { display: flex; flex-direction: column; }
-.cs2-notice { display: flex; flex-direction: column; gap: 2px; padding: 10px 2px; border-top: 1px solid var(--nt-line); }
+.cs2-notice { display: flex; flex-direction: column; gap: 1px; padding: 8px 2px; border-top: 1px solid var(--nt-line); }
 .cs2-notice:first-child { border-top: 0; }
-.cs2-notice-title { font-size: 15px; font-weight: 700; color: var(--nt-text); }
-.cs2-notice-when { font-size: 13px; font-weight: 500; color: var(--nt-text-3); }
+.cs2-notice-title { font-size: 14px; font-weight: 700; color: var(--nt-text); }
+.cs2-notice-when { font-size: 12.5px; font-weight: 500; color: var(--nt-text-3); }
 .cs2-unconf { margin-left: 8px; font-size: 11.5px; font-weight: 700; color: var(--nt-warn); }
 .cs2-week-list { display: flex; flex-direction: column; }
-.cs2-week-row { display: grid; grid-template-columns: 44px 1fr auto; align-items: baseline; gap: 10px; padding: 11px 2px; background: none; border: 0; border-top: 1px solid var(--nt-line); border-radius: 0; text-align: left; color: var(--nt-text-2); font: inherit; cursor: pointer; }
+.cs2-week-row { display: grid; grid-template-columns: 40px 1fr auto; align-items: baseline; gap: 8px; padding: 8px 2px; background: none; border: 0; border-top: 1px solid var(--nt-line); border-radius: 0; text-align: left; color: var(--nt-text-2); font: inherit; cursor: pointer; }
 .cs2-week-row:first-child { border-top: 0; }
 .cs2-week-row:active { background: var(--nt-hover); }
 .cs2-week-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.cs2-week-day { font: 700 12.5px var(--font-mono); color: var(--nt-text-3); }
-.cs2-week-time { font: 600 14.5px var(--font-mono); }
-.cs2-week-room { font-size: 13px; font-weight: 500; color: var(--nt-text-3); }
+.cs2-week-day { font: 700 12px var(--font-mono); color: var(--nt-text-3); }
+.cs2-week-time { font: 600 13.5px var(--font-mono); }
+.cs2-week-room { font-size: 12.5px; font-weight: 500; color: var(--nt-text-3); }
 .cs2-week-row.is-current { color: var(--nt-text); }
 .cs2-week-row.is-current .cs2-week-day { color: var(--accent); }
 :root[data-color="light"] .cs2-week-row.is-current .cs2-week-day { color: var(--accent-hover); }
 .cs2-week-row.is-current .cs2-week-time { font-weight: 800; }
 
-/* Reminder and quick updates in the same quiet style */
-.cs2 .cs-remind { margin-top: 14px; background: var(--nt-hover); border: 1px solid var(--nt-line); }
+/* Reminder and quick updates */
+.cs2 .cs-remind { margin-top: 10px; padding: 9px 12px; background: var(--nt-hover); border: 1px solid var(--nt-line); }
 .cs2 .cs-remind-text strong { color: var(--nt-text); }
 .cs2 .cs-remind-text span { color: var(--nt-text-3); }
 .cs2 .cs-remind-icon { background: none; color: var(--nt-ico); }
 :root[data-color="light"] .cs2 .cs-remind-icon { color: var(--nt-ico); }
-.cs2 .cs-quick { margin: 18px 0 0; }
-.cs2 .cs-quick-label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--nt-text-3); }
+.cs2 .cs-quick { margin: 12px 0 0; }
+.cs2 .cs-quick-label { display: block; margin-bottom: 6px; font-size: 12.5px; font-weight: 600; color: var(--nt-text-3); text-transform: none; letter-spacing: 0; }
 .cs2 .cs-quick-btn { background: transparent; border: 1px solid var(--nt-line); }
 .cs2 .cs-quick-btn svg { color: var(--nt-ico); }
 .cs2 .cs-quick-btn span { color: var(--nt-text-2); opacity: 1; }
-.cs2 .cs-quick-label { text-transform: none; letter-spacing: 0; }
-.class-detail-bottom-sheet.cs2 { scrollbar-width: none; -ms-overflow-style: none; }
-.class-detail-bottom-sheet.cs2::-webkit-scrollbar { display: none; width: 0; height: 0; }
