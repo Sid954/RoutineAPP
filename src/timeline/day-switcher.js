@@ -3,45 +3,32 @@ import { State } from '../core/state.js';
 import { CONFIG } from '../core/config.js';
 import { renderTimeline } from './timeline.js';
 import { bindMouseDrag, bindWheelSwipe } from '../core/desktop-input.js';
-
-// Active Academic Days (Sat=6, Sun=0, Mon=1, Tue=2, Wed=3) — Skips Thursday & Friday
-function getNextActiveDay(currentDay) {
-  const activeDays = CONFIG.activeDays;
-  if (currentDay === 4 || currentDay === 5) return 6; // From off-day -> Saturday
-  const idx = activeDays.indexOf(currentDay);
-  if (idx === -1) return 6;
-  return activeDays[(idx + 1) % activeDays.length];
-}
-
-function getPrevActiveDay(currentDay) {
-  const activeDays = CONFIG.activeDays;
-  if (currentDay === 4 || currentDay === 5) return 3; // From off-day -> Wednesday
-  const idx = activeDays.indexOf(currentDay);
-  if (idx === -1) return 3;
-  return activeDays[(idx - 1 + activeDays.length) % activeDays.length];
-}
+import { shouldHideDay } from '../core/off-days.js';
+import { getOverridesByDateMap } from '../announcements/overrides.js';
 
 /**
- * The date a swipe lands on. Moves forward (or back) from the viewed date to the target weekday,
- * so Wed -> Sat is Wed + 3 days (the next week) and Sat -> Wed is Sat - 3 days (the previous week).
+ * The date a swipe lands on: step one day at a time from the viewed date, skipping exactly the
+ * days the week strip hides (off days with nothing on). So Friday 20th shows up in the swipe order
+ * when it has a class or an announcement, and is skipped when it is a plain day off.
  */
-function calculateTargetDate(targetDayIdx, direction) {
+function nextShownDate(direction) {
   const anchor = State.viewDate || new Date();
-  const from = anchor.getDay();
-  const forward = (targetDayIdx - from + 7) % 7 || 7;
-  const back = (from - targetDayIdx + 7) % 7 || 7;
-  const target = new Date(anchor);
-  target.setDate(anchor.getDate() + (direction === 'prev' ? -back : forward));
-  return target;
+  const today = new Date();
+  const overridesMap = getOverridesByDateMap();
+  for (let i = 1; i <= 14; i++) {
+    const d = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + (direction === 'prev' ? -i : i));
+    const isToday = d.toDateString() === today.toDateString();
+    if (!shouldHideDay(d, { isToday, overridesMap })) return d;
+  }
+  return new Date(anchor);
 }
 
 export function smoothSwitchDay(direction) {
   const container = DOM.timelineGrid;
   if (!container) return;
 
-  const nextIdx = direction === 'prev'
-    ? getPrevActiveDay(State.currentViewDayIdx)
-    : getNextActiveDay(State.currentViewDayIdx);
+  const nextDate = nextShownDate(direction);
+  const nextIdx = nextDate.getDay();
 
   const isNext = direction === 'next';
   const exitX = isNext ? -180 : 180;
@@ -54,7 +41,7 @@ export function smoothSwitchDay(direction) {
 
   setTimeout(() => {
     State.currentViewDayIdx = nextIdx;
-    State.viewDate = calculateTargetDate(nextIdx, direction);
+    State.viewDate = nextDate;
     renderTimeline(true);
 
     container.classList.remove('swipe-transition');
@@ -88,6 +75,7 @@ let touchStartY = 0;
 let touchStartTime = 0;
 let isDragging = false;
 let dragTargetDayIdx = -1;
+let dragTargetDate = null;
 
 const container = DOM.timelineGrid;
 
@@ -97,6 +85,7 @@ function swipeStart(x, y) {
   touchStartTime = performance.now();
   isDragging = false;
   dragTargetDayIdx = -1;
+  dragTargetDate = null;
 }
 
 function swipeMove(x, y) {
@@ -125,10 +114,12 @@ function swipeMove(x, y) {
 
     if (deltaX < 0) {
       // Moved left -> next active day (skipping Thu & Fri)
-      dragTargetDayIdx = getNextActiveDay(State.currentViewDayIdx);
+      dragTargetDate = nextShownDate('next');
+      dragTargetDayIdx = dragTargetDate.getDay();
     } else if (deltaX > 0) {
       // Moved right -> previous active day (skipping Thu & Fri)
-      dragTargetDayIdx = getPrevActiveDay(State.currentViewDayIdx);
+      dragTargetDate = nextShownDate('prev');
+      dragTargetDayIdx = dragTargetDate.getDay();
     }
   }
 }
@@ -167,7 +158,7 @@ function swipeEnd(endX) {
 
     setTimeout(() => {
       State.currentViewDayIdx = dragTargetDayIdx;
-      State.viewDate = calculateTargetDate(dragTargetDayIdx, isSwipingLeft ? 'next' : 'prev');
+      State.viewDate = dragTargetDate;
       renderTimeline(true);
 
       container.classList.remove('swipe-transition');
