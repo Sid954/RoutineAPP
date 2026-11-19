@@ -298,14 +298,12 @@ function noticesHtml(items) {
   if (!items.length) return '';
   return `<h3 class="cs2-h">Coming up for this class</h3><div class="cs2-notice-list">${items.map(({ raw, n }) => {
     const unconfirmed = raw.is_unconfirmed === true;
-    const tag = unconfirmed ? 'div' : 'button type="button"';
-    const end = unconfirmed ? 'div' : 'button';
     const f = n.focus || {};
     const t = f.hasTime ? ` ${f.big} ${f.ampm}` : '';
-    return `<${tag} class="cs2-notice${unconfirmed ? ' is-static' : ''}" ${unconfirmed ? '' : `data-nid="${escapeHtml(n.id)}"`}>
+    return `<div class="cs2-notice">
       <span class="cs2-notice-head"><span class="cs2-notice-title">${escapeHtml(n.headline)}</span>${unconfirmed ? '<span class="cs2-unconf">Unconfirmed</span>' : ''}</span>
       <span class="cs2-notice-when">${escapeHtml(nice(n.date))}${escapeHtml(t)}</span>
-    </${end}>`;
+    </div>`;
   }).join('')}</div>`;
 }
 

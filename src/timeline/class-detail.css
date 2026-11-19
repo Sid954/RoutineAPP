@@ -708,3 +708,5 @@ html[data-theme="light"] .faculty-avatar-mini,
 .cs2-go .cs2-chev { position: static; margin: 0; color: inherit; }
 .cs2-box.is-wide.is-tap { padding-right: 76px; }
 .cs2-box { background: var(--nt-hover); border-color: var(--nt-line-strong, var(--nt-line)); }
+.cs2-notice-head { display: flex; align-items: baseline; flex-wrap: wrap; }
+.cs2-notice-when { display: block; }
