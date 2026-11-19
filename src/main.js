@@ -230,16 +230,35 @@ if (dockRoutineBtn) {
 }
 
 const dockCenterFab = document.getElementById('dockCenterFab');
-/** A small dot on the centre button while the viewed day (Home or Routine) is not today. */
+/** Floating "Today" button above the Home tab: visible while the viewed day (Home or Routine) is not today. */
+const dockTodayFab = document.getElementById('dockTodayFab');
+function routineIsOpen() { return !!(DOM.viewModal && DOM.viewModal.classList.contains('open')); }
 function updateFabAway() {
-  if (!dockCenterFab) return;
+  if (!dockTodayFab) return;
   const now = new Date();
-  const routineOpen = DOM.viewModal && DOM.viewModal.classList.contains('open');
-  const away = routineOpen
-    ? (CONFIG.activeDays.includes(now.getDay()) && State.matrixSelectedDayIdx !== now.getDay())
-    : !!State.viewDate && State.viewDate.toDateString() !== now.toDateString();
-  dockCenterFab.classList.toggle('is-away', away);
-  dockCenterFab.title = away ? 'Jump to today' : 'Daily Routine Timeline';
+  let away;
+  if (routineIsOpen()) away = CONFIG.activeDays.includes(now.getDay()) && State.matrixSelectedDayIdx !== now.getDay();
+  else if ((window.__currentAppViewId || 'home') !== 'home') away = false;
+  else away = !!State.viewDate && State.viewDate.toDateString() !== now.toDateString();
+  dockTodayFab.hidden = !away;
+}
+if (dockTodayFab) {
+  dockTodayFab.addEventListener('click', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    const now = new Date();
+    if (routineIsOpen()) {
+      State.matrixSelectedDayIdx = now.getDay();
+      renderWeeklyMatrix();
+    } else if (window.__pickCalendarDate) {
+      window.__pickCalendarDate(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+    updateFabAway();
+  });
+  ['dockHomeBtn', 'dockRoutineBtn', 'dockNoticesBtn', 'dockAppsBtn', 'dockCenterFab'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.addEventListener('click', () => setTimeout(updateFabAway, 350));
+  });
 }
 window.__updateFabAway = updateFabAway;
 if (dockCenterFab) {
@@ -265,18 +284,6 @@ if (dockCenterFab) {
     e.preventDefault();
     e.stopPropagation();
     if (held) { held = false; return; }
-
-    // On the Weekly Routine: jump to today's tab first, and leave only when already there
-    const routineOpen = DOM.viewModal && DOM.viewModal.classList.contains('open');
-    if (routineOpen) {
-      const todayIdx = new Date().getDay();
-      if (CONFIG.activeDays.includes(todayIdx) && State.matrixSelectedDayIdx !== todayIdx) {
-        State.matrixSelectedDayIdx = todayIdx;
-        renderWeeklyMatrix();
-        updateFabAway();
-        return;
-      }
-    }
 
     const currentView = window.__currentAppViewId || 'home';
     if (closeDockReachablePages() || currentView !== 'home') {

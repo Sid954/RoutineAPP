@@ -1241,8 +1241,18 @@ html[data-theme="light"] .resting-tag.rescheduled {
 .override-indicator.unconfirmed { color: #FBBF24; }
 :root[data-color="light"] .override-indicator.unconfirmed { color: #B45309; }
 
-/* Centre dock button: dot while the viewed day is not today (tap jumps back) */
-.dock-center-raised-fab.is-away::after {
-  content: ""; position: absolute; top: 12px; right: 12px; width: 9px; height: 9px; border-radius: 50%;
-  background: #fff; border: 2px solid var(--accent); box-sizing: content-box;
+/* Floating "Today" shortcut, just above the Home tab. Fades in; no movement. */
+.dock-today-fab {
+  position: absolute; left: 12px; bottom: calc(100% + 12px);
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 40px; padding: 0 16px 0 13px; border-radius: 999px;
+  background: var(--accent); color: var(--btn-text, #fff); border: 0;
+  font: 800 13.5px var(--font-ui); cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  -webkit-tap-highlight-color: transparent;
+  animation: todayFabIn 0.2s var(--mx-ease, ease) both;
 }
+.dock-today-fab[hidden] { display: none; }
+.dock-today-fab svg { width: 17px; height: 17px; }
+.dock-today-fab:active { transform: scale(0.96); }
+@keyframes todayFabIn { from { opacity: 0; } to { opacity: 1; } }
