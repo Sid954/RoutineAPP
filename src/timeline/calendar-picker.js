@@ -15,9 +15,16 @@ let _calendarViewMonth = new Date().getMonth();
 let _calendarViewYear = new Date().getFullYear();
 let _selectedDate = new Date();
 
-export function openCalendarPicker() {
+// Another page (Rooms) can borrow the calendar: openCalendarPicker({ date, onPick }) hands the picked date
+// to onPick instead of moving Home's timeline. Only honoured while the calendar is open.
+let _pickHandler = null;
+
+export function openCalendarPicker(opts) {
   const modal = document.getElementById('calendarPickerModal');
   if (!modal) return;
+  const o = opts && typeof opts === 'object' && !(opts instanceof Event) ? opts : null;
+  _pickHandler = o && typeof o.onPick === 'function' ? o.onPick : null;
+  _selectedDate = o && o.date ? o.date : (State.viewDate || _selectedDate);
 
   _calendarViewMonth = _selectedDate.getMonth();
   _calendarViewYear = _selectedDate.getFullYear();
@@ -113,7 +120,19 @@ export function renderCalendarMonthGrid() {
   gridEl.innerHTML = gridHtml;
 }
 
+/** If a page borrowed the calendar, hand it the date and close. Returns true when it did. */
+function handOff(date) {
+  const modal = document.getElementById('calendarPickerModal');
+  const h = _pickHandler;
+  _pickHandler = null;
+  if (!h || !modal || !modal.classList.contains('open')) return false;
+  modal.classList.remove('open');
+  h(date);
+  return true;
+}
+
 export function pickDate(year, month, day) {
+  if (handOff(new Date(year, month, day))) return;
   _selectedDate = new Date(year, month, day);
   _calendarViewMonth = _selectedDate.getMonth();
   _calendarViewYear = _selectedDate.getFullYear();
@@ -140,6 +159,7 @@ export function pickDate(year, month, day) {
 }
 
 export function jumpToToday() {
+  if (handOff(new Date())) return;
   _selectedDate = new Date();
   const dow = _selectedDate.getDay();
   State.currentViewDayIdx = dow;

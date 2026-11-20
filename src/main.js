@@ -201,7 +201,6 @@ window.switchAppView = switchAppView;
 (function dockWatchdog() {
   const dockEl = document.querySelector('.dock-tab') && document.querySelector('.dock-tab').parentElement;
   if (!dockEl) return;
-  let lastShown = 0;
   document.addEventListener('touchstart', ev => {
     const t = ev.touches && ev.touches[0];
     if (!t) return;
@@ -216,11 +215,7 @@ window.switchAppView = switchAppView;
     if (top.closest('.mo.open, .class-sheet-modal-overlay.open, .rm-sheet-overlay.open, #calendarPickerModal.open, .toast, .mx-pull')) return;
     const name = (top.id ? '#' + top.id : '') + (typeof top.className === 'string' && top.className ? '.' + top.className.trim().split(/\s+/).slice(0, 2).join('.') : '') || top.tagName;
     window.__dockBlocker = name;
-    console.warn('Dock covered by', name);
-    if (performance.now() - lastShown > 4000) {
-      lastShown = performance.now();
-      showToast('Dock covered by ' + String(name).slice(0, 60), 'warning');
-    }
+    console.warn('Dock covered by', name); // diagnostic only: no toast (it fired on legitimate sheets and only added noise)
   }, { capture: true, passive: true });
 })();
 

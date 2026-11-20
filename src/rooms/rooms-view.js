@@ -15,7 +15,8 @@
  * window.openRoomInFreeRooms(roomId, dayIdx, returnView), window.refreshFreeRoomsIfVisible.
  */
 import { offDays, shouldHideDay } from '../core/off-days.js';
-import { DAY_NAMES } from '../core/config.js';
+import { DAY_NAMES, CONFIG } from '../core/config.js';
+import { openModal, closeModal } from '../modals/modal.js';
 import { getCurrentMinutes, escapeHtml, setHtmlIfChanged } from '../core/utils.js';
 import { getTeacherInfo } from '../teachers/teacher-names.js';
 import { showClassDetails } from '../timeline/class-detail.js';
@@ -114,7 +115,7 @@ function describe(item, minute) {
  * Busy blocks across the class day, the free window from the selected minute up to the
  * next busy block (or the busy streak containing it), and a marker at the minute.
  */
-function stripHtml(classes, minute, { large = false } = {}) {
+function stripHtml(classes, minute, { large = false, plain = false } = {}) {
   const busy = occupyingClasses(classes).slice().sort((a, b) => a.startM - b.startM);
   const blocks = busy.map(c =>
     `<span class="rm-strip-busy" style="left:${pct(c.startM)};width:calc(${pct(c.endM)} - ${pct(c.startM)})"></span>`
@@ -122,14 +123,14 @@ function stripHtml(classes, minute, { large = false } = {}) {
 
   let windowHtml = '';
   const inBusy = busy.some(c => minute >= c.startM && minute < c.endM);
-  if (!inBusy && minute < DAY_END) {
+  if (!plain && !inBusy && minute < DAY_END) {
     const next = busy.find(c => c.startM > minute);
     const end = next ? next.startM : DAY_END;
     if (end > Math.max(minute, DAY_START)) {
       windowHtml = `<span class="rm-strip-free" style="left:${pct(minute)};width:calc(${pct(end)} - ${pct(minute)})"></span>`;
     }
   }
-  const showMarker = minute >= DAY_START && minute <= DAY_END;
+  const showMarker = !plain && minute >= DAY_START && minute <= DAY_END;
   const marker = showMarker ? `<span class="rm-strip-marker" style="left:${pct(minute)}"></span>` : '';
   return `<div class="rm-strip${large ? ' is-large' : ''}" aria-hidden="true">${blocks}${windowHtml}${marker}</div>`;
 }
@@ -151,6 +152,24 @@ function scheduleRender() {
   requestAnimationFrame(() => { _renderQueued = false; renderFreeRoomsView(); });
 }
 
+/** Choose the day (offset from today; any number, the chips only show a week). Today returns to live mode;
+ *  other days keep the same time of day ("same time tomorrow"), clamped into class hours. */
+function pickDayOffset(offset) {
+  const keepMinute = clampMinute(getMoment().minute);
+  _dayOffset = offset;
+  if (offset === 0) { _mode = 'NOW'; _minute = getCurrentMinutes(); }
+  else { _mode = 'CUSTOM'; _minute = keepMinute; }
+  renderFreeRoomsView();
+}
+
+const midnight = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+function offsetOfDate(d) { return Math.round((midnight(d) - midnight(new Date())) / 864e5); }
+
+function openRoomsCalendar() {
+  if (typeof window.openCalendarPicker !== 'function') return;
+  window.openCalendarPicker({ date: dateForOffset(_dayOffset), onPick: d => pickDayOffset(offsetOfDate(d)) });
+}
+
 export function renderFreeRoomsView() {
   const list = $('rmList');
   if (!list) return;
@@ -159,16 +178,11 @@ export function renderFreeRoomsView() {
   const dayName = DAY_NAMES[date.getDay()] || 'Saturday';
   const dateStr = normalizeDate(date);
 
-  renderDays($('rmDays'), _dayOffset, offset => {
-    // Today returns to live mode; other days keep the same time of day ("same time tomorrow"),
-    // clamped into class hours
-    const keepMinute = clampMinute(getMoment().minute);
-    _dayOffset = offset;
-    if (offset === 0) { _mode = 'NOW'; _minute = getCurrentMinutes(); }
-    else { _mode = 'CUSTOM'; _minute = keepMinute; }
-    renderFreeRoomsView();
-  });
+  renderDays($('rmDays'), _dayOffset, pickDayOffset);
   renderWhen(minute, isLive);
+  // The header buttons light up when the day or the time is not the live one
+  $('rmCalBtn')?.classList.toggle('is-active', _dayOffset !== 0);
+  $('rmClockBtn')?.classList.toggle('is-active', !isLive);
 
   const evaluated = searchAllRoomsAvailabilityWithOverrides(dayName, minute, dateStr).map(item => ({
     ...item,
@@ -203,14 +217,12 @@ export function renderFreeRoomsView() {
     return;
   }
 
-  // Group by floor (ascending), free first within a floor, then soonest-free, then busy
-  const rank = { free: 0, soon: 1, busy: 2 };
+  // Group by floor (ascending), rooms in number order inside a floor (not by status: the filter above
+  // already says which rooms are free, and a list that reshuffles every minute is hard to scan)
   const floors = [...new Set(visible.map(i => i.room.floor))].sort((a, b) => a - b);
   const html = floors.map(floor => {
     const inFloor = visible.filter(i => i.room.floor === floor).sort((a, b) =>
-      (rank[a.view.bucket] - rank[b.view.bucket]) ||
-      (a.view.bucket === 'soon' ? a.minsUntilFree - b.minsUntilFree : 0) ||
-      a.room.id.localeCompare(b.room.id, undefined, { numeric: true }));
+      String(a.room.id).localeCompare(String(b.room.id), undefined, { numeric: true }));
     const floorAll = pool.filter(i => i.room.floor === floor);
     const floorFree = floorAll.filter(i => i.view.bucket === 'free').length;
     return `
@@ -309,6 +321,15 @@ function renderDays(container, activeOffset, onPick) {
         <span class="rm-day-num">${d.getDate()}</span>
       </button>`);
   }
+  if (activeOffset < 0 || activeOffset > 6) {
+    const d = dateForOffset(activeOffset);
+    shown++;
+    html.push(`
+      <button type="button" role="tab" class="rm-day active" data-offset="${activeOffset}" aria-selected="true" title="${DAY_NAMES[d.getDay()]} ${d.getDate()}">
+        <span class="rm-day-name">${SHORT_DAYS[d.getDay()]}</span>
+        <span class="rm-day-num">${d.getDate()}</span>
+      </button>`);
+  }
   container.innerHTML = html.join('');
   container.style.setProperty('--rm-days', String(shown));
   container.querySelectorAll('.rm-day').forEach(btn => {
@@ -380,7 +401,7 @@ export function openRoomScheduleSheet(roomMeta, dayIdxOrOffset = 0, { isWeekday 
   _sheetRoom = roomMeta;
   _sheetOffset = isWeekday
     ? (dayIdxOrOffset - new Date().getDay() + 7) % 7
-    : Math.max(0, Math.min(6, Number(dayIdxOrOffset) || 0));
+    : (Number(dayIdxOrOffset) || 0);
   renderRoomSheet();
   sheet.classList.add('open');
   sheet.setAttribute('aria-hidden', 'false');
@@ -409,6 +430,9 @@ function renderRoomSheet() {
   const page = getMoment();
   // Same day as the page → use the page's moment; other days → start of class day
   const minute = _sheetOffset === _dayOffset ? page.minute : (_sheetOffset === 0 ? getCurrentMinutes() : DAY_START + 30);
+  // Another day has no "now": the status line still reads at the start of the class day, but nothing on
+  // the strip or the timeline is marked as current (the 8:30 class used to say "Now" on every other day)
+  const isToday = _sheetOffset === 0;
 
   const classes = getEffectiveRoomDaySchedule(dayName, room.id, dateStr);
   const status = evaluateRoomStatus(room, classes, minute);
@@ -428,8 +452,8 @@ function renderRoomSheet() {
 
   renderDays($('rmSheetDays'), _sheetOffset, offset => { _sheetOffset = offset; renderRoomSheet(); });
 
-  $('rmSheetStrip').innerHTML = `${stripHtml(classes, minute, { large: true })}<div class="rm-ticks">${hourTicksHtml()}</div>`;
-  renderSheetTimeline(room, classes, minute, dayIdx);
+  $('rmSheetStrip').innerHTML = `${stripHtml(classes, minute, { large: true, plain: !isToday })}<div class="rm-ticks">${hourTicksHtml()}</div>`;
+  renderSheetTimeline(room, classes, isToday ? minute : -1, dayIdx);
 }
 
 function renderSheetTimeline(room, classes, minute, dayIdx) {
@@ -439,7 +463,18 @@ function renderSheetTimeline(room, classes, minute, dayIdx) {
     freed: true,
     startM: c.startM,
     endM: c.endM,
+    startStr: c.start || shortTime(c.startM),
+    endStr: c.end || shortTime(c.endM),
+    durationMins: c.endM - c.startM,
     subject: c.subject || c.title || 'Class',
+    instructor: c.instructor || '',
+    type: c.type || 'Theory',
+    semSec: c.semSec || '',
+    semester: c.semester || '',
+    section: c.section || '',
+    isCancelled: Boolean(c.isCancelled),
+    isRescheduled: Boolean(c.isRescheduled || c.isRescheduledOverride),
+    isMovedOnline: Boolean(c.isMovedOnline),
     reason: c.isCancelled ? 'Cancelled' : c.isMovedOnline ? 'Moved online' : 'Rescheduled'
   }));
   const rows = [...blocks, ...freed].sort((a, b) => a.startM - b.startM || (a.freed ? 1 : -1));
@@ -454,7 +489,7 @@ function renderSheetTimeline(room, classes, minute, dayIdx) {
     const time = `<span class="rm-tl-start">${escapeHtml(shortTime(b.startM))}</span><span class="rm-tl-end">${escapeHtml(shortTime(b.endM))}</span>`;
     if (b.freed) {
       return `
-        <div class="rm-tl-row is-freed">
+        <div class="rm-tl-row is-freed" role="button" tabindex="0" data-idx="${i}">
           <span class="rm-tl-time">${time}</span>
           <div class="rm-tl-body">
             <span class="rm-tl-title">${escapeHtml(b.subject)} <span class="rm-tl-tag">${escapeHtml(b.reason)}</span></span>
@@ -488,7 +523,7 @@ function renderSheetTimeline(room, classes, minute, dayIdx) {
       </div>`;
   }).join('');
 
-  container.querySelectorAll('.rm-tl-row.is-class').forEach(row => {
+  container.querySelectorAll('.rm-tl-row.is-class, .rm-tl-row.is-freed').forEach(row => {
     const open = e => {
       if (e.target.closest('.rm-tl-teacher')) return;
       const b = rows[Number(row.dataset.idx)];
@@ -533,6 +568,61 @@ function openClassDetailFor(b, room, dayIdx) {
   });
 }
 
+// ── Set the time by hand ─────────────────────────────────────────────────────
+let _timeSheet = null;
+const toHHMM = m => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+
+function setTime(minute) {
+  _mode = 'CUSTOM';
+  _minute = Math.max(0, Math.min(1439, minute));
+  renderFreeRoomsView();
+}
+
+function openTimeSheet() {
+  if (!_timeSheet) {
+    _timeSheet = document.createElement('div');
+    _timeSheet.className = 'class-sheet-modal-overlay';
+    _timeSheet.id = 'rmTimeSheet';
+    _timeSheet.style.zIndex = '100050';
+    _timeSheet.innerHTML = `<div class="nt-sheet rm-time-sheet" role="dialog" aria-modal="true" aria-labelledby="rmTimeTitle">
+        <div class="nt-grip"></div>
+        <button type="button" class="nt-sheet-close" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+        <div class="nt-sheet-body">
+          <h2 class="rm-time-title" id="rmTimeTitle">Set the time</h2>
+          <p class="rm-time-sub" id="rmTimeSub"></p>
+          <input type="time" class="rm-time-input" id="rmTimeInput" aria-label="Time">
+          <div class="rm-time-chips" id="rmTimeChips"></div>
+          <div class="rm-time-actions">
+            <button type="button" class="rm-time-go" data-act="set">Show rooms at this time</button>
+            <button type="button" class="rm-time-now" data-act="now">Use the current time</button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(_timeSheet);
+    _timeSheet.addEventListener('click', e => {
+      if (e.target === _timeSheet || e.target.closest('[data-close]')) { closeModal(_timeSheet); return; }
+      const chip = e.target.closest('[data-min]');
+      if (chip) { setTime(Number(chip.dataset.min)); closeModal(_timeSheet); return; }
+      const act = e.target.closest('[data-act]');
+      if (!act) return;
+      if (act.dataset.act === 'now') {
+        _mode = 'NOW'; _dayOffset = 0; _minute = getCurrentMinutes();
+        renderFreeRoomsView();
+      } else {
+        const [h, m] = String($('rmTimeInput').value || '').split(':').map(Number);
+        if (!Number.isFinite(h) || !Number.isFinite(m)) { $('rmTimeInput').focus(); return; }
+        setTime(h * 60 + m);
+      }
+      closeModal(_timeSheet);
+    });
+  }
+  const { date, minute } = getMoment();
+  $('rmTimeSub').textContent = `Rooms on ${_dayOffset === 0 ? 'today' : `${SHORT_DAYS[date.getDay()]} ${date.getDate()}`}. Pick any time, or a class slot.`;
+  $('rmTimeInput').value = toHHMM(Math.max(0, Math.min(1439, minute)));
+  $('rmTimeChips').innerHTML = CONFIG.matrixIntervals.map(t => `<button type="button" class="rm-time-chip${t.startM === minute ? ' active' : ''}" data-min="${t.startM}">${escapeHtml(shortTime(t.startM))}</button>`).join('');
+  openModal(_timeSheet);
+}
+
 // ── Init & external hooks ────────────────────────────────────────────────────
 export function initFreeRoomsUI() {
   const ticks = $('rmTicks');
@@ -552,6 +642,15 @@ export function initFreeRoomsUI() {
     renderFreeRoomsView();
     setTimeout(() => btn.classList.remove('is-spinning'), 500);
   });
+
+  $('rmCalBtn')?.addEventListener('click', openRoomsCalendar);
+  $('rmClockBtn')?.addEventListener('click', openTimeSheet);
+  const readout = $('rmTimeReadout');
+  if (readout) {
+    readout.setAttribute('role', 'button'); readout.setAttribute('tabindex', '0'); readout.title = 'Tap to set the time';
+    readout.addEventListener('click', openTimeSheet);
+    readout.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openTimeSheet(); } });
+  }
 
   const range = $('rmTimeRange');
   range?.addEventListener('input', () => {
