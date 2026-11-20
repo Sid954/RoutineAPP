@@ -1,8 +1,8 @@
 export const CONFIG = {
   apiBase: 'https://routine-app-iota-one.vercel.app',
   remoteAppUrl: 'https://sid954.github.io/RoutineAPP',
-  appVersionCode: 32,
-  appVersionName: '1.5.22',
+  appVersionCode: 33,
+  appVersionName: '1.5.23',
   activeDays: [6, 0, 1, 2, 3], // Sat, Sun, Mon, Tue, Wed
   matrixIntervals: [
     { startM: 510, endM: 585, lbl: '08:30 → 09:45' },

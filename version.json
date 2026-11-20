@@ -1,8 +1,8 @@
 {
-  "versionCode": 32,
-  "versionName": "1.5.22",
+  "versionCode": 33,
+  "versionName": "1.5.23",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.22 - A faster, smoother app (quicker taps and startup), simpler per-day notifications you can swipe through, and clearer bell icons.",
+  "releaseNotes": "v1.5.23 - Day notification sheet now slides between days and the routine follows, week strip badges no longer get cut off, and a false dock warning is gone.",
   "minRequiredVersionCode": 1
 }
