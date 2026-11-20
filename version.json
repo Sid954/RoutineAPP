@@ -1,8 +1,8 @@
 {
-  "versionCode": 35,
-  "versionName": "1.5.25",
+  "versionCode": 36,
+  "versionName": "1.5.26",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.25 - Rooms: calendar and clock buttons, rooms in number order, no wrong Now tag on other days, cancelled classes are tappable.",
+  "releaseNotes": "v1.5.26 - A brand-new Home with everything at a glance, attendance tracking, notes, exam countdown, and the full day timeline on the center button.",
   "minRequiredVersionCode": 1
 }
