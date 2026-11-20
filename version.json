@@ -1,8 +1,8 @@
 {
-  "versionCode": 34,
-  "versionName": "1.5.24",
+  "versionCode": 35,
+  "versionName": "1.5.25",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.24 - Confirmed and not-confirmed icons you can tap, greyed-out cancelled classes on Home, and a plain Weekly Routine.",
+  "releaseNotes": "v1.5.25 - Rooms: calendar and clock buttons, rooms in number order, no wrong Now tag on other days, cancelled classes are tappable.",
   "minRequiredVersionCode": 1
 }
