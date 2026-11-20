@@ -2,7 +2,7 @@ import { DOM } from '../core/dom.js';
 import { State } from '../core/state.js';
 import { CONFIG, DAY_NAMES, DAY_SHORT, MONTHS } from '../core/config.js';
 import { getClassesForDay } from '../schedule/queries.js';
-import { getOverrideFor, getOverridesByDateMap, getDateForDayIndex } from '../announcements/overrides.js';
+import { getDateForDayIndex } from '../announcements/overrides.js';
 import { getSubjectTheme } from '../schedule/themes.js';
 import { toMinutes, format12h, getCurrentMinutes, escapeHtml, formatRoom, truncateText, LAB_LABEL_HTML, setHtmlIfChanged, localDateStr, toTimeString } from '../core/utils.js';
 import { bindCourseTitleClicks } from '../timeline/course-title.js';
@@ -136,6 +136,10 @@ function bindMatrixTouchSwipe() {
   bindWheelSwipe(modalEl, dir => { if (window.innerWidth <= 640) switchMatrixDay(dir); });
 }
 
+/**
+ * The Weekly Routine is the plain routine, on purpose (user, 2026-11-20): no cancellations, holidays,
+ * exams, online classes or any other notice change anything here. Home (timeline.js) is where those show.
+ */
 export function renderWeeklyMatrix() {
   if (window.__updateFabAway) setTimeout(window.__updateFabAway, 0);
   const todayIdx = new Date().getDay();
@@ -145,7 +149,6 @@ export function renderWeeklyMatrix() {
 
   if (isMobile) {
     // Mobile Tab View
-    const overridesByDate = getOverridesByDateMap();
     const realToday = localDateStr();
     const dateOf = {};
     let html = `<div class="m-matrix-tabs">`;
@@ -154,13 +157,10 @@ export function renderWeeklyMatrix() {
       dateOf[dayIdx] = ds;
       const isSelected = dayIdx === State.matrixSelectedDayIdx;
       const isToday = ds === realToday;
-      const ov = overridesByDate.get(ds);
-      const marker = ov ? `<span class="m-tab-flag" data-t="${ov.type}" aria-hidden="true"></span>` : '';
       html += `
         <button class="m-matrix-tab${isSelected ? ' active' : ''}${isToday ? ' today' : ''}" data-day="${dayIdx}" aria-label="${DAY_NAMES[dayIdx]} ${Number(ds.slice(8))}${isToday ? ', today' : ''}">
           <span class="m-tab-name">${DAY_SHORT[dayIdx]}</span>
           <span class="m-tab-date">${Number(ds.slice(8))}</span>
-          ${marker}
           ${isToday ? '<span class="m-tab-dot"></span>' : ''}
         </button>
       `;
@@ -178,33 +178,14 @@ export function renderWeeklyMatrix() {
 
     // Active day classes
     const dayEntries = getClassesForDay(State.matrixSelectedDayIdx);
-    const holidayOverride = getOverrideFor(State.matrixSelectedDayIdx);
-    const isHoliday = holidayOverride && holidayOverride.type === 'holiday';
-
-    // Verify if there are online classes declared on this holiday
-    const hasOnlineClasses = dayEntries.some(c => {
-      const ov = getOverrideFor(State.matrixSelectedDayIdx, c.title);
-      return ov && ov.type === 'online_class';
-    });
 
     html += `<div class="m-matrix-cards">`;
-    if (isHoliday && !hasOnlineClasses && !dayEntries.length) {
-      html += `
-        <div class="m-matrix-empty" style="border: 1.5px dashed var(--pink) !important; color: var(--pink2); background: rgba(244, 63, 94, 0.05) !important; padding: 25px 15px; border-radius: var(--rx); text-align: center;">
-          <span style="font-size: 24px; display: block; margin-bottom: 6px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-          <span style="font-weight: 800; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase;">HOLIDAY / DAY OFF</span>
-          <div style="font-size: 13px; color: var(--text); font-weight: bold; margin-top: 4px;">${escapeHtml(holidayOverride.announcement.title)}</div>
-        </div>
-      `;
-    } else if (dayEntries.length) {
+    if (dayEntries.length) {
       // Day summary: what the day looks like in one line
       const starts = dayEntries.map(c => toMinutes(c.start)).filter(m => m >= 0);
       const ends = dayEntries.map(c => toMinutes(c.end)).filter(m => m >= 0);
       const sumDate = new Date(dateOf[State.matrixSelectedDayIdx] + 'T00:00:00');
       html += `<div class="m-day-sum"><span class="m-day-sum-d">${DAY_NAMES[State.matrixSelectedDayIdx]}, ${sumDate.getDate()} ${MONTHS[sumDate.getMonth()]}</span><span class="m-day-sum-n">${dayEntries.length} ${dayEntries.length === 1 ? 'class' : 'classes'}${starts.length && ends.length ? ` · ${format12h(toTimeString(Math.min(...starts)))} to ${format12h(toTimeString(Math.max(...ends)))}` : ''}</span></div>`;
-      if (isHoliday && !hasOnlineClasses) {
-        html += `<div class="m-holiday-note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span><strong>Day off</strong> ${escapeHtml(holidayOverride.announcement.title || '')}</span></div>`;
-      }
       let lastEnd = null;
       dayEntries.forEach((item, index) => {
         const sM = toMinutes(item.start);
@@ -216,58 +197,9 @@ export function renderWeeklyMatrix() {
         if (lastEnd === null || eM > lastEnd) lastEnd = eM;
         const startMins = toMinutes(item.start);
         const endMins = toMinutes(item.end);
-        const cancelOverride = getOverrideFor(State.matrixSelectedDayIdx, item.title);
-        const isCancelled = cancelOverride && cancelOverride.type === 'cancellation';
-        const isOnline = cancelOverride && cancelOverride.type === 'online_class';
-        const isClassTest = item.isExam || (cancelOverride && cancelOverride.type === 'class_test');
-        const isHolidayCancelled = !isOnline && !isCancelled && isHoliday;
-
-        let platform = '';
-        if (isOnline && cancelOverride.announcement.announcement) {
-          try {
-            const parsed = JSON.parse(cancelOverride.announcement.announcement);
-            platform = parsed.platform || '';
-          } catch (e) {
-            platform = cancelOverride.announcement.announcement;
-          }
-        }
-        let examName = item.examName || '';
-        let examTopics = item.examTopics || '';
-        if (isClassTest && !examName && cancelOverride && cancelOverride.announcement.announcement) {
-          try {
-            const parsed = JSON.parse(cancelOverride.announcement.announcement);
-            examName = parsed.exam_name || 'Class Test';
-            examTopics = parsed.topics || 'Not Specified';
-          } catch (e) {
-            examName = 'Class Test';
-            examTopics = 'Not Specified';
-          }
-        }
-
-        const effectiveCancelled = isCancelled || isHolidayCancelled;
-        const isLive = (State.matrixSelectedDayIdx === todayIdx) && (currentMins >= startMins && currentMins < endMins) && !effectiveCancelled;
-        const isPast = (State.matrixSelectedDayIdx === todayIdx) && (endMins <= currentMins) || effectiveCancelled;
-
-        const isLightMode = document.documentElement.getAttribute('data-color') === 'light';
-
-        const examTheme = isLightMode
-          ? { bg: 'linear-gradient(135deg, #FFF7ED, #FED7AA)', border: '#EA580C', text: '#7C2D12', badge: 'rgba(234, 88, 12, 0.20)' }
-          : { bg: 'linear-gradient(135deg, #2d1506, #3d1f0a)', border: '#f97316', text: '#fdba74', badge: 'rgba(249, 115, 22, 0.30)' };
-
-        const onlineTheme = isLightMode
-          ? { bg: 'linear-gradient(135deg, #ECFDF5, #A7F3D0)', border: '#059669', text: '#064E3B', badge: 'rgba(5, 150, 105, 0.20)' }
-          : { bg: 'linear-gradient(135deg, #052b1a, #073d26)', border: '#10b981', text: '#6ee7b7', badge: 'rgba(16, 185, 129, 0.25)' };
-
-        const cancelTheme = isLightMode
-          ? { bg: 'linear-gradient(135deg, #FFF1F2, #FECDD3)', border: '#E11D48', text: '#4C0519', badge: 'rgba(225, 29, 72, 0.20)' }
-          : { bg: 'linear-gradient(135deg, #1c0a0c, #3f0f13)', border: '#f43f5e', text: '#fca5a5', badge: 'rgba(244, 63, 94, 0.20)' };
-
-        const theme = isClassTest ? examTheme
-          : isOnline
-          ? onlineTheme
-          : effectiveCancelled
-            ? cancelTheme
-            : getSubjectTheme(item.title, item.type);
+        const isLive = (State.matrixSelectedDayIdx === todayIdx) && (currentMins >= startMins && currentMins < endMins);
+        const isPast = (State.matrixSelectedDayIdx === todayIdx) && (endMins <= currentMins);
+        const theme = getSubjectTheme(item.title, item.type);
 
         const detailsData = {
           title: item.title,
@@ -276,37 +208,24 @@ export function renderWeeklyMatrix() {
           type: item.type,
           room: item.room,
           instructor: item.instructor,
-          isExam: isClassTest,
-          examName: examName,
-          examTopics: examTopics,
-          isOnline: isOnline,
-          platform: platform,
-          isCancelled: effectiveCancelled,
-          cancellationType: isHolidayCancelled ? 'holiday' : (isCancelled ? 'cancellation' : '')
+          plain: true // opened from the Weekly Routine: the class sheet shows no notices either
         };
 
         html += `
           <div class="m-matrix-card${isLive ? ' live' : ''}${isPast ? ' past' : ''}" style="animation-delay:${index * 0.05}s; background:${theme.bg}; border-color:${theme.border}; color:${cardInk(theme)}" data-detail="${escapeHtml(JSON.stringify(detailsData))}">
-            <div class="m-card-time" style="color:${theme.text}; text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">
+            <div class="m-card-time" style="color:${theme.text}">
               <span>${format12h(item.start)}</span>
               <span class="m-card-arrow">→</span>
               <span>${format12h(item.end)}</span>
             </div>
             <div class="m-card-details">
-              <div class="m-card-title course-click-title" data-title="${item.title}" style="text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">${escapeHtml(truncateText(item.title, 10))}</div>
+              <div class="m-card-title course-click-title" data-title="${item.title}">${escapeHtml(truncateText(item.title, 10))}</div>
               <div class="m-card-sub" style="color:${theme.text}">
-                ${isClassTest
-                  ? `<span style="color:var(--m-exam-ink); font-weight:800; display:block; margin-bottom: 2px;">Click to view topics</span>
-                     <span style="font-size: 11px; opacity: 0.85;">${formatRoom(item.room) ? `Room ${formatRoom(item.room)}` : 'No room'} ${item.instructor ? `· <span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(item.instructor)}" title="Click to view ${escapeHtml(item.instructor)}'s profile">${escapeHtml(item.instructor)}</span>` : ''}</span>`
-                  : isOnline
-                  ? (platform ? `<span style="color:var(--m-online-ink); font-weight:800; display:block;">${escapeHtml(truncateText(platform, 10))}</span>` : '')
-                  : effectiveCancelled
-                    ? `<span style="color:var(--pink); font-weight:800;">${isHolidayCancelled ? 'HOLIDAY — NO CLASS' : 'CANCELLED'}</span>`
-                    : (formatRoom(item.room) ? `Room ${formatRoom(item.room)}` : 'No room')}
-                ${item.instructor && !effectiveCancelled && !isClassTest ? `· <span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(item.instructor)}" title="Click to view ${escapeHtml(item.instructor)}'s profile">${escapeHtml(item.instructor)}</span>` : ''}
+                ${formatRoom(item.room) ? `Room ${formatRoom(item.room)}` : 'No room'}
+                ${item.instructor ? `· <span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(item.instructor)}" title="Click to view ${escapeHtml(item.instructor)}'s profile">${escapeHtml(item.instructor)}</span>` : ''}
               </div>
             </div>
-            <span class="m-card-badge" style="background:${theme.badge}; color:${cardInk(theme)}">${isClassTest ? `${truncateText(examName, 10)}` : isOnline ? 'ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? LAB_LABEL_HTML : escapeHtml(item.type))}</span>
+            <span class="m-card-badge" style="background:${theme.badge}; color:${cardInk(theme)}">${theme.isLab ? LAB_LABEL_HTML : escapeHtml(item.type)}</span>
           </div>
         `;
       });
@@ -340,25 +259,7 @@ export function renderWeeklyMatrix() {
     CONFIG.activeDays.forEach(dayIdx => {
       const isToday = dayIdx === todayIdx;
       const dayEntries = getClassesForDay(dayIdx);
-      const holidayOverride = getOverrideFor(dayIdx);
-      const isHoliday = holidayOverride && holidayOverride.type === 'holiday';
-
-      // Check if this day has online class overrides on holiday
-      const hasOnlineClasses = dayEntries.some(c => {
-        const ov = getOverrideFor(dayIdx, c.title);
-        return ov && ov.type === 'online_class';
-      });
-
       html += `<div class="day-card${isToday ? ' tod' : ''}"><div class="d-name">${DAY_NAMES[dayIdx]}</div>${isToday ? '<span class="d-tag">TODAY</span>' : ''}</div>`;
-
-      if (isHoliday && !hasOnlineClasses) {
-        html += `
-          <div style="grid-column: span ${intervals.length}; display: flex; align-items: center; justify-content: center; background: rgba(244, 63, 94, 0.05); color: var(--pink2); border: 1.5px dashed var(--pink); font-size: 12px; font-weight: bold; padding: 10px; text-transform: uppercase;" title="${escapeHtml(holidayOverride.announcement.announcement)}">
-            HOLIDAY: ${escapeHtml(holidayOverride.announcement.title)}
-          </div>
-        `;
-        return;
-      }
 
       let skipUntilIdx = 0;
       intervals.forEach((slot, idx) => {
@@ -373,48 +274,8 @@ export function renderWeeklyMatrix() {
           }
           skipUntilIdx = idx + spanCount;
 
-          const cancelOverride = getOverrideFor(dayIdx, match.title);
-          const isCancelled = cancelOverride && cancelOverride.type === 'cancellation';
-          const isOnline = cancelOverride && cancelOverride.type === 'online_class';
-          const isClassTest = match.isExam || (cancelOverride && cancelOverride.type === 'class_test');
-          const isHolidayCancelled = !isOnline && !isCancelled && isHoliday;
-
-          const effectiveCancelled = isCancelled || isHolidayCancelled;
-          const isLive = isToday && currentMins >= toMinutes(match.start) && currentMins < toMinutes(match.end) && !effectiveCancelled;
-
-          const isLightMode = document.documentElement.getAttribute('data-color') === 'light';
-
-          const examTheme = isLightMode
-            ? { bg: 'linear-gradient(135deg, #FFF7ED, #FED7AA)', border: '#EA580C', text: '#7C2D12', badge: 'rgba(234, 88, 12, 0.20)' }
-            : { bg: 'linear-gradient(135deg, #2d1506, #3d1f0a)', border: '#f97316', text: '#fdba74', badge: 'rgba(249, 115, 22, 0.30)' };
-
-          const onlineTheme = isLightMode
-            ? { bg: 'linear-gradient(135deg, #ECFDF5, #A7F3D0)', border: '#059669', text: '#064E3B', badge: 'rgba(5, 150, 105, 0.20)' }
-            : { bg: 'linear-gradient(135deg, #052b1a, #073d26)', border: '#10b981', text: '#6ee7b7', badge: 'rgba(16, 185, 129, 0.25)' }
-
-          const cancelTheme = isLightMode
-            ? { bg: 'linear-gradient(135deg, #FFF1F2, #FECDD3)', border: '#E11D48', text: '#4C0519', badge: 'rgba(225, 29, 72, 0.20)' }
-            : { bg: 'linear-gradient(135deg, #1c0a0c, #3f0f13)', border: '#f43f5e', text: '#fca5a5', badge: 'rgba(244, 63, 94, 0.20)' };
-
-          const theme = isClassTest ? examTheme
-            : isOnline
-            ? onlineTheme
-            : effectiveCancelled
-              ? cancelTheme
-              : getSubjectTheme(match.title, match.type);
-
-          let examName = match.examName || '';
-          let examTopics = match.examTopics || '';
-          if (isClassTest && !examName && cancelOverride && cancelOverride.announcement.announcement) {
-            try {
-              const parsed = JSON.parse(cancelOverride.announcement.announcement);
-              examName = parsed.exam_name || 'Class Test';
-              examTopics = parsed.topics || 'Not Specified';
-            } catch (e) {
-              examName = 'Class Test';
-              examTopics = 'Not Specified';
-            }
-          }
+          const isLive = isToday && currentMins >= toMinutes(match.start) && currentMins < toMinutes(match.end);
+          const theme = getSubjectTheme(match.title, match.type);
 
           const detailsData = {
             title: match.title,
@@ -423,42 +284,16 @@ export function renderWeeklyMatrix() {
             type: match.type,
             room: match.room,
             instructor: match.instructor,
-            isExam: isClassTest,
-            examName: examName,
-            examTopics: examTopics,
-            isOnline: isOnline,
-            platform: '',
-            isCancelled: effectiveCancelled,
-            cancellationType: isHolidayCancelled ? 'holiday' : (isCancelled ? 'cancellation' : '')
+            plain: true
           };
 
-          if (isOnline && cancelOverride && cancelOverride.announcement.announcement) {
-            try {
-              const parsed = JSON.parse(cancelOverride.announcement.announcement);
-              detailsData.platform = parsed.platform || '';
-            } catch (e) {
-              detailsData.platform = cancelOverride.announcement.announcement;
-            }
-          }
-
           html += `
-            <div class="t-card${isLive ? ' live' : ''}" style="grid-column: span ${spanCount}; background:${theme.bg}; border-color:${theme.border}; color:#fff" title="${effectiveCancelled ? 'Cancelled Class' : 'Click to view details'}" data-detail="${escapeHtml(JSON.stringify(detailsData))}">
-              <div class="t-subj course-click-title" data-title="${match.title}" style="text-decoration:${effectiveCancelled ? 'line-through' : 'none'}">${escapeHtml(truncateText(match.title, 10))}</div>
-              ${isClassTest
-                ? `<div class="t-inst" style="color:var(--m-exam-ink); font-weight:800;">Click to view topics</div>
-                   ${match.instructor && !effectiveCancelled ? `<div class="t-inst" style="color:${theme.text}"><span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(match.instructor)}" title="Click to view ${escapeHtml(match.instructor)}'s profile">${escapeHtml(truncateText(match.instructor, 10))}</span></div>` : ''}`
-                : match.instructor && !effectiveCancelled
-                  ? `<div class="t-inst" style="color:${theme.text}"><span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(match.instructor)}" title="Click to view ${escapeHtml(match.instructor)}'s profile">${escapeHtml(truncateText(match.instructor, 10))}</span></div>`
-                  : ''}
+            <div class="t-card${isLive ? ' live' : ''}" style="grid-column: span ${spanCount}; background:${theme.bg}; border-color:${theme.border}; color:#fff" title="Click to view details" data-detail="${escapeHtml(JSON.stringify(detailsData))}">
+              <div class="t-subj course-click-title" data-title="${match.title}">${escapeHtml(truncateText(match.title, 10))}</div>
+              ${match.instructor ? `<div class="t-inst" style="color:${theme.text}"><span class="teacher-clickable-badge" data-teacher-code="${escapeHtml(match.instructor)}" title="Click to view ${escapeHtml(match.instructor)}'s profile">${escapeHtml(truncateText(match.instructor, 10))}</span></div>` : ''}
               <div class="t-meta">
-                <span style="color:${theme.text}">
-                  ${isClassTest ? (formatRoom(match.room) || 'No room') : isOnline
-                    ? 'ONLINE'
-                    : effectiveCancelled
-                      ? `<span style="color:var(--pink); font-weight:800;">${isHolidayCancelled ? 'HOLIDAY' : 'CANCEL'}</span>`
-                      : (formatRoom(match.room) || 'No room')}
-                </span>
-                <span class="t-badge" style="background:${theme.badge}; color:${cardInk(theme)}">${isClassTest ? `${truncateText(examName, 10)}` : isOnline ? 'ONLINE' : effectiveCancelled ? 'CANCEL' : (theme.isLab ? LAB_LABEL_HTML : escapeHtml(match.type))}</span>
+                <span style="color:${theme.text}">${formatRoom(match.room) || 'No room'}</span>
+                <span class="t-badge" style="background:${theme.badge}; color:${cardInk(theme)}">${theme.isLab ? LAB_LABEL_HTML : escapeHtml(match.type)}</span>
               </div>
             </div>`;
         } else {

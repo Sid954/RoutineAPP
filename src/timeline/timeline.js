@@ -7,6 +7,7 @@ import { getOverrideFor, getOverridesByDateMap, normalizeDate, getDateForDayInde
 import { toMinutes, format12h, toTimeString, getCurrentMinutes, escapeHtml, formatRoom, LAB_LABEL_HTML } from '../core/utils.js';
 import { getFullName } from '../teachers/teacher-names.js';
 import { Storage } from '../storage/storage.js';
+import { confirmBadgeHtml } from '../announcements/confirm-badge.js';
 import { shouldHideDay, offDays } from '../core/off-days.js';
 
 let _lastRenderHash = '';
@@ -897,7 +898,8 @@ function findInstructorForSubject(subj) {
       cardModifierClass = 'is-online-override';
       tagHtml = `<span class="resting-tag online">ONLINE</span>`;
     } else if (effectiveCancelled) {
-      cardModifierClass = isHolidayCancelled ? 'is-cancelled-override is-campus-closed' : 'is-cancelled-override';
+      // Greyed out like "Campus closed" (settings/prefs.css): a cancelled class and a closed campus look the same
+      cardModifierClass = isHolidayCancelled ? 'is-cancelled-override is-campus-closed' : 'is-cancelled-override is-greyed';
       const reason = isHolidayCancelled ? '' : isCancelled
         ? (cancelOverride.announcement && cancelOverride.announcement.announcement) || ''
         : (holidayOverride && holidayOverride.announcement && holidayOverride.announcement.title) || '';
@@ -916,8 +918,11 @@ function findInstructorForSubject(subj) {
 
     // A community suggestion applied to the routine: say it is not confirmed yet
     const ovAnn = cancelOverride && cancelOverride.announcement;
-    const isUnconfirmed = !!(c.isUnconfirmed || (ovAnn && ovAnn.is_unconfirmed) || (isHolidayCancelled && holidayOverride && holidayOverride.announcement && holidayOverride.announcement.is_unconfirmed));
-    if (isUnconfirmed) titleHtml += ' <span class="override-indicator unconfirmed">(NOT CONFIRMED)</span>';
+    const holidayAnn = isHolidayCancelled && holidayOverride ? holidayOverride.announcement : null;
+    const isUnconfirmed = !!(c.isUnconfirmed || (ovAnn && ovAnn.is_unconfirmed) || (holidayAnn && holidayAnn.is_unconfirmed));
+    // Not confirmed yet: a cross in the card's top right corner (tap: what it means, and go to the suggestion)
+    const unconfirmedBadge = isUnconfirmed ? confirmBadgeHtml('unverified', c.unconfirmedId || (ovAnn && ovAnn.id) || (holidayAnn && holidayAnn.id) || '', 'cf-corner') : '';
+    if (isUnconfirmed) cardModifierClass += ' has-cf';
 
     // 1. Live Hero Card
     if (isActive) {
@@ -925,6 +930,7 @@ function findInstructorForSubject(subj) {
       const remaining = Math.max(0, durationMins - elapsed);
       html += `
         <div class="resting-class-row is-live-card ${cardModifierClass}" onclick='window.openClassDetailSheet(${detailsJson})' style="border-color: var(--accent); background: var(--card-bg);">
+          ${unconfirmedBadge}
           <div class="resting-left">
             <div class="resting-time-col ${hasExplicitEndTime ? '' : 'single-time'}">
               ${hasExplicitEndTime ? `
@@ -970,6 +976,7 @@ function findInstructorForSubject(subj) {
       // 2. Resting Class Row
       html += `
         <div class="resting-class-row ${cardModifierClass} ${effectiveCancelled ? 'cancelled' : ''}" onclick='window.openClassDetailSheet(${detailsJson})'>
+          ${unconfirmedBadge}
           <div class="resting-left">
             <div class="resting-time-col ${hasExplicitEndTime ? '' : 'single-time'}">
               ${hasExplicitEndTime ? `

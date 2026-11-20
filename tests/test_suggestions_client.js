@@ -92,7 +92,8 @@ global.fetch = async (url, opts) => { calls.push({ url, opts }); return reply(ur
   view.renderSuggestions();
   assert.strictEqual(box.hidden, false);
   assert.ok(/class="sg-card/.test(box.innerHTML) && /data-sid="10"/.test(box.innerHTML), 'card rendered');
-  assert.ok(/Unconfirmed/.test(box.innerHTML), 'short status tag');
+  assert.ok(/class="cf-badge is-unverified[^"]*" data-cf="unverified" data-cf-ref="10"/.test(box.innerHTML), 'not-confirmed cross icon, linked to this suggestion');
+  assert.ok(!/Unconfirmed/.test(box.innerHTML), 'no status word any more');
   assert.ok(/class="sg-score is-pos"[^>]*>2</.test(box.innerHTML), 'score = 3 agree - 1 disagree');
   assert.ok(/4\/8 votes/.test(box.innerHTML), 'votes so far out of the 8 needed');
   assert.ok(/DS class cancelled/.test(box.innerHTML), 'headline says it once');

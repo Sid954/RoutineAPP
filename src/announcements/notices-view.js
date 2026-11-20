@@ -15,6 +15,7 @@ import { showToast } from '../toast/toast.js';
 import { openModal, closeModal, showConfirm } from '../modals/modal.js';
 import { Announcements } from './announcements.js';
 import { Suggestions } from './suggestions.js';
+import { confirmBadgeHtml, initConfirmBadges } from './confirm-badge.js';
 import {
   FILTERS, groupFeed, bundleHolidays, filterCounts, matchesQuery, dayLabel, longDate, countdown,
   postedAgo, shareText, buildIcs, googleCalendarUrl, toNotice
@@ -118,10 +119,11 @@ function daySpanLabel(a, b) { return `${noMonth(dayLabel(a))} – ${noMonth(dayL
 export function cardHtml(n, read, i, group = '') {
   const confirmed = n.raw && n.raw.source === 'community';
   const link = linkButtonHtml(n);
-  const foot = [link, confirmed ? '<span class="nt-community">Confirmed by votes</span>' : '', audienceTag(n)].join('');
+  const foot = [link, audienceTag(n)].join('');
   const by = !n.date ? n.author : [n.author, postedAgo(n.createdAt)].filter(Boolean).join(', ');
   const lines = (n.lines || (n.detail ? [n.detail] : [])).map(l => `<span class="nt-summary">${escapeHtml(l)}</span>`).join('');
-  return `<div role="button" tabindex="0" class="nt-card tone-${n.tone}${read ? '' : ' is-unread'}${n.past ? ' is-past' : ''}" data-id="${escapeHtml(n.id)}" style="--i:${Math.min(i, 10)}">
+  return `<div role="button" tabindex="0" class="nt-card tone-${n.tone}${read ? '' : ' is-unread'}${n.past ? ' is-past' : ''}${confirmed ? ' has-cf' : ''}" data-id="${escapeHtml(n.id)}" style="--i:${Math.min(i, 10)}">
+    ${confirmed ? confirmBadgeHtml('verified', n.id, 'cf-corner') : ''}
     <span class="nt-ico" title="${escapeHtml(n.meta.label)}">${svg(ICONS[n.tone] || ICONS.general)}</span>
     <span class="nt-main">
       <span class="nt-line1">
@@ -171,7 +173,7 @@ function suggestionCard(s, admin) {
       <div class="sg-head">
         <span class="nt-ico" title="${escapeHtml(n.meta.label)}">${svg(ICONS[n.tone] || ICONS.general)}</span>
         <span class="sg-title">${escapeHtml(n.headline || n.title)}</span>
-        <span class="sg-tag${s.state === 'hidden' ? ' is-hidden' : ''}">${s.state === 'hidden' ? 'Hidden' : 'Unconfirmed'}</span>
+        ${s.state === 'hidden' ? '<span class="sg-tag is-hidden">Hidden</span>' : confirmBadgeHtml('unverified', s.id, 'cf-top')}
       </div>
       ${(n.lines || []).map(l => `<p class="sg-detail">${escapeHtml(l)}</p>`).join('')}
       <p class="sg-foot">
@@ -568,6 +570,7 @@ function renderSheet(id) {
       <span class="ns-ico">${svg(ICONS[n.tone] || ICONS.general)}</span>
       <span class="ns-kind">${escapeHtml(n.meta.label)}<span class="ns-aud">${escapeHtml(n.audience.short || n.audience.label)}</span></span>
       ${n.pinned ? `<span class="ns-pin">${svg(UI.pin)}Pinned</span>` : ''}
+      ${confirmed ? confirmBadgeHtml('verified', n.id, 'cf-top') : ''}
     </div>
     <h2 class="ns-title" id="ntSheetTitle">${escapeHtml(n.headline || n.title)}</h2>
     ${n.date ? `<div class="ns-when">
@@ -589,7 +592,6 @@ function renderSheet(id) {
     </div>
     <div class="ns-meta">
       <span>Posted by <strong>${escapeHtml(n.author || 'Unknown')}</strong>, ${escapeHtml(postedAgo(n.createdAt))}${n.isEdited ? ', edited' : ''}</span>
-      ${confirmed ? '<span class="ns-confirmed">Confirmed by votes</span>' : ''}
     </div>
     ${Announcements.isAdminMode ? `<div class="nt-admin">
       <button type="button" class="nt-admin-btn" data-act="pin">${svg(UI.pin)}<span>${n.pinned ? 'Unpin' : 'Pin'}</span></button>
@@ -721,6 +723,22 @@ export function initAnnouncementEvents() {
     Announcements.fetchAll();
   };
   window.__openNotice = openNotice;
+  initConfirmBadges();
+  /** Go to one suggestion: the Suggestions tab, scrolled to it and briefly highlighted. */
+  window.__openSuggestion = sid => {
+    const sheet = $('ntSheet');
+    if (sheet && sheet.classList.contains('open')) closeModal(sheet);
+    if (window.__currentAppViewId !== 'announcements' && window.switchAppView) window.switchAppView('announcements');
+    Announcements.tab = 'suggestions';
+    renderNotices();
+    requestAnimationFrame(() => {
+      const card = document.querySelector(`.sg-card[data-sid="${CSS.escape(String(sid))}"]`);
+      if (!card) { showToast('That suggestion is not listed any more. It may have been confirmed or expired.', 'info'); return; }
+      card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      card.classList.add('cf-flash');
+      setTimeout(() => card.classList.remove('cf-flash'), 1600);
+    });
+  };
   window.__leaveNotices = leaveNotices;
 
   const back = $('announcePageBackBtn');

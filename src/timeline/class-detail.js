@@ -1,4 +1,5 @@
 import { State } from '../core/state.js';
+import { confirmBadgeHtml } from '../announcements/confirm-badge.js';
 import { FULL_COURSE_NAMES, DAY_NAMES } from '../core/config.js';
 import { format12h, formatRoom, escapeHtml, toMinutes } from '../core/utils.js';
 import { toNotice } from '../announcements/notice-model.js';
@@ -301,7 +302,7 @@ function noticesHtml(items) {
     const f = n.focus || {};
     const t = f.hasTime ? ` ${f.big} ${f.ampm}` : '';
     return `<div class="cs2-notice">
-      <span class="cs2-notice-head"><span class="cs2-notice-title">${escapeHtml(n.headline)}</span>${unconfirmed ? '<span class="cs2-unconf">Unconfirmed</span>' : ''}</span>
+      <span class="cs2-notice-head"><span class="cs2-notice-title">${escapeHtml(n.headline)}</span>${unconfirmed ? confirmBadgeHtml('unverified', raw.id, 'cf-inline') : ''}</span>
       <span class="cs2-notice-when">${escapeHtml(nice(n.date))}${escapeHtml(t)}</span>
     </div>`;
   }).join('')}</div>`;
@@ -418,7 +419,8 @@ export function showClassDetails(data) {
       paintStatus(date);
     }, 30000);
     try {
-      const html = noticesHtml(classNotices(code));
+      // From the Weekly Routine (plain routine): no notices
+      const html = data.plain ? '' : noticesHtml(classNotices(code));
       if (noticesBox) { noticesBox.innerHTML = html; noticesBox.hidden = !html; }
     } catch (err) { /* notices are optional */ }
   });

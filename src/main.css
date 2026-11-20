@@ -27,6 +27,7 @@
 @import './settings/settings.css';
 @import './settings/prefs.css';
 @import './notifications/notif-center.css';
+@import './announcements/confirm-badge.css';
 @import './updater/updater.css';
 
 @import './core/motion.css'; /* motion + layout system */

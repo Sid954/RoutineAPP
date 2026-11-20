@@ -313,9 +313,14 @@ html .satellite-pill:has(.satellite-month) { gap: 1px; }
   font-size: 24px; font-weight: 800; letter-spacing: -.3px;
 }
 .campus-closed svg { width: 28px; height: 28px; flex-shrink: 0; color: var(--text-muted); }
-html .resting-class-row.is-campus-closed { border: 1px solid var(--card-border); filter: grayscale(1); }
+/* Cancelled classes use the same greyed-out box (timeline.js adds .is-greyed) */
+html .resting-class-row.is-campus-closed,
+html .resting-class-row.is-greyed { border: 1px solid var(--card-border); filter: grayscale(1); }
 html .resting-class-row.is-campus-closed .resting-left { opacity: .38; }
-html .resting-class-row.is-campus-closed .resting-code { text-decoration: line-through; }
+/* a cancelled class keeps its reason, so it stays a little more readable */
+html .resting-class-row.is-greyed .resting-left { opacity: .55; }
+html .resting-class-row.is-campus-closed .resting-code,
+html .resting-class-row.is-greyed .resting-code { text-decoration: line-through; }
 
 /* Week strip: holiday / test days get a soft tint (no glow); the corner icon badges are the original ones */
 html .satellite-pill.override-holiday { background: rgba(245, 158, 11, .14) !important; border: 0 !important; }

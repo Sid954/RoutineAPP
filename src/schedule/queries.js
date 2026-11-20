@@ -120,7 +120,8 @@ export function getEffectiveClassesForDay(dayIdx, dateVal) {
       isExtraClass: true,
       isOnline: isOnline,
       platform: parsed.platform || '',
-      isUnconfirmed: !!item.is_unconfirmed
+      isUnconfirmed: !!item.is_unconfirmed,
+      unconfirmedId: item.is_unconfirmed ? item.id : ''
     });
   });
 
@@ -150,7 +151,8 @@ export function getEffectiveClassesForDay(dayIdx, dateVal) {
       rescheduledReason: parsed.reason || '',
       origDate: parsed.original_date || item.date_override || '',
       origStart: parsed.original_start_time ? format12h(parsed.original_start_time) : '',
-      isUnconfirmed: !!item.is_unconfirmed
+      isUnconfirmed: !!item.is_unconfirmed,
+      unconfirmedId: item.is_unconfirmed ? item.id : ''
     });
   });
 
