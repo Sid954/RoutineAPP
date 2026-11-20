@@ -685,7 +685,7 @@ function onSheetAction(act) {
   else if (act === 'calendar') doCalendar(n);
   else if (act === 'routine') {
     closeNotice();
-    if (window.switchAppView) window.switchAppView('home');
+    if (window.switchAppView) window.switchAppView('day');
     setTimeout(() => { if (window.navigateToDate) window.navigateToDate(n.date); }, 60);
   } else if (act === 'edit') {
     closeNotice();

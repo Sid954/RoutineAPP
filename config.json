@@ -1,4 +1,5 @@
 {
+  "semesterStart": "2026-11-02",
   "apiBase": "https://routine-app-iota-one.vercel.app",
   "remoteAppUrl": "https://sid954.github.io/RoutineAPP",
   "activeDays": [6, 0, 1, 2, 3],

@@ -24,14 +24,16 @@ export function closeTopOverlay() {
   if (!open.length) return false;
   const top = open.sort((a, b) => zOf(b) - zOf(a))[0];
   // Prefer an explicit close / back button inside it, else a backdrop click
-  const btn = top.querySelector('#ecC, #vcC, .rm-icon-btn[aria-label="Close"], .fd-icon-btn[aria-label="Close"], #ntSheetClose, .up-close, .cls, #calendarPickerCloseBtn, [data-up="close"]');
+  // .page-back-btn: full pages (Attendance, Notifications: back steps out of a sub page first);
+  // .nt-sheet-close: the bottom sheets built on .nt-sheet (day bell, confirm info, notes, exams, set time)
+  const btn = top.querySelector('#ecC, #vcC, .rm-icon-btn[aria-label="Close"], .fd-icon-btn[aria-label="Close"], #ntSheetClose, .up-close, .cls, #calendarPickerCloseBtn, [data-up="close"], .nt-sheet-close, .page-back-btn');
   if (btn) btn.click();
   else top.dispatchEvent(new MouseEvent('click', { bubbles: true }));
   // Forced update sheet and similar refuse to close: report "handled" anyway so back doesn't exit
   return true;
 }
 
-const PARENT = { post_announcement: 'announcements', faculty: 'apps', free_rooms: 'apps', apps: 'home', announcements: 'home' };
+const PARENT = { day: 'home', post_announcement: 'announcements', faculty: 'apps', free_rooms: 'apps', apps: 'home', announcements: 'home' };
 
 export function handleBack() {
   if (closeTopOverlay()) return 'overlay';

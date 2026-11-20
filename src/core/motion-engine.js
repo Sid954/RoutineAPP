@@ -310,6 +310,10 @@ const PULL_VIEWS = {
     if (window.__fetchAndRenderAnnouncements) window.__fetchAndRenderAnnouncements();
     if (window.renderTimeline) window.renderTimeline(true);
   },
+  homeView: () => {
+    if (window.__fetchAndRenderAnnouncements) window.__fetchAndRenderAnnouncements();
+    if (window.__renderHome) window.__renderHome(true);
+  },
   announcementsAppView: () => window.__fetchAndRenderAnnouncements && window.__fetchAndRenderAnnouncements(),
   facultyAppView: () => window.__renderFacultyDirectory && window.__renderFacultyDirectory(),
   freeRoomsAppView: () => window.__renderFreeRooms && window.__renderFreeRooms()

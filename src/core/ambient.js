@@ -66,7 +66,8 @@ function build(mode) {
 /** viewOnly: a page switch, so only show/hide; the scene itself is re-evaluated each minute. */
 export function updateAmbient(viewOnly = false) {
   if (!layer) return;
-  const onHome = (window.__currentAppViewId || 'home') === 'home';
+  const v = window.__currentAppViewId || 'home';
+  const onHome = v === 'home' || v === 'day';
   layer.classList.toggle('is-hidden', !onHome);
   if (viewOnly === true && lastMode) return;
   const mode = ambientMode();

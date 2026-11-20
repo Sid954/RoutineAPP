@@ -47,7 +47,7 @@ function canShow() {
   if (document.hidden || document.body.classList.contains('modal-open')) return false;
   if (document.querySelector('.mo.open, .class-sheet-modal-overlay.open, .rm-sheet-overlay.open, #calendarPickerModal.open, .toast.show')) return false;
   const view = window.__currentAppViewId || 'home';
-  if (view !== 'home' && view !== 'apps') return false;
+  if (view !== 'home' && view !== 'day' && view !== 'apps') return false;
   const last = Number(localStorage.getItem(LAST_KEY) || 0);
   return Date.now() - last > GAP_MS;
 }

@@ -168,7 +168,7 @@
    5. App-launch entrance: Home fades in once (main.js adds body.boot-enter ~900ms)
    ========================================================================== */
 @keyframes bootFade { from { opacity: 0; } to { opacity: 1; } }
-body.boot-enter #dashboardView { animation: bootFade var(--dur-3) var(--ease-out) both; }
+body.boot-enter #homeView, body.boot-enter #dashboardView { animation: bootFade var(--dur-3) var(--ease-out) both; }
 
 /* ==========================================================================
    6. Press feedback: anything tappable gives way slightly under the finger

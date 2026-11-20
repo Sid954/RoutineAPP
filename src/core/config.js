@@ -4,6 +4,7 @@ export const CONFIG = {
   appVersionCode: 35,
   appVersionName: '1.5.25',
   activeDays: [6, 0, 1, 2, 3], // Sat, Sun, Mon, Tue, Wed
+  semesterStart: '2026-11-02', // first day of classes; remote config.json can change it, the Attendance page can override per phone
   matrixIntervals: [
     { startM: 510, endM: 585, lbl: '08:30 → 09:45' },
     { startM: 585, endM: 660, lbl: '09:45 → 11:00' },

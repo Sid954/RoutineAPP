@@ -14,8 +14,8 @@ const ICON = {
   test: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
   due: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
 };
-const KIND_ICON = { class: ICON.bell, start: ICON.bell, briefing: ICON.sun, preview: ICON.moon, test: ICON.test, test_eve: ICON.test, deadline: ICON.due, deadline_day: ICON.due };
-const KIND_LABEL = { class: 'Reminder', start: 'Starting', briefing: 'Morning', preview: 'Preview', test: 'Test', test_eve: 'Test', deadline: 'Deadline', deadline_day: 'Deadline' };
+const KIND_ICON = { attendance: ICON.test, class: ICON.bell, start: ICON.bell, briefing: ICON.sun, preview: ICON.moon, test: ICON.test, test_eve: ICON.test, deadline: ICON.due, deadline_day: ICON.due };
+const KIND_LABEL = { attendance: 'Attendance', class: 'Reminder', start: 'Starting', briefing: 'Morning', preview: 'Preview', test: 'Test', test_eve: 'Test', deadline: 'Deadline', deadline_day: 'Deadline' };
 export const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 

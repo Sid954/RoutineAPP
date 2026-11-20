@@ -10,7 +10,8 @@
  *
  * Kinds:  class (X min before) · start (as it starts) · briefing (morning summary) ·
  *         preview (evening before) · test (heads-up the evening before, when preview is off) ·
- *         deadline_day (evening before a due date, when preview is off) · deadline (N hours before)
+ *         deadline_day (evening before a due date, when preview is off) · deadline (N hours before) ·
+ *         attendance (evening check: mark today's classes, after the last one has ended)
  */
 
 export const PREFS_VERSION = 2;
@@ -21,6 +22,7 @@ export const DEFAULT_PREFS = {
   classes: { on: true, lead: 10, labLead: 0, atStart: false, scope: 'all', online: true }, // labLead 0 = same as lead; scope all|first; online = also remind for online classes
   briefing: { on: true, time: 450 },    // 7:30 AM, days with classes or news
   preview: { on: true, time: 1260 },    // 9:00 PM, evening before a day with classes or news
+  attendance: { on: true, time: 1230 }, // 8:30 PM: "did you go to today's classes?" (src/attendance)
   tests: { on: true, lead: 30, eveningBefore: true },
   deadlines: { on: true, dayBefore: true, hoursBefore: 3 },
   days: [0, 1, 2, 3, 4, 5, 6],          // weekdays that get class reminders and the morning summary
@@ -63,6 +65,7 @@ export function normalizePrefs(raw) {
     classes: sub('classes'),
     briefing: sub('briefing'),
     preview: sub('preview'),
+    attendance: sub('attendance'),
     tests: sub('tests'),
     deadlines: sub('deadlines'),
     days: Array.isArray(r.days) ? r.days.filter(n => Number.isInteger(n) && n >= 0 && n <= 6) : d.days.slice(),
@@ -80,11 +83,12 @@ export function normalizePrefs(raw) {
   p.classes.scope = p.classes.scope === 'first' ? 'first' : 'all';
   p.briefing.time = clampInt(p.briefing.time, 0, 1439, 450);
   p.preview.time = clampInt(p.preview.time, 0, 1439, 1260);
+  p.attendance.time = clampInt(p.attendance.time, 0, 1439, 1230);
   p.tests.lead = clampInt(p.tests.lead, 1, 240, 30);
   p.deadlines.hoursBefore = clampInt(p.deadlines.hoursBefore, 0, 48, 3);
   p.quiet.from = clampInt(p.quiet.from, 0, 1439, 1380);
   p.quiet.to = clampInt(p.quiet.to, 0, 1439, 420);
-  for (const k of ['classes', 'briefing', 'preview', 'tests', 'deadlines', 'quiet']) p[k].on = !!p[k].on;
+  for (const k of ['classes', 'briefing', 'preview', 'attendance', 'tests', 'deadlines', 'quiet']) p[k].on = !!p[k].on;
   p.classes.atStart = !!p.classes.atStart;
   p.tests.eveningBefore = !!p.tests.eveningBefore;
   p.deadlines.dayBefore = !!p.deadlines.dayBefore;
@@ -267,6 +271,14 @@ export function planNotifications({ days = [], prefs: rawPrefs, skips = {}, date
       if (prefs.deadlines.on && prefs.deadlines.dayBefore) (day.deadlines || []).forEach(dl => {
         push({ key: `dueday|${dl.id}`, at: atLocal(eve, prefs.preview.time), kind: 'deadline_day', channel: 'deadlines', title: `Due tomorrow: ${dl.title}`, body: [dl.subject, `by ${fmtTime(dl.dueMin)}`].filter(Boolean).join(' · '), date: day.date, deadlineId: dl.id, actionType: 'DEADLINE' });
       });
+    }
+
+    // Attendance check: one evening summary on days with held classes (never before the last one ends)
+    if (dayOn && prefs.attendance.on && !day.holiday && classes.length) {
+      const lastEnd = Math.max(...classes.map(c => parseTime(c.end)).filter(m => m >= 0));
+      const at = Math.max(prefs.attendance.time, lastEnd + 10);
+      const names = [...new Set(classes.map(c => String(c.title || '').trim()))];
+      push({ key: `attendance|${day.date}`, at: atLocal(day.date, Math.min(at, 1439)), kind: 'attendance', channel: 'daily_digest', title: `Did you go to today's ${names.length === 1 ? 'class' : 'classes'}?`, body: `${names.join(', ')}. Tap to mark your attendance.`, date: day.date, actionType: 'DIGEST' });
     }
 
     // Deadlines: N hours before

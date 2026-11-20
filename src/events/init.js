@@ -26,6 +26,7 @@ export function fetchAnnouncementsAndNotify() {
     if (fetched && Announcements.lastFetchChanged !== false) {
       State.lastRenderedMinute = -1;
       updateDashboard();
+      if (window.__renderHome) window.__renderHome();
       if (FEATURES.notifications) {
         Notifications.scheduleForToday();
       }
@@ -132,6 +133,7 @@ export function initializeApp() {
         if (!CONFIG.activeDays.includes(State.matrixSelectedDayIdx)) { State.matrixSelectedDayIdx = CONFIG.activeDays[0]; needsRefresh = true; }
       }
       if (configData.matrixIntervals) CONFIG.matrixIntervals = configData.matrixIntervals;
+      if (configData.semesterStart && /^\d{4}-\d{2}-\d{2}$/.test(configData.semesterStart)) CONFIG.semesterStart = configData.semesterStart;
       if (configData.fullCourseNames) {
         Object.keys(FULL_COURSE_NAMES).forEach(k => delete FULL_COURSE_NAMES[k]);
         Object.assign(FULL_COURSE_NAMES, configData.fullCourseNames);

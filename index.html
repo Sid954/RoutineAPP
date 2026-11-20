@@ -50,9 +50,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-512.png">
-  <!-- Fonts are bundled (src/fonts): no network wait before the first paint -->
-  <link rel="preload" href="src/fonts/jakarta.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="src/fonts/jbmono.woff2" as="font" type="font/woff2" crossorigin>
+  <!-- Fonts are bundled (src/fonts/fonts.css, imported first by main.css): no network wait before the first paint -->
   <link rel="stylesheet" href="src/main.css">
 </head>
 <body>
@@ -103,8 +101,11 @@
     <div class="w" id="app">
       <div class="wi">
 
-        <!-- 1. Full-Page View: Schedule Dashboard (Home) -->
-        <div id="dashboardView" class="app-page-view active">
+        <!-- 0. Home (Nov 2026): a dashboard of cards rendered by src/home/home.js -->
+        <div id="homeView" class="app-page-view active home-v2" aria-label="Home"></div>
+
+        <!-- 1. Day page (was Home): the day timeline, opened by the center dock button -->
+        <div id="dashboardView" class="app-page-view" style="display: none;">
           <!-- Header: Clock, Date Badge Pill, Controls -->
           <header class="top-bar">
             <div class="top-date-time-col">

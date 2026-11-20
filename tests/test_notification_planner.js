@@ -147,4 +147,15 @@ console.log('✅ Test 7: prefs repair and notice filter');
   console.log('✅ Per-date overrides, sounds and online classes');
 }
 
+// Attendance check: 8:30 PM on days with held classes, never before the last class ends
+{
+  const only = [day(D1, 3, [cls('EDC', '10:00 AM', '11:15 AM'), cls('NET', '07:00 PM', '08:40 PM')]), day(D2, 4, [], { holiday: { title: 'Closed' } })];
+  const att = planNotifications({ days: only, prefs: normalizePrefs({}), now }).filter(n => n.kind === 'attendance');
+  assert.strictEqual(att.length, 1, 'only the day with classes');
+  assert.strictEqual(att[0].at, atLocal(D1, parseTime('08:40 PM') + 10), 'after the last class ends');
+  assert.ok(/EDC, NET/.test(att[0].body));
+  assert.strictEqual(planNotifications({ days: only, prefs: normalizePrefs({ attendance: { on: false } }), now }).filter(n => n.kind === 'attendance').length, 0);
+  console.log('✅ Attendance check');
+}
+
 console.log('All notification planner tests passed.');

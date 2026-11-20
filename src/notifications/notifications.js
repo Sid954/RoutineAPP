@@ -43,7 +43,7 @@ const CHANNELS = [
 ];
 // One channel per type and sound/vibration/lock-screen choice (Android fixes a channel's sound once it
 // exists, so a new choice means a new channel). Ids stay [a-z0-9_] so the server can name the notice one.
-const KIND_TYPE = { class: 'class', start: 'class', briefing: 'digest', preview: 'digest', test: 'test', test_eve: 'test', deadline: 'deadline', deadline_day: 'deadline' };
+const KIND_TYPE = { class: 'class', start: 'class', briefing: 'digest', preview: 'digest', attendance: 'digest', test: 'test', test_eve: 'test', deadline: 'deadline', deadline_day: 'deadline' };
 const TYPE_NAME = { class: 'Class reminders', digest: 'Daily summary', test: 'Tests', deadline: 'Assignment deadlines', notice: 'Notices' };
 export function channelSpec(type, prefs = getPrefs()) {
   const sound = prefs.sounds[type] || 'default';
@@ -441,12 +441,16 @@ async function handleAction(actionId, extra) {
     return;
   }
   // Plain tap: open the right place
+  if (extra.kind === 'attendance') {
+    if (window.__openAttendance) window.__openAttendance(extra.date);
+    return;
+  }
   if (extra.kind === 'notice' || extra.kind === 'deadline' || extra.kind === 'deadline_day') {
     if (window.switchAppView) window.switchAppView('announcements');
     return;
   }
   if (extra.date) {
-    if (window.switchAppView) window.switchAppView('home');
+    if (window.switchAppView) window.switchAppView('day');
     const d = normalizeDate(extra.date);
     if (d && d !== ymd(new Date()) && typeof window.__pickCalendarDate === 'function') {
       const [y, m, day] = d.split('-').map(Number);

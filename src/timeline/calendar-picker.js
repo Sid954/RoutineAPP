@@ -152,7 +152,7 @@ export function pickDate(year, month, day) {
 
   if (DOM.viewModal && DOM.viewModal.classList.contains('open')) {
     closeModal(DOM.viewModal);
-    if (window.switchAppView) window.switchAppView('home');
+    if (window.switchAppView) window.switchAppView('day');
   }
 
   renderTimeline(true);
@@ -176,7 +176,7 @@ export function jumpToToday() {
 
   if (DOM.viewModal && DOM.viewModal.classList.contains('open')) {
     closeModal(DOM.viewModal);
-    if (window.switchAppView) window.switchAppView('home');
+    if (window.switchAppView) window.switchAppView('day');
   }
 
   renderTimeline(true);

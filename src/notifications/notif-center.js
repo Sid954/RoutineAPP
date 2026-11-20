@@ -76,7 +76,8 @@ function pageClass(p) {
 }
 function pageDigest(p) {
   return sec('Morning summary', sw('briefing.on', p.briefing.on, 'Morning summary', "Today's classes, cancellations, tests and deadlines") + (p.briefing.on ? timeField('briefing.time', p.briefing.time, 'Send at') : '')) +
-    sec('Tomorrow preview', sw('preview.on', p.preview.on, 'Tomorrow preview', 'The evening before: classes, changes, tests, deadlines') + (p.preview.on ? timeField('preview.time', p.preview.time, 'Send at') : ''));
+    sec('Tomorrow preview', sw('preview.on', p.preview.on, 'Tomorrow preview', 'The evening before: classes, changes, tests, deadlines') + (p.preview.on ? timeField('preview.time', p.preview.time, 'Send at') : '')) +
+    sec('Attendance check', sw('attendance.on', p.attendance.on, 'Attendance check', "In the evening, a reminder to mark today's classes") + (p.attendance.on ? timeField('attendance.time', p.attendance.time, 'Send at') : ''), 'Comes after your last class has ended, on days with classes.');
 }
 function pageTests(p) {
   const t = p.tests;

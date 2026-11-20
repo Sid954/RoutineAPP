@@ -37,7 +37,7 @@ document.getElementById('vcC').addEventListener('click', () => closeModal(DOM.vi
    These .mo pages leave the dock tappable, so any navigation must close them first or the new
    view opens underneath. (Sheets and dialogs above z-index 1000 cover the dock and are closed by
    their own controls.) Returns true if anything was open. */
-const DOCK_REACHABLE_PAGES = ['viewModal', 'editModal', 'notifModal', 'androidAppModal'];
+const DOCK_REACHABLE_PAGES = ['viewModal', 'editModal', 'notifModal', 'androidAppModal', 'attendancePage'];
 export function closeDockReachablePages({ except } = {}) {
   let closedAny = false;
   for (const id of DOCK_REACHABLE_PAGES) {
@@ -60,7 +60,7 @@ export function closeDockReachablePages({ except } = {}) {
 }
 
 const DOCK_BTN_FOR_VIEW = {
-  home: 'dockHomeBtn', apps: 'dockAppsBtn', faculty: 'dockAppsBtn', free_rooms: 'dockAppsBtn',
+  home: 'dockHomeBtn', day: 'dockCenterFab', apps: 'dockAppsBtn', faculty: 'dockAppsBtn', free_rooms: 'dockAppsBtn',
   announcements: 'dockNoticesBtn', post_announcement: 'dockNoticesBtn'
 };
 
@@ -69,6 +69,7 @@ export function switchAppView(viewId, payload) {
   closeDockReachablePages();
 
   const dashboardView = document.getElementById('dashboardView');
+  const homeView = document.getElementById('homeView');
   const appsHubView = document.getElementById('appsHubView');
   const facultyAppView = document.getElementById('facultyAppView');
   const announcementsAppView = document.getElementById('announcementsAppView');
@@ -90,12 +91,13 @@ export function switchAppView(viewId, payload) {
   // Pages open at the top. Reset the outgoing page now, while its layout is still clean;
   // scrolling the incoming page right after showing it forced a full synchronous layout.
   // (Chrome keeps a hidden element's scroll position, so the reset carries over.)
-  const outgoing = previousViewId && previousViewId !== viewId && previousViewId !== 'home'
+  const outgoing = previousViewId && previousViewId !== viewId && previousViewId !== 'home' && previousViewId !== 'day'
     ? document.getElementById(VIEW_ELEMENT_IDS[previousViewId]) : null;
   if (outgoing && outgoing.scrollTop) outgoing.scrollTop = 0;
 
   // Hide all view panels
   if (dashboardView) dashboardView.style.display = 'none';
+  if (homeView) homeView.style.display = 'none';
   if (appsHubView) appsHubView.style.display = 'none';
   if (facultyAppView) facultyAppView.style.display = 'none';
   if (announcementsAppView) announcementsAppView.style.display = 'none';
@@ -106,10 +108,15 @@ export function switchAppView(viewId, payload) {
   if (dockHomeBtn) dockHomeBtn.classList.remove('active');
   if (dockAppsBtn) dockAppsBtn.classList.remove('active');
   if (dockNoticesBtn) dockNoticesBtn.classList.remove('active');
+  const centerFab = document.getElementById('dockCenterFab');
+  if (centerFab) centerFab.classList.toggle('is-current', viewId === 'day');
 
   if (viewId === 'home') {
-    if (dashboardView) dashboardView.style.display = 'flex';
+    if (homeView) homeView.style.display = 'flex';
     if (dockHomeBtn) dockHomeBtn.classList.add('active');
+    if (window.__renderHome) window.__renderHome();
+  } else if (viewId === 'day') {
+    if (dashboardView) dashboardView.style.display = 'flex';
   } else if (viewId === 'apps') {
     if (appsHubView) {
       appsHubView.style.display = 'flex';
@@ -156,10 +163,10 @@ export function switchAppView(viewId, payload) {
    Web Animations API: no forced layout to restart a CSS animation (the old `void offsetWidth`
    laid out the whole freshly shown page synchronously, e.g. 92 Faculty rows, on every switch). */
 const VIEW_ELEMENT_IDS = {
-  home: 'dashboardView', apps: 'appsHubView', faculty: 'facultyAppView',
+  home: 'homeView', day: 'dashboardView', apps: 'appsHubView', faculty: 'facultyAppView',
   announcements: 'announcementsAppView', post_announcement: 'postAnnounceAppView', free_rooms: 'freeRoomsAppView'
 };
-const VIEW_DEPTH = { home: 0, apps: 1, announcements: 1, faculty: 2, free_rooms: 2, post_announcement: 2 };
+const VIEW_DEPTH = { home: 0, day: 0, apps: 1, announcements: 1, faculty: 2, free_rooms: 2, post_announcement: 2 };
 function animateViewEnter(viewId, previousViewId) {
   if (!previousViewId || previousViewId === viewId) return;
   const el = document.getElementById(VIEW_ELEMENT_IDS[viewId]);
@@ -251,7 +258,7 @@ function updateFabAway() {
   const now = new Date();
   let away = false;
   // Only when the viewed day is in a different week than today (Home only; the Routine tabs are one week)
-  if (isOn('todayFab') && !otherPageOpen() && !routineIsOpen() && (window.__currentAppViewId || 'home') === 'home') {
+  if (isOn('todayFab') && !otherPageOpen() && !routineIsOpen() && (window.__currentAppViewId || 'home') === 'day') {
     away = !!State.viewDate && weekStartOf(State.viewDate) !== weekStartOf(now);
   }
   dockTodayFab.hidden = !away;
@@ -289,7 +296,7 @@ window.__updateFabAway = updateFabAway;
 const _fabObs = new MutationObserver(updateFabAway);
 document.querySelectorAll('.mo, .class-sheet-modal-overlay').forEach(m => _fabObs.observe(m, { attributes: true, attributeFilter: ['class'] }));
 if (dockCenterFab) {
-  // Tap: go Home; on Home jump to today, or refresh if already on today. Hold: open the calendar.
+  // Tap: open the Day page; on the Day page jump to today, or refresh if already on today. Hold: calendar.
   let holdTimer = null;
   let held = false;
   const HOLD_MS = 450;
@@ -300,7 +307,7 @@ if (dockCenterFab) {
       held = true;
       if (window.__motion) window.__motion.haptic('heavy');
       closeDockReachablePages();
-      if ((window.__currentAppViewId || 'home') !== 'home') switchAppView('home');
+      if ((window.__currentAppViewId || 'home') !== 'day') switchAppView('day');
       openCalendarPicker();
     }, HOLD_MS);
   });
@@ -313,8 +320,8 @@ if (dockCenterFab) {
     if (held) { held = false; return; }
 
     const currentView = window.__currentAppViewId || 'home';
-    if (closeDockReachablePages() || currentView !== 'home') {
-      switchAppView('home');
+    if (closeDockReachablePages() || currentView !== 'day') {
+      switchAppView('day');
       return;
     }
 
@@ -491,6 +498,7 @@ initDesktopInput(); // mouse/trackpad: drags, sideways rows, arrow keys
 initBackButton();
 initNotificationHealth();
 import('./notifications/day-sheet.js').then(m => { window.__updateNfBell = m.updateBell; m.initDaySheet(); }).catch(() => {});
+import('./attendance/attendance-page.js').then(m => m.initAttendancePage()).catch(e => console.warn('Attendance page failed', e));
 initAmbient();
 initTips();
 initTestTime();
@@ -498,6 +506,8 @@ initTestTime();
 document.body.classList.add('boot-enter');
 setTimeout(() => document.body.classList.remove('boot-enter'), 1100);
 initializeApp();
+// New Home (Nov 2026): cards built from the data initializeApp just loaded
+import('./home/home.js').then(m => m.initHome()).catch(e => console.warn('Home failed', e));
 // Silently (re-)register for announcement pushes when permission was already granted.
 // Runs every launch, so the server's semester/section targeting stays current after a section change.
 if (FEATURES.notifications) NativePush.init({ prompt: false });

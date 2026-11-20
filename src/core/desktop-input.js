@@ -188,7 +188,7 @@ function bindArrowKeys() {
     if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
     const t = ev.target;
     if (t && (t.closest('input, textarea, select, [contenteditable]') || t.isContentEditable)) return;
-    if ((window.__currentAppViewId || 'home') !== 'home') return;
+    if ((window.__currentAppViewId || 'home') !== 'day') return;
     if (document.querySelector('.mo.open, .class-sheet-modal-overlay.open, .rm-sheet-overlay.open, #calendarPickerModal.open')) return;
     const btn = document.getElementById(ev.key === 'ArrowLeft' ? 'prevDayBtn' : 'nextDayBtn');
     if (btn) { btn.click(); ev.preventDefault(); }
