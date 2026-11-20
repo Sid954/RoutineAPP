@@ -140,8 +140,11 @@
    timeline.js (morphStripWidths) animates each day's width from its old size to its new
    one: the tapped day widens into the focal card, the previous one narrows into a pill.
    Only happens when the selection changes — the per-minute refresh does not animate. */
-/* clip with a margin so the corner badges (top/right -5px) stay visible and ride the edge */
-.strip-dir-b-row.is-morphing > [data-date] { overflow: hidden; overflow: clip; overflow-clip-margin: 7px; }
+/* Clip the cell while its width animates, but leave a margin so the corner badges (top/right -5px, plus their
+   shadow) stay whole and ride the edge. clip-path with a negative inset works in every WebView; the earlier
+   overflow-clip-margin is ignored by some Android WebViews, which then fell back to plain overflow:hidden and
+   cut the badges for the length of the morph. */
+.strip-dir-b-row.is-morphing > [data-date] { clip-path: inset(-9px); }
 /* The piece-by-piece morph (number glide, labels in/out) is done in timeline.js (WAAPI). */
 /* No "MO…" ellipsis flash while the card is still narrow */
 .strip-dir-b-row.is-morphing .focal-day-label,

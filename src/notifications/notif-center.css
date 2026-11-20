@@ -246,3 +246,13 @@
 .nf-day-step:disabled { opacity: 0.3; cursor: default; }
 .nf-day-step:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .nf-swipe-hint { margin: -6px 0 0; text-align: center; font: 500 12px var(--font-ui); color: var(--text-muted); }
+
+/* Day sheet: sideways swipes belong to the sheet (vertical scrolling stays native), and the sliding day is clipped */
+.nf-day-sheet { touch-action: pan-y; overflow-x: hidden; }
+
+/* Every state change animates (CLAUDE.md "Motion rule"): chips, weekdays and the sound radio fade between states */
+.nf-page .nf-weekdays button { transition: background-color var(--dur-2) ease, border-color var(--dur-2) ease, color var(--dur-2) ease; }
+.nf-page .nf-radio { transition: border-color var(--dur-2) ease; }
+.nf-page .nf-radio::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--accent); opacity: 0; transform: scale(0.4); transition: opacity var(--dur-2) ease, transform var(--dur-2) var(--mx-ease, ease); }
+.nf-page .nf-sound.active .nf-radio::after { opacity: 1; transform: none; }
+.nf-day-sheet .nf-seg button { transition: background-color var(--dur-2) ease, color var(--dur-2) ease; }

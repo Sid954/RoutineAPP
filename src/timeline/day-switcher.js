@@ -25,10 +25,17 @@ function nextShownDate(direction) {
 }
 
 export function smoothSwitchDay(direction) {
-  const container = DOM.timelineGrid;
-  if (!container) return;
+  goToDate(nextShownDate(direction), direction);
+}
 
-  const nextDate = nextShownDate(direction);
+/**
+ * Slide Home's timeline to a given date (the same slide as a day swipe). direction ('next' | 'prev')
+ * decides which way the old day leaves. Also used by the notification day sheet, so the routine behind
+ * it follows when you swipe from one day to the next there.
+ */
+export function goToDate(nextDate, direction = 'next') {
+  const container = DOM.timelineGrid;
+  if (!container || !nextDate) return;
   const nextIdx = nextDate.getDay();
 
   const isNext = direction === 'next';

@@ -211,6 +211,9 @@ window.switchAppView = switchAppView;
     if (t.clientY < r.top || t.clientY > r.bottom || t.clientX < r.left || t.clientX > r.right) return;
     const top = document.elementFromPoint(t.clientX, t.clientY);
     if (!top || dockEl.contains(top) || top.closest('.dock-center-raised-fab')) return;
+    // An open sheet, page or popup is supposed to cover the dock (e.g. the Share button of a notice sheet):
+    // only something that is NOT inside one counts as a stray cover
+    if (top.closest('.mo.open, .class-sheet-modal-overlay.open, .rm-sheet-overlay.open, #calendarPickerModal.open, .toast, .mx-pull')) return;
     const name = (top.id ? '#' + top.id : '') + (typeof top.className === 'string' && top.className ? '.' + top.className.trim().split(/\s+/).slice(0, 2).join('.') : '') || top.tagName;
     window.__dockBlocker = name;
     console.warn('Dock covered by', name);

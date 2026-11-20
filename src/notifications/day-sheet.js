@@ -1,7 +1,7 @@
 /**
  * Day sheet: the bell beside the day title on Home opens it. It edits the notifications of ONE date:
  * the whole day on/off, class reminders and their lead time, and each planned alert. Swipe sideways (or
- * use the arrows) to move to the next or previous day. Summaries are not per-day: they live on the main
+ * use the arrows) to move to the next or previous day; Home's daily routine behind the sheet follows. Summaries are not per-day: they live on the main
  * Notifications page. Stored as per-date overrides (notif-store.js), planned by planner.js.
  *
  * The bell shows the viewed day's state: plain bell, bell with a cross (day switched off), or a bell
@@ -13,6 +13,7 @@ import { getPrefs, getDateOverrides, setDateOverride, clearDateOverrides } from 
 import { alertRowHtml, dayAlerts, upcomingPlan, getSkips, handleSkipChange, ymd, DAY_SHORT } from './upcoming.js';
 import { openModal, closeModal } from '../modals/modal.js';
 import { bindMouseDrag } from '../core/desktop-input.js';
+import { goToDate } from '../timeline/day-switcher.js';
 
 const MAX_DAYS_AHEAD = 60;
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -54,36 +55,94 @@ function ensure() {
     if (!b) return;
     if (b.dataset.ovLead !== undefined) { const v = Number(b.dataset.ovLead); setDateOverride(_date, 'lead', v > 0 ? v : undefined); changed(); }
     if (b.dataset.reset) { clearDateOverrides(_date); changed(); }
-    if (b.dataset.dayStep) shiftDay(Number(b.dataset.dayStep));
+    if (b.dataset.dayStep) slideDay(Number(b.dataset.dayStep));
     if (b.dataset.openPage) { closeDaySheet(); document.getElementById('notifSettingsBtn')?.click(); }
   });
-  // Swipe sideways (touch, or a mouse drag on desktop) to step through the days
-  let sx = 0, sy = 0, tracking = false;
-  const begin = (x, y) => { sx = x; sy = y; tracking = true; };
+  // Swipe sideways (touch, or a mouse drag on desktop) to step through the days.
+  // The content follows the finger, then slides out and the next day slides in from the other side.
+  let sx = 0, sy = 0, tracking = false, axis = '', dx = 0;
+  const begin = (x, y) => { if (_busy) return; sx = x; sy = y; tracking = true; axis = ''; dx = 0; };
+  const move = (x, y) => {
+    if (!tracking) return;
+    const ddx = x - sx, ddy = y - sy;
+    if (!axis) {
+      if (Math.abs(ddx) > 10 && Math.abs(ddx) > Math.abs(ddy) * 1.2) axis = 'x';
+      else if (Math.abs(ddy) > 10) axis = 'y';
+    }
+    if (axis !== 'x') return;
+    dx = ddx;
+    const el = document.getElementById('nfDayBody');
+    if (!el) return;
+    // Resistance past the first/last day, light drag elsewhere
+    const blocked = !canStep(dx < 0 ? 1 : -1);
+    el.style.transform = `translateX(${dx * (blocked ? 0.25 : 0.7)}px)`;
+    el.style.opacity = String(Math.max(0.45, 1 - Math.abs(dx) / 420));
+  };
   const finish = (x, y) => {
     if (!tracking) return;
     tracking = false;
-    const dx = x - sx, dy = y - sy;
-    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) shiftDay(dx < 0 ? 1 : -1);
+    if (axis !== 'x') return;
+    const dir = dx < 0 ? 1 : -1;
+    if (Math.abs(dx) > 55 && canStep(dir)) slideDay(dir, dx * 0.7);
+    else settle();
   };
   const sheet = _el.querySelector('.nf-day-sheet');
   sheet.addEventListener('touchstart', e => { if (e.touches.length === 1) begin(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+  sheet.addEventListener('touchmove', e => { if (e.touches.length === 1) move(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
   sheet.addEventListener('touchend', e => { const t = e.changedTouches[0]; if (t) finish(t.clientX, t.clientY); }, { passive: true });
-  sheet.addEventListener('touchcancel', () => { tracking = false; }, { passive: true });
-  bindMouseDrag(sheet, { start: (x, y) => begin(x, y), move: () => {}, end: (x, y, ev) => (ev ? finish(x, y) : (tracking = false)) });
+  sheet.addEventListener('touchcancel', () => { if (tracking && axis === 'x') settle(); tracking = false; }, { passive: true });
+  bindMouseDrag(sheet, { start: (x, y) => begin(x, y), move: (x, y) => move(x, y), end: (x, y, ev) => (ev ? finish(x, y) : (tracking = false)) });
   return _el;
 }
 
 const dayStr = (base, n) => { const d = new Date(`${base}T12:00:00`); d.setDate(d.getDate() + n); return ymd(d); };
-/** Step to the next (+1) or previous (-1) day; today is the first day and 60 days ahead the last. */
-function shiftDay(dir) {
+/** Today is the first day and 60 days ahead the last. */
+function canStep(dir) {
   const next = dayStr(_date, dir);
   const today = ymd(new Date());
-  if (next < today || next > dayStr(today, MAX_DAYS_AHEAD)) return;
-  _date = next;
-  render();
-  const body = document.getElementById('nfDayBody');
-  if (body && body.animate && document.documentElement.dataset.motion !== 'off') body.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+  return next >= today && next <= dayStr(today, MAX_DAYS_AHEAD);
+}
+
+const EASE = 'cubic-bezier(0.2, 0, 0, 1)'; // --mx-ease: decelerates, no overshoot
+const animOn = () => document.documentElement.dataset.motion !== 'off';
+let _busy = false;
+
+/** Let go without changing the day: the content eases back into place. */
+function settle() {
+  const el = document.getElementById('nfDayBody');
+  if (!el) return;
+  const from = { transform: el.style.transform || 'none', opacity: el.style.opacity || '1' };
+  el.style.transform = ''; el.style.opacity = '';
+  if (el.animate && animOn()) el.animate([from, { transform: 'none', opacity: '1' }], { duration: 180, easing: EASE });
+}
+
+/**
+ * Step to the next (+1) or previous (-1) day with a slide: the current day eases out the way the finger
+ * was going, the new day eases in from the other side. fromPx = where the content already is (a drag).
+ */
+function slideDay(dir, fromPx = 0) {
+  if (_busy || !canStep(dir)) { settle(); return; }
+  const el = document.getElementById('nfDayBody');
+  const swap = () => {
+    _date = dayStr(_date, dir);
+    render();
+    // The daily routine behind the sheet follows to the same day (it slides like a day swipe on Home)
+    const [y, m, d] = _date.split('-').map(Number);
+    goToDate(new Date(y, m - 1, d), dir > 0 ? 'next' : 'prev');
+    updateBell();
+  };
+  if (!el || !el.animate || !animOn()) { swap(); return; }
+  _busy = true;
+  const startOp = el.style.opacity || '1';
+  el.style.transform = ''; el.style.opacity = '';
+  const out = el.animate([{ transform: `translateX(${fromPx}px)`, opacity: startOp }, { transform: `translateX(${-dir * 70}px)`, opacity: 0 }], { duration: 140, easing: EASE, fill: 'forwards' });
+  out.onfinish = () => {
+    swap();
+    out.cancel();
+    const inn = el.animate([{ transform: `translateX(${dir * 70}px)`, opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 220, easing: EASE });
+    inn.onfinish = () => { _busy = false; };
+    inn.oncancel = () => { _busy = false; };
+  };
 }
 
 function changed() {
