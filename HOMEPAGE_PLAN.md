@@ -1,4 +1,4 @@
-# New Homepage plan (agreed 2026-11-20, built 2026-11-20, not yet released or phone-tested)
+# New Homepage plan (agreed 2026-11-20, built 2026-11-20, released v1.5.26; reshaped the same afternoon — see "Post-build changes" at the bottom, released v1.5.27)
 
 The current Home (clock, greeting, week strip, day timeline) is replaced by a dashboard of cards that
 answers, in two seconds: **where do I need to be, what changed, what is due, and where can I sit**.
@@ -135,3 +135,21 @@ follows the finger, others glide out of the way; "Done" saves. Order + hidden se
 - A note shows as a "Note" tag in Today's classes; the Day page class cards and the class sheet don't show it yet.
 - Today's teachers has no "where is the teacher now" line yet.
 - "Wi-Fi passwords" (marked "soon" in Apps): out of scope.
+
+## Post-build changes (Nov 20 afternoon, user-directed, released v1.5.27 — not phone-tested)
+
+The user iterated on the shipped dashboard the same day. Current card set (`CARDS` in `src/home/layout-store.js`):
+header → **Classes** (`now`) → What changed → Due soon → Exams → Teachers → Notices → Suggestions → Quick actions.
+
+- **Removed cards:** the separate Attendance prompt, Today's classes and Notes cards. The header gained a **Notes button** beside the settings gear; Notes became a full standalone app (`src/notes/notes-page.js`, v2 rebuild — see HANDOFF.md).
+- **Classes card** (the old Now/Next + Tomorrow merged): always the same row design — time, class, room, and the subject's **attendance % on the right**. After a class ends, that slot becomes a **Present/Absent checker** until answered or 11:59 PM; one **"Skip all"** appears after the day ends. Unmarked = **absent**. Tapping a % opens that subject's Attendance page. After the evening cut-off the card shows tomorrow's classes.
+- **Teachers and Suggestions start hidden** (`DEFAULT_HIDDEN = ['teachers', 'suggestions']`).
+- **Due soon:** one card at a time, swipe with a dot count; Done moves the item to the end on the next refresh; heading badge = unchecked count, red when an unchecked item is due today/tomorrow, green tick when all done; urgent cards get a red outline + pill.
+- **Exams card redesigned:** big days-left tile (solid orange ≤3 days, "Today" on the day), subject/type/weekday/date/time beside it, next exams as date-tile rows with "in Nd" chips, "+N more", useful empty state.
+- **Exam-day flagging:** header "N classes · M exams" (exam part red), red class rows + EXAM tag for exams on a class slot, red banner for exams that aren't slots (own midterm/final or a test with no class that day). Cancelled/moved classes are never flagged.
+- **Passed items hidden:** today's exams/tests/changes disappear once they happen (class end, or the evening cut-off; assignments after their due time). Chips say Today/Tomorrow/in Nd, never "in 0d".
+- **Manual attendance for uncovered dates:** allowed with a warning popup (the icon-details popup style), once per edit session; the calendar can navigate to months before the semester start.
+- **Notices after the cut-off:** Tomorrow group above a folded Today (`notices-view.js`).
+- **Design direction:** the user rejected further Samsung/One UI styling for this work ("i dont like samsung UI … design it like the given image" — the image is not recoverable from the transcripts; ask for it). Keep changes minimal.
+- **Dark theme:** blue-tinted variant rejected and reverted; neutral charcoal slightly deepened (`#131418` / `#212329`, `src/themes/themes.css`).
+- **Ambient:** a six-phase sky rewrite was rejected ("completely hate the design") and fully reverted to the original faint scene. Do not redo it without asking.

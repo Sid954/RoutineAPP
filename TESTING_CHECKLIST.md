@@ -327,8 +327,8 @@ Checked on PC with real mouse input; check in your own desktop browser:
 - [ ] Dragging never opens what you started on; a plain click does. A card only looks pressed on a real click.
 - [ ] **Notices → Coming up** row: swipe it sideways with a finger on the phone, or drag it with the mouse. It follows the whole way and settles on a card. Before this fix, a feed refresh rebuilt the row mid-swipe (resetting it to the first card), and the mouse drag was held back by snapping.
 
-## 28. Community suggestions (built 2026-11-18, not yet released)
-Setup first: run `supabase_suggestions.sql` in Supabase, deploy the API, install the new APK.
+## 28. Community suggestions (released v1.5.15–18)
+Setup done: `supabase_suggestions.sql` run 2026-11-18, API deployed. **Phone-verified Nov 18:** the suggestions list, voting, and the flagged "NOT CONFIRMED" class in the routine. **Not verified:** auto-confirm push + chime, admin approve/reject. Note: the UI changed in v1.5.18 — Suggestions is now a tab inside Notices with compact up/down cards, and posting goes through the 4-step composer; the functional checks below still apply.
 - [ ] Notices page: a "Suggestions" box above the search; "Suggest" opens the form with no password and no pin; only "My section" and "Everyone" audiences.
 - [ ] Send a suggestion: toast, it appears in the box marked "Not confirmed", your own agree vote counted. The same suggestion again says someone already suggested it.
 - [ ] Vote on a friend's suggestion from another phone (same section): count changes on both; tapping your vote again removes it. A phone on another section cannot vote.
@@ -336,3 +336,33 @@ Setup first: run `supabase_suggestions.sql` in Supabase, deploy the API, install
 - [ ] At 8 votes and 60% agree it becomes a normal notice ("Community confirmed"), with a push using its own chime on the "Community confirmed" channel (Android settings -> channel exists after the update).
 - [ ] Manage mode: Publish / Reject on a suggestion works with the posting password; hidden (5 net disagrees) ones appear with a "Hidden" tag.
 - [ ] More than 5 suggestions in a day from one phone is refused; the Suggestions box never blocks the Notices page when the server is offline.
+
+## 29. v1.5.20–26 (released, not phone-tested)
+Settings, notifications, badges, Rooms, and the new Home/Day/Attendance/Exams.
+- [ ] **Settings groups:** options are grouped into cards (Appearance, Notifications, Your class…); toggles apply instantly (theme, animations, accent); "Reset" restores defaults; nothing snaps without animation.
+- [ ] **Week = Thursday–Wednesday.** "Back to today" appears only when viewing a different week, is hidden on Settings and the post form, fades while scrolling so it never blocks the routine, and can be disabled in Settings.
+- [ ] **Day swipes** run into the next/previous week, including off days that have classes or notices. A holiday shows its banner with the day's routine greyed out underneath.
+- [ ] **Notifications page:** One UI hub with sub-pages (Class reminders, Daily summary, Tests, Deadlines, Notices, Sound and vibration, Days and quiet hours). Every toggle animates.
+- [ ] **Per-day bell** beside the day title on the Day page: opens the day sheet; swipe sideways (finger-following) or arrows step through days; per-day lead/class overrides stick; the bell icon reflects the day (plain / cross / sliders).
+- [ ] **Per-type sounds:** pick a sound per type, preview it, and receive a real alert with that sound (class, digest, test, deadline, notice). Vibration per type works. Changing a sound creates a new Android channel (old ones pruned).
+- [ ] **Confirmed/not-confirmed badges:** green check / amber cross icons on routine cards, class sheet, Notices and suggestion cards; tapping opens the explanation sheet with live votes and a jump to the notice/suggestion; the tap never also opens the card under it.
+- [ ] **Weekly Routine is plain:** no cancellations, holidays, exams, online flags or notice markers anywhere on it, and its class sheet hides notices.
+- [ ] **Rooms:** calendar and clock buttons work; rooms sorted by number; no "Now" label when viewing another day; cancelled rows are tappable.
+- [ ] **Home dashboard:** cards render (header, Classes, What changed, Due soon, Exams, Teachers, Notices, Suggestions, Quick actions); long-press (or Edit Home) enters edit mode with drag reorder + show/hide; order survives restart; Reset layout works; after the last class / 6 PM and on off days Home focuses the next class day.
+- [ ] **Day page:** the center dock button opens the full timeline; week strip, day swipe, bell and Back to today all work there; widgets still update (the DOM ID contract held).
+- [ ] **Attendance:** after a class ends, mark Present/Absent; the 8:30 PM evening check arrives (planner kind `attendance`) and opens the day; the Attendance page shows % rings, "can miss N / need N", the month calendar of held dates (tap to mark), the held estimate "from 2 Nov", manual starting counts, minimum % and semester-start override.
+- [ ] **Exams:** add a midterm/final; class-test notices appear automatically; the countdown list is right; tapping opens the exam or its notice.
+- [ ] **Notes v1 → v2 migration** is covered in §30 (install the new APK first).
+- [ ] Both themes on all of the above.
+
+## 30. v1.5.27 batch (Nov 20 work, released Nov 21 — not phone-tested)
+Do not test until the batch is released and installed. Everything here passed the browser preview and 31/31 unit suites only.
+- [ ] **Notes app v2:** quick capture (note + checklist); pin, archive, 8 colours; class label + tags; filter chips (All/Due/class/tag/Archive/Trash); search + sort; grid/list; optional date+time with overdue red chip; editor autosaves ("Saved", word count), Enter/Backspace list behaviour, Android back closes it; delete → Trash (30 days) with Undo, restore, delete forever; share/copy/duplicate/convert note↔checklist; **export and import a backup on the real phone** (file downloads differ from the browser); old v1 to-dos arrived as one-item checklists and `notes_v1_backup` exists.
+- [ ] **Password guard:** one wrong password shows the amber "Suggest it instead" box; tapping it **actually posts a suggestion** (check the live API / Suggestions tab — this path was never verified end-to-end); 3rd wrong locks 5 min, 6th 15 min, 9th+ 60 min with a live countdown; a correct password clears the count; server "too many attempts" locks 15 min; the suggest box is hidden when editing a notice.
+- [ ] **Home Classes card:** every row shows the subject's attendance %; after a class ends the slot becomes a Present/Absent checker until answered or 11:59 PM; "Skip all" appears after the day ends and skips every checker; unmarked classes count as **absent**; tapping a % opens that subject's attendance page.
+- [ ] **Manual attendance for uncovered dates:** allowed with a warning popup (icon-details style) shown once per edit session; the month calendar can go back before the semester start.
+- [ ] **Due soon:** one card at a time, swipe with dot count; Done pushes the item to the end on the next refresh (not instantly); heading badge = unchecked count, red when unchecked and due today/tomorrow, green tick when all done; red outline + pill on urgent cards.
+- [ ] **Exams card:** big days-left tile (orange ≤3 days, "Today" on the day), next rows with "in Nd" chips, "+N more"; empty state; on an exam day the header reads "N classes · M exams" in red, exam class rows are red with an EXAM tag, non-slot exams get a red banner; passed exams/tests disappear after they happen.
+- [ ] **Evening cut-off:** passed changes/tests vanish from Home; chips say Today/Tomorrow, never "in 0d"; Notices puts Tomorrow above a folded Today.
+- [ ] **Dark theme:** deepened neutral charcoal (`#131418` page / `#212329` cards) on every page, no blue cast; light theme unchanged.
+- [ ] **Ambient:** the original faint four-phase scene only — no big skies, suns, clouds or shooting stars (the rewrite was rejected and reverted).

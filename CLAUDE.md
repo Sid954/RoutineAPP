@@ -37,7 +37,7 @@ node build.js --scrape-faculty            # optional faculty scrape during build
 
 ## Architecture (big picture)
 
-- **Home and Day page (Nov 20, 2026, `HOMEPAGE_PLAN.md`):** the `home` view is `#homeView`, a dashboard of cards (`src/home/home.js`: now/next, what changed, attendance, today's classes, due soon, exams, teachers, notices, suggestions, notes, quick actions; long-press to reorder or hide). The day timeline is the `day` view (`#dashboardView`, the old Home), opened by the center dock button. Attendance lives in `src/attendance/` (phone-only marks, held-class estimate from `CONFIG.semesterStart`), notes in `src/notes/`, exams in `src/exams/`.
+- **Home and Day page (Nov 20, 2026, `HOMEPAGE_PLAN.md`):** the `home` view is `#homeView`, a dashboard of cards (`src/home/home.js`: header with Notes/settings buttons, Classes with per-subject attendance % that becomes a Present/Absent checker after each class, what changed, due soon, exams, teachers, notices, suggestions, quick actions; long-press to reorder or hide; teachers and suggestions start hidden). The day timeline is the `day` view (`#dashboardView`, the old Home), opened by the center dock button. Attendance lives in `src/attendance/` (phone-only marks, held-class estimate from `CONFIG.semesterStart`), notes in `src/notes/` (a full local notes app since the Nov 20 v2 rebuild: `notes-page.js` + `notes-store.js`, checklists/tags/colours/archive/trash/export-import), exams in `src/exams/`. The post form's wrong-password lockout and "Suggest it instead" fallback are `src/announcements/pw-guard.js`.
 - **Entry:** `index.html` → `src/main.js`. The boot sequence is in `src/events/init.js`: render the cached schedule right away, fetch fresh data, apply announcement overrides, then poll announcements every 30s and cascade a refresh to every view. Global state is in `src/core/state.js`, and constants and `defaultRoutine` are in `src/core/config.js`.
 - **Schedule data has three tiers, each with an offline fallback:** network (`api/schedule.js?action=...`) → localStorage cache → bundled JSON. This holds for the core routine (`src/data/sem-X/Y/routine.json`, then `CONFIG.defaultRoutine`), for the rooms engine (`master_rooms_schedule.json`) and for teacher finder (`master_teachers_schedule.json`). In Supabase, times are stored as integer minutes from midnight. Day index is the JS convention: 0 = Sunday.
 - **Overrides:** announcements are fetched department-wide and change the live routine. All student-facing views must read through `getEffectiveClassesForDay()` in `src/schedule/queries.js`, **except the Weekly Routine page (`src/weekly-matrix/matrix.js`), which is the plain routine on purpose (user, 2026-11-20): it uses `getClassesForDay()` and shows no cancellations, holidays, exams, online classes or notice flags, and its class sheet hides notices (`data.plain`). Do not add them there.** Room occupancy reads through `getEffectiveRoomClasses()` in `src/rooms/room-overrides.js`. Two rules here must not be reverted:
@@ -58,14 +58,14 @@ node build.js --scrape-faculty            # optional faculty scrape during build
 
 ## Releasing (only when the user says "release")
 
-1. Commit the feature work. Run `npm test` first; all suites must pass (23 as of v1.5.12).
+1. Commit the feature work. Run `npm test` first; all suites must pass (31 as of Nov 21, 2026).
 2. Bump `version.json`: `versionCode` +1, `versionName`, `releaseNotes`.
 3. Run `npm run build`. It stamps `android/app/build.gradle` and `src/core/config.js`.
 4. Write `RELEASE_NOTES.md` in plain user language.
 5. Revert everything else the build touched (tracked files only): `sw.js`, `master_*.json`, and the Android files except `build.gradle`.
 6. Delete the untracked Java files the build copied from `android-custom/` into `android/app/src/main/java/`, after confirming they're identical to their sources.
 7. Commit `chore(release): vX.Y.Z (versionCode N)`. It contains only `RELEASE_NOTES.md`, `build.gradle`, `config.js` and `version.json`.
-8. Push `main-2cmtj2`, then fast-forward `main` (`git push origin HEAD:main`). That starts the signed CI build and the Vercel deploy.
+8. Push the working branch (currently `main-2cmtj2-0lzicl`; earlier sessions used `main-2cmtj2`), then fast-forward `main` (`git push origin HEAD:main`). That starts the signed CI build and the Vercel deploy. Never mention "Samsung UI" in release notes (user rule).
 9. Confirm the GitHub release `vX.Y.Z` has `app-release.apk`, and that `/api/app-update` reports the new version.
 
 ## Standing rules (from PROJECT_OVERVIEW.md, enforced by the user)

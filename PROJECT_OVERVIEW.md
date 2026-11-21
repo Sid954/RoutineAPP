@@ -1,6 +1,7 @@
 ﻿# RoutineAPP — Agent Briefing
 
-> Read this fully before touching any code. Last updated: **Nov 18, 2026** (v1.5.14, versionCode 24, commit `0f9771a`; `main` and `main-2cmtj2` are identical). Quick status for a new session: `HANDOFF.md`.  
+> Read this fully before touching any code. Last updated: **Nov 21, 2026** (v1.5.27, versionCode 37; working branch `main-2cmtj2-0lzicl`, pushed to `main`). Quick status for a new session: `HANDOFF.md`.  
+> The large Nov 20 batch (Notes app v2, password guard, Home fixes, dark-theme deepen) plus the approved night-star tweak was **released as v1.5.27 on Nov 21** at the user's request. 31/31 tests pass. It is **not phone-tested** — checks are §30 in `TESTING_CHECKLIST.md`.  
 > If significant time has passed since that date, treat this doc as background context and verify current state with `git log --oneline -20` + `git status`.
 
 ---
@@ -137,8 +138,8 @@ build.js                    Compiles /src → /www/ for deployment
 
 - Test suites live in `tests/` (tracked in git — moved out of the old gitignored `scratch/` on Sep 23, 2026)
 - Run all: `npm test` (executes `tests/run.js`, which runs every `tests/test_*.js` with a 60s per-test timeout)
-- 23/23 suites pass as of Nov 17, 2026 (v1.5.12; needs `npm install`; passes without `.env`, since every suite mocks the network or tolerates it being down). CI runs `npm test` before building the APK.
-- On-device checks still pending are tracked in `TESTING_CHECKLIST.md` (latest: §22 v1.5.8–v1.5.10, §23 v1.5.11 performance, §25 v1.5.12 notifications).
+- 31/31 suites pass as of Nov 21, 2026 (needs `npm install`; passes without `.env`, since every suite mocks the network or tolerates it being down). CI runs `npm test` before building the APK.
+- On-device checks still pending are tracked in `TESTING_CHECKLIST.md` (latest: §29 v1.5.20–26, §30 the v1.5.27 batch; §2 push, §19 in-app update and §20 widgets were never confirmed end to end).
 
 ### Critical DOM IDs & UI Constraints
 
@@ -160,7 +161,7 @@ Other hard boundaries:
 Do not deviate without explicit user approval.
 
 - **Light theme ("Printed Timetable", redesigned Nov 2026 at the user's request; replaced warm ivory whose cards barely separated from the page):** page `#EEF1F6` (cool paper), surfaces `#FFFFFF`, inset fields and chips `#F5F7FA` (`--surface-inset`), hairline borders `#DCE2EB`, text `#0E1726` / `#3B4659` / muted `#556173`, accent Cobalt `#2563EB` (hover `#1D4ED8`). Separation comes from tone and hairlines, with no card drop shadows. Text on any light tint uses the 700 shade of its hue. All main screens pass WCAG AA (automated check, 548 text elements).
-- **Dark theme:** `#18191E` / `#23252C` + Luminescent Sky `#38BDF8`
+- **Dark theme:** v1.5.26 used `#18191E` / `#23252C` + Luminescent Sky `#38BDF8`. v1.5.27 deepens it slightly to page `#131418` / cards `#212329` (neutral charcoal, faint top lift + card edge). A blue-tinted variant was tried and rejected by the user ("AI slop") — keep it neutral, no blue cast.
 - **Fonts:** Plus Jakarta Sans (UI), JetBrains Mono (times/metrics)
 - **Icon badges:** squircle — 42×42px, `border-radius: 13px` (NOT `clip-path`)
 - **No glassmorphism / glow / `backdrop-filter`.** A light popup-backdrop blur was allowed for one day (2026-11-17) and then removed in the performance pass, because it made the app laggy on the user's 90 Hz phone. Popups use a plain strong dim (`motion-plus.css` §21).
@@ -202,7 +203,20 @@ Announcement type color identity:
 
 ---
 
-## Current State (Nov 18, 2026, v1.5.14)
+## Current State (Nov 21, 2026, v1.5.27)
+
+### Latest (Nov 18–21)
+- **Project location:** back at `D:\sid\STUDY\Coding\RoutineAPP` (the D: disk is healthy again per the user, Nov 19; the temporary `E:\Projects\RoutineAPP` clone was deleted). Working branch `main-2cmtj2-0lzicl`.
+- **Community Suggestions: SHIPPED** (v1.5.15–18; NEXT_TASKS item 17 is done). Rules in `api/_lib/suggestion-rules.js`, client `src/announcements/suggestions.js`, `supabase_suggestions.sql` run Nov 18. Phone-verified: list, voting, flagged "NOT CONFIRMED" class in the routine. NOT verified: auto-confirm push + chime, admin approve/reject. Rate limits live (`guard()` + a Vercel Firewall rule); GETs CDN-cached 10 s (+30 s stale), bypassed right after the user's own vote/suggestion.
+- **Notices redesign shipped** (v1.5.18–19): Notices/Suggestions tabs, icon filter chips, `cardLines()` (each fact said once), folding groups (Today/Tomorrow/unread open), dock unread badge, compact up/down vote cards, 4-step composer (suggest or announce → type → details → check), redesigned notice detail sheet. After the evening cut-off, Tomorrow sorts above a folded Today (v1.5.27).
+- **Grouped Settings + prefs system shipped** (v1.5.20): schema-driven groups (`src/settings/pref-schema.js`, `prefs.js`, `prefs.css`), localStorage `routine.prefs.v1` mirrored to `<html data-p-*>`, `prefs-changed` event. Week = **Thursday–Wednesday** (`weekStartOf`). "Back to today" floating button: only in a different week, hides on Settings/post pages, fades while scrolling, can be disabled in Settings.
+- **Notifications One UI hub + per-day bell + per-type sounds shipped** (v1.5.21–22): `notif-center.js` sub-pages; `day-sheet.js` per-date overrides (`notif_dates_v1`, planner input `dates`) with finger-following day swipes (`slideDay`); generated WAV sounds (`scripts/gen-notif-sounds.js` → `android-custom/res/raw/nf_*.wav`), one Android channel per type/sound/vibration/lock choice (`channelSpec()`), server groups pushes by `noticeChannel` (`api/_lib/notice-push.js`). The "notification sound for every type" task is DONE.
+- **Confirmed/not-confirmed badges shipped** (v1.5.23): `src/announcements/confirm-badge.js` icons replace the words, with explanation sheets and live vote counts; applied suggestions carry `unconfirmedId` through `queries.js`. Weekly Routine is deliberately plain (no overrides/flags — user rule, Nov 20).
+- **Rooms polish shipped** (v1.5.24): calendar/clock buttons, rooms sorted by number, no "Now" on other days, tappable cancelled rows.
+- **New Home dashboard + Day page + Attendance + Exams shipped** (v1.5.25–26): see `HOMEPAGE_PLAN.md` for the decisions and files. Home = `#homeView` card dashboard (long-press reorder/hide, `home_layout_v1`); the old timeline = `day` view (`#dashboardView`) on the center dock button. Attendance: phone-only marks, held-class estimate from `CONFIG.semesterStart` (2026-11-02), month calendar, 75% minimum, evening check via planner kind `attendance` (8:30 PM).
+- **Nov 20 afternoon batch — released v1.5.27** (full detail in HANDOFF.md): Notes app v2 (full rebuild: checklists, tags, colours, archive/trash, search/sort, export/import; `notes-page.js`), password guard (`pw-guard.js`: suggest-after-fail + escalating local locks), Home reshaped (Classes card with attendance % → post-class checkers, Teachers/Suggestions hidden by default, swipeable Due soon with urgency badge, redesigned Exams card, red exam-day flags, passed items hidden), Notices evening reorder, dark theme deepened to `#131418`/`#212329`, night stars slightly stronger (two opacity values, user-approved Nov 21). The ambient six-phase sky rewrite was **rejected and fully reverted** — the original faint four-phase scene stays; do not redo it.
+- **Design direction (user, Nov 20):** minimal changes; no more Samsung/One UI styling for new Home work — follow a reference image the user attached (not recoverable from transcripts; ask them to re-share it).
+- **Posting password:** user set `ANNOUNCEMENT_PASSWORD` and `ADMIN_PASSWORD` to `test123` on Vercel (verified working Nov 20). Weak — change before going public.
 
 ### Stable and confirmed
 - Core redesign: dashboard, class detail sheet, faculty profile, apps hub nav — all full-page conversions
@@ -241,7 +255,7 @@ Nothing below has been physically tested on the user's phone yet. Do not call th
     - The sky/cloud sun was rejected; the original v1.5.8 sun stays, moved under the settings gear.
     - The live card's "Up next / Last class today" line was removed.
 
-  Checklist §22. Still open: `NEXT_TASKS.md` item 17 (community suggestions, duplicates, pending, voting), which needs the user's API and Supabase decisions.
+  Checklist §22. NEXT_TASKS item 17 (community suggestions) was built Nov 18 and shipped in v1.5.15–18.
 - **Temporary test clock (remove before the app goes public, only when the user says testing is done):** a "Test time" tab at the top of every page. The removal list is in `NEXT_TASKS.md`:
   - the head script in `index.html`
   - `src/settings/test-time.js` and its init in `src/main.js`
@@ -266,10 +280,10 @@ Nothing below has been physically tested on the user's phone yet. Do not call th
     - skips: per class/date, per day, per alert, deadline "Done"
     - pause: 1 h / 3 h / rest of today / until resumed
   - **Scheduling:** `notifications.js` keeps the old public API. It collects planner input (`collectDays`), cancels and reschedules everything with Capacitor LocalNotifications, and uses Android channels `class_reminders`, `daily_digest`, `deadlines`, `announcements_channel` and `notices_quiet`. Action buttons are Skip this class / Mute today / Done, and a tap opens the right date or Notices. It re-plans on boot, resume, routine or notice changes, settings changes, and after midnight. The test-clock guard stays at the top of `scheduleForToday`.
-  - **New Home + Day page + attendance (Nov 20, 2026, not yet released or phone-tested):** see `HOMEPAGE_PLAN.md` for the decisions, the cards, the files and what differs from the plan. The evening attendance check is planner kind `attendance` (8:30 PM default).
-  - **Confirmed / not confirmed marks (Nov 20, 2026, not yet phone-tested):** the words "Confirmed by votes", "Unconfirmed" and "(NOT CONFIRMED)" are now icons from `src/announcements/confirm-badge.js` (green circle with a check = official notice confirmed by votes; amber circle with a cross = suggestion still being voted on), in the top right of routine class cards, the class sheet, Notices cards, the notice sheet and suggestion cards. A tap opens an explanation sheet (what it means, why, what happens next, live vote count) with a button to the notice (`window.__openNotice`) or the suggestion (`window.__openSuggestion`, which switches to the Suggestions tab, scrolls to it and highlights it). One capture-phase listener handles every badge so a tap never also opens the card under it. Applied suggestions now carry `unconfirmedId` through `queries.js`.
+  - **New Home + Day page + attendance (Nov 20, 2026, released v1.5.26, not phone-tested):** see `HOMEPAGE_PLAN.md` for the decisions, the cards, the files and what differs from the plan (plus the Nov 20 afternoon reshaping, released v1.5.27 — see HANDOFF.md). The evening attendance check is planner kind `attendance` (8:30 PM default).
+  - **Confirmed / not confirmed marks (Nov 20, 2026, released v1.5.23, not phone-tested):** the words "Confirmed by votes", "Unconfirmed" and "(NOT CONFIRMED)" are now icons from `src/announcements/confirm-badge.js` (green circle with a check = official notice confirmed by votes; amber circle with a cross = suggestion still being voted on), in the top right of routine class cards, the class sheet, Notices cards, the notice sheet and suggestion cards. A tap opens an explanation sheet (what it means, why, what happens next, live vote count) with a button to the notice (`window.__openNotice`) or the suggestion (`window.__openSuggestion`, which switches to the Suggestions tab, scrolls to it and highlights it). One capture-phase listener handles every badge so a tap never also opens the card under it. Applied suggestions now carry `unconfirmedId` through `queries.js`.
   - **Storage:** `notif-store.js` keeps prefs, skips and pause in localStorage.
-  - **Redesign (Nov 19, 2026, not yet phone-tested):** the Notifications page is a One UI hub plus sub pages (`notif-center.js`: Class reminders, Daily summary, Tests, Deadlines, Notices, Sound and vibration, Days and quiet hours). The bell beside the day title on Home opens `day-sheet.js`, which edits one date through per-date overrides (`notif-store.js` `notif_dates_v1`, planner input `dates`: lead and classes only; summaries are never per-day) plus the per-alert switches (shared rows in `upcoming.js`). Swipe sideways or use the arrows to step through days (today to +60); the sheet content follows the finger and slides out/in (`slideDay`). The bell shows the viewed day: plain, cross (day off) or sliders (customized). New prefs: `sounds`, `vibrate` per type (class, digest, test, deadline, notice), `privacy.hideOnLock`, `classes.online`. Sounds are WAVs made by `scripts/gen-notif-sounds.js` (`android-custom/res/raw/nf_*.wav`, previews in `src/notifications/sounds/`). Android fixes a channel's sound once created, so `channelSpec()` in `notifications.js` makes one channel per type, sound, vibration and lock-screen choice (`nf_<type>_<sound>_<vib><hide>`) and prunes old ones. The notice channel id travels in the server prefs (`noticeChannel`), and `api/_lib/notice-push.js` groups pushes by it, so it needs a Vercel deploy.
+  - **Redesign (Nov 19, 2026, released v1.5.21–22, not phone-tested):** the Notifications page is a One UI hub plus sub pages (`notif-center.js`: Class reminders, Daily summary, Tests, Deadlines, Notices, Sound and vibration, Days and quiet hours). The bell beside the day title on Home opens `day-sheet.js`, which edits one date through per-date overrides (`notif-store.js` `notif_dates_v1`, planner input `dates`: lead and classes only; summaries are never per-day) plus the per-alert switches (shared rows in `upcoming.js`). Swipe sideways or use the arrows to step through days (today to +60); the sheet content follows the finger and slides out/in (`slideDay`). The bell shows the viewed day: plain, cross (day off) or sliders (customized). New prefs: `sounds`, `vibrate` per type (class, digest, test, deadline, notice), `privacy.hideOnLock`, `classes.online`. Sounds are WAVs made by `scripts/gen-notif-sounds.js` (`android-custom/res/raw/nf_*.wav`, previews in `src/notifications/sounds/`). Android fixes a channel's sound once created, so `channelSpec()` in `notifications.js` makes one channel per type, sound, vibration and lock-screen choice (`nf_<type>_<sound>_<vib><hide>`) and prunes old ones. The notice channel id travels in the server prefs (`noticeChannel`), and `api/_lib/notice-push.js` groups pushes by it, so it needs a Vercel deploy.
   - **UI:**
     - the Notifications page `#notifModal` (`notif-center.js` + `notif-center.css`), opened from Settings → Notifications: status + health check, quick pause, a "Coming up" list (today and tomorrow, each alert and day switchable), the types with their options, notice type chips, weekdays and quiet hours
     - a "Reminder" switch in the class sheet (`class-detail.js` updateRemindRow)
@@ -290,13 +304,13 @@ Still open:
 9. ~~Class-start/pre-class notifications~~: **done Nov 17, 2026**; see "Notifications rebuild" under Current State.
 11. Schedule admin/edit flow: build an admin-facing UI to edit schedule data without a re-seed. Needs an auth design (reuse `checkPassword()` / `ADMIN_PASSWORD`, or Supabase Auth).
 
-Feature ideas (not committed to): `.ics` / Google Calendar export, exam and assignment countdown, attendance tracker, "where's my teacher now", section free-slot compare.
+Feature ideas (not committed to): `.ics` / Google Calendar export (partly exists in the notice sheet), "where's my teacher now" on the Home Teachers card, section free-slot compare, notes reminder notifications (planner-only). Exam countdown and attendance tracker are BUILT (v1.5.26).
 
 ---
 
 ## Suggested First Steps for a New Agent
 
-1. Run `git log --oneline -15` and `git status` — confirm actual repo state.
-2. Ask the user how far they've got through `TESTING_CHECKLIST.md`. Fix anything that failed on device before starting new work.
-3. Then ask which open item to tackle: #6 needs clarification, #11 needs an auth design, and `NEXT_TASKS.md` item 17 needs API/Supabase decisions. (#9 notifications is done.)
+1. Run `git log --oneline -15` and `git status` — confirm actual repo state. The Nov 20 batch was released as v1.5.27 on Nov 21; the tree should be clean.
+2. Read `HANDOFF.md` ("Waiting on the user") and ask: how far through `TESTING_CHECKLIST.md` (especially §30, the untested v1.5.27 batch)? Anything broken on device (fix failures before new work)? The design reference image is still unanswered.
+3. Backlog #6 needs clarification (which screen), #11 needs an auth design. Notes reminders and the "Suggest it instead" end-to-end check are open code tasks.
 4. Before touching the overrides system, re-read the Architecture section above — it has a history of subtle regressions.

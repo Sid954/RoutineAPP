@@ -1,26 +1,27 @@
 # My Routine — class schedule app for CSE students
 
-**My Routine** (RoutineAPP) is a university timetable app: a PWA, an Android app (Capacitor) with native home-screen widgets, and a Vercel API backed by Supabase. Current version: **1.5.12** (see `version.json`).
+**My Routine** (RoutineAPP) is a university timetable app: a PWA, an Android app (Capacitor) with native home-screen widgets, and a Vercel API backed by Supabase. Current version: **1.5.27** (see `version.json`).
 
-Working on the code? Read `CLAUDE.md` and `PROJECT_OVERVIEW.md` first. Phone checks live in `TESTING_CHECKLIST.md`, and `HANDOFF.md` says where things stand right now.
+Working on the code? Read `CLAUDE.md` and `PROJECT_OVERVIEW.md` first (any AI agent: `AGENTS.md` points the way). Phone checks live in `TESTING_CHECKLIST.md`, and `HANDOFF.md` says where things stand right now.
 
 ## Features
 
-- **Home:**
-  - the live class card fills sideways as the class runs
-  - a week strip, the day's timeline with breaks, and a "next class" countdown
-  - cancellations, tests, online and moved classes flagged in place
+- **Home:** a customizable card dashboard — classes with attendance, what changed, due soon, exam countdown, teachers, unread notices, suggestions to vote and quick actions. Long-press to reorder or hide cards. In the evening it focuses the next class day.
+- **Day page:** the full day timeline on the center dock button — week strip, day swipes, breaks, live class card and the per-day notification bell.
+- **Attendance:** per-subject percentages with a held-class estimate, a month calendar to mark past classes, and an evening check reminder.
+- **Notes:** a full local notes app — notes and checklists, tags, colours, pin/archive/trash, search, and export/import.
+- **Exams:** midterm/final countdown; class tests from notices appear automatically.
 - **Weekly Routine:** the full week as a grid (wide screens) or day tabs (phones).
 - **Rooms:** which classrooms and labs are free now or at any time this week, plus each room's day and timeline.
 - **Faculty:** the department directory with live "in class / free" status, profiles, schedules and contact details.
-- **Notices:** posts for one section, a semester or everyone (cancellations, holidays, tests, online classes, moved classes, assignments). They change the routine automatically, and come with calendar export and sharing.
+- **Notices & Suggestions:** posts for one section, a semester or everyone (cancellations, holidays, tests, online classes, moved classes, assignments) that change the routine automatically, with calendar export and sharing. Anyone can suggest without a password; section voting confirms suggestions ("Community confirmed").
 - **Notifications:**
-  - class reminders, test and deadline alerts
-  - morning summary and tomorrow preview
+  - class reminders, test and deadline alerts, morning summary, tomorrow preview, attendance check
+  - per-day customization, per-type custom sounds and vibration
   - quick pause, skip a class, weekdays, quiet hours, and per-type notice alerts
   - all planned a week ahead, so they arrive with the app closed
 - **Widgets:** live class, week and day widgets. They update on their own, without opening the app.
-- **Settings:** your class, name, light/dark theme, animations, off days, your own class edits, and in-app updates (the APK is downloaded, checksum-verified and installed in the app).
+- **Settings:** grouped preferences — your class, name, light/dark theme, animations, off days, your own class edits, and in-app updates (the APK is downloaded, checksum-verified and installed in the app).
 
 ## Tech stack
 
@@ -36,7 +37,7 @@ Working on the code? Read `CLAUDE.md` and `PROJECT_OVERVIEW.md` first. Phone che
 npm install
 npm run build          # src/ + root assets -> www/ (what ships)
 npm run sync           # build + npx cap sync (before Android Studio / Gradle)
-npm test               # every tests/test_*.js (23 suites)
+npm test               # every tests/test_*.js (31 suites)
 npx cap open android   # open in Android Studio
 ```
 
@@ -53,5 +54,6 @@ The SQL lives in the repo root:
 - `supabase_schedule_schema.sql`: the schedule tables
 - `supabase_faculty_members.sql`: the faculty table
 - `supabase_notification_prefs.sql`: per-device notice preferences
+- `supabase_suggestions.sql`: community suggestions and votes
 
 Environment variables are listed in `.env.example`. Never commit secrets.
