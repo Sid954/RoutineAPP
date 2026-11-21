@@ -4,12 +4,13 @@
  *                    base: { SUBJECT: { attended, held } },   // optional starting counts
  *                    min: 75 }                                   // "at risk" below this %
  * Subjects are course codes, so labs count on their own (DSL apart from DS).
- * Unanswered classes are not counted either way.
+ * A class that took place and has no answer counts as absent (the Skip button only hides the prompt).
  */
 import { parseTime } from '../notifications/planner.js';
 
 const KEY = 'attendance_v1';
 const START_KEY = 'semester_start_override';
+const SKIP_KEY = 'attendance_skips_v1'; // { [markKey]: 1 }: classes the student chose not to mark (Home's Skip button)
 const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || 'null') || {}; } catch (e) { return {}; } };
 const write = v => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} };
 
@@ -22,7 +23,8 @@ export function getAttendance() {
   return {
     marks: r.marks && typeof r.marks === 'object' ? r.marks : {},
     base: r.base && typeof r.base === 'object' ? r.base : {},
-    min: Number.isFinite(min) && min >= 1 && min <= 100 ? Math.round(min) : 75
+    min: Number.isFinite(min) && min >= 1 && min <= 100 ? Math.round(min) : 75,
+    extra: r.extra && typeof r.extra === 'object' ? r.extra : {} // classes the student added by hand: { key: { date, subject } }
   };
 }
 function save(a) { write(a); }
@@ -92,7 +94,7 @@ export function computeStats(held, { marks = {}, base = {}, min = 75 } = {}) {
   return Object.values(by).map(r => {
     const b = base[r.subject] || { attended: 0, held: 0 };
     const attended = r.present + b.attended;
-    const counted = r.present + r.absent + b.held;
+    const counted = r.present + r.absent + r.unknown + b.held;
     const pct = counted ? Math.round((attended / counted) * 1000) / 10 : null;
     return {
       ...r, base: b, attended, counted, pct,
@@ -101,4 +103,44 @@ export function computeStats(held, { marks = {}, base = {}, min = 75 } = {}) {
       atRisk: pct !== null && pct < min
     };
   }).sort((a, b) => a.subject.localeCompare(b.subject));
+}
+
+/** Classes the student skipped marking. Keys start with their date, so old ones are dropped on write. */
+export function getSkipped() {
+  try { const v = JSON.parse(localStorage.getItem(SKIP_KEY) || 'null'); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; }
+}
+export function isSkipped(key) { return !!getSkipped()[key]; }
+export function setSkipped(key, on = true) {
+  const s = getSkipped();
+  if (on) s[key] = 1; else delete s[key];
+  const cut = new Date(); cut.setDate(cut.getDate() - 4);
+  const cutStr = `${cut.getFullYear()}-${String(cut.getMonth() + 1).padStart(2, '0')}-${String(cut.getDate()).padStart(2, '0')}`;
+  Object.keys(s).forEach(k => { if (k.slice(0, 10) < cutStr) delete s[k]; });
+  try { localStorage.setItem(SKIP_KEY, JSON.stringify(s)); } catch (e) {}
+}
+
+/**
+ * Add a class that is not in the routine or the notices (an extra class, a make-up, a moved class
+ * nobody posted) and answer it at once. It counts like any other class, so the page warns first.
+ * One added class per subject per date. Returns its key.
+ */
+export function addExtra(date, subject, value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '') || (value !== 'present' && value !== 'absent')) return null;
+  const s = subjectOf(subject);
+  if (!s) return null;
+  const a = getAttendance();
+  const key = `${date}|${s}@extra`;
+  a.extra[key] = { date, subject: s };
+  a.marks[key] = value;
+  const full = read();
+  full.extra = a.extra;
+  full.marks = a.marks;
+  write(full);
+  return key;
+}
+export function removeExtra(key) {
+  const full = read();
+  if (full.extra) delete full.extra[key];
+  if (full.marks) delete full.marks[key];
+  write(full);
 }

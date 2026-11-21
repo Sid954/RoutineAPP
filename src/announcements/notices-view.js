@@ -8,6 +8,7 @@
  *  - Detail sheet: facts, join link, calendar, share, "Show in routine", admin actions
  */
 import { State } from '../core/state.js';
+import { shouldRollOver } from '../schedule/queries.js';
 import { Storage } from '../storage/storage.js';
 import { escapeHtml, setHtmlIfChanged, toMinutes } from '../core/utils.js';
 import { bindMouseDrag } from '../core/desktop-input.js';
@@ -294,11 +295,20 @@ function groupDateHtml(key) {
   return `<span class="nt-group-date">${WD3[d.getDay()]} ${d.getDate()} ${MON3[d.getMonth()]}</span>`;
 }
 const GROUPS = [['pinned', 'Pinned'], ['today', 'Today'], ['tomorrow', 'Tomorrow'], ['week', 'This week'], ['later', 'Later'], ['recent', 'Other notices'], ['past', 'Past']];
+/** Today is over (after the rollover hour with no class left): Tomorrow goes first and Today starts folded. */
+function dayIsOver() { try { return shouldRollOver(new Date()); } catch (e) { return false; } }
+function groupOrder() {
+  if (!dayIsOver()) return GROUPS;
+  const g = GROUPS.slice();
+  const ti = g.findIndex(x => x[0] === 'today'), mi = g.findIndex(x => x[0] === 'tomorrow');
+  [g[ti], g[mi]] = [g[mi], g[ti]];
+  return g;
+}
 let _groupOpen = null;
 function groupIsOpen(key, items, read) {
   if (Announcements.query || Announcements.activeFilter !== 'all') return true;
   if (!_groupOpen) _groupOpen = {};
-  if (!(key in _groupOpen)) _groupOpen[key] = key === 'pinned' || key === 'today' || key === 'tomorrow' || items.some(n => !n.past && !read.has(n.id));
+  if (!(key in _groupOpen)) _groupOpen[key] = key === 'pinned' || key === 'tomorrow' || (key === 'today' ? !dayIsOver() : items.some(n => !n.past && !read.has(n.id)));
   return _groupOpen[key];
 }
 
@@ -445,7 +455,7 @@ export function renderNotices() {
   let i = 0;
   let html = '';
   _groupItems = {};
-  GROUPS.forEach(([k, label]) => {
+  groupOrder().forEach(([k, label]) => {
     const items = g[k];
     if (!items.length) return;
     _groupItems[k] = { label, items };

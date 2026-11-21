@@ -44,14 +44,28 @@ global.window = global.window || {};
   assert.strictEqual(dsl.pct, 80); assert.strictEqual(dsl.canMiss, 0); assert.strictEqual(dsl.atRisk, false);
   A.setMark(held[1].key, null);
   st = A.computeStats(held, A.getAttendance());
-  assert.strictEqual(st.find(s => s.subject === 'DS').unknown, 1, 'unanswered is not counted');
-  assert.strictEqual(st.find(s => s.subject === 'DS').pct, 100);
+  assert.strictEqual(st.find(s => s.subject === 'DS').unknown, 1);
+  assert.strictEqual(st.find(s => s.subject === 'DS').pct, 50, 'unanswered counts as absent');
   A.setMinPercent(80); assert.strictEqual(A.getAttendance().min, 80); A.setMinPercent(75);
   assert.strictEqual(A.getSemesterStart('2026-11-02'), '2026-11-02');
   A.setSemesterStartOverride('2026-11-09'); assert.strictEqual(A.getSemesterStart('2026-11-02'), '2026-11-09');
   A.setSemesterStartOverride(''); assert.strictEqual(A.getSemesterStart('2026-11-02'), '2026-11-02');
   assert.deepStrictEqual(H.unmarkedEnded(held, A.getAttendance().marks, ['2026-11-04']).map(h => h.subject), ['DS']);
-  console.log('✅ attendance stats, base counts, semester start');
+  assert.strictEqual(A.isSkipped('2026-11-20|DS@660'), false);
+  A.setSkipped('2026-11-20|DS@660', true);
+  assert.strictEqual(A.isSkipped('2026-11-20|DS@660'), true);
+  A.setSkipped('2026-11-20|DS@660', false);
+  assert.strictEqual(A.isSkipped('2026-11-20|DS@660'), false);
+  const ek = A.addExtra('2026-11-10', 'ds', 'absent');
+  assert.strictEqual(ek, '2026-11-10|DS@extra');
+  assert.strictEqual(A.getAttendance().marks[ek], 'absent');
+  assert.strictEqual(A.getAttendance().extra[ek].subject, 'DS');
+  assert.strictEqual(A.addExtra('bad', 'ds', 'absent'), null);
+  assert.strictEqual(A.addExtra('2026-11-10', 'ds', 'maybe'), null);
+  A.removeExtra(ek);
+  assert.strictEqual(A.getAttendance().marks[ek], undefined);
+  assert.strictEqual(Object.keys(A.getAttendance().extra).length, 0);
+  console.log('✅ attendance stats, base counts, semester start, skips');
 
   // 4. Notes
   const n1 = N.addNote({ text: '  Bring lab report ', subject: 'dsl', date: '2026-11-05' });
@@ -74,13 +88,14 @@ global.window = global.window || {};
   console.log('✅ exams');
 
   // 6. Layout: header first, unknown ids dropped, new cards appended
-  mem.home_layout_v1 = JSON.stringify({ order: ['notes', 'bogus', 'now', 'notes'], hidden: ['exams', 'header'] });
+  mem.home_layout_v1 = JSON.stringify({ order: ['teachers', 'bogus', 'now', 'teachers'], hidden: ['exams', 'header'] });
   const lay = L.getLayout();
   assert.strictEqual(lay.order[0], 'header');
-  assert.deepStrictEqual(lay.order.slice(1, 3), ['notes', 'now']);
+  assert.deepStrictEqual(lay.order.slice(1, 3), ['teachers', 'now']);
   assert.strictEqual(lay.order.length, L.CARDS.length);
   assert.deepStrictEqual(lay.hidden, ['exams']);
   assert.strictEqual(L.resetLayout().order[1], 'now');
+  assert.deepStrictEqual(L.getLayout().hidden, ['teachers', 'suggestions']); // off by default
   console.log('✅ layout');
   console.log('All Home store tests passed.');
 })().catch(e => { console.error(e); process.exit(1); });

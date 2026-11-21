@@ -272,6 +272,7 @@ export const Announcements = {
       }
       return created || true;
     } catch (err) {
+      this.lastError = err.message;
       if (!extras.quiet) showToast(err.message || 'Could not publish', 'error');
       if (extras.quiet) throw err;
       return false;
@@ -299,6 +300,7 @@ export const Announcements = {
       await this.fetchAll();
       return updated || true;
     } catch (err) {
+      this.lastError = err.message;
       showToast(err.message || 'Could not update', 'error');
       return false;
     }

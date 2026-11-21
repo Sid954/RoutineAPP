@@ -216,6 +216,30 @@
                   </div>
                   <span class="apps-hub-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
                 </div>
+                <div class="apps-hub-card" id="appHubAttendance">
+                  <div class="apps-hub-card-icon-squircle emerald">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                  </div>
+                  <div class="apps-hub-card-content">
+                    <div class="apps-hub-card-title-row">
+                      <span class="apps-hub-card-title">Attendance</span>
+                    </div>
+                    <p class="apps-hub-card-desc">Track classes, see what you can miss</p>
+                  </div>
+                  <span class="apps-hub-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+                </div>
+                <div class="apps-hub-card" id="appHubNotes">
+                  <div class="apps-hub-card-icon-squircle amber">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                  </div>
+                  <div class="apps-hub-card-content">
+                    <div class="apps-hub-card-title-row">
+                      <span class="apps-hub-card-title">Notes</span>
+                    </div>
+                    <p class="apps-hub-card-desc">Tasks and reminders for your classes</p>
+                  </div>
+                  <span class="apps-hub-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+                </div>
                 <div class="apps-hub-card is-soon" id="appHubWifi" aria-disabled="true">
                   <div class="apps-hub-card-icon-squircle sky">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
@@ -506,6 +530,10 @@
               </dl>
               <label class="pa-field" id="paNameRow" hidden><span class="pa-label"><span>Your name</span><span class="pa-count"></span></span><input type="text" id="paName" class="pa-input" placeholder="Shown on the post" autocomplete="off" /></label>
               <label class="pa-field" id="paPasswordRow"><span class="pa-label"><span>Posting password</span></span><input type="password" id="paPassword" class="pa-input" autocomplete="current-password" /></label>
+              <div class="pa-pwfail" id="paPwFail" role="alert" hidden>
+                <p id="paPwFailText"></p>
+                <button type="button" class="pa-pwfail-btn" id="paSuggestInstead">Suggest it instead</button>
+              </div>
               <label class="pa-check" id="paPinRow"><input type="checkbox" id="paPin" /><span>Pin to the top for everyone</span></label>
               <button type="button" class="pa-submit" id="postAnnounceSubmit">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>

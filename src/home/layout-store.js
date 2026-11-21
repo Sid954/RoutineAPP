@@ -1,19 +1,18 @@
 /** Home card order and hidden cards (tested). home_layout_v1: { order: [id], hidden: [id] } */
 export const CARDS = [
   { id: 'header', label: 'Clock and greeting', fixed: true },
-  { id: 'now', label: 'Now / Next' },
+  { id: 'now', label: 'Classes' },
   { id: 'changes', label: 'What changed' },
-  { id: 'attendance', label: 'Attendance' },
-  { id: 'today', label: "Today's classes" },
   { id: 'due', label: 'Due soon' },
   { id: 'exams', label: 'Exam countdown' },
   { id: 'teachers', label: "Today's teachers" },
   { id: 'notices', label: 'Unread notices' },
   { id: 'suggestions', label: 'Suggestions to vote' },
-  { id: 'notes', label: 'Notes' },
   { id: 'actions', label: 'Quick actions' }
 ];
 const KEY = 'home_layout_v1';
+/** Cards that start switched off (the user can turn them on in Edit Home). */
+export const DEFAULT_HIDDEN = ['teachers', 'suggestions'];
 const IDS = CARDS.map(c => c.id);
 
 export function getLayout() {
@@ -21,7 +20,7 @@ export function getLayout() {
   try { r = JSON.parse(localStorage.getItem(KEY) || 'null') || {}; } catch (e) {}
   const order = (Array.isArray(r.order) ? r.order : []).filter((id, i, a) => IDS.includes(id) && a.indexOf(id) === i && id !== 'header');
   IDS.forEach(id => { if (id !== 'header' && !order.includes(id)) order.push(id); }); // new cards land at the end
-  const hidden = (Array.isArray(r.hidden) ? r.hidden : []).filter(id => IDS.includes(id) && id !== 'header');
+  const hidden = (Array.isArray(r.hidden) ? r.hidden : DEFAULT_HIDDEN).filter(id => IDS.includes(id) && id !== 'header');
   return { order: ['header', ...order], hidden };
 }
 export function saveLayout({ order, hidden }) {

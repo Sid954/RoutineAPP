@@ -37,7 +37,7 @@ document.getElementById('vcC').addEventListener('click', () => closeModal(DOM.vi
    These .mo pages leave the dock tappable, so any navigation must close them first or the new
    view opens underneath. (Sheets and dialogs above z-index 1000 cover the dock and are closed by
    their own controls.) Returns true if anything was open. */
-const DOCK_REACHABLE_PAGES = ['viewModal', 'editModal', 'notifModal', 'androidAppModal', 'attendancePage'];
+const DOCK_REACHABLE_PAGES = ['viewModal', 'editModal', 'notifModal', 'androidAppModal', 'attendancePage', 'notesPage'];
 export function closeDockReachablePages({ except } = {}) {
   let closedAny = false;
   for (const id of DOCK_REACHABLE_PAGES) {
@@ -114,7 +114,7 @@ export function switchAppView(viewId, payload) {
   if (viewId === 'home') {
     if (homeView) homeView.style.display = 'flex';
     if (dockHomeBtn) dockHomeBtn.classList.add('active');
-    if (window.__renderHome) window.__renderHome();
+    if (window.__homeRefresh) window.__homeRefresh(); else if (window.__renderHome) window.__renderHome();
   } else if (viewId === 'day') {
     if (dashboardView) dashboardView.style.display = 'flex';
   } else if (viewId === 'apps') {
@@ -357,6 +357,10 @@ if (appsHubPageBackBtn) {
   appsHubPageBackBtn.addEventListener('click', () => switchAppView('home'));
 }
 
+const appHubNotes = document.getElementById('appHubNotes');
+if (appHubNotes) appHubNotes.addEventListener('click', () => window.__openNotes && window.__openNotes());
+const appHubAttendance = document.getElementById('appHubAttendance');
+if (appHubAttendance) appHubAttendance.addEventListener('click', () => window.__openAttendance && window.__openAttendance());
 const appHubFaculty = document.getElementById('appHubFaculty');
 if (appHubFaculty) {
   appHubFaculty.addEventListener('click', () => switchAppView('faculty'));
@@ -499,6 +503,7 @@ initBackButton();
 initNotificationHealth();
 import('./notifications/day-sheet.js').then(m => { window.__updateNfBell = m.updateBell; m.initDaySheet(); }).catch(() => {});
 import('./attendance/attendance-page.js').then(m => m.initAttendancePage()).catch(e => console.warn('Attendance page failed', e));
+import('./notes/notes-page.js').then(m => m.initNotesPage()).catch(e => console.warn('Notes page failed', e));
 initAmbient();
 initTips();
 initTestTime();

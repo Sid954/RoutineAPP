@@ -5,7 +5,7 @@
    ========================================================================== */
 
 :root {
-  --st-inset: var(--canvas);
+  --st-inset: var(--surface-inset, var(--canvas));
   --st-ok-ink: #34D399;
   --st-warn-ink: #FBBF24;
   --st-err-ink: #FB7185;

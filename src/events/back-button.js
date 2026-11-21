@@ -10,6 +10,7 @@ const OVERLAYS = [
   '.class-sheet-modal-overlay.open',
   '.rm-sheet-overlay.open',
   '#calendarPickerModal.open',
+  '#npEditor',
   '.mo.open'
 ].join(',');
 
@@ -26,7 +27,7 @@ export function closeTopOverlay() {
   // Prefer an explicit close / back button inside it, else a backdrop click
   // .page-back-btn: full pages (Attendance, Notifications: back steps out of a sub page first);
   // .nt-sheet-close: the bottom sheets built on .nt-sheet (day bell, confirm info, notes, exams, set time)
-  const btn = top.querySelector('#ecC, #vcC, .rm-icon-btn[aria-label="Close"], .fd-icon-btn[aria-label="Close"], #ntSheetClose, .up-close, .cls, #calendarPickerCloseBtn, [data-up="close"], .nt-sheet-close, .page-back-btn');
+  const btn = top.querySelector('#ecC, #vcC, .rm-icon-btn[aria-label="Close"], .fd-icon-btn[aria-label="Close"], #ntSheetClose, .up-close, .cls, #calendarPickerCloseBtn, [data-up="close"], .nt-sheet-close, [data-ed-close], .page-back-btn');
   if (btn) btn.click();
   else top.dispatchEvent(new MouseEvent('click', { bubbles: true }));
   // Forced update sheet and similar refuse to close: report "handled" anyway so back doesn't exit

@@ -19,6 +19,7 @@ import { Announcements } from './announcements.js';
 import { Suggestions } from './suggestions.js';
 import { ANNOUNCEMENT_LIMITS, collapseNewlines, validateAnnouncementPayload } from './validation.js';
 import { toNotice } from './notice-model.js';
+import { getGuard, recordFailure, recordSuccess, recordServerLock, formatRemaining } from './pw-guard.js';
 import { cardHtml, ICONS } from './notices-view.js';
 
 const AUTHOR_KEY = 'routine_notice_author';
@@ -525,6 +526,7 @@ function renderReview() {
   if ($('paNameRow')) $('paNameRow').hidden = !!name && !st.nameOpen;
   const suggest = st.mode === 'suggest' && !st.editId;
   if ($('paPasswordRow')) $('paPasswordRow').hidden = suggest;
+  refreshGuardUI();
   if ($('paPinRow')) $('paPinRow').hidden = suggest;
   if ($('paAudShown')) {
     $('paAudShown').textContent = st.editId
@@ -733,12 +735,68 @@ async function submitSuggestion(first, targets) {
   if (window.switchAppView) window.switchAppView('announcements');
 }
 
+/* ── Wrong posting password: offer to suggest instead, lock after repeated misses ─────────────── */
+let _guardTimer = null;
+const isWrongPassword = msg => /invalid password|too many failed|unauthorized/i.test(String(msg || ''));
+
+/** Shows or hides the "wrong password" block and, while locked, counts down and blocks Publish. */
+function refreshGuardUI() {
+  const box = $('paPwFail');
+  if (!box) return;
+  clearInterval(_guardTimer);
+  const input = $('paPassword');
+  const btn = $('postAnnounceSubmit');
+  const suggestMode = st.mode === 'suggest' && !st.editId;
+  const g = getGuard();
+  const show = !suggestMode && g.fails > 0;
+  box.hidden = !show;
+  if ($('paSuggestInstead')) $('paSuggestInstead').hidden = !!st.editId; // an edit cannot become a suggestion
+  if (!show) { if (input) input.disabled = false; return; }
+  const text = $('paPwFailText');
+  const paint = () => {
+    const now = getGuard();
+    if (now.locked) {
+      if (text) text.textContent = `Too many wrong passwords. Try again in ${formatRemaining(now.remainingMs)}.${st.editId ? '' : ' You can suggest it instead.'}`;
+      if (input) input.disabled = true;
+      if (btn) btn.disabled = true;
+    } else {
+      if (text) text.textContent = st.editId ? 'That password was wrong.' : 'That password was wrong. You can suggest it instead and let your section vote on it.';
+      if (input) input.disabled = false;
+      if (btn && btn.disabled && !btn.dataset.busy) btn.disabled = false;
+      clearInterval(_guardTimer);
+    }
+  };
+  paint();
+  if (g.locked) _guardTimer = setInterval(paint, 1000);
+}
+
+function wrongPassword(err, toast = true) {
+  if (/too many failed/i.test(err.message)) recordServerLock(); else recordFailure();
+  refreshGuardUI();
+  if (toast) showToast(getGuard().locked ? 'Too many wrong passwords. Locked for a while.' : 'Wrong password.', 'error');
+}
+
+/** The posting password failed: send the same notice as a suggestion for the section to vote on. */
+async function suggestInstead() {
+  const name = currentName();
+  if (!name) { st.nameOpen = true; renderReview(); showToast('Add your name. It is shown on the post.', 'warning'); return; }
+  const problem = detailsProblem();
+  if (problem) { goToStep('details'); showError(problem); return; }
+  const first = buildPayload(name);
+  try { localStorage.setItem(AUTHOR_KEY, name); } catch (e) {}
+  const b = $('paSuggestInstead');
+  if (b) b.disabled = true;
+  await submitSuggestion(first, audienceTargets({ ...st, mode: 'suggest' }));
+  if (b) b.disabled = false;
+}
+
 async function submit() {
   const btn = $('postAnnounceSubmit');
   const name = currentName();
   const password = val('paPassword');
   const suggest = st.mode === 'suggest' && !st.editId;
   if (!name) { st.nameOpen = true; renderReview(); showToast('Add your name. It is shown on the post.', 'warning'); $('paName').focus(); return; }
+  if (!suggest && getGuard().locked) { refreshGuardUI(); showToast('Too many wrong passwords. Wait, or suggest it instead.', 'warning'); return; }
   if (!password && !suggest) { showToast('Enter the posting password.', 'warning'); $('paPassword').focus(); return; }
 
   const problem = detailsProblem();
@@ -761,6 +819,8 @@ async function submit() {
       type: st.type, subject: s.subject || '', date_override: s.date_override || '', subject_override: s.subject_override || '', is_pinned: pin
     });
     restoreBtn();
+    if (ok) recordSuccess(); else if (isWrongPassword(Announcements.lastError)) wrongPassword({ message: Announcements.lastError }, false);
+    refreshGuardUI();
     if (ok && window.switchAppView) window.switchAppView('announcements');
     return;
   }
@@ -782,11 +842,14 @@ async function submit() {
       done++;
     }
   } catch (err) {
+    if (!done && isWrongPassword(err.message)) { wrongPassword(err); restoreBtn(); refreshGuardUI(); return; }
     showToast(done ? `Published ${done} of ${jobs.length}. Stopped: ${err.message}` : (err.message || 'Could not publish'), 'error');
     restoreBtn();
     if (done) Announcements.fetchAll();
     return;
   }
+  recordSuccess();
+  refreshGuardUI();
   showToast(jobs.length > 1 ? `Published ${jobs.length} posts` : 'Published', 'success');
   Notifications.scheduleForToday();
   await Announcements.fetchAll();
@@ -825,6 +888,7 @@ export function initPostForm() {
     hideError();
     goToStep('review');
   });
+  $('paSuggestInstead')?.addEventListener('click', suggestInstead);
   $('paNameEdit')?.addEventListener('click', () => {
     st.nameOpen = true;
     if ($('paNameRow')) $('paNameRow').hidden = false;

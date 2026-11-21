@@ -19,7 +19,8 @@ export function heldSoFar(now = new Date()) {
 export function invalidateHeld() { _cache.key = ''; }
 
 export function attendanceData(now = new Date()) {
-  const held = heldSoFar(now);
   const att = getAttendance();
+  const mine = Object.entries(att.extra || {}).map(([key, e]) => ({ date: e.date, key, subject: e.subject, title: e.subject, start: '', end: '', extra: true }));
+  const held = mine.length ? heldSoFar(now).concat(mine).sort((a, b) => a.date.localeCompare(b.date)) : heldSoFar(now);
   return { start: getSemesterStart(CONFIG.semesterStart), held, att, stats: computeStats(held, att) };
 }

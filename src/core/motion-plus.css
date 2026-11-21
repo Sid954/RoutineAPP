@@ -178,8 +178,8 @@ html[data-motion="lite"] .live-fill-edge { animation: mxWave 5s linear infinite;
 #ambientLayer i { position: absolute; display: block; }
 html[data-motion="lite"] #ambientLayer i { animation: none !important; }
 
-.amb-star { width: var(--s, 2px); height: var(--s, 2px); border-radius: 50%; background: #E0F2FE; opacity: 0.5; animation: ambTwinkle var(--d, 3s) ease-in-out infinite alternate; }
-:root[data-color="light"] .amb-star { background: #1E3A8A; opacity: 0.18; }
+.amb-star { width: var(--s, 2px); height: var(--s, 2px); border-radius: 50%; background: #E0F2FE; opacity: 0.65; animation: ambTwinkle var(--d, 3s) ease-in-out infinite alternate; }
+:root[data-color="light"] .amb-star { background: #1E3A8A; opacity: 0.25; }
 @keyframes ambTwinkle { from { opacity: 0.12; transform: scale(0.7); } to { opacity: 0.6; transform: scale(1); } }
 :root[data-color="light"] .amb-star { animation-name: ambTwinkleLight; }
 @keyframes ambTwinkleLight { from { opacity: 0.05; } to { opacity: 0.2; } }

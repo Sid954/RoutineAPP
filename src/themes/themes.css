@@ -2,20 +2,24 @@
    Themes Engine CSS — Strictly Approved 2-Theme Solid Surface System
    ========================================================================== */
 
-/* 1. Dark Mode: Refined Charcoal & Luminescent Sky (Default) */
+/* 1. Dark Mode: Refined Charcoal & Luminescent Sky (Default). The original neutral charcoal, with a little more depth:
+      a slightly lighter surface for rows inside cards, a soft top edge and shadow on cards, a faint lift at the top of the page.
+      (A blue-tinted version was tried in Nov 2026 and dropped: it looked off next to the sky accent.) */
 html,
 html[data-theme="dark"],
 :root,
 :root[data-color="dark"] {
-  --bg: #18191E;
-  --canvas: #18191E;
-  --card-bg: #23252C;
-  --card-border: rgba(255, 255, 255, 0.07);
-  --card-border-subtle: rgba(255, 255, 255, 0.04);
+  --bg: #131418;
+  --canvas: #131418;
+  --page-bg: linear-gradient(180deg, #1C1E24 0%, #16171C 320px, #131418 100%);
+  --card-bg: #212329;
+  --surface-inset: #1A1C21;
+  --card-border: rgba(255, 255, 255, 0.085);
+  --card-border-subtle: rgba(255, 255, 255, 0.045);
 
   --text-main: #F8FAFC;
   --text-muted: #94A3B8;
-  --text-sub: #9A9AA6;  /* was #71717A (3.2:1 on cards) */
+  --text-sub: #9A9AA6;
 
   --accent: #38BDF8;
   --accent-hover: #7DD3FC;
@@ -26,21 +30,21 @@ html[data-theme="dark"],
   --warning: #F59E0B;
   --danger: #F43F5E;
 
-  --chip-bg: #18191E;
+  --chip-bg: #131418;
 
-  --btn-bg: #23252C;
+  --btn-bg: #212329;
   --btn-border: rgba(255, 255, 255, 0.08);
   --btn-color: #94A3B8;
 
-  --live-card-bg: #23252C;
+  --live-card-bg: #212329;
   --live-card-border: #38BDF8;
-  --live-card-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  --live-card-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
   --live-ring-track: #32353E;
   --live-ring-fill: #38BDF8;
 
-  --resting-card-bg: #23252C;
-  --resting-card-border: rgba(255, 255, 255, 0.07);
-  --resting-card-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --resting-card-bg: #212329;
+  --resting-card-border: rgba(255, 255, 255, 0.085);
+  --resting-card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 6px 16px rgba(0, 0, 0, 0.36);
 
   --tag-theory-bg: rgba(56, 189, 248, 0.12);
   --tag-theory-text: #7DD3FC;
@@ -49,8 +53,8 @@ html[data-theme="dark"],
   --tag-lab-text: #D8B4FE;
   --tag-lab-border: rgba(192, 132, 252, 0.20);
 
-  --sh-card: 0 2px 6px rgba(0, 0, 0, 0.35);
-  --sh-dock: 0 -4px 28px rgba(0, 0, 0, 0.6);
+  --sh-card: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 8px 22px rgba(0, 0, 0, 0.36);
+  --sh-dock: 0 -6px 28px rgba(0, 0, 0, 0.55);
   --sh-modal: 0 -12px 40px rgba(0, 0, 0, 0.75);
 
   /* Legacy mappings */
@@ -71,17 +75,18 @@ body {
   color: var(--text-main) !important;
 }
 
-/* 2. Light Mode: Printed Timetable — cool paper, white surfaces, ink navy, cobalt
-      (Nov 2026 redesign; replaced the warm ivory, whose cards barely separated from the page).
-      Separation comes from tone + hairlines, not drop shadows. */
+/* 2. Light Mode: Printed Timetable — cool paper, white surfaces, ink navy, cobalt.
+      Nov 2026 refresh: a soft sky-to-paper page gradient and cards that lift with a fine shadow
+      (the flat hairline-only cards looked plain). */
 html[data-theme="light"],
 :root[data-color="light"] {
-  --bg: #EEF1F6;
-  --canvas: #EEF1F6;
+  --bg: #E8EEF7;
+  --canvas: #E8EEF7;
+  --page-bg: linear-gradient(180deg, #F4F8FF 0%, #E9EFF8 300px, #E5ECF6 100%);
   --card-bg: #FFFFFF;
-  --surface-inset: #F5F7FA;
-  --card-border: #DCE2EB;
-  --card-border-subtle: #E9EDF3;
+  --surface-inset: #F2F5FB;
+  --card-border: #D9E1EE;
+  --card-border-subtle: #E8EDF5;
 
   --text-main: #0E1726;
   --text-muted: #556173;  /* >= 4.5:1 on white, canvas and tinted pills */
@@ -105,7 +110,7 @@ html[data-theme="light"],
   --live-card-bg: #FFFFFF;
   --live-card-border: #2563EB;
   --live-card-shadow: none;
-  --live-ring-track: #E3E8F0;
+  --live-ring-track: #E1E8F3;
   --live-ring-fill: #2563EB;
 
   --resting-card-bg: #FFFFFF;
@@ -119,8 +124,8 @@ html[data-theme="light"],
   --tag-lab-text: #6D28D9;
   --tag-lab-border: #E6D9FF;
 
-  --sh-card: none;
-  --sh-dock: 0 -1px 0 #DCE2EB, 0 -6px 20px rgba(14, 23, 38, 0.06);
+  --sh-card: 0 1px 2px rgba(14, 23, 38, 0.05), 0 10px 24px rgba(14, 23, 38, 0.07);
+  --sh-dock: 0 -1px 0 #D9E1EE, 0 -8px 24px rgba(14, 23, 38, 0.08);
   --sh-modal: 0 -1px 0 #DCE2EB, 0 -12px 32px rgba(14, 23, 38, 0.10);
 
   /* Legacy mappings */
@@ -197,3 +202,14 @@ html[data-theme="light"],
   font-size: 10px;
   color: var(--text-muted);
 }
+
+/* ── Page background and card depth, both themes (Nov 2026 refresh) ── */
+:root body, :root .w { background: var(--page-bg, var(--canvas)) !important; background-attachment: fixed; }
+html:root[data-color="light"] body, html:root[data-color="light"] .w { background: var(--page-bg, var(--canvas)) !important; background-attachment: fixed; }
+:root .hm-card:not(.hm-header), :root .st-sec-card, :root .st-cluster, :root .ah-cluster, :root .nt-group-list, :root .sg-list,
+:root .att-tile, :root .att-app, :root .np-row, :root .np-add, :root .np-empty, :root .st-card, :root .md .st-group > .st-card {
+  box-shadow: var(--sh-card);
+}
+/* Inner rows and chips sit one level above the card */
+:root .hm-mini, :root .hm-dcard, :root .hm-dayline { background: var(--surface-inset, var(--st-inset)); }
+:root[data-color="light"] .hm-card:not(.hm-header) { box-shadow: var(--sh-card); }

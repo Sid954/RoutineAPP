@@ -74,9 +74,7 @@
 .hm-link { width: 100%; border: 0; background: var(--st-inset, var(--canvas)); color: var(--text-main); }
 .hm-join svg, .hm-link svg { width: 17px; height: 17px; }
 
-/* Attendance prompt */
-.hm-att-q { margin: -2px 0 2px; font: 600 13px var(--font-ui); color: var(--text-muted); }
-.hm-att { display: flex; align-items: center; gap: 8px; padding: 10px 0; }
+/* Present / Absent buttons (Attendance app) */
 .hm-att-btn { flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px; height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--card-border); background: transparent; color: var(--text-main); font: 700 12.5px var(--font-ui); cursor: pointer; transition: background-color var(--dur-2, 200ms) ease, color var(--dur-2, 200ms) ease, border-color var(--dur-2, 200ms) ease; }
 .hm-att-btn svg { width: 14px; height: 14px; }
 .hm-att-btn.is-icon { width: 42px; height: 42px; padding: 0; justify-content: center; border-radius: 50%; }
@@ -87,8 +85,6 @@
 :root[data-color="light"] .hm-att-btn.is-no { color: #BE123C; }
 .hm-att-btn.is-yes.is-on { background: #10B981; color: #fff; border-color: #10B981; }
 .hm-att-btn.is-no.is-on { background: #F43F5E; color: #fff; border-color: #F43F5E; }
-.hm-att-sum { all: unset; box-sizing: border-box; display: block; width: 100%; margin-top: 8px; padding: 12px 14px; border-radius: 16px; background: var(--st-inset, var(--canvas)); font: 600 13.5px var(--font-ui); color: var(--text-main); cursor: pointer; }
-.hm-att-sum.is-risk { color: var(--st-warn-ink, #FBBF24); }
 
 /* Today's classes */
 .hm-cls { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 10px 0; cursor: pointer; transition: opacity var(--dur-2, 200ms) ease; }
@@ -127,7 +123,7 @@
 .hm-vote.is-on.is-down { background: #F43F5E; }
 
 /* Quick actions */
-.hm-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.hm-qa { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .hm-action { border: 0; background: none; color: var(--text-main); font: 600 11.5px/1.25 var(--font-ui); display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 2px; cursor: pointer; text-align: center; }
 .hm-action span { width: 46px; height: 46px; border-radius: 16px; display: grid; place-items: center; background: var(--st-inset, var(--canvas)); color: var(--accent); }
 :root[data-color="light"] .hm-action span { color: var(--accent-hover); }
@@ -227,3 +223,306 @@ button.att-day { border: 0; opacity: 1; cursor: pointer; font-weight: 800; trans
 .att-mark > span { flex: 1; display: flex; flex-direction: column; }
 .att-mark strong { font: 800 15px var(--font-ui); color: var(--text-main); }
 .att-mark > span > span { font: 500 12px var(--font-ui); color: var(--text-muted); }
+
+/* ── Next class day: every class with its attendance on the right ── */
+.hm-list:not(.is-editing) .hm-card:not(.hm-header):has(> .hm-body:empty) { display: none; }
+.hm-tmr-k { font: 700 13px var(--font-ui); color: var(--accent); margin: 0 0 4px; }
+:root[data-color="light"] .hm-tmr-k { color: var(--accent-hover); }
+.hm-tmr-row { gap: 12px; }
+.hm-pct { flex-shrink: 0; min-width: 58px; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.hm-pct b { font: 800 17px var(--font-ui); letter-spacing: -0.3px; color: var(--text-muted); }
+.hm-pct i { font: 600 10.5px var(--font-ui); font-style: normal; color: var(--text-muted); }
+.hm-pct.is-ok b { color: #10B981; }
+:root[data-color="light"] .hm-pct.is-ok b { color: #047857; }
+.hm-pct.is-risk b { color: var(--st-warn-ink, #FBBF24); }
+
+/* ── Due soon: cards that scroll sideways ── */
+.hm-dscroll { display: flex; gap: 10px; margin: 0 -16px; padding: 2px 16px 4px; overflow-x: auto; scroll-snap-type: x proximity; scroll-padding: 0 16px; scrollbar-width: none; overscroll-behavior-x: contain; }
+.hm-dscroll::-webkit-scrollbar { display: none; }
+.hm-dcard { flex: 0 0 172px; scroll-snap-align: start; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 20px; background: var(--st-inset, var(--canvas)); transition: opacity var(--dur-2, 200ms) ease; }
+.hm-dmain { all: unset; box-sizing: border-box; flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; cursor: pointer; }
+.hm-dmain:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.hm-dwhen { align-self: flex-start; font: 800 11.5px var(--font-ui); padding: 3px 9px; border-radius: 999px; background: var(--card-bg); color: var(--text-muted); }
+.hm-dcard.is-soon .hm-dwhen { background: rgba(245, 158, 11, 0.16); color: var(--st-warn-ink, #FBBF24); }
+.hm-dcard.is-test .hm-dwhen { background: rgba(249, 115, 22, 0.16); color: #FB923C; }
+:root[data-color="light"] .hm-dcard.is-test .hm-dwhen { color: #C2410C; }
+.hm-dmain strong { font: 800 14.5px/1.25 var(--font-ui); color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.hm-dmeta { font: 500 12px var(--font-ui); color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hm-dtick { all: unset; box-sizing: border-box; height: 36px; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 999px; border: 1.5px solid var(--card-border); color: var(--text-main); font: 700 13px var(--font-ui); cursor: pointer; transition: background-color var(--dur-2, 200ms) ease, color var(--dur-2, 200ms) ease, border-color var(--dur-2, 200ms) ease; }
+.hm-dtick svg { width: 15px; height: 15px; }
+.hm-dtick:active { background: #10B981; border-color: #10B981; color: #fff; }
+.hm-dtick.is-on { background: #10B981; border-color: #10B981; color: #fff; }
+.hm-dtick:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hm-dflag { height: 36px; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 999px; background: rgba(249, 115, 22, 0.12); color: #FB923C; font: 700 13px var(--font-ui); }
+:root[data-color="light"] .hm-dflag { color: #C2410C; }
+.hm-dflag svg { width: 15px; height: 15px; }
+.hm-dcard.is-done { opacity: 0.55; }
+.hm-dcard.is-done .hm-dmain strong { text-decoration: line-through; }
+
+/* ── Attendance app: its own look (green identity, big ring, subject tiles) ── */
+.att-app { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; align-items: center; padding: 18px 16px 16px; border-radius: 28px; background: linear-gradient(180deg, rgba(16, 185, 129, 0.16), rgba(16, 185, 129, 0.05)), var(--card-bg); }
+.att-app-ring .att-ring { width: 92px; height: 92px; }
+.att-app-ring .att-ring-bg, .att-app-ring .att-ring-fg { stroke-width: 6; }
+.att-app-ring .att-ring b { font-size: 21px; letter-spacing: -0.5px; }
+.att-app-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.att-app-k { font: 700 12.5px var(--font-ui); color: #10B981; }
+:root[data-color="light"] .att-app-k { color: #047857; }
+.att-app-text strong { font: 800 26px/1.1 var(--font-ui); letter-spacing: -0.5px; color: var(--text-main); }
+.att-app-text > span:last-child { font: 500 13px var(--font-ui); color: var(--text-muted); }
+.att-chips { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.att-chip { font: 700 12.5px var(--font-ui); padding: 6px 12px; border-radius: 999px; background: var(--card-bg); color: var(--text-muted); }
+.att-chip.is-ok { color: #10B981; }
+:root[data-color="light"] .att-chip.is-ok { color: #047857; }
+.att-chip.is-risk { background: rgba(245, 158, 11, 0.16); color: var(--st-warn-ink, #FBBF24); }
+.att-ask .att-mark { display: flex; align-items: center; gap: 8px; }
+.att-ask .att-mark > span:first-child { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.att-ask .att-mark strong { font: 800 15px var(--font-ui); color: var(--text-main); }
+.att-ask .att-mark > span:first-child > span { font: 500 12.5px var(--font-ui); color: var(--text-muted); }
+.att-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.att-tile { all: unset; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 14px; border-radius: 24px; background: var(--card-bg); cursor: pointer; transition: background-color var(--dur-2, 200ms) ease; }
+.att-tile:active { background: var(--st-inset, var(--canvas)); }
+.att-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.att-tile .att-ring { margin-bottom: 6px; }
+.att-tile strong { font: 800 17px var(--font-ui); color: var(--text-main); }
+.att-tile-v { font: 700 12.5px var(--font-ui); color: #10B981; }
+:root[data-color="light"] .att-tile-v { color: #047857; }
+.att-tile.is-risk .att-tile-v { color: var(--st-warn-ink, #FBBF24); }
+.att-tile-n { font: 500 12px var(--font-mono); color: var(--text-muted); }
+
+/* ══ Docket-style Home (Nov 20, 2026): airy cards, black pills, a yellow highlighter, round checks ══ */
+:root { --dk-yellow: #FFD84D; --dk-ink: #14161B; }
+.hm-list { flex-direction: row; flex-wrap: wrap; align-items: stretch; }
+.hm-list > * { flex: 1 1 100%; min-width: 0; }
+.hm-list:not(.is-editing) > .hm-changes, .hm-list:not(.is-editing) > .hm-due { flex: 1 1 calc(50% - 6px); padding: 12px; }
+.hm-list > .hm-edit-home { flex: 0 0 auto; margin: 6px auto 4px; }
+:root[data-color="light"] .hm-card:not(.hm-header) { box-shadow: 0 1px 2px rgba(20, 22, 27, 0.04), 0 6px 18px rgba(20, 22, 27, 0.05); }
+
+/* Header: Notes pill beside the settings button */
+.hm-top-r { display: flex; align-items: center; gap: 8px; }
+.hm-notes-btn { height: 40px; padding: 0 16px 0 13px; border: 0; border-radius: 999px; background: var(--text-main); color: var(--canvas); display: inline-flex; align-items: center; gap: 7px; font: 700 13.5px var(--font-ui); cursor: pointer; }
+.hm-notes-btn svg { width: 17px; height: 17px; }
+
+
+/* Compact cards: Changes and Due soon, side by side */
+.hm-chead { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; cursor: pointer; }
+.hm-ico.sm { width: 26px; height: 26px; }
+.hm-ico.sm svg { width: 14px; height: 14px; }
+.hm-chead h2 { flex: 1; min-width: 0; margin: 0; font: 800 14.5px var(--font-ui); letter-spacing: -0.2px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hm-cnt { flex-shrink: 0; min-width: 22px; height: 22px; padding: 0 7px; display: grid; place-items: center; border-radius: 999px; background: var(--text-main); color: var(--canvas); font: 800 12px var(--font-ui); }
+.hm-empty-sm { font-size: 12.5px; }
+.hm-minis { display: flex; flex-direction: column; gap: 6px; }
+.hm-mini { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 14px; background: var(--st-inset, var(--canvas)); cursor: pointer; }
+.hm-mini:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hm-row-ico.sm { width: 24px; height: 24px; }
+.hm-row-ico.sm svg { width: 13px; height: 13px; }
+.hm-mini-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.hm-mini-t strong { font: 700 12.5px/1.25 var(--font-ui); color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.hm-mini-t span { font: 500 11.5px var(--font-ui); color: var(--text-muted); }
+.hm-more-line { all: unset; align-self: flex-start; padding: 2px 4px; font: 700 12px var(--font-ui); color: var(--accent); cursor: pointer; }
+:root[data-color="light"] .hm-more-line { color: var(--accent-hover); }
+.hm-due .hm-dscroll { margin: 0 -12px; padding: 2px 12px 4px; scroll-padding: 0 12px; }
+.hm-due .hm-dcard { flex-basis: 132px; padding: 10px; border-radius: 16px; gap: 8px; }
+.hm-due .hm-dmain strong { font-size: 13px; -webkit-line-clamp: 3; }
+.hm-due .hm-dtick, .hm-due .hm-dflag { height: 32px; font-size: 12.5px; }
+.hm-due .hm-dwhen { font-size: 11px; }
+
+.hm-card.hm-due { display: block; }
+
+/* ── The day card: class rows, attendance on the right, checker after a class ends ── */
+.hm-cls { cursor: default; }
+.hm-cls-btn { all: unset; box-sizing: border-box; flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: opacity var(--dur-2, 200ms) ease; }
+.hm-cls-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
+.hm-cls.is-done, .hm-cls.is-off { opacity: 1; }
+.hm-cls.is-done .hm-cls-btn, .hm-cls.is-off .hm-cls-btn { opacity: 0.5; }
+.hm-cls.is-now { position: relative; }
+.hm-cls.is-now::before { content: ''; position: absolute; left: -9px; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: #10B981; }
+.hm-live { color: #10B981; font-weight: 800; }
+:root[data-color="light"] .hm-live { color: #047857; }
+.hm-cls-main .hm-bar { margin-top: 6px; }
+button.hm-pct { all: unset; box-sizing: border-box; flex-shrink: 0; min-width: 58px; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; cursor: pointer; }
+button.hm-pct:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
+.hm-pct b { transition: color var(--dur-2, 200ms) ease; }
+.hm-chk { flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+.hm-chk-b { all: unset; box-sizing: border-box; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid var(--card-border); cursor: pointer; transition: background-color var(--dur-2, 200ms) ease, color var(--dur-2, 200ms) ease; }
+.hm-chk-b svg { width: 17px; height: 17px; }
+.hm-chk-b.is-yes { color: #10B981; border-color: rgba(16, 185, 129, 0.5); }
+.hm-chk-b.is-no { color: #F43F5E; border-color: rgba(244, 63, 94, 0.5); }
+:root[data-color="light"] .hm-chk-b.is-yes { color: #047857; }
+:root[data-color="light"] .hm-chk-b.is-no { color: #BE123C; }
+.hm-chk-b.is-yes:active { background: #10B981; color: #fff; }
+.hm-chk-b.is-no:active { background: #F43F5E; color: #fff; }
+.hm-chk-b:focus-visible, .hm-chk-skip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hm-chk-skip { all: unset; box-sizing: border-box; padding: 8px 4px; font: 700 12px var(--font-ui); color: var(--text-muted); cursor: pointer; }
+.hm-ask-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 2px; }
+.hm-ask-gap { height: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--card-border); }
+
+/* ══ Home refresh (Nov 21, 2026): steadier rows, no wrapping surprises, roomier cards ══ */
+.hm-card { border-radius: 26px; }
+.hm-list { padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); }
+
+/* Class rows: time stacked on the left, name in the middle, one fixed-width slot on the right */
+.hm-cls { gap: 10px; padding: 12px 0; align-items: center; }
+.hm-cls-btn { gap: 12px; align-items: center; }
+.hm-cls-t { width: 50px; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; line-height: 1; }
+.hm-cls-t b { font: 800 15px var(--font-mono); letter-spacing: -0.4px; color: var(--text-main); }
+.hm-cls-t i { font: 700 10.5px var(--font-ui); font-style: normal; letter-spacing: 0.3px; color: var(--text-muted); }
+.hm-cls-main { gap: 3px; }
+.hm-cls-main strong { display: flex; align-items: center; gap: 6px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font: 800 16.5px/1.2 var(--font-ui); letter-spacing: -0.2px; }
+.hm-cls-main .hm-cls-sub { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font: 500 12.5px var(--font-ui); color: var(--text-muted); }
+.hm-cls-main .hm-live-line { display: inline-flex; align-items: center; gap: 6px; margin-top: 2px; font: 800 12px var(--font-ui); color: #10B981; white-space: nowrap; }
+:root[data-color="light"] .hm-cls-main .hm-live-line { color: #047857; }
+.hm-cls-main .hm-bar { height: 5px; margin-top: 4px; }
+button.hm-pct, .hm-chk { width: 84px; min-width: 84px; justify-content: flex-end; }
+.hm-pct b { font: 800 18px var(--font-ui); letter-spacing: -0.4px; }
+.hm-pct i { font: 600 10.5px var(--font-ui); }
+.hm-tmr-k { font: 800 13px var(--font-ui); letter-spacing: 0.1px; }
+.hm-ask-h { min-height: 28px; margin-bottom: 4px; }
+.hm-chk-skip { padding: 6px 12px; border-radius: 999px; background: var(--st-inset, var(--canvas)); color: var(--text-main); }
+
+/* Compact cards (Changes / Due soon) */
+.hm-chead { gap: 6px; }
+.hm-ico.sm { width: 22px; height: 22px; }
+.hm-ico.sm svg { width: 12px; height: 12px; }
+.hm-chead h2 { font-size: 13.5px; }
+.hm-cnt { min-width: 20px; height: 20px; padding: 0 6px; font-size: 11.5px; }
+.hm-due .hm-dmeta { white-space: normal; }
+
+/* Quick actions: equal tiles, labels never collide */
+.hm-qa { gap: 10px 6px; }
+.hm-action { min-width: 0; justify-content: flex-start; min-height: 86px; overflow-wrap: break-word; }
+.hm-action { font-size: 11.5px; }
+
+/* Long names stay inside their cards */
+.hm-row-main strong, .hm-mini-t strong, .hm-dmain strong { overflow-wrap: anywhere; }
+
+/* Narrow phones (320px) */
+.hm-date { white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 345px) {
+  .hm-date { font-size: 12px; padding: 0 11px; }
+  .hm-notes-btn { padding: 0 12px 0 10px; font-size: 13px; }
+  .hm-top-r { gap: 6px; }
+  button.hm-pct, .hm-chk { width: 74px; min-width: 74px; }
+  .hm-chk-b { width: 34px; height: 34px; }
+  .hm-cls-t { width: 44px; }
+  .hm-cls-btn { gap: 9px; }
+}
+@media (max-width: 359px) {
+  .hm-list:not(.is-editing) > .hm-changes, .hm-list:not(.is-editing) > .hm-due { flex-basis: 100%; }
+  .hm-head { gap: 8px; }
+  .hm-head h2 { font-size: 15px; }
+  .hm-more { padding: 0 4px 0 10px; }
+}
+@media (max-width: 359px) { .hm-more { height: 30px; font-size: 12px; } .hm-head h2 { font-size: 14px; } }
+.hm-exams .hm-due-when { width: 44px; }
+
+/* ── Day card header: the day on the left, how many classes on the right ── */
+.hm-ask-h { align-items: center; }
+.hm-k-right { display: inline-flex; align-items: center; gap: 8px; }
+.hm-k-count { font: 700 12.5px var(--font-ui); color: var(--text-muted); }
+.hm-tmr-k { font: 800 15px var(--font-ui); color: var(--text-main); letter-spacing: -0.1px; }
+.hm-ask-h .hm-tmr-k + .hm-chk-skip { margin-left: auto; }
+
+/* ── Changes: what kind of change, then when ── */
+.hm-mini-type { font-weight: 800; color: var(--text-main); }
+.hm-mini { padding: 9px 10px; border-radius: 16px; }
+
+/* ── Due soon: one card at a time, swipe sideways, dots count them ── */
+.hm-due .hm-dscroll { margin: 0; padding: 0; gap: 10px; scroll-snap-type: x mandatory; scroll-padding: 0; border-radius: 16px; }
+.hm-due .hm-dcard { flex: 0 0 100%; scroll-snap-align: start; scroll-snap-stop: always; padding: 12px; border-radius: 16px; min-height: 148px; }
+.hm-due .hm-dmain { gap: 6px; }
+.hm-due .hm-dmain strong { font-size: 14px; -webkit-line-clamp: 4; }
+.hm-dots { display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 10px; min-height: 8px; }
+.hm-dots i { width: 6px; height: 6px; border-radius: 999px; background: var(--card-border); transition: width var(--dur-2, 200ms) ease, background-color var(--dur-2, 200ms) ease; }
+.hm-dots i.is-on { width: 16px; background: var(--text-main); }
+.hm-mini-t span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hm-mini-t span { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; }
+.hm-mini-t strong { -webkit-line-clamp: 1; font-size: 13.5px; }
+
+/* Edge to edge like the bottom bar: cards sit 8px from the screen sides (they had 16px + 16px) */
+html #homeView.home-v2 { padding-left: 0; padding-right: 0; }
+html #homeView .hm-list { padding-left: 8px; padding-right: 8px; gap: 10px; }
+html #homeView .hm-card.hm-header { padding: 6px 12px 4px; }
+html #homeView .hm-card:not(.hm-header) { padding-left: 16px; padding-right: 16px; }
+html #homeView .hm-list:not(.is-editing) > .hm-changes, html #homeView .hm-list:not(.is-editing) > .hm-due { flex-basis: calc(50% - 5px); padding-left: 12px; padding-right: 12px; }
+
+/* Attendance: classes added by hand */
+.att-day.is-free { opacity: 1; cursor: pointer; border: 1px dashed var(--card-border); background: transparent; color: var(--text-muted); font: 600 13px var(--font-ui); }
+.att-day.is-free:active, .att-day.is-free.is-adding { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.att-day.is-extra { outline: 2px dashed currentColor; outline-offset: -3px; }
+.att-legend .is-extra::before { background: transparent; border: 1.5px dashed currentColor; }
+.day-pop.att-pop { width: min(300px, calc(100vw - 24px)); }
+.day-pop-row.is-static { cursor: default; }
+.day-pop-ico.warn { background: #F59E0B; color: #07090E; }
+.att-pop-btns { display: flex; gap: 8px; padding: 4px 0 6px; }
+.att-pop-btns .hm-att-btn { flex: 1; justify-content: center; height: 40px; }
+.day-pop.is-above::before { top: auto; bottom: -6px; transform: rotate(225deg); }
+
+/* Attendance calendar: one month at a time, arrows to go back */
+.att-monthnav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.att-monthnav strong { font: 800 15px var(--font-ui); color: var(--text-main); }
+.att-monthnav button { width: 38px; height: 38px; border: 0; border-radius: 50%; background: var(--st-inset, var(--canvas)); color: var(--text-main); display: grid; place-items: center; cursor: pointer; }
+.att-monthnav button svg { width: 18px; height: 18px; }
+.att-monthnav button:disabled { opacity: 0.3; cursor: default; }
+.att-monthnav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ── Exams: a big countdown for the next one, date tiles for the ones after ── */
+.hm-xhero { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 22px; background: var(--surface-inset, var(--st-inset)); cursor: pointer; }
+.hm-xhero:focus-visible, .hm-xrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hm-xcount { flex-shrink: 0; width: 88px; min-height: 88px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: rgba(249, 115, 22, 0.14); color: #FB923C; text-align: center; }
+:root[data-color="light"] .hm-xcount { color: #C2410C; background: rgba(249, 115, 22, 0.12); }
+.hm-xcount b { font: 800 34px/1 var(--font-ui); letter-spacing: -1px; }
+.hm-xcount i { font: 700 11.5px var(--font-ui); font-style: normal; letter-spacing: 0.2px; }
+.hm-xhero.is-soon .hm-xcount { background: #F97316; color: #fff; }
+:root[data-color="light"] .hm-xhero.is-soon .hm-xcount { color: #fff; }
+.hm-xmain { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.hm-xmain strong { font: 800 22px/1.1 var(--font-ui); letter-spacing: -0.4px; color: var(--text-main); overflow-wrap: anywhere; }
+.hm-xmain span { font: 600 13px var(--font-ui); color: var(--text-main); }
+.hm-xmain em { font: 500 12.5px/1.35 var(--font-ui); font-style: normal; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.hm-xlist { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.hm-xrow { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 16px; cursor: pointer; }
+.hm-xrow:active { background: var(--surface-inset, var(--st-inset)); }
+.hm-xdate { flex-shrink: 0; width: 44px; height: 46px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; background: var(--surface-inset, var(--st-inset)); }
+.hm-xdate b { font: 800 17px/1 var(--font-ui); color: var(--text-main); }
+.hm-xdate i { font: 700 10px var(--font-ui); font-style: normal; letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-muted); }
+.hm-xt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.hm-xt strong { font: 700 14.5px var(--font-ui); color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hm-xt span { font: 500 12.5px var(--font-ui); color: var(--text-muted); }
+.hm-xin { flex-shrink: 0; padding: 5px 10px; border-radius: 999px; background: var(--surface-inset, var(--st-inset)); font: 800 12px var(--font-ui); color: var(--text-main); }
+.hm-xmore { margin: 6px 4px 0; font: 600 12px var(--font-ui); color: var(--text-muted); }
+.hm-xempty { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 18px; background: var(--surface-inset, var(--st-inset)); }
+.hm-xempty span { flex-shrink: 0; width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; background: rgba(249, 115, 22, 0.14); color: #FB923C; }
+:root[data-color="light"] .hm-xempty span { color: #C2410C; }
+.hm-xempty svg { width: 20px; height: 20px; }
+.hm-xempty p { margin: 0; font: 500 13px/1.45 var(--font-ui); color: var(--text-muted); }
+@media (max-width: 359px) { .hm-xcount { width: 74px; min-height: 76px; } .hm-xcount b { font-size: 28px; } .hm-xmain strong { font-size: 19px; } }
+
+/* ── Exam day: marked red ── */
+.hm-exam-tag { flex-shrink: 0; margin-left: 2px; padding: 2px 8px; border-radius: 999px; background: #F43F5E; color: #fff; font: 800 10.5px var(--font-ui); letter-spacing: 0.4px; text-transform: uppercase; }
+.hm-k-exam { color: #F43F5E; font-weight: 800; }
+:root[data-color="light"] .hm-k-exam { color: #BE123C; }
+.hm-cls.is-exam .hm-cls-main strong { color: #FB7185; }
+:root[data-color="light"] .hm-cls.is-exam .hm-cls-main strong { color: #BE123C; }
+.hm-cls.is-exam:not(.is-now) { position: relative; }
+.hm-cls.is-exam:not(.is-now)::before { content: ''; position: absolute; left: -9px; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: #F43F5E; }
+.hm-examrows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
+.hm-examrow { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 18px; background: rgba(244, 63, 94, 0.13); border: 1px solid rgba(244, 63, 94, 0.4); cursor: pointer; }
+.hm-examrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hm-examrow-ico { flex-shrink: 0; width: 34px; height: 34px; border-radius: 12px; display: grid; place-items: center; background: #F43F5E; color: #fff; }
+.hm-examrow-ico svg { width: 18px; height: 18px; }
+.hm-examrow-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.hm-examrow-t strong { font: 800 15px var(--font-ui); color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hm-examrow-t span { font: 600 12.5px var(--font-ui); color: #FB7185; }
+:root[data-color="light"] .hm-examrow-t span { color: #BE123C; }
+
+/* Exams: the word "Today" fits its tile */
+.hm-xcount.is-word b { font-size: 21px; letter-spacing: -0.4px; }
+.hm-xin { white-space: nowrap; }
+
+/* Due soon: red for what is due today or tomorrow and not yet checked */
+.hm-cnt.is-red { background: #F43F5E; color: #fff; }
+.hm-cnt.is-green { background: #10B981; color: #fff; }
+.hm-cnt svg { width: 12px; height: 12px; }
+.hm-dcard.is-soon { box-shadow: inset 0 0 0 1px rgba(244, 63, 94, 0.45); }
+.hm-dcard.is-soon .hm-dwhen { background: #F43F5E; color: #fff; }
+.hm-dcard.is-soon.is-test .hm-dwhen { background: #F43F5E; color: #fff; }
+:root[data-color="light"] .hm-dcard.is-soon.is-test .hm-dwhen { color: #fff; }

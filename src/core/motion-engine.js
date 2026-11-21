@@ -312,7 +312,7 @@ const PULL_VIEWS = {
   },
   homeView: () => {
     if (window.__fetchAndRenderAnnouncements) window.__fetchAndRenderAnnouncements();
-    if (window.__renderHome) window.__renderHome(true);
+    if (window.__homeRefresh) window.__homeRefresh(); else if (window.__renderHome) window.__renderHome(true);
   },
   announcementsAppView: () => window.__fetchAndRenderAnnouncements && window.__fetchAndRenderAnnouncements(),
   facultyAppView: () => window.__renderFacultyDirectory && window.__renderFacultyDirectory(),

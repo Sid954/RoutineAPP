@@ -21,14 +21,14 @@ import { getTeacherInfo } from '../teachers/teacher-names.js';
 import { openTeacherDetailByCode } from '../teachers/teacher-modal.js';
 import { showClassDetails } from '../timeline/class-detail.js';
 import { bindMouseDrag } from '../core/desktop-input.js';
-import { getDeadlinesDone, setDeadlineDoneFlag } from './home-deadlines.js';
-import { setMark, getSemesterStart } from '../attendance/attendance.js';
+import { getDeadlinesDone, toggleDeadlineDone } from './home-deadlines.js';
+import { parseTime } from '../notifications/planner.js';
+import { setMark, setSkipped, isSkipped, markKey } from '../attendance/attendance.js';
 import { wasHeld } from '../attendance/held-classes.js';
 import { attendanceData } from '../attendance/attendance-data.js';
-import { listNotes, toggleNote, notesForSubject } from '../notes/notes-store.js';
 import { listOwnExams, upcomingExams, daysUntil } from '../exams/exams-store.js';
 import { CARDS, getLayout, saveLayout, resetLayout } from './layout-store.js';
-import { openNoteSheet, openExamSheet } from './home-sheets.js';
+import { openExamSheet } from './home-sheets.js';
 
 const $ = id => document.getElementById(id);
 const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -71,6 +71,23 @@ const COLOR = { now: '#0EA5E9', changes: '#F43F5E', attendance: '#10B981', today
 function classesOn(date) {
   try { return getEffectiveClassesForDay(date.getDay(), ymd(date)); } catch (e) { return []; }
 }
+/** End minute of a class; a missing or broken end time counts as a 90 minute class. */
+const endOf = c => { const s = toMinutes(c.start), e = toMinutes(c.end); return e > s ? e : s + 90; };
+/**
+ * Has something dated TODAY (a test, an exam, a change) already happened? Used to drop it from Home.
+ * The whole day counts as over after the rollover hour with no class left; otherwise it is over when
+ * its class has ended, or (no class found) 90 minutes after its start time.
+ */
+function passedToday(now, subject, startMin) {
+  if (shouldRollOver(now)) return true;
+  const nowM = now.getHours() * 60 + now.getMinutes();
+  const subj = String(subject || '').trim().toUpperCase();
+  const mine = subj ? classesOn(now).filter(c => wasHeld(c) && String(c.title || '').trim().toUpperCase() === subj) : [];
+  if (mine.length) return mine.every(c => endOf(c) <= nowM);
+  return startMin !== null && startMin >= 0 && nowM >= startMin + 90;
+}
+const minOf = s => { const m = parseTime(String(s || '').trim()); return m >= 0 ? m : null; };
+
 const heldOn = date => classesOn(date).filter(wasHeld).sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
 
 /** The day Home is about: today, or (after 6 pm with nothing left, or a day with no classes) the next class day. */
@@ -111,7 +128,7 @@ function headerCard(now) {
   const today = heldOn(now);
   const hol = getOverrideFor(ymd(now));
   const nowM = now.getHours() * 60 + now.getMinutes();
-  const left = today.filter(c => toMinutes(c.end) > nowM);
+  const left = today.filter(c => endOf(c) > nowM);
   let sum;
   if (hol && hol.type === 'holiday' && !today.length) sum = 'Campus closed today';
   else if (!today.length) sum = 'No classes today';
@@ -120,62 +137,153 @@ function headerCard(now) {
   const t = `${h % 12 || 12}:${String(now.getMinutes()).padStart(2, '0')}`;
   return `<div class="hm-top">
       <button type="button" class="hm-date" data-act="calendar">${escapeHtml(`${DAY_NAMES[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]}`)}</button>
-      <button type="button" class="hm-gear" data-act="settings" aria-label="Settings">${svg(IC.gear)}</button>
+      <div class="hm-top-r"><button type="button" class="hm-notes-btn" data-act="notes">${svg(IC.notes, 2.1)}Notes</button><button type="button" class="hm-gear" data-act="settings" aria-label="Settings">${svg(IC.gear)}</button></div>
     </div>
     <div class="hm-clock"><span class="hm-clock-t">${t}</span><span class="hm-clock-p">${h >= 12 ? 'PM' : 'AM'}</span></div>
     <p class="hm-hello">${escapeHtml(hi)}, <strong>${escapeHtml(name)}</strong></p>
     <p class="hm-sum">${escapeHtml(sum)}</p>`;
 }
 
+/* ── The day card: today's classes while there are any left, else the next class day ───────────
+   Same design always (running or not): time, class, room, and on the right the subject's attendance.
+   Once a class has ended that right-hand slot becomes a Present / Absent checker (with Skip) until the
+   student answers or the day ends (11:59 pm: the checkers only exist for today's classes). */
+function attendanceByTitle() {
+  const map = new Map();
+  let marks = {}, tracking = false;
+  try { const d = attendanceData(new Date()); d.stats.forEach(s => map.set(s.subject, s)); marks = d.att.marks || {}; tracking = !!d.start; } catch (e) {}
+  return { stat: title => map.get(String(title || '').trim().toUpperCase()) || null, marks, tracking };
+}
+
+let _markedAt = {};     // markKey -> ms: just answered; the row keeps showing for a few seconds with the new percentage
+let _markTimer = null;
+const MARK_SHOW_MS = 6000;
+const recentlyMarked = key => Date.now() - (_markedAt[key] || 0) < MARK_SHOW_MS;
+
+/** Held classes of today that already ended and still wait for an answer. */
+function pendingToday(now, att) {
+  if (!att.tracking) return [];
+  const nowM = now.getHours() * 60 + now.getMinutes();
+  return heldOn(now).filter(c => endOf(c) <= nowM).map(c => ({ c, key: markKey(ymd(now), c.title, c.start) }))
+    .filter(x => !att.marks[x.key] && !isSkipped(x.key));
+}
+
+function attSlot(c, d, att, pending) {
+  if (!wasHeld(c)) return '';
+  const key = markKey(ymd(d), c.title, c.start);
+  if (pending) {
+    return `<span class="hm-chk" role="group" aria-label="Were you at ${escapeHtml(c.title)}?">
+        <button type="button" class="hm-chk-b is-yes" data-act="mark" data-key="${escapeHtml(key)}" data-val="present" aria-label="Present at ${escapeHtml(c.title)}">${svg(IC.check, 2.7)}</button>
+        <button type="button" class="hm-chk-b is-no" data-act="mark" data-key="${escapeHtml(key)}" data-val="absent" aria-label="Absent from ${escapeHtml(c.title)}">${svg(IC.x, 2.7)}</button>
+      </span>`;
+  }
+  const s = att.stat(c.title);
+  const pct = s && s.pct !== null ? s : null;
+  return `<button type="button" class="hm-pct${pct ? (pct.atRisk ? ' is-risk' : ' is-ok') : ''}" data-act="att-subject" data-subject="${escapeHtml(String(c.title || '').trim().toUpperCase())}" aria-label="${escapeHtml(c.title)} attendance ${pct ? `${Math.round(pct.pct)}%` : 'not tracked yet'}. Open it"><b>${pct ? `${Math.round(pct.pct)}%` : '–'}</b><i>${pct ? 'attended' : 'no data'}</i></button>`;
+}
+
+function timeParts(s) { const m = String(format12h(s)).match(/^(\d{1,2}:\d{2})\s*([AP]M)$/i); return m ? [m[1], m[2].toUpperCase()] : [String(format12h(s)), '']; }
+
+function classRow(c, d, ctx) {
+  const { nowM, isToday, att, cur, next } = ctx;
+  const off = !wasHeld(c);
+  const ended = isToday && endOf(c) <= nowM;
+  const live = !!cur && c === cur;
+  const key = markKey(ymd(d), c.title, c.start);
+  const pending = isToday && ended && !off && att.tracking && !att.marks[key] && !isSkipped(key);
+  const room = (c.isOnline || c.isMovedOnline) ? 'Online' : (formatRoom(c.room) ? `Room ${formatRoom(c.room)}` : 'Room TBA');
+  const isExam = !off && isExamClass(c, d);
+  const tags = [off ? (c.isCancelled ? 'Cancelled' : 'Moved') : '', !off && !live && next && c === next ? 'Next' : ''].filter(Boolean);
+  const prog = live ? Math.min(1, Math.max(0, (nowM - toMinutes(c.start)) / Math.max(1, endOf(c) - toMinutes(c.start)))) : 0;
+  const badge = c.isUnconfirmed ? confirmBadgeHtml('unverified', c.unconfirmedId || '', 'cf-inline') : '';
+  const [tm, ap] = timeParts(c.start);
+  return `<div class="hm-cls hm-tmr-row${off ? ' is-off' : ''}${ended && !pending ? ' is-done' : ''}${live ? ' is-now' : ''}${pending ? ' is-pending' : ''}${isExam ? ' is-exam' : ''}">
+      <button type="button" class="hm-cls-btn" data-act="class" data-date="${ymd(d)}" data-title="${escapeHtml(c.title)}" data-start="${escapeHtml(c.start)}">
+        <span class="hm-cls-t"><b>${escapeHtml(tm)}</b><i>${escapeHtml(ap)}</i></span>
+        <span class="hm-cls-main">
+          <strong>${escapeHtml(c.title)}${isExam ? '<b class="hm-exam-tag">Exam</b>' : ''}${badge}</strong>
+          <span class="hm-cls-sub">${escapeHtml(room)}${tags.length ? ` · ${escapeHtml(tags.join(' · '))}` : ''}</span>
+          ${live ? `<span class="hm-live-line"><i class="hm-live-dot"></i>Now · ${escapeHtml(inMins(endOf(c) - nowM))} left</span><span class="hm-bar"><i style="transform:scaleX(${prog.toFixed(3)})"></i></span>` : ''}
+        </span>
+      </button>
+      ${attSlot(c, d, att, pending)}
+    </div>`;
+}
+
 function nowCard(now) {
   const nowM = now.getHours() * 60 + now.getMinutes();
-  const todayList = heldOn(now);
-  const cur = todayList.find(c => toMinutes(c.start) <= nowM && nowM < toMinutes(c.end));
-  const later = todayList.filter(c => toMinutes(c.start) > nowM);
-  const room = c => (c.isOnline || c.isMovedOnline) ? 'Online' : (formatRoom(c.room) ? `Room ${formatRoom(c.room)}` : 'Room TBA');
-  const teacher = c => { const code = c.instructor || c.teacher || ''; const i = code ? getTeacherInfo(code) : null; return (i && i.name) || code; };
-  const badge = c => (c.isUnconfirmed ? confirmBadgeHtml('unverified', c.unconfirmedId || '', 'cf-inline') : '');
-  const joinBtn = (c, date) => {
-    if (!(c.isOnline || c.isMovedOnline)) return '';
-    const ov = getOverrideFor(ymd(date), c.title);
+  const att = attendanceByTitle();
+  Object.keys(_markedAt).forEach(k => { if (!recentlyMarked(k)) delete _markedAt[k]; });
+  const d = focusDay(now);
+  const isToday = ymd(d) === ymd(now);
+  const list = classesOn(d).sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
+  const heldList = list.filter(wasHeld);
+  if (!heldList.length) return '<div class="hm-empty">No classes in the next two weeks.</div>';
+  const cur = isToday ? heldList.find(c => toMinutes(c.start) <= nowM && nowM < endOf(c)) : null;
+  const next = isToday ? heldList.find(c => toMinutes(c.start) > nowM) : heldList[0];
+  const ctx = { now, nowM, isToday, att, cur, next };
+  const n = heldList.length;
+  const word = dayWord(d, now);
+  const left = isToday ? 'Today' : word;
+  const countText = `${n} ${n === 1 ? 'class' : 'classes'}`;
+  const dayExams = collectExams(now).filter(e => e.date === ymd(d));
+  const examText = dayExams.length ? ` · ${dayExams.length} ${dayExams.length === 1 ? 'exam' : 'exams'}` : '';
+  // Exams the class list does not show by itself (the student's own midterm / final, a test for a subject with no class that day)
+  const shownTitles = new Set(list.filter(wasHeld).map(c => String(c.title || '').trim().toUpperCase()));
+  const extraExams = dayExams.filter(e => e.source === 'own' || !shownTitles.has(String(e.subject || '').trim().toUpperCase()));
+  const examRows = extraExams.map(e => `<button type="button" class="hm-examrow" ${e.source === 'notice' ? `data-act="notice" data-id="${escapeHtml(String(e.noticeId))}"` : `data-act="edit-exam" data-id="${escapeHtml(e.id)}"`}><span class="hm-examrow-ico">${svg(IC.exams, 2)}</span><span class="hm-examrow-t"><strong>${escapeHtml(e.subject)} · ${escapeHtml(e.label)}</strong><span>${isToday ? 'Today' : escapeHtml(word)}${e.time ? ` · ${escapeHtml(e.time)}` : ''}</span></span><b class="hm-exam-tag">Exam</b></button>`).join('');
+
+  // Evening: today is over and the list shows tomorrow, but today's answers are still due (until midnight)
+  let ask = '';
+  if (!isToday && att.tracking) {
+    const pend = pendingToday(now, att);
+    const recent = heldOn(now).filter(c => recentlyMarked(markKey(ymd(now), c.title, c.start)));
+    const rows = [...new Map([...pend.map(x => x.c), ...recent].map(c => [`${c.title}@${c.start}`, c])).values()]
+      .sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
+    if (rows.length) {
+      const ctxToday = { now, nowM, isToday: true, att, cur: null, next: null };
+      ask = `<div class="hm-ask-h"><span class="hm-tmr-k">Today · were you there?</span>${pend.length ? '<button type="button" class="hm-chk-skip" data-act="skip-all">Skip all</button>' : ''}</div>
+        <div class="hm-rows hm-ask">${rows.map(c => classRow(c, now, ctxToday)).join('')}</div>`;
+    }
+  }
+  const joinBtn = (c) => {
+    if (!c || !(c.isOnline || c.isMovedOnline)) return '';
+    const ov = getOverrideFor(ymd(d), c.title);
     const link = ov && ov.announcement ? toNotice(ov.announcement, noticeCtx()).link : '';
     return link ? `<a class="hm-join" href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">${svg(IC.play)}Join online class</a>` : '';
   };
-  const examTag = (c, d) => (isExamClass(c, d) ? '<span class="hm-tag is-exam">Test</span>' : '');
-  if (cur) {
-    const s = toMinutes(cur.start), e = toMinutes(cur.end);
-    const next = later[0];
-    const prog = Math.min(1, Math.max(0, (nowM - s) / Math.max(1, e - s)));
-    return `<button type="button" class="hm-hero is-live" data-act="class" data-date="${ymd(now)}" data-title="${escapeHtml(cur.title)}" data-start="${escapeHtml(cur.start)}">
-        <span class="hm-hero-k"><i class="hm-live-dot"></i>Now · ${escapeHtml(inMins(e - nowM))} left</span>
-        <span class="hm-hero-t">${escapeHtml(cur.title)}${examTag(cur, now)}${badge(cur)}</span>
-        <span class="hm-hero-s">${escapeHtml(room(cur))} · ${escapeHtml(teacher(cur))} · until ${escapeHtml(format12h(cur.end))}</span>
-        <span class="hm-bar"><i style="transform:scaleX(${prog.toFixed(3)})"></i></span>
-        <span class="hm-hero-n">${next ? `Next: <strong>${escapeHtml(next.title)}</strong> at ${escapeHtml(format12h(next.start))} · ${escapeHtml(room(next))}` : 'Last class today'}</span>
-      </button>${joinBtn(cur, now)}`;
-  }
-  if (later.length) {
-    const n = later[0];
-    const wait = toMinutes(n.start) - nowM;
-    const hadOne = todayList.some(c => toMinutes(c.end) <= nowM);
-    return `<button type="button" class="hm-hero" data-act="class" data-date="${ymd(now)}" data-title="${escapeHtml(n.title)}" data-start="${escapeHtml(n.start)}">
-        <span class="hm-hero-k">${hadOne ? `Break · free for ${escapeHtml(inMins(wait))}` : `Next class in ${escapeHtml(inMins(wait))}`}</span>
-        <span class="hm-hero-t">${escapeHtml(n.title)}${examTag(n, now)}${badge(n)}</span>
-        <span class="hm-hero-s">${escapeHtml(format12h(n.start))} · ${escapeHtml(room(n))} · ${escapeHtml(teacher(n))}</span>
-      </button>${joinBtn(n, now)}${hadOne && wait >= 30 ? `<button type="button" class="hm-link" data-act="rooms">${svg(IC.door)}Find a free room for the break</button>` : ''}`;
-  }
-  const d = focusDay(now);
-  const first = heldOn(d)[0];
-  const word = dayWord(d, now);
-  if (!first) return `<div class="hm-empty">No classes in the next two weeks.</div>`;
-  return `<button type="button" class="hm-hero" data-act="class" data-date="${ymd(d)}" data-title="${escapeHtml(first.title)}" data-start="${escapeHtml(first.start)}">
-      <span class="hm-hero-k">${todayList.length ? 'Done for today · ' : ''}${escapeHtml(word)}'s first class</span>
-      <span class="hm-hero-t">${escapeHtml(first.title)}${examTag(first, d)}${badge(first)}</span>
-      <span class="hm-hero-s">${escapeHtml(format12h(first.start))} · ${escapeHtml(room(first))} · ${escapeHtml(teacher(first))}</span>
-    </button>`;
+  const hadOne = isToday && heldList.some(c => endOf(c) <= nowM);
+  const gap = next && !cur && isToday ? toMinutes(next.start) - nowM : 0;
+  // Today's last class is over (the list still shows today): one Skip all for whatever is unanswered
+  const dayOver = isToday && heldList.every(c => endOf(c) <= nowM);
+  const skipAll = dayOver && pendingToday(now, att).length ? '<button type="button" class="hm-chk-skip" data-act="skip-all">Skip all</button>' : '';
+  return `${ask}${ask ? '<div class="hm-ask-gap"></div>' : ''}<div class="hm-ask-h"><span class="hm-tmr-k">${escapeHtml(left)}</span><span class="hm-k-right">${skipAll}<span class="hm-k-count">${escapeHtml(countText)}${examText ? `<b class="hm-k-exam">${escapeHtml(examText)}</b>` : ''}</span></span></div>
+    ${examRows ? `<div class="hm-examrows">${examRows}</div>` : ''}
+    <div class="hm-rows">${list.map(c => classRow(c, d, ctx)).join('')}</div>
+    ${joinBtn(cur)}${isToday && !cur && hadOne && gap >= 30 ? `<button type="button" class="hm-link" data-act="rooms">${svg(IC.door)}Free for ${escapeHtml(inMins(gap))}: find a free room</button>` : ''}`;
 }
 
 const CHANGE_TYPES = new Set(['cancellation', 'rescheduled', 'online_class', 'class_test', 'holiday']);
+function compactHead(id, title, count, act, tone = '') {
+  return `<button type="button" class="hm-chead" data-act="${act}"><span class="hm-ico sm" style="--ic:${COLOR[id] || '#64748B'}">${svg(IC[id] || IC.now)}</span><h2>${escapeHtml(title)}</h2>${count ? `<b class="hm-cnt${tone ? ` is-${tone}` : ''}">${count}</b>` : ''}</button>`;
+}
+
+/** One short line for a change: what happened and when. Nothing the subject line already says. */
+function changeLine(a, n, now) {
+  const day = dayWord(fromYmd(n.date), now);
+  const time = n.focus && n.focus.hasTime ? `${String(n.focus.big).replace(/:00$/, '')} ${n.focus.ampm}` : ''; // 11:00 AM -> 11 AM
+  let what = '';
+  switch (a.type) {
+    case 'cancellation': what = 'Cancelled'; break;
+    case 'rescheduled': what = time ? `Moved to ${time}` : 'Moved'; break;
+    case 'online_class': what = time ? `Online, ${time}` : 'Online'; break;
+    case 'class_test': { const nm = String(n.title || '').split(':')[0].trim(); what = nm && nm.toUpperCase() !== String(n.subject || '').toUpperCase() ? nm : 'Class test'; break; }
+    case 'holiday': what = 'No classes'; break;
+    default: what = n.meta.label;
+  }
+  return `${what} · ${day}`;
+}
+
 function changesCard(now) {
   const days = [ymd(now)];
   const f = ymd(focusDay(now));
@@ -185,60 +293,21 @@ function changesCard(now) {
   const ctx = noticeCtx();
   const items = (State.announcementsList || []).filter(a => CHANGE_TYPES.has(a.type) && days.includes(String(a.date_override || '').slice(0, 10)))
     .map(a => ({ a, n: toNotice(a, ctx) }))
+    .filter(({ n }) => { const nd = String(n.date || '').slice(0, 10); return !(nd && (nd < ymd(now) || (nd === ymd(now) && passedToday(now, n.subject, n.focus && n.focus.hasTime ? minOf(`${n.focus.big} ${n.focus.ampm}`) : null)))); }) // what already happened is not news
     .sort((x, y) => String(x.n.date).localeCompare(String(y.n.date)));
-  if (!items.length) return `${cardHead('changes', 'What changed')}<div class="hm-empty">No changes to your routine for ${days.length > 1 ? 'today or the next class day' : 'today'}.</div>`;
-  return `${cardHead('changes', 'What changed', { more: 'Notices', moreAct: 'notices' })}<div class="hm-rows">${items.slice(0, 6).map(({ a, n }) => `
-      <button type="button" class="hm-row" data-act="notice" data-id="${escapeHtml(String(a.id))}">
-        <span class="hm-row-ico tone-${n.tone}">${svg(ICONS[n.tone] || ICONS.general, 1.9)}</span>
-        <span class="hm-row-main"><strong>${escapeHtml(n.headline || n.title)}</strong><span>${escapeHtml(dayWord(fromYmd(n.date), now))}${(n.lines || [])[0] ? ` · ${escapeHtml(n.lines[0])}` : ''}</span></span>
-        ${a.is_unconfirmed ? confirmBadgeHtml('unverified', a.id, 'cf-inline') : ''}
-      </button>`).join('')}</div>`;
-}
-
-function attendanceCard(now) {
-  const start = getSemesterStart(CONFIG.semesterStart);
-  if (!start) return `${cardHead('attendance', 'Attendance')}<div class="hm-empty">Set when your semester started to start tracking.<button type="button" class="hm-btn" data-act="attendance">Set up</button></div>`;
-  const { held, att, stats } = attendanceData(now);
-  const recent = [ymd(now), ymd(addDays(now, -1))];
-  const ask = held.filter(h => recent.includes(h.date) && !att.marks[h.key]).slice(-4).reverse();
-  const risky = stats.filter(s => s.atRisk);
-  const counted = stats.filter(s => s.counted);
-  const unmarked = held.filter(h => !att.marks[h.key]).length;
-  const line = !counted.length ? (unmarked ? `${unmarked} classes since ${fromYmd(start).getDate()} ${MONTHS[fromYmd(start).getMonth()]} to mark. Tap to start.` : 'Mark a class to start your percentages.')
-    : risky.length ? `${risky.map(s => `${s.subject} ${s.pct}%`).join(' · ')} below ${att.min}%`
-    : `All subjects at or above ${att.min}%`;
-  return `${cardHead('attendance', 'Attendance', { more: 'Details', moreAct: 'attendance' })}
-    ${ask.length ? `<p class="hm-att-q">Were you in ${ask.length === 1 ? 'this class' : 'these classes'}?</p><div class="hm-rows">${ask.map(h => `
-      <div class="hm-att">
-        <span class="hm-row-main"><strong>${escapeHtml(h.subject)}</strong><span>${escapeHtml(dayWord(fromYmd(h.date), now))} · ${escapeHtml(format12h(h.start).replace(/^0/, ''))}</span></span>
-        <button type="button" class="hm-att-btn is-yes is-icon" data-act="mark" data-key="${escapeHtml(h.key)}" data-val="present" aria-label="Present at ${escapeHtml(h.subject)}" title="Present">${svg(IC.check, 2.6)}</button>
-        <button type="button" class="hm-att-btn is-no is-icon" data-act="mark" data-key="${escapeHtml(h.key)}" data-val="absent" aria-label="Absent from ${escapeHtml(h.subject)}" title="Absent">${svg(IC.x, 2.6)}</button>
-      </div>`).join('')}</div>` : ''}
-    <button type="button" class="hm-att-sum${risky.length ? ' is-risk' : ''}" data-act="attendance">${escapeHtml(line)}</button>`;
-}
-
-function todayCard(now) {
-  const d = focusDay(now);
-  const word = dayWord(d, now);
-  const list = classesOn(d).sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
-  const isToday = ymd(d) === ymd(now);
-  const nowM = now.getHours() * 60 + now.getMinutes();
-  const nextIdx = isToday ? list.findIndex(c => wasHeld(c) && toMinutes(c.start) > nowM) : list.findIndex(wasHeld);
-  const rows = list.map((c, i) => {
-    let st = '';
-    if (!wasHeld(c)) st = c.isCancelled ? 'Cancelled' : 'Moved';
-    else if (isToday && toMinutes(c.end) <= nowM) st = 'Done';
-    else if (isToday && toMinutes(c.start) <= nowM) st = 'Now';
-    else if (i === nextIdx) st = 'Next';
-    const tags = [isExamClass(c, d) ? 'Test' : '', notesForSubject(c.title).length ? 'Note' : ''].filter(Boolean);
-    return `<button type="button" class="hm-cls${!wasHeld(c) ? ' is-off' : ''}${st === 'Done' ? ' is-done' : ''}${st === 'Now' ? ' is-now' : ''}" data-act="class" data-date="${ymd(d)}" data-title="${escapeHtml(c.title)}" data-start="${escapeHtml(c.start)}">
-        <span class="hm-cls-t">${escapeHtml(format12h(c.start))}</span>
-        <span class="hm-cls-main"><strong>${escapeHtml(c.title)}</strong><span>${escapeHtml((c.isOnline || c.isMovedOnline) ? 'Online' : formatRoom(c.room) ? `Room ${formatRoom(c.room)}` : 'Room TBA')}${tags.length ? ` · ${tags.join(' · ')}` : ''}</span></span>
-        ${st ? `<span class="hm-st is-${st.toLowerCase()}">${st}</span>` : ''}
+  if (!items.length) return `${compactHead('changes', 'Changes', 0, 'notices')}<div class="hm-empty hm-empty-sm">Nothing changed in your routine.</div>`;
+  const shown = items.slice(0, 3);
+  return `${compactHead('changes', 'Changes', items.length, 'notices')}<div class="hm-minis">${shown.map(({ a, n }) => {
+    const head = a.type === 'holiday' ? (String(a.title || '').trim() || 'Campus closed') : (n.subject || n.headline || n.title);
+    return `
+      <button type="button" class="hm-mini" data-act="notice" data-id="${escapeHtml(String(a.id))}">
+        <span class="hm-row-ico sm tone-${n.tone}">${svg(ICONS[n.tone] || ICONS.general, 2)}</span>
+        <span class="hm-mini-t"><strong>${escapeHtml(head)}</strong><span>${escapeHtml(changeLine(a, n, now))}</span></span>
       </button>`;
-  }).join('');
-  return `${cardHead('today', `${word}'s classes`, { more: 'Full day', moreAct: 'day' })}${rows ? `<div class="hm-rows">${rows}</div>` : '<div class="hm-empty">No classes.</div>'}`;
+  }).join('')}${items.length > shown.length ? `<button type="button" class="hm-more-line" data-act="notices">+${items.length - shown.length} more</button>` : ''}</div>`;
 }
+
+let _dueOrder = null; // ids in the order last settled (a refresh clears it): ticking a card does not move it until then
 
 function dueCard(now) {
   const items = [];
@@ -249,31 +318,47 @@ function dueCard(now) {
     let dl = [];
     try { dl = getDeadlinesForDate(ymd(d)); } catch (e) {}
     dl.forEach(item => {
-      if (done.has(String(item.id))) return;
       const n = toNotice(item, ctx);
-      items.push({ id: String(item.id), date: ymd(d), kind: 'Due', title: n.headline || n.title, time: n.focus && n.focus.hasTime ? `${n.focus.big} ${n.focus.ampm}` : '', task: true });
+      const dueMin = n.focus && n.focus.hasTime ? minOf(`${n.focus.big} ${n.focus.ampm}`) : null;
+      if (i === 0 && dueMin !== null && now.getHours() * 60 + now.getMinutes() >= dueMin) return; // its time has passed
+      items.push({ id: String(item.id), date: ymd(d), kind: 'Assignment', title: n.headline || n.title, time: n.focus && n.focus.hasTime ? `${n.focus.big} ${n.focus.ampm}` : '', task: true, done: done.has(String(item.id)) });
     });
   }
   (State.announcementsList || []).filter(a => a.type === 'class_test').forEach(a => {
     const date = String(a.date_override || '').slice(0, 10);
     if (!date || date < ymd(now) || date > ymd(addDays(now, 7))) return;
     const n = toNotice(a, ctx);
-    items.push({ id: String(a.id), date, kind: 'Test', title: n.headline || n.title, time: n.focus && n.focus.hasTime ? `${n.focus.big} ${n.focus.ampm}` : '' });
+    if (date === ymd(now) && passedToday(now, n.subject, n.focus && n.focus.hasTime ? minOf(`${n.focus.big} ${n.focus.ampm}`) : null)) return; // already taken
+    items.push({ id: String(a.id), date, kind: 'Class test', title: n.headline || n.title, time: n.focus && n.focus.hasTime ? `${n.focus.big} ${n.focus.ampm}` : '', done: false });
   });
-  items.sort((a, b) => a.date.localeCompare(b.date));
-  if (!items.length) return `${cardHead('due', 'Due soon')}<div class="hm-empty">Nothing due in the next 7 days.</div>`;
-  const when = date => { const n = daysUntil(date, ymd(now)); return n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : `in ${n} days`; };
-  return `${cardHead('due', 'Due soon')}<div class="hm-rows">${items.slice(0, 6).map(it => `
-      <div class="hm-due">
-        <button type="button" class="hm-row" data-act="notice" data-id="${escapeHtml(it.id)}">
-          <span class="hm-due-when ${daysUntil(it.date, ymd(now)) <= 1 ? 'is-soon' : ''}">${escapeHtml(when(it.date))}</span>
-          <span class="hm-row-main"><strong>${escapeHtml(it.title)}</strong><span>${it.kind}${it.time ? ` · ${escapeHtml(it.time)}` : ''}</span></span>
+  // Open ones first, by date; finished ones go to the end instead of disappearing
+  items.sort((a, b) => (a.done - b.done) || a.date.localeCompare(b.date));
+  if (_dueOrder) {
+    const at = id => { const i = _dueOrder.indexOf(id); return i < 0 ? 999 : i; };
+    items.sort((a, b) => at(a.id) - at(b.id));
+  }
+  _dueOrder = items.map(i => i.id);
+  const open = items.filter(i => !i.done).length;
+  if (!items.length) return `${compactHead('due', 'Due soon', 0, 'notices')}<div class="hm-empty hm-empty-sm">Nothing due this week.</div>`;
+  const when = date => { const n = daysUntil(date, ymd(now)); return n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : `In ${n} days`; };
+  // The count is what is still unchecked: red when any of it is due today or tomorrow, a green tick when all is done
+  const urgent = items.some(i => !i.done && daysUntil(i.date, ymd(now)) <= 1);
+  const countLabel = open ? String(open) : svg(IC.check, 3);
+  return `${compactHead('due', 'Due soon', countLabel, 'notices', open ? (urgent ? 'red' : '') : 'green')}<div class="hm-dscroll" role="list">${items.map(it => {
+    const soon = !it.done && daysUntil(it.date, ymd(now)) <= 1;
+    return `<div class="hm-dcard${it.done ? ' is-done' : ''}${soon ? ' is-soon' : ''}${it.kind === 'Class test' ? ' is-test' : ''}" data-did="${escapeHtml(it.id)}" role="listitem">
+        <button type="button" class="hm-dmain" data-act="notice" data-id="${escapeHtml(it.id)}">
+          <span class="hm-dwhen">${it.done ? 'Done' : escapeHtml(when(it.date))}</span>
+          <strong>${escapeHtml(it.title)}</strong>
+          <span class="hm-dmeta">${it.kind}${it.time ? ` · ${escapeHtml(it.time)}` : ''}</span>
         </button>
-        ${it.task ? `<button type="button" class="hm-tick" data-act="done" data-id="${escapeHtml(it.id)}" aria-label="Mark as done">${svg(IC.check, 2.6)}</button>` : ''}
-      </div>`).join('')}</div>`;
+        ${it.task ? `<button type="button" class="hm-dtick${it.done ? ' is-on' : ''}" data-act="done" data-id="${escapeHtml(it.id)}" aria-pressed="${it.done}" aria-label="${it.done ? 'Mark as not done' : 'Mark as done'}">${svg(IC.check, 2.6)}<span>${it.done ? 'Undo' : 'Done'}</span></button>` : `<span class="hm-dflag">${svg(IC.exams)}Test</span>`}
+      </div>`;
+  }).join('')}</div>${items.length > 1 ? `<div class="hm-dots" role="presentation">${items.map((_, i) => `<i class="${i === 0 ? 'is-on' : ''}"></i>`).join('')}</div>` : ''}`;
 }
 
-function examsCard(now) {
+/** Every upcoming exam: class tests from notices plus the student's own, soonest first. */
+function collectExams(now) {
   const ctx = noticeCtx();
   const tests = (State.announcementsList || []).filter(a => a.type === 'class_test').map(a => {
     const n = toNotice(a, ctx);
@@ -281,19 +366,37 @@ function examsCard(now) {
     try { const j = typeof a.announcement === 'string' ? JSON.parse(a.announcement) : (a.announcement || {}); if (j && j.exam_name) name = String(j.exam_name).trim() || name; } catch (e) {}
     return { id: a.id, subject: n.subject || a.subject_override || a.subject, date: String(a.date_override || '').slice(0, 10), name, time: n.focus && n.focus.hasTime ? `${n.focus.big} ${n.focus.ampm}` : '' };
   });
-  const list = upcomingExams(listOwnExams(), tests, ymd(now));
+  return upcomingExams(listOwnExams(), tests, ymd(now)).filter(e => !(e.date === ymd(now) && passedToday(now, e.subject, minOf(e.time))));
+}
+
+function examsCard(now) {
+  const list = collectExams(now);
   const add = `<button type="button" class="hm-more" data-act="add-exam">${svg(IC.plus, 2.4)}Add</button>`;
-  if (!list.length) return `${cardHead('exams', 'Exam countdown', { right: add })}<div class="hm-empty">No exams coming up. Add your midterm and final dates.</div>`;
+  if (!list.length) return `${cardHead('exams', 'Exams', { right: add })}<div class="hm-xempty"><span>${svg(IC.exams, 1.8)}</span><p>No exams coming up. Add your midterm and final dates and the countdown shows here.</p></div>`;
   const [first, ...rest] = list;
   const days = daysUntil(first.date, ymd(now));
-  const big = days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : `${days} days`;
   const rowAct = e => (e.source === 'notice' ? `data-act="notice" data-id="${escapeHtml(String(e.noticeId))}"` : `data-act="edit-exam" data-id="${escapeHtml(e.id)}"`);
-  return `${cardHead('exams', 'Exam countdown', { right: add })}
-    <button type="button" class="hm-exam-big" ${rowAct(first)}>
-      <span class="hm-exam-n">${escapeHtml(big)}</span>
-      <span class="hm-row-main"><strong>${escapeHtml(first.subject)} · ${escapeHtml(first.label)}</strong><span>${escapeHtml(fullName(first.subject) || '')}${fullName(first.subject) ? ' · ' : ''}${escapeHtml(DAY_NAMES[fromYmd(first.date).getDay()])} ${fromYmd(first.date).getDate()} ${MONTHS[fromYmd(first.date).getMonth()]}${first.time ? ` · ${escapeHtml(first.time)}` : ''}</span></span>
+  const fd = fromYmd(first.date);
+  const count = days === 0 ? ['Today', ''] : days === 1 ? ['1', 'day left'] : [String(days), 'days left'];
+  const inText = n => (n <= 0 ? 'Today' : n === 1 ? 'Tomorrow' : `in ${n}d`);
+  const soon = days <= 3;
+  return `${cardHead('exams', 'Exams', { right: add })}
+    <button type="button" class="hm-xhero${soon ? ' is-soon' : ''}" ${rowAct(first)}>
+      <span class="hm-xcount${count[1] ? '' : ' is-word'}"><b>${escapeHtml(count[0])}</b>${count[1] ? `<i>${count[1]}</i>` : ''}</span>
+      <span class="hm-xmain">
+        <strong>${escapeHtml(first.subject)}</strong>
+        <span>${escapeHtml(first.label)} · ${escapeHtml(DAY_NAMES[fd.getDay()])} ${fd.getDate()} ${escapeHtml(MONTHS[fd.getMonth()])}${first.time ? ` · ${escapeHtml(first.time)}` : ''}</span>
+        ${fullName(first.subject) ? `<em>${escapeHtml(fullName(first.subject))}</em>` : ''}
+      </span>
     </button>
-    ${rest.length ? `<div class="hm-rows">${rest.slice(0, 4).map(e => `<button type="button" class="hm-row" ${rowAct(e)}><span class="hm-due-when">${daysUntil(e.date, ymd(now))}d</span><span class="hm-row-main"><strong>${escapeHtml(e.subject)} · ${escapeHtml(e.label)}</strong><span>${escapeHtml(DAY_NAMES[fromYmd(e.date).getDay()])} ${fromYmd(e.date).getDate()} ${MONTHS[fromYmd(e.date).getMonth()]}</span></span></button>`).join('')}</div>` : ''}`;
+    ${rest.length ? `<div class="hm-xlist">${rest.slice(0, 3).map(e => {
+      const d = fromYmd(e.date);
+      return `<button type="button" class="hm-xrow" ${rowAct(e)}>
+        <span class="hm-xdate"><b>${d.getDate()}</b><i>${escapeHtml(MONTHS[d.getMonth()].slice(0, 3))}</i></span>
+        <span class="hm-xt"><strong>${escapeHtml(e.subject)} · ${escapeHtml(e.label)}</strong><span>${escapeHtml(DAY_NAMES[d.getDay()])}${e.time ? ` · ${escapeHtml(e.time)}` : ''}</span></span>
+        <span class="hm-xin">${inText(daysUntil(e.date, ymd(now)))}</span>
+      </button>`;
+    }).join('')}</div>${rest.length > 3 ? `<p class="hm-xmore">+${rest.length - 3} more exams</p>` : ''}` : ''}`;
 }
 
 function teachersCard(now) {
@@ -352,26 +455,13 @@ function suggestionsCard() {
   }).join('')}</div>`;
 }
 
-function notesCard() {
-  const notes = listNotes({ openOnly: true });
-  const add = `<button type="button" class="hm-more" data-act="add-note">${svg(IC.plus, 2.4)}Add</button>`;
-  if (!notes.length) return `${cardHead('notes', 'Notes', { right: add })}<div class="hm-empty">Jot down a task for a class, like "bring the lab report".</div>`;
-  return `${cardHead('notes', 'Notes', { right: add })}<div class="hm-rows">${notes.slice(0, 5).map(n => `
-      <div class="hm-note">
-        <button type="button" class="hm-check" data-act="note-done" data-id="${n.id}" aria-label="Mark as done">${svg(IC.check, 2.6)}</button>
-        <button type="button" class="hm-row" data-act="edit-note" data-id="${n.id}">
-          <span class="hm-row-main"><strong>${escapeHtml(n.text)}</strong><span>${escapeHtml([n.subject, n.date ? `${DAY_NAMES[fromYmd(n.date).getDay()]} ${fromYmd(n.date).getDate()} ${MONTHS[fromYmd(n.date).getMonth()]}` : ''].filter(Boolean).join(' · ') || 'General')}</span></span>
-        </button>
-      </div>`).join('')}</div>`;
-}
-
 function actionsCard() {
   const a = [['rooms', IC.door, 'Free rooms'], ['faculty', IC.search, 'Find a teacher'], ['routine', IC.grid, 'Weekly routine'], ['suggest', IC.bulb, 'Suggest'],
-    ['notif', IC.notices, 'Notifications'], ['attendance', IC.attendance, 'Attendance'], ['add-exam', IC.exams, 'Add exam'], ['add-note', IC.notes, 'Add note']];
-  return `${cardHead('actions', 'Quick actions')}<div class="hm-actions">${a.map(([act, ic, label]) => `<button type="button" class="hm-action" data-act="${act}"><span>${svg(ic)}</span>${escapeHtml(label)}</button>`).join('')}</div>`;
+    ['notif', IC.notices, 'Alerts'], ['attendance', IC.attendance, 'Attendance'], ['notes', IC.notes, 'Notes'], ['add-exam', IC.exams, 'Add exam']];
+  return `${cardHead('actions', 'Quick actions')}<div class="hm-qa">${a.map(([act, ic, label]) => `<button type="button" class="hm-action" data-act="${act}"><span>${svg(ic)}</span>${escapeHtml(label)}</button>`).join('')}</div>`;
 }
 
-const RENDER = { header: headerCard, now: nowCard, changes: changesCard, attendance: attendanceCard, today: todayCard, due: dueCard, exams: examsCard, teachers: teachersCard, notices: noticesCard, suggestions: suggestionsCard, notes: notesCard, actions: actionsCard };
+const RENDER = { header: headerCard, now: nowCard, changes: changesCard, due: dueCard, exams: examsCard, teachers: teachersCard, notices: noticesCard, suggestions: suggestionsCard, actions: actionsCard };
 
 /* ── Shell, render, edit mode ─────────────────────────────────────────────── */
 let _editing = false;
@@ -411,7 +501,11 @@ export function renderHome(force = false) {
     if (_editing && layout.hidden.includes(id)) { setHtmlIfChanged(body, ''); return; }
     let html = '';
     try { html = RENDER[id](now); } catch (e) { console.warn('Home card failed:', id, e); html = '<div class="hm-empty">Could not load this card.</div>'; }
-    if (setHtmlIfChanged(body, html) && fade && body.animate) body.animate([{ opacity: 0.4 }, { opacity: 1 }], { duration: 200, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+    const pager = id === 'due' ? body.querySelector('.hm-dscroll') : null;
+    const keepLeft = pager ? pager.scrollLeft : 0;
+    const changedBody = setHtmlIfChanged(body, html);
+    if (changedBody && pager && keepLeft) { const np = body.querySelector('.hm-dscroll'); if (np) { np.scrollLeft = keepLeft; syncDots(np); } }
+    if (changedBody && fade && body.animate) body.animate([{ opacity: 0.4 }, { opacity: 1 }], { duration: 200, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
   });
 }
 
@@ -427,6 +521,30 @@ function openClass(date, title, start) {
   const c = classesOn(d).find(x => x.title === title && String(x.start) === String(start));
   if (c) showClassDetails(detailFor(c, d));
 }
+
+/** Dots under the Due soon pager: the dot of the card in view is the long one. */
+function syncDots(scroller) {
+  if (!scroller) return;
+  const first = scroller.firstElementChild;
+  const step = first ? first.offsetWidth + 10 : 0;
+  const idx = step ? Math.min(scroller.children.length - 1, Math.round(scroller.scrollLeft / step)) : 0;
+  const dots = scroller.parentElement && scroller.parentElement.querySelectorAll('.hm-dots i');
+  if (dots) dots.forEach((d, i) => d.classList.toggle('is-on', i === idx));
+}
+
+/** Mark an assignment done (or undo). The card stays where it is, only greyed; it moves to the end on the next refresh. */
+function markDueDone(id) {
+  _fadeNext = false;
+  const nowDone = toggleDeadlineDone(id);
+  renderHome();
+  const card = document.querySelector(`.hm-dcard[data-did="${CSS.escape(String(id))}"]`);
+  const next = document.querySelector('.hm-dscroll');
+  if (next) syncDots(next);
+  if (card && card.animate && document.documentElement.dataset.motion !== 'off') card.animate([{ opacity: nowDone ? 1 : 0.55 }, { opacity: nowDone ? 0.55 : 1 }], { duration: 320, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+}
+
+/** A real refresh (pull down, coming back to Home, reopening the app): finished cards settle at the end. */
+function settleDue() { _dueOrder = null; }
 
 async function onAct(act, el) {
   const view = v => window.switchAppView && window.switchAppView(v);
@@ -450,13 +568,13 @@ async function onAct(act, el) {
     case 'settings': return document.getElementById('editBtn')?.click();
     case 'calendar': view('day'); return window.openCalendarPicker && window.openCalendarPicker();
     case 'attendance': return window.__openAttendance && window.__openAttendance();
+    case 'mark': setMark(el.dataset.key, el.dataset.val); _markedAt[el.dataset.key] = Date.now(); clearTimeout(_markTimer); _markTimer = setTimeout(() => renderHome(), MARK_SHOW_MS + 150); return renderHome();
+    case 'skip-all': { const now = new Date(); pendingToday(now, attendanceByTitle()).forEach(x => setSkipped(x.key, true)); return renderHome(); }
+    case 'att-subject': return window.__openAttendance && window.__openAttendance('', el.dataset.subject);
+    case 'notes': return window.__openNotes && window.__openNotes();
     case 'teacher': return openTeacherDetailByCode(el.dataset.code);
-    case 'mark': setMark(el.dataset.key, el.dataset.val); return renderHome();
-    case 'done': setDeadlineDoneFlag(el.dataset.id); return renderHome();
+    case 'done': return markDueDone(el.dataset.id);
     case 'vote': { const pending = Suggestions.vote(el.dataset.id, Number(el.dataset.val)); renderHome(); await pending; return renderHome(); } // show the vote at once (optimistic), settle after the server answers
-    case 'note-done': toggleNote(el.dataset.id); return renderHome();
-    case 'add-note': return openNoteSheet(null, renderHome);
-    case 'edit-note': return openNoteSheet(el.dataset.id, renderHome);
     case 'add-exam': return openExamSheet(null, renderHome);
     case 'edit-exam': return openExamSheet(el.dataset.id, renderHome);
     case 'edit': return setEditing(true);
@@ -583,12 +701,16 @@ export function initHome() {
     end: () => dragEnd()
   });
 
+  // The Due soon pager: its dots follow the card in view (scroll does not bubble, so listen while capturing)
+  root.addEventListener('scroll', e => { const t = e.target; if (t && t.classList && t.classList.contains('hm-dscroll')) syncDots(t); }, true);
+
   window.__renderHome = renderHome;
+  window.__homeRefresh = () => { settleDue(); renderHome(true); };
   // Minute tick while Home is visible (the clock, now/next, countdowns)
   setInterval(() => {
     if (document.hidden || (window.__currentAppViewId || 'home') !== 'home' || _editing) return;
     renderHome();
   }, 20000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && (window.__currentAppViewId || 'home') === 'home') renderHome(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && (window.__currentAppViewId || 'home') === 'home') { settleDue(); renderHome(); } });
   renderHome(true);
 }

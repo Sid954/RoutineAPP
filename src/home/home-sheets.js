@@ -4,7 +4,6 @@ import { Storage } from '../storage/storage.js';
 import { escapeHtml } from '../core/utils.js';
 import { openModal, closeModal } from '../modals/modal.js';
 import { showToast } from '../toast/toast.js';
-import { addNote, updateNote, removeNote, listNotes } from '../notes/notes-store.js';
 import { addExam, removeExam, listOwnExams, EXAM_KINDS } from '../exams/exams-store.js';
 import { Suggestions } from '../announcements/suggestions.js';
 
@@ -33,43 +32,6 @@ function subjects() {
   return [...set].sort();
 }
 const opts = (list, sel, blank) => `${blank ? `<option value="">${blank}</option>` : ''}${list.map(s => `<option value="${escapeHtml(s)}"${s === sel ? ' selected' : ''}>${escapeHtml(s)}</option>`).join('')}`;
-
-export function openNoteSheet(id, onChange) {
-  const note = id ? listNotes().find(n => n.id === id) : null;
-  sheet();
-  const body = document.getElementById('hmSheetBody');
-  body.innerHTML = `
-    <h2 class="hm-sheet-title" id="hmSheetTitle">${note ? 'Note' : 'New note'}</h2>
-    <label class="hm-field"><span>What to remember</span><textarea id="hmNoteText" rows="3" maxlength="500" placeholder="Bring the lab report">${note ? escapeHtml(note.text) : ''}</textarea></label>
-    <div class="hm-field-row">
-      <label class="hm-field"><span>Class</span><select id="hmNoteSubj">${opts(subjects(), note ? note.subject : '', 'General')}</select></label>
-      <label class="hm-field"><span>Date (optional)</span><input type="date" id="hmNoteDate" value="${note ? escapeHtml(note.date || '') : ''}"></label>
-    </div>
-    <div class="hm-sheet-actions">
-      <button type="button" class="hm-btn is-wide" data-sheet="save">Save</button>
-      <button type="button" class="hm-btn is-ghost is-wide" data-sheet="share">Share with my section</button>
-      ${note ? '<button type="button" class="hm-btn is-danger is-wide" data-sheet="delete">Delete</button>' : ''}
-    </div>
-    <p class="hm-sheet-note">Notes stay on this phone. Sharing sends it to your section as a suggestion they can vote on.</p>`;
-  const val = () => ({ text: document.getElementById('hmNoteText').value, subject: document.getElementById('hmNoteSubj').value, date: document.getElementById('hmNoteDate').value });
-  body.onclick = async e => {
-    const b = e.target.closest('[data-sheet]');
-    if (!b) return;
-    const v = val();
-    if (b.dataset.sheet === 'delete') { removeNote(note.id); close(); onChange && onChange(); return; }
-    if (!v.text.trim()) { document.getElementById('hmNoteText').focus(); return; }
-    let saved = note ? updateNote(note.id, { text: v.text.trim(), subject: v.subject, date: v.date }) : addNote(v);
-    if (b.dataset.sheet === 'share') {
-      b.disabled = true;
-      const r = await Suggestions.suggest({ name: Storage.getDisplayName() || 'Classmate', title: v.text.trim().slice(0, 80), announcement: v.text.trim(), type: 'general', subject: v.subject, date_override: v.date, semester: Storage.getSemester(), section: Storage.getSection() });
-      b.disabled = false;
-      showToast(r.ok ? 'Shared with your section as a suggestion' : (r.duplicateId ? 'Someone already suggested this' : (r.error || 'Could not share it now')), r.ok ? 'success' : 'warning');
-    }
-    if (saved) { close(); onChange && onChange(); }
-  };
-  openModal(_el);
-  setTimeout(() => { if (!note) document.getElementById('hmNoteText')?.focus({ preventScroll: true }); }, 350);
-}
 
 export function openExamSheet(id, onChange) {
   const exam = id ? listOwnExams().find(e => e.id === id) : null;
