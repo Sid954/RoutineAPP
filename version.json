@@ -1,8 +1,8 @@
 {
-  "versionCode": 36,
-  "versionName": "1.5.26",
+  "versionCode": 37,
+  "versionName": "1.5.27",
   "apkUrl": "https://routine-app-iota-one.vercel.app/api/app-update?download=1",
   "downloadUrl": "https://github.com/sid954/RoutineAPP/releases",
-  "releaseNotes": "v1.5.26 - A brand-new Home with everything at a glance, attendance tracking, notes, exam countdown, and the full day timeline on the center button.",
+  "releaseNotes": "v1.5.27 - A full Notes app with checklists, tags, colours, archive, trash and backup. Home improvements: attendance check-ins right on the Classes card, a redesigned exam countdown, swipeable due-soon cards, and exam days flagged in red. Posting is safer with a 'Suggest it instead' fallback, plus a deeper dark theme.",
   "minRequiredVersionCode": 1
 }

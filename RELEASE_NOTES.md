@@ -1,26 +1,24 @@
-# v1.5.26
+# v1.5.27
 
-## A brand-new Home
-Home is now a set of cards that show what matters right now:
-- **Now / Next:** your current class with time left, or your next class with a countdown, room and teacher. Online classes get a Join button, and long breaks offer a free room.
-- **What changed:** cancellations, online classes, moved classes, tests and holidays for today and the next class day.
-- **Attendance:** after each class, tap the tick or cross to say if you were there.
-- **Today's classes, Due soon, Exam countdown, Today's teachers** (with email), **Unread notices, Suggestions to vote** (vote right on the card), **Notes** and **Quick actions**.
-- **Make it yours:** press and hold any card (or tap "Edit Home" at the bottom) to drag cards into your order or switch them off.
-- In the evening and on days off, Home shows your next class day.
+## A full Notes app
+Notes is now a real notes app, opened from the Notes button on Home or from Apps:
+- Notes and checklists, with a full-screen editor that saves as you type.
+- Pin, archive, 8 colours, a class label and your own tags; filter chips, search and sort; grid or list view.
+- Optional date and time on a note, trash with 30-day recovery and Undo, share, copy, duplicate or turn a note into a checklist.
+- Export a backup file and import it on another phone. Your old to-dos move over automatically.
 
-## The full day is on the center button
-The big button in the middle of the bar now opens the full day timeline, with the week strip, swiping between days and the notification bell.
+## Home improvements
+- **Classes card:** every class row shows your attendance % for that subject. After a class ends, the % becomes a Present / Absent checker until you answer (unmarked counts as absent). Tap a % to open that subject's attendance page.
+- **Due soon:** one card at a time — swipe between assignments and tests, with dots showing how many. The badge turns red when something unchecked is due today or tomorrow, and green when everything is done.
+- **Exams:** a redesigned countdown with a big days-left tile, the next exams listed under it, and a clear empty state.
+- **Exam days are flagged:** the header counts exams, class rows with an exam turn red with an EXAM tag, and exams that aren't class slots get a banner.
+- Things that already happened (this morning's test, a past assignment) disappear from the cards instead of lingering.
+- In the evening, Notices puts Tomorrow above a folded Today.
 
-## Attendance
-- See every subject's percentage, how many more classes you can miss, or how many you need in a row to get back above 75%.
-- A calendar shows every class since the semester started (2 November). Tap a date to mark it present or absent.
-- You can enter starting counts, change the minimum percentage, and set your own semester start date.
-- At 8:30 PM a reminder asks you to mark the day (change or turn it off in Notifications, Daily summary).
+## Safer posting
+- Wrong announcement password? After the first miss you get a "Suggest it instead" box that sends it as a section suggestion for voting — no password needed.
+- Repeated wrong passwords lock posting for a few minutes (with a countdown) instead of letting you guess forever.
 
-## Notes and exams
-- Add notes for a class ("bring the lab report"). Notes stay on your phone, or share one with your section as a suggestion.
-- Add midterm and final dates for a countdown. Class tests from notices appear on their own.
-
-## Fixed
-- The back button now closes the Attendance and Notifications pages and every bottom sheet.
+## Looks
+- The dark theme is a little deeper and easier on the eyes at night.
+- Night stars on Home are slightly brighter.

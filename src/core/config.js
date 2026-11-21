@@ -1,8 +1,8 @@
 export const CONFIG = {
   apiBase: 'https://routine-app-iota-one.vercel.app',
   remoteAppUrl: 'https://sid954.github.io/RoutineAPP',
-  appVersionCode: 36,
-  appVersionName: '1.5.26',
+  appVersionCode: 37,
+  appVersionName: '1.5.27',
   activeDays: [6, 0, 1, 2, 3], // Sat, Sun, Mon, Tue, Wed
   semesterStart: '2026-11-02', // first day of classes; remote config.json can change it, the Attendance page can override per phone
   matrixIntervals: [
